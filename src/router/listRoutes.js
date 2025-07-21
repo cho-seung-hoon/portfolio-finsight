@@ -1,11 +1,15 @@
 const listRoutes = [
   {
-    path: '/list',
-    name: 'list',
+    path: '/list/:category',
+    name: 'list-category',
     component: () => import('../pages/ListPage.vue')
     // meta: {
     //     requiresAuth: true,
     // },
+  },
+  {
+    path: '/list',
+    redirect: '/list/deposits'
   }
 ];
 
