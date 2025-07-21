@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="test">hihi</div>
+  <div class="box1">
+    <exchangeRate/>
   </div>
 </template>
 
@@ -8,6 +8,7 @@
 import { onMounted } from 'vue';
 import { useHeaderStore } from '@/stores/header';
 import { onBeforeRouteLeave } from 'vue-router';
+import ExchangeRate from '@/components/exchangeRate.vue';
 
 const headerStore = useHeaderStore();
 
@@ -26,9 +27,8 @@ onBeforeRouteLeave((to, from) => {
 </script>
 
 <style scoped>
-.test {
-  width: 100%;
-  height: 2000px;
-  background-color: aqua;
+.box1{
+  margin:20px 0;
 }
+
 </style>

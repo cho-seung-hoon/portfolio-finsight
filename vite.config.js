@@ -11,6 +11,16 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server:{
+    proxy : {
+      '/exchange':{
+        target: 'https://oapi.koreaexim.go.kr',
+        changeOrigin: true,
+        secure: false,
+        rewrite: path => path.replace(/^\/exchange/, '/site/program/financial/exchangeJSON'),
+      }
+    }
   }
   // option - server
   // server: {
