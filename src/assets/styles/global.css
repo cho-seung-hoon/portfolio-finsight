@@ -1,0 +1,47 @@
+:root {
+  --main01: #192440;
+  --main02: #757c8c;
+  --main03: #d1d3d9;
+  --main04: #f1f2f4;
+  --main05: #fcfcfd;
+
+  --sub01: #fa8772;
+  --sub02: #fee7e3;
+
+  --black: #000000;
+  --white: #ffffff;
+
+  --off-white: #f8f9fa;
+  --off-black: #121212;
+
+  --text-red: #d32f2f;
+  --text-blue: #1976d2;
+
+  --red01: #ec3a5a;
+  --red02: #ffe6ea;
+
+  --orange01: #fb8233;
+  --orange02: #fedac2;
+
+  --yellow01: #fab809;
+  --yellow02: #feeab5;
+
+  --green01: #21bf6b;
+  --green02: #bcecd3;
+
+  --mint01: #10b9b2;
+  --mint02: #b7eae8;
+
+  --font-size-sm: 12px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
+
+  --font-weight-right: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semi-bold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extra-bold: 800;
+}
