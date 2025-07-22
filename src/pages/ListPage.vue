@@ -2,7 +2,7 @@
   <ListTab />
   <div class="page-content">
     <div v-if="category === 'deposits'">
-      <ListDepositPage />
+      <ListDepositsPage />
     </div>
     <div v-else-if="category === 'fund'">
       <ListFundPage />
@@ -18,7 +18,7 @@
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 import ListTab from '@/components/list/ListTab.vue';
-import ListDepositPage from './list/ListDepositPage.vue';
+import ListDepositsPage from './list/ListDepositsPage.vue';
 import ListFundPage from './list/ListFundPage.vue';
 import ListEtfPage from './list/ListEtfPage.vue';
 

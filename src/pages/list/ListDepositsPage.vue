@@ -1,5 +1,5 @@
 <template>
-  <div class="list-deposit-page-container">
+  <div class="list-deposits-page-container">
     <DepositsItem></DepositsItem>
     <DepositsItem></DepositsItem>
     <DepositsItem></DepositsItem>
@@ -12,7 +12,7 @@ import DepositsItem from '@/components/list/DepositsItem.vue';
 </script>
 
 <style scoped>
-.list-deposit-page-container {
+.list-deposits-page-container {
   display: flex;
   flex-direction: column;
   width: 100%;
