@@ -1,6 +1,4 @@
 <template>
-  <div class="subtitle">현재 환율</div>
-
   <div class="subBox">
     <div class="subItem" v-for="(item, index) in filterData" :key="index">
       <div class="subItem-title"> {{ item.cur_nm }}  {{ item.cur_unit }} </div>
@@ -50,11 +48,6 @@ onMounted(() => {
 });
 </script>
 <style scoped>
-.subtitle {
-  margin: 15px 0px;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semi-bold);
-}
 .subBox {
   margin: 15px 0px;
   display: flex;
