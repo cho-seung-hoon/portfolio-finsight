@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="list-fund-page-container">
     <FundItem></FundItem>
     <FundItem></FundItem>
     <FundItem></FundItem>
@@ -13,8 +13,10 @@ import FundItem from '@/components/list/FundItem.vue';
 </script>
 
 <style scoped>
-.container {
+.list-fund-page-container {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  background-color: pink;
+  gap: 8px;
 }
 </style>

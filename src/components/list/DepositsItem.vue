@@ -8,8 +8,14 @@
       <div class="deposits-item-sub-title">수협은행</div>
     </section>
     <section class="deposits-item-content-section">
-      <span>기간: 1년</span>
-      <span>최고 2.80%, 기본 1.2%</span>
+      <div class="info-row">
+        <span class="label">수익률</span>
+        <span class="value">37.31% (3개월)</span>
+      </div>
+      <div class="info-row">
+        <span class="label">위험등급</span>
+        <span class="value">1</span>
+      </div>
     </section>
   </section>
 </template>
@@ -56,6 +62,28 @@ import IconHeartStroke from '../icons/IconHeartStroke.vue';
 .deposits-item-content-section {
   display: flex;
   flex-direction: column;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  color: var(--main01);
+  gap: 4px;
+}
+
+.info-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.label {
+  width: 80px;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  color: var(--main01);
+  flex-shrink: 0;
+}
+
+.value {
+  font-size: 20px;
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-regular);
   color: var(--main01);
