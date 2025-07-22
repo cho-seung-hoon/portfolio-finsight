@@ -34,11 +34,11 @@ const getCountryCode = (curUnit) => {
 const fetchData = async () => {
   try{
     const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
-    const data = await get({ 'authkey' : apiKey, 'data' : 'AP01'});
+    const data = await get({ 'authkey' : apiKey, 'data' : 'AP01', 'searchdate' : '20250721'});
 
     const targetCurrencies = ['CNH', 'EUR', 'JPY(100)', 'USD', 'THB'];
     filterData.value = data.filter(item => targetCurrencies.includes(item.cur_unit));
-
+    console.log("test - test01");
     console.log(filterData);
   } catch (error){
     console.error("error");
