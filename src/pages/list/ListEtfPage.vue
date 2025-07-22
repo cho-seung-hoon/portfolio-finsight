@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="list-etf-page-container">
     <EtfItem></EtfItem>
     <EtfItem></EtfItem>
     <EtfItem></EtfItem>
@@ -12,8 +12,10 @@ import EtfItem from '@/components/list/EtfItem.vue';
 </script>
 
 <style scoped>
-.container {
+.list-etf-page-container {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  background-color: pink;
+  gap: 8px;
 }
 </style>
