@@ -51,14 +51,14 @@ import IconHeartStroke from '../icons/IconHeartStroke.vue';
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-semi-bold);
   color: var(--main01);
 }
 
 .fund-item-sub-title {
   display: flex;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
   color: var(--main02);
 }
@@ -77,7 +77,7 @@ import IconHeartStroke from '../icons/IconHeartStroke.vue';
 
 .label {
   width: 80px;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
   color: var(--main01);
   flex-shrink: 0;
@@ -85,7 +85,7 @@ import IconHeartStroke from '../icons/IconHeartStroke.vue';
 
 .value {
   font-size: 20px;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
   color: var(--main01);
 }

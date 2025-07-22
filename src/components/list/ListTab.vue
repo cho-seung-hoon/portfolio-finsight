@@ -53,7 +53,7 @@ function goToTab(category) {
   text-align: center;
   padding: 16px 0px;
   font-weight: var(--font-weight-regular);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   color: var(--main02);
   position: relative;
   cursor: pointer;
