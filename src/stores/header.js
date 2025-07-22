@@ -5,6 +5,7 @@ const defaultState = {
   showBackButton: false,
   actions: [],
   showBorder: true,
+  stickyHeader: false
   // {icon:'search', handler: () => console.log('검색')}, {icon:'watch', handler: () => console.log('관심')}
 };
 export const useHeaderStore = defineStore('header', {
@@ -15,6 +16,7 @@ export const useHeaderStore = defineStore('header', {
       this.showBackButton = options.showBackButton ?? this.showBackButton;
       this.actions = options.actions || this.actions;
       this.showBorder = options.showBorder ?? this.showBorder;
+      this.stickyHeader = options.stickyHeader ?? this.stickyHeader;
     },
     resetHeader() {
       this.$patch(defaultState); // 스토어를 기본 상태로 되돌립니다.

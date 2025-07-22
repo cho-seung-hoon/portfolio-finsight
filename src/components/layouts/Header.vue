@@ -13,7 +13,7 @@
         {{ part.text }}
       </span>
     </div>
-    <div class="actions">
+    <div class="actions" v-if="headerStore.actions.length > 0">
       <div v-for="(action, index) in headerStore.actions"
            :key="index"
            @click="action.handler">
@@ -24,11 +24,12 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useHeaderStore } from '@/stores/header';
 import { useRouter } from 'vue-router';
 import IconSearch from '@/components/icons/IconSearch.vue';
 import IconWatch from '@/components/icons/IconWatch.vue';
-import { computed } from 'vue';
+
 
 const router = useRouter();
 const headerStore = useHeaderStore();
@@ -44,9 +45,10 @@ const iconComponents = {
 </script>
 
 <style scoped>
+
 .container {
   display: flex;
-  align-content: center;
+  align-items: center;
   width: 100%;
   height: 56px;
   background-color: var(--main05);
@@ -62,6 +64,7 @@ const iconComponents = {
   align-items: center;
 }
 .title {
+  min-width: 0px;
   flex: 1;
   padding: 0 20px;
   font-size: var(--font-size-md);

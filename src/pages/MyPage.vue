@@ -16,7 +16,6 @@
 </template>
 
 <script setup>
-// 스크립트 코드는 이전과 동일합니다.
 import { onMounted } from 'vue';
 import { useHeaderStore } from '@/stores/header';
 import { onBeforeRouteLeave } from 'vue-router';

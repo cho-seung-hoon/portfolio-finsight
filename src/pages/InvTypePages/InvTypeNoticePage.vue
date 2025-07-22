@@ -8,10 +8,10 @@
     component: InvTypeNoticePage
 -->
 <template>
-<header class="container">
+<div class="container">
     <h2 class="title">금융소비자 구분 안내</h2><hr>
-</header>
-<body>
+</div>
+<div>
     <section class="section">
         <h3>전문소비자 개요</h3><br>
         <p>금융투자상품에 관한 전문성 구비, 소유자산 규모 등에 비추어 투자에 따른 위험을 감수할 수 있는 투자자로 자본시장과 금융투자업에 관한 법률에서 정한자를 말하며, 전문 금융소비자로 등록되는 경우 일반투자자에게 적용되는 적정성·적합성 설명 의무가 면제됩니다.</p>
@@ -50,11 +50,11 @@
             </li>
         </ul>
     </section>
-</body>
+</div>
 
-<footer>
+<div>
     <button class="next-button" @click="backToPrevious">확인</button>
-</footer>
+</div>
 </template>
 
 <script setup>
@@ -68,7 +68,8 @@ const backToPrevious = () => {
 }
 </script>
 
-<style setup>
+<style scoped>
+
 .container {
     margin: 0 auto;
     padding: 24px;
@@ -78,7 +79,7 @@ const backToPrevious = () => {
 .title {
     color: black;
     display: flex;
-    font-size: var(--font-size-xl); 
+    font-size: var(--font-size-xl);
     background-color: var(--main05);
 }
 .section {

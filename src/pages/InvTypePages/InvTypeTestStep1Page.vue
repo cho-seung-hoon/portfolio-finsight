@@ -9,10 +9,10 @@
 -->
 <template>
 <div class="container">
-    <header>
+    <div>
         <h1 class="title">투자성향분석</h1><hr>
-    </header>
-    <body>
+    </div>
+    <div>
         <br><br>
         <section class="section">
             <h2 class="sub-title">고객님의 금융소비자 유형을 선택해주세요.</h2><br>
@@ -41,10 +41,10 @@
                 <button :class="['button', { active: hasLoan === true }]" @click="hasLoan = true">예</button>
             </div>
         </section>
-    </body>
-    <footer>
+    </div>
+    <div>
         <button class="next-button" @click="goToNext">다음으로</button>
-    </footer>
+    </div>
 </div>
 </template>
 
@@ -62,7 +62,8 @@ const goToNext = () => {
 }
 </script>
 
-<style setup>
+<style scoped>
+
 .container {
     margin: 0 auto;
     padding: 24px;
@@ -72,12 +73,12 @@ const goToNext = () => {
 .title {
     color: black;
     display: flex;
-    font-size: var(--font-size-xl); 
+    font-size: var(--font-size-xl);
     background-color: var(--main05);
 }
 .sub-title{
     color: black;
-    font-size: var(--font-size-xl); 
+    font-size: var(--font-size-xl);
 }
 .section {
     margin-bottom: 30px;
@@ -115,7 +116,7 @@ margin-left: 30px;
     width: 400px;
     font-family: sans-serif;
     font-weight: bold;
-    font-size: var(--font-size-lg); 
+    font-size: var(--font-size-lg);
     color: #8c8c8c;
     background-color: var(--main05);
     cursor: pointer;
@@ -146,4 +147,6 @@ margin-left: 30px;
     font-size: var(--font-size-xl);
     cursor: pointer;
 }
+
+
 </style>
