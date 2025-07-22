@@ -35,6 +35,7 @@ import NavBar from './NavBar.vue';
 
 .content-container {
   flex: 1;
+  position:relative;
   padding: 0 20px;
 }
 
