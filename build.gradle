@@ -1,0 +1,132 @@
+plugins {
+  id 'java'
+  id 'war'
+}
+
+group 'com.finsight.backend'
+version '1.0-SNAPSHOT'
+
+repositories {
+  mavenCentral()
+}
+
+//버전관리
+ext {
+  servletApiVersion = '4.0.1'
+
+  lombokVersion = '1.18.30'
+  logbackVersion = '1.5.18'
+  mysqlJDBCVersion = '8.4.0'
+
+  mybatisVersion = '3.5.19'
+  hikariCpVersion = '2.7.4'
+  log4jdbcVersion = '1.16'
+
+//  springVersion = '5.3.39'
+  springVersion = '5.3.37'
+  mybatisSpringVersion = '2.0.6' //MyBatis-Spring 2.x 버전은 Spring 5.x , 특히 Spring Boot 2.x 이상과 호환
+
+  junitVersion = '5.10.2'
+  mokitoVersion = '5.10.0'
+  jacksondatabindVersion = '2.19.0'
+  jsonassertVersion = '1.5.3'
+  jsonpathVersion = '2.9.0'
+  hamcrestVersion = '2.2'
+
+  thumbnailatorVersion='0.4.20'
+
+  springSecurityVersion='5.8.13'
+  jjwtVersion='0.11.5'
+}
+
+sourceCompatibility = '1.17'
+targetCompatibility = '1.17'
+
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+}
+
+dependencies {
+  compileOnly "javax.servlet:javax.servlet-api:$servletApiVersion"
+
+  // Lombok
+  compileOnly "org.projectlombok:lombok:$lombokVersion"
+  annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+  testCompileOnly "org.projectlombok:lombok:$lombokVersion"
+  testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
+
+  // Logback
+  implementation "ch.qos.logback:logback-classic:$logbackVersion"
+
+
+  // MySQL JDBC
+  implementation "com.mysql:mysql-connector-j:$mysqlJDBCVersion"
+
+  // Mybatis
+  implementation "org.mybatis:mybatis:$mybatisVersion"
+  // HikariCP
+  implementation "com.zaxxer:HikariCP:$hikariCpVersion"
+
+  //SQL로그
+  implementation "org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:$log4jdbcVersion"
+
+  // Spring Web MVC
+  implementation "org.springframework:spring-webmvc:$springVersion"
+  // Spring JDBC
+  implementation "org.springframework:spring-jdbc:$springVersion"
+  // Spring Transaction
+  implementation "org.springframework:spring-tx:$springVersion"
+  // Mybatis Spring
+  implementation "org.mybatis:mybatis-spring:$mybatisSpringVersion"
+
+  //Json Mapping
+  implementation "com.fasterxml.jackson.core:jackson-databind:$jacksondatabindVersion"
+  //jackson은 LocalDateTime자료형을 직렬화/역직렬화 못함
+  implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+
+  // 파일업로드할 때 썸네일
+  implementation "net.coobird:thumbnailator:$thumbnailatorVersion"
+
+  //webSocket
+  implementation "org.springframework:spring-websocket:$springVersion"
+  implementation "org.springframework:spring-messaging:$springVersion"
+
+// security
+  implementation "org.springframework.security:spring-security-web:$springSecurityVersion"
+  implementation "org.springframework.security:spring-security-config:$springSecurityVersion"
+  implementation "org.springframework.security:spring-security-core:$springSecurityVersion"
+  implementation "org.springframework.security:spring-security-taglibs:$springSecurityVersion"
+
+  // jjwt
+  implementation "io.jsonwebtoken:jjwt-api:$jjwtVersion"
+  runtimeOnly "io.jsonwebtoken:jjwt-impl:$jjwtVersion"
+  implementation "io.jsonwebtoken:jjwt-jackson:$jjwtVersion"
+
+  //----------------------------------------------
+
+  // Spring Test
+  testImplementation "org.springframework:spring-test:$springVersion"
+  // Servlet Test
+  testImplementation "javax.servlet:javax.servlet-api:$servletApiVersion"
+  // 가짜객체 Mockito
+  testImplementation "org.mockito:mockito-core:$mokitoVersion"
+  testImplementation "org.mockito:mockito-junit-jupiter:$mokitoVersion"
+
+  //content().json() 필요
+  testImplementation "org.skyscreamer:jsonassert:$jsonassertVersion"
+  //jsonPath()에서 필요
+  testImplementation "com.jayway.jsonpath:json-path:$jsonpathVersion"
+  // Hamcrest 의존성
+  testImplementation "org.hamcrest:hamcrest:$hamcrestVersion"  // 최신 버전으로 설정
+
+  // 검증
+  implementation 'javax.validation:validation-api:2.0.1.Final'
+  implementation 'org.hibernate.validator:hibernate-validator:6.2.5.Final'
+
+  testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+}
+
+test {
+useJUnitPlatform()
+}
