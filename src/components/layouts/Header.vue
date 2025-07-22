@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" :class="{'no-border' : !showBorder}">
      <button class="backButton" v-if="headerStore.showBackButton" @click="goBack">
        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M22.5 9L13.5 18L22.5 27" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -28,9 +28,12 @@ import { useHeaderStore } from '@/stores/header';
 import { useRouter } from 'vue-router';
 import IconSearch from '@/components/icons/IconSearch.vue';
 import IconWatch from '@/components/icons/IconWatch.vue';
+import { computed } from 'vue';
 
 const router = useRouter();
 const headerStore = useHeaderStore();
+
+const showBorder = computed(()=> headerStore.showBorder);
 
 const goBack = () => router.back();
 
@@ -48,7 +51,10 @@ const iconComponents = {
   height: 56px;
   background-color: var(--main05);
   border-bottom: 1px solid var(--main03);
+}
 
+.container.no-border{
+  border-bottom: none;
 }
 .backButton{
   all:unset;
