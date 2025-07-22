@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { computed, onMounted } from 'vue';
 import { useHeaderStore } from '@/stores/header';
 import ListTab from '@/components/list/ListTab.vue';
@@ -25,14 +25,16 @@ import ListEtfPage from './list/ListEtfPage.vue';
 
 const headerStore = useHeaderStore();
 const route = useRoute();
+const router = useRouter();
 const category = computed(() => route.params.category);
 
 onMounted(() => {
   headerStore.setHeader({
     titleParts: [{ text: '상품탐색', color: 'var(--main01)' }],
+    showBackButton: false,
     actions: [
-      { icon: 'search', handler: () => console.log('검색') },
-      { icon: 'watch', handler: () => console.log('관심') }
+      { icon: 'search', handler: () => router.push('/list/search') },
+      { icon: 'watch', handler: () => router.push('/list/like') }
     ]
   });
 });
