@@ -16,14 +16,26 @@
 
 <script setup>
 import { useRoute } from 'vue-router';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
+import { useHeaderStore } from '@/stores/header';
 import ListTab from '@/components/list/ListTab.vue';
 import ListDepositsPage from './list/ListDepositsPage.vue';
 import ListFundPage from './list/ListFundPage.vue';
 import ListEtfPage from './list/ListEtfPage.vue';
 
+const headerStore = useHeaderStore();
 const route = useRoute();
 const category = computed(() => route.params.category);
+
+onMounted(() => {
+  headerStore.setHeader({
+    titleParts: [{ text: '상품탐색', color: 'var(--main01)' }],
+    actions: [
+      { icon: 'search', handler: () => console.log('검색') },
+      { icon: 'watch', handler: () => console.log('관심') }
+    ]
+  });
+});
 </script>
 
 <style scoped>
