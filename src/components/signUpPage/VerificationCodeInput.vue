@@ -12,7 +12,7 @@
         placeholder="인증코드 입력"
         @input="onInput"
         @focus="isFocused = true"
-        @blur="isFocused = false" />
+        @blur="handleBlur" />
     </div>
     <div class="button-group">
       <button
@@ -39,7 +39,12 @@ const props = defineProps({
   error: Boolean
 });
 
-const emit = defineEmits(['update:modelValue', 'verify', 'resend']);
+const emit = defineEmits(['update:modelValue', 'verify', 'resend', 'blur']);
+
+const handleBlur = e => {
+  isFocused.value = false;
+  emit('blur', e); // 외부로 blur 전달
+};
 
 const onInput = e => emit('update:modelValue', e.target.value);
 const isFocused = ref(false);

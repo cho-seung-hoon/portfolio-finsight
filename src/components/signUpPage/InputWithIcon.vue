@@ -12,7 +12,7 @@
         :value="modelValue"
         @input="onInput"
         @focus="isFocused = true"
-        @blur="isFocused = false" />
+        @blur="handleBlur" />
     </div>
     <button
       v-if="buttonText"
@@ -36,12 +36,17 @@ const props = defineProps({
   error: Boolean
 });
 
-const emit = defineEmits(['update:modelValue', 'button-click']);
+const emit = defineEmits(['update:modelValue', 'button-click', 'blur']);
 
 const onInput = e => emit('update:modelValue', e.target.value);
 
 const isFocused = ref(false);
 const iconClass = props.icon || 'fa-user';
+
+const handleBlur = e => {
+  isFocused.value = false;
+  emit('blur', e); // 외부에 blur 이벤트 전달
+};
 </script>
 
 <style scoped>
@@ -49,7 +54,8 @@ const iconClass = props.icon || 'fa-user';
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 54px;
+  /* height: 54px; */
+  min-height: 54px; /* ✅ 고정 아님, 최소값으로 변경 */
   padding: 0 12px;
   border-bottom: 1px solid #ddd;
   background-color: #fff;

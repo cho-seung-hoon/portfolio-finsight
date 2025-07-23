@@ -1,6 +1,5 @@
 <template>
   <div class="signup">
-    <!-- 로고 + 타이틀 -->
     <img
       src="@/assets/logo.svg"
       class="logo"
@@ -8,13 +7,11 @@
     <h1 class="title">Fin-Sight</h1>
     <hr />
 
-    <!-- 회원가입 폼 -->
     <form
       @submit.prevent="handleSignUp"
       class="form">
-      <!-- 입력 필드 영역 -->
+      <!-- 아이디, 비밀번호 -->
       <div class="card">
-        <!-- 아이디 -->
         <InputWithIcon
           icon="fa-user"
           placeholder="아이디"
@@ -24,33 +21,32 @@
           @button-click="checkUserId" />
         <ValidationMessage :message="errors.userId" />
 
-        <!-- 비밀번호 -->
         <InputWithIcon
           icon="fa-lock"
           type="password"
           placeholder="비밀번호"
           v-model="form.password"
-          :error="!!errors.password" />
+          :error="!!errors.password"
+          @blur="validatePassword" />
         <ValidationMessage :message="errors.password" />
 
-        <!-- 비밀번호 재확인 -->
         <InputWithIcon
           icon="fa-lock"
           type="password"
           placeholder="비밀번호 재확인"
           v-model="form.confirmPassword"
-          :error="!!errors.confirmPassword" />
+          :error="!!errors.confirmPassword"
+          @blur="validateConfirmPassword" />
         <ValidationMessage :message="errors.confirmPassword" />
       </div>
 
+      <!-- 이름, 닉네임, 생년월일, 이메일 -->
       <div class="card">
-        <!-- 이름 -->
         <InputWithIcon
           icon="fa-user"
           placeholder="이름"
           v-model="form.name" />
 
-        <!-- 닉네임 -->
         <InputWithIcon
           icon="fa-user"
           placeholder="닉네임"
@@ -60,15 +56,14 @@
           @button-click="checkNickname" />
         <ValidationMessage :message="errors.nickname" />
 
-        <!-- 생년월일 -->
         <InputWithIcon
           icon="fa-calendar"
           placeholder="생년월일 8자리"
           v-model="form.birth"
-          :error="!!errors.birth" />
+          :error="!!errors.birth"
+          @blur="validateBirth" />
         <ValidationMessage :message="errors.birth" />
 
-        <!-- 이메일 -->
         <InputWithIcon
           icon="fa-envelope"
           placeholder="이메일"
@@ -88,7 +83,6 @@
         <ValidationMessage :message="errors.code" />
       </div>
 
-      <!-- 가입 버튼 -->
       <button
         type="submit"
         class="submit-button">
@@ -96,7 +90,6 @@
       </button>
     </form>
 
-    <!-- 가입 완료 팝업 -->
     <CompleteModal v-if="showModal" />
   </div>
 </template>
@@ -130,18 +123,120 @@ const errors = reactive({
 });
 
 const showModal = ref(false);
+const receivedCode = ref('123456'); // 예시 코드
+
+const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''));
 
 const handleSignUp = () => {
-  // TODO: 유효성 검사 및 API 연동
+  resetErrors();
+  if (!validateForm()) return;
   console.log('회원가입 정보:', form);
   showModal.value = true;
 };
 
-// TODO: 아래 함수들 전부 유효성 검사 필요
-const checkUserId = () => console.log('아이디 중복확인');
-const checkNickname = () => console.log('닉네임 중복확인');
-const requestCode = () => console.log('이메일 인증코드 요청');
-const verifyCode = () => console.log('인증코드 확인');
+const validateForm = () => {
+  let isValid = true;
+  if (!validateUserId()) isValid = false;
+  if (!validatePassword()) isValid = false;
+  if (!validateConfirmPassword()) isValid = false;
+  if (!validateNickname()) isValid = false;
+  if (!validateBirth()) isValid = false;
+  if (!validateEmail()) isValid = false;
+  if (!verifyCode()) isValid = false;
+  return isValid;
+};
+
+const validateUserId = () => {
+  if (!form.userId) return ((errors.userId = '아이디를 입력해주세요.'), false);
+  if (!/^[a-z0-9]{5,20}$/.test(form.userId)) {
+    errors.userId = '5~20자의 영문 소문자, 숫자만 사용 가능합니다.';
+    return false;
+  }
+  return true;
+};
+
+const validatePassword = () => {
+  const pw = form.password;
+  const rules = [/[a-z]/, /[A-Z]/, /\d/, /[^a-zA-Z0-9]/];
+  const ruleCount = rules.filter(r => r.test(pw)).length;
+  if (!pw) return ((errors.password = '비밀번호를 입력해주세요.'), false);
+  if (pw.length < 10 || ruleCount < 2) {
+    errors.password =
+      '영문 대/소문자, 숫자, 특수문자 중 2종 이상 조합으로\n10자 이상이어야 합니다.';
+    return false;
+  }
+  return true;
+};
+
+const validateConfirmPassword = () => {
+  if (!form.confirmPassword)
+    return ((errors.confirmPassword = '비밀번호 재확인을 입력해주세요.'), false);
+  if (form.password !== form.confirmPassword) {
+    errors.confirmPassword = '비밀번호가 일치하지 않습니다.';
+    return false;
+  }
+  return true;
+};
+
+const validateNickname = () => {
+  if (!form.nickname) return ((errors.nickname = '닉네임을 입력해주세요.'), false);
+  return true;
+};
+
+const validateBirth = () => {
+  if (!form.birth) return ((errors.birth = '생년월일을 입력해주세요.'), false);
+  if (!/^\d{8}$/.test(form.birth)) {
+    errors.birth = '생년월일은 8자리 숫자로 입력해 주세요.';
+    return false;
+  }
+  return true;
+};
+
+const validateEmail = () => {
+  if (!form.email) return ((errors.email = '이메일을 입력해주세요.'), false);
+  return true;
+};
+
+const verifyCode = () => {
+  if (!form.code) return ((errors.code = '인증코드를 입력해주세요.'), false);
+  if (form.code !== receivedCode.value) {
+    errors.code = '인증코드가 일치하지 않습니다.';
+    return false;
+  }
+  return true;
+};
+
+const fakeCheckAPI = async (field, value) => {
+  const dummy = {
+    userId: ['testuser', 'admin'],
+    nickname: ['관리자', '홍길동'],
+    email: ['test@example.com']
+  };
+  return dummy[field]?.includes(value);
+};
+
+const checkUserId = async () => {
+  if (!validateUserId()) return;
+  const exists = await fakeCheckAPI('userId', form.userId);
+  errors.userId = exists ? '이미 있는 아이디입니다.' : '';
+};
+
+const checkNickname = async () => {
+  if (!form.nickname) return (errors.nickname = '닉네임을 입력해주세요.');
+  const exists = await fakeCheckAPI('nickname', form.nickname);
+  errors.nickname = exists ? '이미 있는 닉네임입니다.' : '';
+};
+
+const requestCode = async () => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!form.email) return (errors.email = '이메일을 입력해주세요.');
+  if (!emailRegex.test(form.email)) return (errors.email = '올바른 이메일 형식이 아닙니다.');
+  const exists = await fakeCheckAPI('email', form.email);
+  if (exists) return (errors.email = '이미 등록되어 있는 이메일입니다.');
+  errors.email = '';
+  receivedCode.value = '123456';
+  alert('인증코드가 발송되었습니다: 123456');
+};
 </script>
 
 <style scoped>
@@ -179,6 +274,7 @@ hr {
   border: 1px solid #e6e6e6;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .submit-button {
   height: 50px;

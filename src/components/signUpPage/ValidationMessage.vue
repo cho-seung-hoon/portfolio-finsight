@@ -16,5 +16,8 @@ defineProps({ message: String });
   color: #f97b6d;
   margin-top: 4px;
   margin-left: 4px;
+  white-space: pre-line; /* ✅ \n 줄바꿈 허용 */
+  word-break: keep-all; /* ✅ 단어 단위로 줄바꿈 */
+  line-height: 1.4;
 }
 </style>
