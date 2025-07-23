@@ -1,6 +1,6 @@
 <!-- 
 작성자: JY
-작성일자: 2025-07-22
+작성일자: 2025-07-23
 페이지명: 투자성향분석-전문금융소비자 안내페이지
     [경로]
     path: '/inv-type-notice-page',
@@ -8,21 +8,34 @@
     component: InvTypeNoticePage
 -->
 <template>
-<header class="container">
-    <h2 class="title">금융소비자 구분 안내</h2><hr>
-</header>
-<body>
-    <section class="section">
-        <h3>전문소비자 개요</h3><br>
+<!-- TitleSection start-->
+<div class="main-section">
+    <h1 class="main-title">금융소비자 구분 안내</h1>
+</div>
+<!-- TitleSection end-->
+
+<!-- MainSection start-->
+<div class="sub-section">
+    <!-- SubSection_1 start -->
+    <section class="sub-section-row">
+        <h2>전문소비자 개요</h2>
         <p>금융투자상품에 관한 전문성 구비, 소유자산 규모 등에 비추어 투자에 따른 위험을 감수할 수 있는 투자자로 자본시장과 금융투자업에 관한 법률에서 정한자를 말하며, 전문 금융소비자로 등록되는 경우 일반투자자에게 적용되는 적정성·적합성 설명 의무가 면제됩니다.</p>
-        <small class="notice">* 관련 법령: 자본시장법 시행령 제10조 (전문투자자의 범위 등) 지정령 제7조</small>
-    </section><br>
-    <section class="section">
-        <h3>전문금융소비자 등록 기준</h3><br>
+        <small class="notice-section">* 관련 법령: 자본시장법 시행령 제10조 (전문투자자의 범위 등) 지정령 제7조</small>
+    </section>
+    <!-- SubSection_1 end -->
+    
+    <!-- SubSection_2 start -->
+    <section class="sub-section-row">
+        <h2>전문금융소비자 등록 기준</h2>
         <p>아래의 기준 중 필수 기준을 충족하고 ① ~ ③ 중 하나에 해당되는 경우</p><br>
         <ul>
-            <li class="sub-section-list"><strong>[필수 기준]</strong><br/>최근 5년 중 1년 이상의 기간 동안 금융위원회가 고시한 금융투자상품을 월평균잔고기준으로 5천만원 이상 보유</li><br>
-            <li class="sub-section-list"><strong>[선택 기준]</strong><br/>
+            <li class="sub-section-list">
+                <h3>[필수 기준]</h3>
+                <p>최근 5년 중 1년 이상의 기간 동안 금융위원회가 고시한 금융투자상품을 월평균잔고기준으로 5천만원 이상 보유</p>
+            </li>
+            <br>
+            <li class="sub-section-list">
+                <h3>[선택 기준]</h3>
                 <ul>
                     <li class="sub-section-list">① 최근 5년 중 1년 이상의 기간 동안 금융위원회가 고시한 금융투자상품을 월평균잔고기준으로 5천만원 이상 보유</li>
                     <li class="sub-section-list">② 전문가 요건
@@ -36,12 +49,17 @@
                 </ul>
             </li>
         </ul>
-    </section><br>
-    <section class="section">
-        <h3>전문금융소비자 등록 방법 (영업점 내점시 가능)</h3><br>
+    </section>
+    <!-- SubSection_2 end -->
+
+    <!-- SubSection_3 start -->
+    <section class="sub-section-row">
+        <h2>전문금융소비자 등록 방법 (영업점 내점시 가능)</h2>
         <ul>
             <li class="sub-section-list">① [은행] 잔고증명서 발급</li>
-            <li class="sub-section-list">② [심사기관] 전문투자자 확인증 발급<br/><small class="notice">* KB증권 등 4개 증권사에서 발급 가능</small></li>
+            <li class="sub-section-list">② [심사기관] 전문투자자 확인증 발급<br/>
+                <small class="notice-section">* KB증권 등 4개 증권사에서 발급 가능</small>
+            </li>
             <li class="sub-section-list">③ [은행/증권사 등록]
                 <ul>
                     <li class="sub-section-list">(1) 전문투자자 확인증 지의 확인</li>
@@ -50,11 +68,14 @@
             </li>
         </ul>
     </section>
-</body>
-
-<footer>
-    <button class="next-button" @click="backToPrevious">확인</button>
-</footer>
+    <!-- SubSection_3 end -->
+</div>
+<!-- CompleteButton -->
+<button
+    class="main-section complete-button"
+    @click="backToPrevious"
+    >확인
+</button> 
 </template>
 
 <script setup>
@@ -68,25 +89,47 @@ const backToPrevious = () => {
 }
 </script>
 
-<style setup>
-.container {
-    margin: 0 auto;
-    padding: 24px;
-    font-family: sans-serif;
-    background-color: var(--main05);
+<style scoped>
+/* TitleSection styles */
+.main-section {
+    background: var(--main01);
+    padding: 32px 32px 24px 32px;
+    text-align: left;
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
 }
-.title {
-    color: black;
-    display: flex;
-    font-size: var(--font-size-xl); 
-    background-color: var(--main05);
+.main-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--main05);
 }
-.section {
-    margin-bottom: 30px;
-    margin-left: 30px;
-    margin-right: 30px;
+
+/* SubSection styles */
+.sub-section {
+    padding: 32px 32px 32px 32px;
+    background: var(--main05);
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+    margin-bottom: 0px;
 }
-.notice {
+.sub-section-row {
+    margin-bottom: 24px;
+}
+.sub-section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 8px;
+    text-align: left;
+}
+.section-desc {
+    font-size: 16px;
+    color: var(--main02);
+    text-align: left;
+}
+.notice-section {
     margin-top: 18px;
     font-size: var(--font-size-sm);
     color: #8c8c8c;
@@ -97,15 +140,17 @@ const backToPrevious = () => {
     margin:auto;
     display: block;
 }
-.next-button {
-    width: 100%;
-    padding: 12px 0;
+
+/* CompleteButton styles */
+.complete-button {
+    padding: 16px 0;
+    background: var(--main01);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 24px;
+    display: flex;
+    justify-content: center; 
     border: none;
-    color: #fcfcfc;
-    background-color: var(--main01);
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: var(--font-size-xl);
     cursor: pointer;
 }
 </style>
