@@ -5,6 +5,8 @@ import HomePage from '@/pages/HomePage.vue';
 import holdingRoutes from './holdingRoutes';
 import listRoutes from './listRoutes';
 import myRoutes from './myRoutes';
+import depositRoutes from './depositRoutes';
+import etfRoutes from './etfRoutes';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,7 +30,9 @@ const router = createRouter({
 
     ...holdingRoutes,
     ...listRoutes,
-    ...myRoutes
+    ...myRoutes,
+    ...depositRoutes,
+    ...etfRoutes
   ]
 });
 
