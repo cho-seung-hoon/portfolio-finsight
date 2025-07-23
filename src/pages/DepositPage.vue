@@ -31,6 +31,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useDepositStore } from '@/stores/deposit';
 import { storeToRefs } from 'pinia';
 
@@ -43,13 +44,18 @@ import DetailTabs from '@/components/detail/DetailTabs.vue';
 import DetailSection from '@/components/detail/DetailSection.vue';
 import DetailActionButton from '@/components/detail/DetailActionButton.vue';
 
+const route = useRoute();
+
 const depositStore = useDepositStore();
 const { productInfo, tabData, isLoading, error } = storeToRefs(depositStore);
 
 onMounted(() => {
-  // 라우트 파라미터 등에서 productId를 가져와야 합니다.
-  // 예: const productId = route.params.id;
-  depositStore.fetchProduct('some-product-id'); 
+  const productId = route.params.id;
+  if (productId) {
+    depositStore.fetchProduct(productId);
+  } else {
+    console.warn('DepositPage: 상품 ID가 URL에 없습니다.');
+  }
 });
 
 // 탭 관련 데이터

@@ -7,26 +7,28 @@
     >
       <div class="section-title">{{ item.title }}</div>
       <div class="section-desc">
-        <template v-if="typeof item.desc === 'string'">
+        <template v-if="['펀드 특징', '운용 전략'].includes(item.title) && typeof item.desc === 'string'">
+          <DetailLongText>
+            <span v-html="item.desc.replace(/\n/g, '<br>')"></span>
+          </DetailLongText>
+        </template>
+        <template v-else-if="typeof item.desc === 'string'">
           <span v-html="item.desc.replace(/\n/g, '<br>')"></span>
         </template>
+        <template v-else-if="item.title === '구성종목' && Array.isArray(item.desc)">
+          <div style="margin-bottom: 32px;">
+            <DetailPieChart :data="item.desc" :label-key="'종목명'" :value-key="'비중'" />
+          </div>
+        </template>
+        <template v-else-if="item.title === '공시/보고서' && Array.isArray(item.desc)">
+          <DetailPdfUrl :pdfList="item.desc" />
+        </template>
         <template v-else-if="Array.isArray(item.desc)">
-          <table>
-            <thead>
-              <tr>
-                <th v-for="(value, key) in item.desc[0]" :key="key">{{ key }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(row, idx) in item.desc" :key="idx">
-                <td v-for="(value, key) in row" :key="key">{{ value }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <DetailTable :desc="item.desc" />
         </template>
         <template v-else-if="typeof item.desc === 'object' && item.desc !== null">
           <!-- 그래프 데이터가 들어오면 그래프 컴포넌트로 렌더링 (예시: MyChartComponent) -->
-          <MyChartComponent v-if="item.desc.labels && item.desc.data" :chart-data="item.desc" />
+          <!-- <MyChartComponent v-if="item.desc.labels && item.desc.data" :chart-data="item.desc" /> -->
         </template>
       </div>
     </div>
@@ -34,6 +36,10 @@
 </template>
 
 <script setup>
+import DetailLongText from './DetailLongText.vue';
+import DetailPieChart from './Detail.PieChart.vue';
+import DetailPdfUrl from './DetailPdfUrl.vue';
+import DetailTable from './DetailTable.vue';
 const props = defineProps({
   tabData: Object,
   selectedTab: String
@@ -44,7 +50,7 @@ const props = defineProps({
 
 <style scoped>
 .section {
-  padding: 32px;
+  padding: 32px 32px 80px 32px;
   background: var(--main05);
   width: calc(100% + 40px);
   margin-left: -20px;
@@ -72,12 +78,24 @@ const props = defineProps({
   font-size: 15px;
 }
 .section-desc th, .section-desc td {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--main03);
   padding: 6px 10px;
   text-align: left;
 }
 .section-desc th {
-  background: #f8f8f8;
+  background: var(--main01);
   font-weight: 600;
+  color: var(--white);
+}
+.section-desc td {
+  background: var(--main02);
+  color: var(--white);
+}
+.pdf-url-box {
+  background: var(--sub02);
+  padding: 8px 10px;
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 </style> 

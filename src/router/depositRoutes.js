@@ -1,7 +1,7 @@
 const depositRoutes = [
   {
-    path: '/deposit',
-    name: 'deposit',
+    path: '/deposit/:id',
+    name: 'DepositDetail',
     component: () => import('../pages/DepositPage.vue'),
     meta: {
       layout: 'HeaderLayout'
