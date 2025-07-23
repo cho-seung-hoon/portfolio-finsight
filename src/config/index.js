@@ -35,6 +35,11 @@ export default {
       name: 'ETF',
       path: '/etf',
       icon: null
+    },
+    {
+      name: '펀드',
+      path: '/fund',
+      icon: null
     }
   ]
 };
