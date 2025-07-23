@@ -20,6 +20,7 @@
           :options="filter.options"
           :selected="filter.selectedOption"
           @select="option => selectFilterOption(filter.key, option)"
+          @click-outside="openedFilter = null"
           align="left" />
       </div>
     </div>
@@ -36,6 +37,7 @@
         :options="sortOptions.map(opt => opt.label)"
         @select="selectSortOption"
         :selected="selectedSort.label"
+        @click-outside="openedSort = false"
         align="right" />
     </div>
   </div>

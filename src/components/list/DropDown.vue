@@ -1,5 +1,7 @@
 <template>
-  <div :class="['drop-down-container', align === 'right' ? 'right' : 'left']">
+  <div
+    :class="['drop-down-container', align === 'right' ? 'right' : 'left']"
+    ref="root">
     <div class="drop-down-option-list">
       <div
         class="drop-down-option"
@@ -14,17 +16,35 @@
 </template>
 
 <script setup>
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+
 const props = defineProps({
   options: { type: Array, default: () => [] },
   align: { type: String, default: 'left' },
   selected: { type: String, default: '' }
 });
 
+// 드롭다운에서 선택한 것을 부모인 FilterSortBar로 전달
 const emit = defineEmits(['select']);
 
 function onClickOption(option) {
   emit('select', option);
 }
+
+// 바깥 클릭 감지
+const root = ref(null);
+
+function handleClickOutside(event) {
+  if (root.value && !root.value.contains(event.target)) {
+    emit('click-outside');
+  }
+}
+onMounted(() => {
+  document.addEventListener('mousedown', handleClickOutside);
+});
+onBeforeUnmount(() => {
+  document.removeEventListener('mousedown', handleClickOutside);
+});
 </script>
 
 <style scoped>
