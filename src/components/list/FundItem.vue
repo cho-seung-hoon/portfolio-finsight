@@ -1,31 +1,39 @@
 <template>
   <section class="fund-item-container">
     <section class="fund-item-header-section">
-      <div class="fund-item-sub-title">주식형</div>
+      <div class="fund-item-sub-title">{{ item.country }} ・ {{ item.fund_type }}</div>
       <header class="fund-item-header">
-        펀드 아이템
-        <IconHeartStroke></IconHeartStroke>
+        {{ item.product_name }}
+        <IconHeartStroke />
       </header>
     </section>
     <section class="fund-item-content-section">
       <div class="info-row">
         <span class="label">수익률</span>
-        <span class="value">37.31% (3개월)</span>
+        <span class="value">{{ item.rate_of_return }} (3개월)</span>
       </div>
       <div class="info-row">
         <span class="label">위험등급</span>
-        <span class="value">1</span>
+        <span class="value">{{ item.risk_grade }}</span>
       </div>
       <div class="info-row">
         <span class="label">뉴스</span>
-        <span class="value">긍정</span>
+        <span class="value">{{ item.news_response }}</span>
       </div>
     </section>
   </section>
 </template>
 
 <script setup>
+import { defineProps } from 'vue';
 import IconHeartStroke from '../icons/IconHeartStroke.vue';
+
+const props = defineProps({
+  item: {
+    type: Object,
+    required: true
+  }
+});
 </script>
 
 <style scoped>

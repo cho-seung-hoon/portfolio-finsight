@@ -2,26 +2,30 @@
   <section class="deposits-item-container">
     <section class="deposits-item-header-section">
       <header class="deposits-item-header">
-        예금 아이템
-        <IconHeartStroke></IconHeartStroke>
+        {{ item.product_name }}
+        <IconHeartStroke />
       </header>
-      <div class="deposits-item-sub-title">수협은행</div>
+      <div class="deposits-item-sub-title">{{ item.company_name }}</div>
     </section>
     <section class="deposits-item-content-section">
       <div class="info-row">
-        <span class="label">수익률</span>
-        <span class="value">37.31% (3개월)</span>
-      </div>
-      <div class="info-row">
-        <span class="label">위험등급</span>
-        <span class="value">1</span>
+        <span class="label">금리(1년)</span>
+        <span class="value"> 최고 {{ item.intr_rate2 }}% | 기본 {{ item.intr_rate }}% </span>
       </div>
     </section>
   </section>
 </template>
 
 <script setup>
+import { defineProps } from 'vue';
 import IconHeartStroke from '../icons/IconHeartStroke.vue';
+
+const props = defineProps({
+  item: {
+    type: Object,
+    required: true
+  }
+});
 </script>
 
 <style scoped>
