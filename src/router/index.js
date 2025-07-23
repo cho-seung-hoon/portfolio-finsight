@@ -17,7 +17,6 @@ import InvTypeNeutralPage from '../pages/PortfolioPages/InvTypeNeutralPage.vue';
 import InvTypeAggressivePage from '../pages/PortfolioPages/InvTypeAggressivePage.vue';
 import InvTypeVeryAggressivePage from '../pages/PortfolioPages/InvTypeVeryAggressivePage.vue';
 
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -38,9 +37,9 @@ const router = createRouter({
       }
     },
     {
-        path: '/inv-type-main-page',
-        name: 'InvTypeMainPage',
-        component: InvTypeMainPage
+      path: '/inv-type-main-page',
+      name: 'InvTypeMainPage',
+      component: InvTypeMainPage
     },
     {
       path: '/inv-type-test-step-1-page',
@@ -88,22 +87,22 @@ const router = createRouter({
       component: InvTypeVeryAggressivePage
     },
 
-    // ...holdingRoutes,
-    // ...listRoutes,
-    // ...myRoutes
+    ...holdingRoutes,
+    ...listRoutes,
+    ...myRoutes
   ]
 });
 
 router.beforeEach((to, from, next) => {
-    const requiresAuth = to.meta.requiresAuth;
+  const requiresAuth = to.meta.requiresAuth;
 
-    const isLoggedIn = !!localStorage.getItem('token');
+  const isLoggedIn = !!localStorage.getItem('token');
 
-    if (requiresAuth && !isLoggedIn) {
-        next({ name: 'login' });
-    } else {
-        next();
-    }
+  if (requiresAuth && !isLoggedIn) {
+    next({ name: 'login' });
+  } else {
+    next();
+  }
 });
 
 export default router;
