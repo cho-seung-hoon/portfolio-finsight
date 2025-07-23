@@ -43,13 +43,13 @@
 .valuation {
   font-size: var(--font-size-xxl);
   font-weight: var(--font-weight-bold);
-  margin: 5px;
+
 }
 
 .calc {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-right);
-  margin:5px;
+
 }
 
 .phraseBox {
