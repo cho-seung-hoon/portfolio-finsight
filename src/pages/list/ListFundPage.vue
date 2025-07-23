@@ -1,6 +1,12 @@
 <template>
   <div class="list-fund-page-container">
-    <section class="list-fund-page-filter-bar"></section>
+    <FilterSortBar
+      :filters="filters"
+      :showFilters="true"
+      :sortOptions="sortOptions"
+      :selectedSort="selectedSort"
+      @filter-select="onFilterChange"
+      @sort-select="onSortChange" />
     <section class="list-fund-page-contents">
       <FundItem
         v-for="fund in funds"
@@ -11,6 +17,8 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
+import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import FundItem from '@/components/list/FundItem.vue';
 
 const funds = [
@@ -33,6 +41,38 @@ const funds = [
     news_response: '중립'
   }
 ];
+
+// 필터 옵션/선택값
+const filters = ref([
+  {
+    key: 'country',
+    label: '국가',
+    selectedOption: '전체',
+    options: ['전체', '국내', '국외']
+  },
+  {
+    key: 'fund_type',
+    label: '유형',
+    selectedOption: '전체',
+    options: ['전체', '주식형', '채권형', '혼합형']
+  }
+]);
+
+const sortOptions = [
+  { key: 'alphabetical', label: '가나다순' },
+  { key: 'return', label: '수익률순' }
+];
+
+const selectedSort = ref(sortOptions[0]);
+
+function onFilterChange({ filterKey, option }) {
+  const filter = filters.value.find(f => f.key === filterKey);
+  if (filter) filter.selectedOption = option;
+}
+
+function onSortChange(option) {
+  selectedSort.value = option;
+}
 </script>
 
 <style scoped>
@@ -40,6 +80,7 @@ const funds = [
   display: flex;
   flex-direction: column;
   width: 100%;
+  gap: 12px;
 }
 
 .list-fund-page-filter-bar {

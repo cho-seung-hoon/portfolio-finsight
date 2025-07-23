@@ -79,6 +79,8 @@ const sortOptions = [
   { key: 'nav', label: '기준가순' }
 ];
 
+const selectedSort = ref(sortOptions[0]);
+
 function onFilterChange({ filterKey, option }) {
   const filter = filters.value.find(f => f.key === filterKey);
   if (filter) filter.selectedOption = option;
@@ -87,8 +89,6 @@ function onFilterChange({ filterKey, option }) {
 function onSortChange(option) {
   selectedSort.value = option;
 }
-
-const selectedSort = ref(sortOptions[0]);
 </script>
 
 <style scoped>
