@@ -75,7 +75,7 @@ const filters = ref([
 ]);
 
 const sortOptions = [
-  { key: 'rate', label: '가나다순' },
+  { key: 'alphabetical', label: '가나다순' },
   { key: 'nav', label: '기준가순' }
 ];
 
