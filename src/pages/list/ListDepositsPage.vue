@@ -1,6 +1,12 @@
 <template>
   <div class="list-deposits-page-container">
-    <section class="list-deposits-page-filter-bar"></section>
+    <FilterSortBar
+      :filters="filters"
+      :showFilters="false"
+      :sortOptions="sortOptions"
+      :selectedSort="selectedSort"
+      @filter-select="onFilterChange"
+      @sort-select="onSortChange" />
     <section class="list-deposits-page-contents">
       <DepositsItem
         v-for="item in deposits"
@@ -11,7 +17,9 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import DepositsItem from '@/components/list/DepositsItem.vue';
+import FilterSortBar from '@/components/list/FilterSortBar.vue';
 
 const deposits = [
   {
@@ -29,6 +37,17 @@ const deposits = [
     intr_rate2: 3.0
   }
 ];
+
+const sortOptions = [
+  { key: 'alphabetical', label: '가나다순' },
+  { key: 'return', label: '수익률순' }
+];
+
+const selectedSort = ref(sortOptions[0]);
+
+function onSortChange(option) {
+  selectedSort.value = option;
+}
 </script>
 
 <style scoped>
@@ -36,6 +55,7 @@ const deposits = [
   display: flex;
   flex-direction: column;
   width: 100%;
+  gap: 12px;
 }
 
 .list-deposits-page-filter-bar {
