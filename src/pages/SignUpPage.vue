@@ -18,7 +18,8 @@
           v-model="form.userId"
           buttonText="확인"
           :error="!!errors.userId"
-          @button-click="checkUserId" />
+          @button-click="checkUserId"
+          @focus="clearError('userId')" />
         <ValidationMessage :message="errors.userId" />
 
         <InputWithIcon
@@ -27,7 +28,8 @@
           placeholder="비밀번호"
           v-model="form.password"
           :error="!!errors.password"
-          @blur="validatePassword" />
+          @blur="validatePassword"
+          @focus="clearError('password')" />
         <ValidationMessage :message="errors.password" />
 
         <InputWithIcon
@@ -36,7 +38,8 @@
           placeholder="비밀번호 재확인"
           v-model="form.confirmPassword"
           :error="!!errors.confirmPassword"
-          @blur="validateConfirmPassword" />
+          @blur="validateConfirmPassword"
+          @focus="clearError('confirmPassword')" />
         <ValidationMessage :message="errors.confirmPassword" />
       </div>
 
@@ -53,7 +56,8 @@
           v-model="form.nickname"
           buttonText="확인"
           :error="!!errors.nickname"
-          @button-click="checkNickname" />
+          @button-click="checkNickname"
+          @focus="clearError('nickname')" />
         <ValidationMessage :message="errors.nickname" />
 
         <InputWithIcon
@@ -61,7 +65,8 @@
           placeholder="생년월일 8자리"
           v-model="form.birth"
           :error="!!errors.birth"
-          @blur="validateBirth" />
+          @blur="validateBirth"
+          @focus="clearError('birth')" />
         <ValidationMessage :message="errors.birth" />
 
         <InputWithIcon
@@ -70,7 +75,8 @@
           v-model="form.email"
           buttonText="인증"
           :error="!!errors.email"
-          @button-click="requestCode" />
+          @button-click="requestCode"
+          @focus="clearError('email')" />
         <ValidationMessage :message="errors.email" />
       </div>
 
@@ -79,7 +85,9 @@
         <VerificationCodeInput
           v-model="form.code"
           :error="!!errors.code"
-          @verify="verifyCode" />
+          @verify="verifyCode"
+          @blur="validateCode"
+          @focus="clearError('code')" />
         <ValidationMessage :message="errors.code" />
       </div>
 
@@ -236,6 +244,10 @@ const requestCode = async () => {
   errors.email = '';
   receivedCode.value = '123456';
   alert('인증코드가 발송되었습니다: 123456');
+};
+
+const clearError = field => {
+  errors[field] = '';
 };
 </script>
 

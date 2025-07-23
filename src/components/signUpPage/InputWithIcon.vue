@@ -11,7 +11,7 @@
         :placeholder="placeholder"
         :value="modelValue"
         @input="onInput"
-        @focus="isFocused = true"
+        @focus="handleFocus"
         @blur="handleBlur" />
     </div>
     <button
@@ -36,17 +36,22 @@ const props = defineProps({
   error: Boolean
 });
 
-const emit = defineEmits(['update:modelValue', 'button-click', 'blur']);
+const emit = defineEmits(['update:modelValue', 'button-click', 'blur', 'focus']);
+
+const handleFocus = e => {
+  isFocused.value = true;
+  emit('focus', e); // ✅ 외부에 focus 전달
+};
+
+const handleBlur = e => {
+  isFocused.value = false;
+  emit('blur', e);
+};
 
 const onInput = e => emit('update:modelValue', e.target.value);
 
 const isFocused = ref(false);
 const iconClass = props.icon || 'fa-user';
-
-const handleBlur = e => {
-  isFocused.value = false;
-  emit('blur', e); // 외부에 blur 이벤트 전달
-};
 </script>
 
 <style scoped>
