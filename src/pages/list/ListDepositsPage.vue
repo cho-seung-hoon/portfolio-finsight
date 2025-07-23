@@ -1,9 +1,12 @@
 <template>
   <div class="list-deposits-page-container">
-    <DepositsItem
-      v-for="item in deposits"
-      :key="item.product_code"
-      :item="item" />
+    <section class="list-deposits-page-filter-bar"></section>
+    <section class="list-deposits-page-contents">
+      <DepositsItem
+        v-for="item in deposits"
+        :key="item.product_code"
+        :item="item" />
+    </section>
   </div>
 </template>
 
@@ -33,6 +36,16 @@ const deposits = [
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+
+.list-deposits-page-filter-bar {
+  display: flex;
+  flex-direction: row;
+}
+
+.list-deposits-page-contents {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 </style>

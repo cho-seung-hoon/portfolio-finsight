@@ -1,9 +1,12 @@
 <template>
   <div class="list-fund-page-container">
-    <FundItem
-      v-for="fund in funds"
-      :key="fund.fund_code"
-      :item="fund" />
+    <section class="list-fund-page-filter-bar"></section>
+    <section class="list-fund-page-contents">
+      <FundItem
+        v-for="fund in funds"
+        :key="fund.fund_code"
+        :item="fund" />
+    </section>
   </div>
 </template>
 
@@ -37,6 +40,16 @@ const funds = [
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+
+.list-fund-page-filter-bar {
+  display: flex;
+  flex-direction: row;
+}
+
+.list-fund-page-contents {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 </style>
