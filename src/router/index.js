@@ -30,7 +30,7 @@ const router = createRouter({
     ...holdingRoutes,
     ...listRoutes,
     ...myRoutes,
-    ...signUpRoutes
+    ...signUpRoutes,
     ...invtRoutes
   ]
 });
