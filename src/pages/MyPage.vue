@@ -46,7 +46,6 @@ onBeforeRouteLeave(() => {
   display: flex;
   flex-direction: column;
   height: calc(100% - 56px);
-
 }
 
 .subItem-title {
@@ -55,7 +54,7 @@ onBeforeRouteLeave(() => {
   width: 100%;
   height: 56px;
   position: relative;
-  z-index: 1
+  z-index: 1;
 }
 
 .title {

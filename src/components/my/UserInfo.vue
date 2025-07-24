@@ -53,7 +53,7 @@
 
 .info{
   min-width: 65px;
-  font-size:var(--font-size-md);
+  font-size:var(--font-size-ms);
   font-width: var(--font-weight-right);
   color:var(--white);
   margin-left: 10px;
@@ -61,7 +61,7 @@
 }
 
 .infoValue{
-  font-size:var(--font-size-md);
+  font-size:var(--font-size-ms);
   font-width: var(--font-weight-right);
   color:var(--white);
 }

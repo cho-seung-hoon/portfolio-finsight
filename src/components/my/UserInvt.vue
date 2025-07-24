@@ -42,7 +42,7 @@ button {
   padding: 6px 10px;
   background-color: var(--sub01);
   color:var(--white);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-ms);
   cursor: pointer;
   border-radius: 6px;
 }
