@@ -1,5 +1,18 @@
 package com.finsight.backend.enumerate;
 
 public enum Role {
-    INVEST_O, INVEST_X
+    INCOMPLETE("incomplete"),
+    COMPLETE("complete");
+
+    private final String dbValue;
+
+    Role(String dbValue) {
+        this.dbValue = dbValue;
+    }
+
+    @Override
+    public String toString() {
+        return dbValue;
+    }
 }
+
