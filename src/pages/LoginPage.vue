@@ -82,25 +82,18 @@ const formData = reactive({
 
 const errorMessage = ref('');
 
-// JWT 디코딩 함수 (간단한 구현)
-const decodeJWT = token => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(function (c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error('JWT 디코딩 실패:', error);
-    return null;
+axios.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
   }
-};
+);
 
 // 유효성 검증
 const isFormValid = computed(() => {
@@ -128,16 +121,15 @@ const handleLogin = async () => {
   }
 
   try {
-    const response = await axios.post('/users/login', {
+    const response = await axios.post('http://localhost:8080/users/login', {
       userId: formData.id,
       password: formData.password
     });
 
     if (response.data.success) {
-      const accessToken = response.data.accessToken;
-      const userInfo = decodeJWT(accessToken);
+      const accessToken = response.data.data.accessToken;
+      console.log(accessToken);
       localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('userInfo', JSON.stringify(userInfo));
       router.push('/');
     }
   } catch (error) {
