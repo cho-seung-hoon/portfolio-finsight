@@ -1,18 +1,18 @@
 <template>
-  <div class="home-item">
+  <div class="home-box">
     <ExchangeRate/>
   </div>
-  <div class="home-item">
+  <div class="home-box">
     <MiniMy/>
   </div>
   <div class="line"></div>
-  <div class="home-item">
+  <div class="home-box">
     <NewsChart :chart-data="chartData" @keyword-click="handleKeywordClick"/>
   </div>
-  <div class="home-item">
+  <div class="home-box">
     <NewsList :keyword="selectKeyword" :color="selectColor" :news-list="filteredNewsList"/>
   </div>
-  <div class="home-item">
+  <div class="home-box">
     <NewsProduct :keyword="selectKeyword" :color="selectColor" :product-list="filteredProductList"/>
   </div>
 </template>
@@ -27,7 +27,7 @@ import NewsChart from '@/components/home/NewsChart.vue'
 import NewsList from '@/components/home/NewsList.vue';
 import NewsProduct from '@/components/home/NewsProduct.vue';
 
-// --- 2. 컴포넌트 상태 변수 (이전과 동일) ---
+
 const headerStore = useHeaderStore();
 const chartData = ref([]);
 const allNews = ref([]);
@@ -36,11 +36,11 @@ const selectKeyword = ref(null);
 const selectColor = ref(null);
 
 function handleKeywordClick(payload) {
-  selectKeyword.value = payload.label;  // 키워드명
-  selectColor.value = payload.color;    // 버블 색상
+  selectKeyword.value = payload.label;
+  selectColor.value = payload.color;
 }
 
-// --- 1. 테스트용 원본 데이터를 컴포넌트 내에 직접 정의 ---
+
 const rawNewsData = [
   {
     id: 1,
@@ -116,7 +116,7 @@ const filteredProductList = computed(() => {
   return allProducts.value.filter(product => product.labels.includes(selectKeyword.value));
 });
 
-// --- 4. onMounted: 데이터 가공 및 상태 초기화 로직을 여기에 통합 ---
+
 onMounted(() => {
   headerStore.setHeader({
     titleParts: [
@@ -125,7 +125,7 @@ onMounted(() => {
     ]
   });
 
-  // 데이터 가공 로직 시작
+
   const keywordAnalysis = new Map();
   rawNewsData.forEach(news => {
     news.labels.forEach(label => {
@@ -153,9 +153,7 @@ onMounted(() => {
       };
     })
     .sort((a, b) => b.value - a.value);
-  // 데이터 가공 로직 끝
 
-  // 가공된 데이터를 상태에 할당
   chartData.value = bubbleChartData.slice(0, 10);
   allNews.value = rawNewsData;
   allProducts.value = rawProductData;
@@ -168,7 +166,7 @@ onBeforeRouteLeave((to, from) => {
 </script>
 
 <style scoped>
-.home-item {
+.home-box {
   margin: 20px 0;
 
 }
@@ -180,6 +178,4 @@ onBeforeRouteLeave((to, from) => {
   margin-right: calc(-1 * 20px);
   width: calc(100% + 40px);
 }
-
-
 </style>

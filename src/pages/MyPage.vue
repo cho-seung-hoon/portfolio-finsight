@@ -1,5 +1,5 @@
 <template>
-  <div class="subBox">
+  <div class="my-box">
     <div class="subItem-title">
       <div class="title">마이페이지</div>
     </div>
@@ -42,7 +42,7 @@ onBeforeRouteLeave(() => {
 </script>
 
 <style scoped>
-.subBox{
+.my-box{
   display: flex;
   flex-direction: column;
   height: calc(100% - 56px);
@@ -82,7 +82,7 @@ onBeforeRouteLeave(() => {
 }
 
 .subItem-user {
-  margin-top: auto; /* 핵심: 하단으로 밀어냄 */
+  margin-top: auto;
   padding-bottom: 40px;
 }
 
