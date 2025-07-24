@@ -134,7 +134,7 @@ const goToNext = () => {
     width: 400px;
     font-family: sans-serif;
     font-weight: bold;
-    font-size: var(--font-size-lg); 
+    font-size: var(--font-size-lg);
     color: #8c8c8c;
     background-color: var(--main05);
     justify-content: center;

@@ -226,6 +226,49 @@
 <button class="main-section complete-button" @click="goToNext">결과보기</button>
 
 
+        <h2 class="sub-title sub-title-style">II. 해당 투자자금 파악</h2><br>
+        <section class="section">
+            <p class="sub-title"><strong>Q8.</strong> 고객님의 금융투자상품 가입 <span class="bule-highlight">목적</span>을 선택해주세요!</p><br>
+            <div class="section-question">
+                <input type="radio" /> 자산 증식(여유 자금 투자)<hr class="section-boundary">
+                <input type="radio" /> 노후 자금 마련<hr class="section-boundary">
+                <input type="radio" /> 목적 자금 마련 (결혼자금, 주택구입자금 등)<hr class="section-boundary">
+                <input type="radio" /> 사용 예정 자금 단기 운용 (전세금, 임차보증금 등)
+            </div>
+        </section>
+        <section class="section">
+            <p class="sub-title"><strong>Q9.</strong> 고객님께서 투자하실 <span class="bule-highlight">자금의 예상 투자기간</span>을 선택해주세요!</p><br>
+            <div class="section-question">
+                <input type="radio" /> 투자기간과 상관없이 만기일까지 보유<hr class="section-boundary">
+                <input type="radio" /> 3년 이상<hr class="section-boundary">
+                <input type="radio" /> 3년 미만<hr class="section-boundary">
+                <input type="radio" /> 1년 미만<hr class="section-boundary">
+                <input type="radio" /> 6개월 미만
+            </div>
+        </section>
+        <section class="section">
+            <p class="sub-title"><strong>Q10.</strong> 다음 중 현재 투자하는 자금에 대하여 고객님의 <span class="bule-highlight">기대하는 수익과 감내할 수 있는 손실</span>은 어느 정도 인가요?</p><br>
+            <div class="section-question">
+                <input type="radio" /> 기대수익이 높다면 시장 상황에 따라 원금을 초과하는 손실을 감내할 수 있다.<hr class="section-boundary">
+                <input type="radio" /> 기대수익이 높다면 20% ~ 100%의 손실을 감내할 수 있다.<hr class="section-boundary">
+                <input type="radio" /> 원하는 수준의 수익을 기대할 수 있다면 20% 이내의 손실을 감내할 수 있다.<hr class="section-boundary">
+                <input type="radio" /> 일정 수준의 수익을 기대할 수 있다면 경미한 수준의 손실을 감내할 수 있다.<hr class="section-boundary">
+                <input type="radio" /> 투자원금 보전을 추구한다.
+            </div>
+        </section>
+
+        <div class="section-question">
+            <h3 class="sub-title"><span>ℹ️</span> 알려드립니다</h3><hr class="section-boundary"><br>
+            <span class="bule-highlight">본인은 투자목적, 재산상황 및 투자경험 등의 정보를 정확히 등록하였으며 다음과 같은 사항을 확인합니다.</span>
+            <ul class="sub-section-list">
+                <li>투자성향분석결과에 따라 적합한 상품만 가입 가능해요!</li>
+                <li>투자경험, 투자목적, 투자기간 및 손실 감내 수준과 관련한 설문항목 답변에 따라 ELS/ELF 등 일부 상품의 가입이 제한될 수 있어요!</li>
+            </ul>
+        </div>
+    <br><br>
+    <div>
+        <button class="next-button" @click="goToNext">결과보기</button>
+    </div>
 
     <!-- 팝업(모달) -->
     <div v-if="isModalOpen" class="modal-overlay">
@@ -328,7 +371,7 @@
 }
 .modal-box {
     background-color: white;
-    /* border-radius: 8px; */
+
     padding: 24px;
     width: 90%;
     max-width: 320px;

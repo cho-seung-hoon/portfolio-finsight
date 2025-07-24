@@ -25,7 +25,6 @@ import NavBar from './NavBar.vue';
   flex-direction: column;
   height: 100vh;
   overflow-y: auto;
-  margin-bottom: 60px;
 }
 
 .header {
@@ -35,7 +34,8 @@ import NavBar from './NavBar.vue';
 
 .content-container {
   flex: 1;
-  padding: 0 20px;
+  position: relative;
+  padding: 0px 20px 60px 20px;
 }
 
 .footer {

@@ -6,6 +6,7 @@ let BASE_URL = '/exchange';
 export const get = async (params) => {
   try {
     const response = await axios.get(BASE_URL, { params });
+    console.log(response.data);
     return response.data;
   } catch (e) {
     console.error(`Error - get: ${e}`);
