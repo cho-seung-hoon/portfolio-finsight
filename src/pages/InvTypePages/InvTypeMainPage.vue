@@ -8,5 +8,9 @@
     component: InvTypeMainPage
 -->
 <template>
-<h1>페이지명: 투자성향분석-최초페이지</h1>
+  <h1>페이지명: 투자성향분석-최초페이지</h1>
 </template>
+<script setup></script>
+<style scoped>
+
+</style>
