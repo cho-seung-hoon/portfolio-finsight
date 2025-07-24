@@ -32,10 +32,9 @@ import NavBar from './NavBar.vue';
   flex-shrink: 0;
 }
 
-
 .content-container {
   flex: 1;
-  position:relative;
+  position: relative;
   padding: 0px 20px 60px 20px;
 }
 
