@@ -23,7 +23,7 @@ import NavBar from './NavBar.vue';
   display: flex;
   background-color: var(--off-white); /* 본문 배경색 */
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
   overflow-y: auto;
 }
 
