@@ -20,7 +20,7 @@
       <thead>
         <tr>
           <th>색</th>
-          <th>항목</th>
+          <th>종목명</th>
           <th>비중(%)</th>
         </tr>
       </thead>

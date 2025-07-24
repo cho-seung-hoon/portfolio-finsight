@@ -45,10 +45,10 @@
 </template>
 
 <script setup>
-import DetailLongText from './DetailLongText.vue';
-import DetailPieChart from './Detail.PieChart.vue';
-import DetailPdfUrl from './DetailPdfUrl.vue';
-import DetailTable from './DetailTable.vue';
+import DetailLongText from './section/DetailLongText.vue';
+import DetailPieChart from './section/Detail.PieChart.vue';
+import DetailPdfUrl from './section/DetailPdfUrl.vue';
+import DetailTable from './section/DetailTable.vue';
 import DetailAreaChart from './DetailAreaChart.vue';
 const props = defineProps({
   tabData: Object,

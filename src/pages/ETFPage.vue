@@ -2,7 +2,7 @@
   <div v-if="isLoading">로딩 중...</div>
   <div v-else-if="error">{{ error }}</div>
   <div v-else-if="productInfo">
-    <DetailMainSection
+    <DetailMainEtf
       :bank="productInfo.bank"
       :title="productInfo.title"
       :net_assets="productInfo.net_assets"
@@ -33,7 +33,7 @@ import { storeToRefs } from 'pinia';
 // DetailTabs: 상품 상세 정보의 탭 네비게이션 컴포넌트
 // DetailSection: 선택된 탭에 따라 상세 내용을 보여주는 컴포넌트
 // DetailActionButton: 상품 가입/신청 등 주요 액션 버튼 컴포넌트
-import DetailMainSection from '@/components/detail/DetailMainSection2.vue';
+import DetailMainEtf from '@/components/detail/DetailMainEtf.vue';
 import DetailTabs from '@/components/detail/DetailTabs.vue';
 import DetailSection from '@/components/detail/DetailSection.vue';
 import DetailActionButton from '@/components/detail/DetailActionButton.vue';
