@@ -10,11 +10,11 @@
 
 <template>
 <div class="container">
-    <header>
+    <div>
         <h1 class="title">투자성향분석</h1>
-    </header><hr>
+    </div><hr>
 
-    <body>
+    <div>
         <div>
             <p>고객님께서 적합한 상품을 선택 하시는데 도움을 드리기 위해 투자자정보를 제공하는 절차입니다.</p>
                 <ul class="sub-section-list">
@@ -131,10 +131,10 @@
                 <li>투자경험, 투자목적, 투자기간 및 손실 감내 수준과 관련한 설문항목 답변에 따라 ELS/ELF 등 일부 상품의 가입이 제한될 수 있어요!</li>
             </ul>
         </div>
-    </body><br><br>
-    <footer>
+    </div><br><br>
+    <div>
         <button class="next-button" @click="goToNext">결과보기</button>
-    </footer>
+    </div>
 
     <!-- 팝업(모달) -->
     <div v-if="isModalOpen" class="modal-overlay">
@@ -149,7 +149,8 @@
 </template>
 
 
-<style setup>
+<style scoped>
+
 .bule-highlight {
     color: var(--text-blue);
     font-weight: bold;
@@ -167,7 +168,7 @@
 .title {
     color: black;
     display: flex;
-    font-size: var(--font-size-xl); 
+    font-size: var(--font-size-xl);
     background-color: var(--main05);
 }
 .sub-title{
@@ -186,7 +187,7 @@
 }
 .section {
     padding: 10px 10px;
-    border: 1px solid #c8c8c8; /* 조정 필요 */
+    border: 1px solid #c8c8c8;
     border-radius: 5px;
     background-color: #fcfcfc;
 }
@@ -231,13 +232,14 @@
 
 .modal-box {
     background-color: white;
-    /* border-radius: 8px; */
+
     padding: 24px;
     width: 90%;
     max-width: 320px;
     text-align: left;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
+
 </style>
 
 <script setup>

@@ -10,12 +10,12 @@
 
 <template>
 <div class="container">
-    <header>
+    <div>
         <h1 class="title">투자성향분석</h1><br><hr>
-    </header>
+    </div>
 
 
-    <body>
+    <div>
         <div>
             <img src="#" alt="warning-icon" />
             <span>본 상품은 일반 예금상품과 달리 원금의 일부 또는 전부 손실이 발생할 수 있으며, 투자로 인한 손실은 투자자 본인에게 귀속됩니다.</span>
@@ -36,14 +36,15 @@
         <p><button class="notice-button" @click="goToPortfolio">적합상품 등급 안내</button></p><br>
         <p><button class="next-button" @click="goToMain">확인</button></p>
         
-    </body>
+    </div>
 
 
 
 </div>
 </template>
 
-<style setup>
+<style scoped>
+
 .container {
     margin: 0 auto;
     padding: 24px;
