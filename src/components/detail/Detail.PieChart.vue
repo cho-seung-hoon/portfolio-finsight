@@ -1,6 +1,18 @@
 <template>
   <div>
-    <div ref="chart" class="pie-chart"></div>
+    <div class="donut-chart-wrapper" style="position:relative; display:flex; justify-content:center; align-items:center;">
+      <apexchart
+        width="320"
+        type="donut"
+        :options="chartOptions"
+        :series="series"
+        class="pie-chart"
+      />
+      <div v-if="mainItem" class="donut-center-label">
+        <div class="center-value">{{ mainItem.value }}%</div>
+        <div class="center-label">{{ mainItem.label }}</div>
+      </div>
+    </div>
     <table class="pie-table">
       <thead>
         <tr>
@@ -23,9 +35,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
-import * as d3 from 'd3';
-import d3Tip from 'd3-tip';
+import { ref, computed, watch, getCurrentInstance } from 'vue';
+import ApexCharts from 'apexcharts';
+import VueApexCharts from 'vue3-apexcharts';
 
 const props = defineProps({
   data: {
@@ -42,8 +54,13 @@ const props = defineProps({
   }
 });
 
-const chart = ref(null);
-const colorList = ['#5B6CFF', '#A9B6FF', '#E5E8F6'];
+const colorList = [
+  'var(--main02)', 'var(--main03)',
+  'var(--red01)', 'var(--orange01)',
+  'var(--yellow01)', 'var(--green01)',
+  'var(--mint01)', 'var(--sub01)',
+  'var(--off-black)'
+];
 
 function getStandardizedData() {
   if (!props.data || props.data.length === 0) return [];
@@ -70,71 +87,80 @@ function getStandardizedData() {
 
 const standardizedData = computed(() => getStandardizedData());
 
-const drawChart = () => {
-  const width = 180;
-  const height = 180;
-  const radius = Math.min(width, height) / 2;
-  d3.select(chart.value).selectAll('*').remove();
-  const svg = d3.select(chart.value)
-    .append('svg')
-    .attr('width', width)
-    .attr('height', height)
-    .append('g')
-    .attr('transform', `translate(${width / 2},${height / 2})`);
-  const tip = d3Tip()
-    .attr('class', 'd3-tip')
-    .offset([-10, 0])
-    .html(d => {
-      if (!d || !d.data) return '';
-      return `<b>${d.data.label ?? ''}</b><br/>${d.data.value ?? ''}%`;
-    });
-  svg.call(tip);
-  const color = d3.scaleOrdinal()
-    .domain(standardizedData.value.map(d => d.label))
-    .range(colorList);
-  const pie = d3.pie()
-    .value(d => d.value);
-  const data_ready = pie(standardizedData.value);
-  svg
-    .selectAll('path')
-    .data(data_ready)
-    .join('path')
-    .attr('d', d3.arc()
-      .innerRadius(60)
-      .outerRadius(radius)
-    )
-    .attr('fill', d => color(d.data.label))
-    .attr('stroke', 'white')
-    .style('stroke-width', '2px')
-    .on('mouseover', function(event, d) { tip.show.call(this, d, event); })
-    .on('mousemove', function(event) {
-      d3.select('.d3-tip')
-        .style('left', (event.clientX + 10) + 'px')
-        .style('top', (event.clientY - 10) + 'px');
-    })
-    .on('mouseout', function(event, d) { tip.hide.call(this, d, event); });
-  // 중앙 텍스트 (가장 큰 비중)
-  if (standardizedData.value.length > 0) {
-    const main = standardizedData.value.reduce((a, b) => a.value > b.value ? a : b);
-    svg.append('text')
-      .attr('text-anchor', 'middle')
-      .attr('y', 0)
-      .attr('dy', '0em')
-      .attr('font-size', '28px')
-      .attr('font-weight', 'bold')
-      .attr('fill', '#222')
-      .text(`${main.value}%`);
-    svg.append('text')
-      .attr('text-anchor', 'middle')
-      .attr('y', 24)
-      .attr('dy', '0em')
-      .attr('font-size', '15px')
-      .attr('fill', '#666')
-      .text(main.label);
+const series = computed(() => standardizedData.value.map(d => d.value));
+const labels = computed(() => standardizedData.value.map(d => d.label));
+
+const selectedIndex = ref(null);
+const mainItem = computed(() => {
+  if (!standardizedData.value.length) return null;
+  if (selectedIndex.value !== null && standardizedData.value[selectedIndex.value]) {
+    return standardizedData.value[selectedIndex.value];
   }
-};
-onMounted(drawChart);
-watch(() => props.data, drawChart, { deep: true });
+  // 기본값: 가장 큰 비중
+  return standardizedData.value.reduce((a, b) => a.value > b.value ? a : b);
+});
+
+function onDataPointSelection(event, chartContext, config) {
+  if (config && typeof config.dataPointIndex === 'number') {
+    selectedIndex.value = config.dataPointIndex;
+  }
+}
+
+const chartOptions = computed(() => ({
+  chart: {
+    type: 'donut',
+    toolbar: { show: false },
+    events: {
+      dataPointSelection: onDataPointSelection
+    }
+  },
+  labels: labels.value,
+  colors: colorList,
+  legend: {
+    show: false
+  },
+  dataLabels: {
+    enabled: true,
+    style: {
+      fontSize: '15px',
+      fontWeight: 'bold',
+      colors: ['#222']
+    },
+    formatter: function (val, opts) {
+      return `${val.toFixed(1)}%`;
+    },
+    dropShadow: {
+      enabled: false
+    },
+    background: {
+      enabled: false
+    }
+  },
+  tooltip: {
+    y: {
+      formatter: function (val) {
+        return `${val.toFixed(1)}%`;
+      }
+    }
+  },
+  plotOptions: {
+    pie: {
+      donut: {
+        size: '70%',
+        labels: {
+          show: false
+        }
+      }
+    }
+  }
+}));
+
+// vue3-apexcharts 등록
+const app = getCurrentInstance()?.appContext.app;
+if (app && !app._apexcharts_registered) {
+  app.component('apexchart', VueApexCharts);
+  app._apexcharts_registered = true;
+}
 </script>
 
 <style scoped>
@@ -142,6 +168,30 @@ watch(() => props.data, drawChart, { deep: true });
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.donut-chart-wrapper {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  margin: 0 auto;
+}
+.donut-center-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+.center-value {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: var(--off-black);
+}
+.center-label {
+  font-size: 1.1rem;
+  color: var(--off-black);
+  margin-top: 2px;
 }
 .pie-table {
   margin: 24px 0 0 0;
@@ -151,12 +201,12 @@ watch(() => props.data, drawChart, { deep: true });
   width: 100%;
 }
 .pie-table th, .pie-table td {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--main03);
   padding: 6px 10px;
   text-align: left;
 }
 .pie-table th {
-  background: #f8f8f8;
+  background: var(--main04);
   font-weight: 600;
 }
 </style> 

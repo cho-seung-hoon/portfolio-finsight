@@ -2,11 +2,11 @@
   <div v-if="isLoading">로딩 중...</div>
   <div v-else-if="error">{{ error }}</div>
   <div v-else-if="productInfo">
-    <DetailMainSection
+    <DetailMainSection3
       :bank="productInfo.bank"
       :title="productInfo.title"
-      :net_assets="productInfo.net_assets"
-      :risk="productInfo.risk"
+      :yield="productInfo.yield"
+      :priceArr="productInfo.priceArr"
     />
 
     <DetailTabs
@@ -33,7 +33,7 @@ import { useRoute } from 'vue-router';
 import { useFundStore } from '@/stores/fund';
 import { storeToRefs } from 'pinia';
 
-import DetailMainSection from '@/components/detail/DetailMainSection2.vue';
+import DetailMainSection3 from '@/components/detail/DetailMainSection3.vue';
 import DetailTabs from '@/components/detail/DetailTabs.vue';
 import DetailSection from '@/components/detail/DetailSection.vue';
 import DetailActionButton from '@/components/detail/DetailActionButton.vue';

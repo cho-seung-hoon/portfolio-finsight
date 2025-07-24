@@ -47,7 +47,7 @@ function toggle() {
   background: transparent;
   border-radius: 20px;
   border: 1px solid var(--main02);
-  padding: 16px 5vw 40px 5vw;
+  padding: 16px 3vw 40px 3vw;
   font-size: 14px;
   line-height: 1.6;
   position: relative;

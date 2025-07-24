@@ -7,28 +7,32 @@
     >
       <div class="section-title">{{ item.title }}</div>
       <div class="section-desc">
-        <template v-if="['펀드 특징', '운용 전략'].includes(item.title) && typeof item.desc === 'string'">
+        <template v-if="item.type === 'longtext' && typeof item.desc === 'string'">
           <DetailLongText>
             <span v-html="item.desc.replace(/\n/g, '<br>')"></span>
           </DetailLongText>
         </template>
-        <template v-else-if="typeof item.desc === 'string'">
-          <span v-html="item.desc.replace(/\n/g, '<br>')"></span>
-        </template>
-        <template v-else-if="item.title === '구성종목' && Array.isArray(item.desc)">
+        <template v-else-if="item.type === 'piechart' && Array.isArray(item.desc)">
           <div style="margin-bottom: 32px;">
             <DetailPieChart :data="item.desc" :label-key="'종목명'" :value-key="'비중'" />
           </div>
         </template>
-        <template v-else-if="item.title === '공시/보고서' && Array.isArray(item.desc)">
+        <template v-else-if="item.type === 'areachart' && Array.isArray(item.desc)">
+          <div style="margin-bottom: 32px;">
+            <DetailAreaChart :data="item.desc" />
+          </div>
+        </template>
+        <template v-else-if="item.type === 'pdf' && Array.isArray(item.desc)">
           <DetailPdfUrl :pdfList="item.desc" />
+        </template>
+        <template v-else-if="item.type === 'table' && Array.isArray(item.desc)">
+          <DetailTable :desc="item.desc" />
         </template>
         <template v-else-if="Array.isArray(item.desc)">
           <DetailTable :desc="item.desc" />
         </template>
-        <template v-else-if="typeof item.desc === 'object' && item.desc !== null">
-          <!-- 그래프 데이터가 들어오면 그래프 컴포넌트로 렌더링 (예시: MyChartComponent) -->
-          <!-- <MyChartComponent v-if="item.desc.labels && item.desc.data" :chart-data="item.desc" /> -->
+        <template v-else>
+          <span v-html="item.desc && typeof item.desc === 'string' ? item.desc.replace(/\n/g, '<br>') : ''"></span>
         </template>
       </div>
     </div>
@@ -40,6 +44,7 @@ import DetailLongText from './DetailLongText.vue';
 import DetailPieChart from './Detail.PieChart.vue';
 import DetailPdfUrl from './DetailPdfUrl.vue';
 import DetailTable from './DetailTable.vue';
+import DetailAreaChart from './DetailAreaChart.vue';
 const props = defineProps({
   tabData: Object,
   selectedTab: String

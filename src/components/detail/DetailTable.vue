@@ -36,12 +36,6 @@ th, td {
   text-align: left;
 }
 th {
-  background: var(--main01);
   font-weight: 600;
-  color: var(--white);
-}
-td {
-  background: var(--main02);
-  color: var(--white);
 }
 </style> 

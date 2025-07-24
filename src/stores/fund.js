@@ -10,17 +10,14 @@ export const useFundStore = defineStore('fund', () => {
     'fund-001': {
       bank: '미래에셋',
       title: '미래에셋자산배분TINA펀드',
-      net_assets: '100.50',
-      risk: 3,
+      yield: '25.97%',
+      priceArr: [1414.27, 1373.72], // [오늘 기준가, 전일 기준가]
       info: [
-        { title: '펀드 특징', desc: '글로벌 자산에 분산 투자하여 안정적인 수익을 추구합니다.' },
-      ],
-      price: [
-        { title: '오늘 기준가', desc: '1,234.56원' },
-        { title: '설정일', desc: '2020-01-01' },
+        { type: 'longtext', title: '펀드 특징', desc: '글로벌 자산에 분산 투자하여 안정적인 수익을 추구합니다.' },
       ],
       composition: [
         {
+          type: 'piechart',
           title: '구성종목',
           desc: [
             { 종목명: '주식', 비중: '60%' },
@@ -30,23 +27,20 @@ export const useFundStore = defineStore('fund', () => {
         }
       ],
       news: [
-        { title: '펀드 소식', desc: '미래에셋자산배분TINA펀드, 수익률 상승' },
+        { type: 'text', title: '펀드 소식', desc: '미래에셋자산배분TINA펀드, 수익률 상승' },
       ]
     },
     'fund-002': {
       bank: '삼성',
       title: '삼성 한국형TDF 2045',
-      net_assets: '75.20',
-      risk: 4,
+      yield: '-3.21%',
+      priceArr: [987.65, 1000.00], // [오늘 기준가, 전일 기준가]
       info: [
-        { title: '펀드 특징', desc: '은퇴 시점에 맞춰 자산 배분을 자동으로 조절하는 펀드입니다.' },
-      ],
-      price: [
-        { title: '오늘 기준가', desc: '987.65원' },
-        { title: '설정일', desc: '2018-05-10' },
+        { type: 'longtext', title: '펀드 특징', desc: '은퇴 시점에 맞춰 자산 배분을 자동으로 조절하는 펀드입니다.' },
       ],
       composition: [
         {
+          type: 'piechart',
           title: '구성종목',
           desc: [
             { 종목명: '국내주식', 비중: '40%' },
@@ -56,7 +50,7 @@ export const useFundStore = defineStore('fund', () => {
         }
       ],
       news: [
-        { title: 'TDF 소식', desc: '삼성 한국형TDF, 안정적인 운용 성과' },
+        { type: 'text', title: 'TDF 소식', desc: '삼성 한국형TDF, 안정적인 운용 성과' },
       ]
     }
   };
