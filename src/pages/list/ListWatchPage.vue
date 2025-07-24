@@ -1,5 +1,5 @@
 <template>
-  <section class="list-like-page-tab">
+  <section class="list-watch-page-tab">
     <button
       v-for="tab in tabs"
       :key="tab.value"
@@ -8,7 +8,7 @@
       {{ tab.label }}
     </button>
   </section>
-  <section class="list-like-page-content">
+  <section class="list-watch-page-content">
     <DepositItem
       v-for="item in deposits"
       :key="item.product_code"
@@ -62,7 +62,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.list-like-page-tab {
+.list-watch-page-tab {
   display: flex;
   gap: 12px;
   padding: 12px 0;

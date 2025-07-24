@@ -66,7 +66,7 @@ onMounted(() => {
     showBackButton: false,
     actions: [
       { icon: 'search', handler: () => router.push('/list/search') },
-      { icon: 'watch', handler: () => router.push('/list/like') }
+      { icon: 'watch', handler: () => router.push('/list/watch') }
     ]
   });
 });
