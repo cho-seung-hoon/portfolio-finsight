@@ -1,5 +1,5 @@
 <template>
-  <div class="subBox">
+  <div class="subBox2">
     <div class="subItem-title">
       나의 투자 성향
     </div>
@@ -7,16 +7,16 @@
       <div class="invt">
           안정형
       </div>
-      <div class="invtTest">
-          테스트 버튼
-      </div>
+      <button class="invtTest">
+          투자 성향 분석
+      </button>
     </div>
   </div>
 </template>
 
 <script setup></script>
 <style scoped>
-.subBox{
+.subBox2{
   margin: 30px 0;
   background-color: var(--white);
   border-radius: 8px;
@@ -36,6 +36,17 @@
   justify-content: space-between;
   align-items: center;
 }
+
+button {
+  all: unset;
+  padding: 6px 10px;
+  background-color: var(--sub01);
+  color:var(--white);
+  font-size: var(--font-size-md);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
 
 .invt{
   font-size:var(--font-size-xl);

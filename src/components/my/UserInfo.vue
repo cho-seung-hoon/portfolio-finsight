@@ -1,5 +1,5 @@
 <template>
-  <div class="subBox">
+  <div class="subBox2">
     <div class="subItem">
       <div class="name">이진욱 님</div>
       <div class="edit">
@@ -33,9 +33,8 @@
 <script setup>
 </script>
 <style scoped>
-.subBox{
+.subBox2{
   width: 100%;
-  height: 220px;
   padding:20px;
   background-color: var(--main01);
 }
