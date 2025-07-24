@@ -5,6 +5,7 @@ import HomePage from '@/pages/HomePage.vue';
 import holdingRoutes from './holdingRoutes';
 import listRoutes from './listRoutes';
 import myRoutes from './myRoutes';
+import signUpRoutes from './signUpRoutes';
 import invtRoutes from '@/router/invtRoutes.js';
 
 const router = createRouter({
@@ -29,6 +30,7 @@ const router = createRouter({
     ...holdingRoutes,
     ...listRoutes,
     ...myRoutes,
+    ...signUpRoutes,
     ...invtRoutes
   ]
 });
