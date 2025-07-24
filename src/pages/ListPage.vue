@@ -12,30 +12,53 @@
     </div>
   </section>
   <div class="list-page-banner-wrapper">
-    <div class="list-page-banner">
-      <div class="list-page-banner-comment">
-        <IconCheck width="20px" />
-        <span>내 투자 성향에 맞춰보는 중!</span>
+    <div
+      class="list-page-banner"
+      :class="{ matched: isMatched }"
+      @click="openModal"
+      style="cursor: pointer">
+      <div
+        class="list-page-banner-comment"
+        :class="isMatched ? 'matched' : 'default'">
+        <IconCheck
+          :width="20"
+          :color="isMatched ? 'var(--white)' : 'var(--main03)'" />
+        <span>
+          {{ isMatched ? '내 투자 성향에 맞춰보는 중!' : '내 투자 성향에 맞춰보기' }}
+        </span>
       </div>
-      <button class="close-btn">해제</button>
+      <button
+        v-if="isMatched"
+        class="close-btn"
+        @click.stop="resetMatch">
+        해제
+      </button>
     </div>
   </div>
+
+  <BottomModal
+    v-if="showModal"
+    @confirm="confirmMatch"
+    @cancel="closeModal" />
 </template>
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
-import { computed, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useHeaderStore } from '@/stores/header';
 import ListTab from '@/components/list/ListTab.vue';
 import ListDepositsPage from './list/ListDepositsPage.vue';
 import ListFundPage from './list/ListFundPage.vue';
 import ListEtfPage from './list/ListEtfPage.vue';
 import IconCheck from '@/components/icons/IconCheck.vue';
+import BottomModal from './list/BottomModal.vue';
 
 const headerStore = useHeaderStore();
 const route = useRoute();
 const router = useRouter();
 const category = computed(() => route.params.category);
+const isMatched = ref(false);
+const showModal = ref(false);
 
 onMounted(() => {
   headerStore.setHeader({
@@ -47,6 +70,25 @@ onMounted(() => {
     ]
   });
 });
+
+function openModal() {
+  if (!isMatched.value) {
+    showModal.value = true;
+  }
+}
+
+function closeModal() {
+  showModal.value = false;
+}
+
+function confirmMatch() {
+  isMatched.value = true;
+  showModal.value = false;
+}
+
+function resetMatch() {
+  isMatched.value = false;
+}
 </script>
 
 <style scoped>
@@ -77,8 +119,6 @@ onMounted(() => {
 
 .list-page-banner {
   width: 100%;
-  background: #28ca6e;
-  color: var(--white);
   z-index: 120;
   display: flex;
   align-items: center;
@@ -87,6 +127,24 @@ onMounted(() => {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
   border-radius: 12px;
+}
+
+.list-page-banner {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  color: var(--main02);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 8px 50px 0 rgba(13, 17, 37, 0.05);
+}
+
+.list-page-banner.matched {
+  background: rgba(40, 202, 110, 0.9);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  color: var(--white);
+  border: 1px solid rgba(40, 202, 110, 0.5);
 }
 
 .list-page-banner-comment {
