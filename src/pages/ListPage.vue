@@ -1,8 +1,8 @@
 <template>
   <ListTab />
   <section class="page-content">
-    <div v-if="category === 'deposits'">
-      <ListDepositsPage />
+    <div v-if="category === 'deposit'">
+      <ListDepositPage />
     </div>
     <div v-else-if="category === 'fund'">
       <ListFundPage />
@@ -47,7 +47,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { ref, computed, onMounted } from 'vue';
 import { useHeaderStore } from '@/stores/header';
 import ListTab from '@/components/list/ListTab.vue';
-import ListDepositsPage from './list/ListDepositsPage.vue';
+import ListDepositPage from './list/ListDepositPage.vue';
 import ListFundPage from './list/ListFundPage.vue';
 import ListEtfPage from './list/ListEtfPage.vue';
 import IconCheck from '@/components/icons/IconCheck.vue';

@@ -9,14 +9,14 @@
     </button>
   </section>
   <section class="list-like-page-content">
-    <DepositsItem></DepositsItem>
+    <DepositItem></DepositItem>
   </section>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useHeaderStore } from '@/stores/header';
-import DepositsItem from '@/components/list/DepositsItem.vue';
+import DepositItem from '@/components/list/DepositItem.vue';
 
 const headerStore = useHeaderStore();
 const tabs = [

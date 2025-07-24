@@ -21,7 +21,7 @@ const router = useRouter();
 const route = useRoute();
 
 const tabs = [
-  { label: '예금', value: 'deposits' },
+  { label: '예금', value: 'deposit' },
   { label: '펀드', value: 'fund' },
   { label: 'ETF', value: 'etf' }
 ];

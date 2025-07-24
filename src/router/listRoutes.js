@@ -9,7 +9,7 @@ const listRoutes = [
   },
   {
     path: '/list',
-    redirect: '/list/deposits'
+    redirect: '/list/deposit'
   },
   {
     path: '/list/search',
