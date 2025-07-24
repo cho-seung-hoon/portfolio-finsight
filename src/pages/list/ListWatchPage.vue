@@ -8,7 +8,7 @@
       {{ tab.label }}
     </button>
   </section>
-  <section class="list-watch-page-content">
+  <section class="list-watch-page-contents">
     <DepositItem
       v-for="item in deposits"
       :key="item.product_code"
@@ -45,6 +45,62 @@ const deposits = [
     company_name: '국민은행',
     intr_rate: 1.5,
     intr_rate2: 3.0
+  },
+  {
+    product_code: 'HN234',
+    product_name: '안심정기예금',
+    company_name: '하나은행',
+    intr_rate: 1.4,
+    intr_rate2: 2.7
+  },
+  {
+    product_code: 'WR341',
+    product_name: '우리파워정기예금',
+    company_name: '우리은행',
+    intr_rate: 1.3,
+    intr_rate2: 2.9
+  },
+  {
+    product_code: 'IBK432',
+    product_name: 'i-ONE 정기예금',
+    company_name: '기업은행',
+    intr_rate: 1.6,
+    intr_rate2: 3.1
+  },
+  {
+    product_code: 'NH543',
+    product_name: 'NH프리미엄예금',
+    company_name: '농협은행',
+    intr_rate: 1.3,
+    intr_rate2: 2.6
+  },
+  {
+    product_code: 'CT654',
+    product_name: '더드림정기예금',
+    company_name: '씨티은행',
+    intr_rate: 1.7,
+    intr_rate2: 3.2
+  },
+  {
+    product_code: 'SC765',
+    product_name: '마이플랜정기예금',
+    company_name: 'SC제일은행',
+    intr_rate: 1.4,
+    intr_rate2: 2.5
+  },
+  {
+    product_code: 'DA876',
+    product_name: '다이렉트정기예금',
+    company_name: '대구은행',
+    intr_rate: 1.5,
+    intr_rate2: 3.0
+  },
+  {
+    product_code: 'BS987',
+    product_name: '부산e-정기예금',
+    company_name: '부산은행',
+    intr_rate: 1.6,
+    intr_rate2: 3.1
   }
 ];
 
@@ -86,5 +142,11 @@ onMounted(() => {
 .tab-btn.active {
   background: var(--main01);
   color: var(--white);
+}
+
+.list-watch-page-contents {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 </style>
