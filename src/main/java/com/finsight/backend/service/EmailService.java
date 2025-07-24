@@ -32,7 +32,8 @@ public class EmailService {
         String code = String.format("%06d", random.nextInt(1000000));
         long expireAt = System.currentTimeMillis() + (5 * 60 * 1000);
 
-        codeStorage.put(email, new EmailVerification(code, expireAt));
+        codeStorage.remove(email); // 기존 인증코드 제거 (명시적)
+        codeStorage.put(email, new EmailVerification(code, expireAt)); // 새 코드 저장
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -47,7 +48,12 @@ public class EmailService {
             codeStorage.remove(email);
             return false;
         }
-        return v.getCode().equals(code);
+
+        if (v.getCode().equals(code)) {
+            codeStorage.remove(email);  // 인증 성공 시 자동 삭제
+            return true;
+        }
+        return false;
     }
 
     public void removeCode(String email) {
