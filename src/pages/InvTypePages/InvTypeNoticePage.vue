@@ -70,6 +70,8 @@
     </section>
     <!-- SubSection_3 end -->
 </div>
+<!-- MainSection end-->
+
 <!-- CompleteButton -->
 <button
     class="main-section complete-button"

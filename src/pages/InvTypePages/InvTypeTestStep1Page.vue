@@ -167,5 +167,6 @@ const goToNext = () => {
 /* Highlight styles */
 .highlight-blue {
     color: var(--text-blue);
+    font-weight: bold;
 }
 </style>

@@ -119,9 +119,6 @@
         <!-- NoticeSection end -->
     </div>
 </section>
-
-
-
 </template>
 
 <script setup>
