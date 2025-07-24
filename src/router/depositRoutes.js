@@ -9,4 +9,4 @@ const depositRoutes = [
   }
 ];
 
-export default depositRoutes; 
+export default depositRoutes;

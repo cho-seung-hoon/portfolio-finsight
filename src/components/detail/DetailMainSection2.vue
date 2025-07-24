@@ -6,13 +6,11 @@
       <IconFullHeart
         v-if="heartActive"
         class="heart-icon"
-        @click="toggleHeart"
-      />
+        @click="toggleHeart" />
       <IconEmptyHeart
         v-else
         class="heart-icon"
-        @click="toggleHeart"
-      />
+        @click="toggleHeart" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">
@@ -27,8 +25,7 @@
             v-for="n in 6"
             :is="n <= risk ? IconFillStar : IconEmptyStar"
             :key="n"
-            class="star-icon"
-          />
+            class="star-icon" />
         </div>
       </div>
     </div>
@@ -46,7 +43,7 @@ const props = defineProps({
   bank: String,
   title: String,
   net_assets: String, // 순자산 총액 (단위 없는 숫자 문자열)
-  risk: Number        // 위험 등급 (1~6)
+  risk: Number // 위험 등급 (1~6)
 });
 
 const formattedNetAssets = computed(() => {
@@ -138,4 +135,4 @@ function toggleHeart() {
   width: 20px;
   height: 20px;
 }
-</style> 
+</style>

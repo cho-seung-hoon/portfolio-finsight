@@ -1,14 +1,17 @@
 <template>
   <div>
-    <div class="donut-chart-wrapper" style="position:relative; display:flex; justify-content:center; align-items:center;">
+    <div
+      class="donut-chart-wrapper"
+      style="position: relative; display: flex; justify-content: center; align-items: center">
       <apexchart
         width="320"
         type="donut"
         :options="chartOptions"
         :series="series"
-        class="pie-chart"
-      />
-      <div v-if="mainItem" class="donut-center-label">
+        class="pie-chart" />
+      <div
+        v-if="mainItem"
+        class="donut-center-label">
         <div class="center-value">{{ mainItem.value }}%</div>
         <div class="center-label">{{ mainItem.label }}</div>
       </div>
@@ -22,9 +25,18 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(row, idx) in standardizedData" :key="row.label">
+        <tr
+          v-for="(row, idx) in standardizedData"
+          :key="row.label">
           <td>
-            <span :style="{ display: 'inline-block', width: '16px', height: '16px', 'border-radius': '50%', background: colorList[idx % colorList.length] }"></span>
+            <span
+              :style="{
+                display: 'inline-block',
+                width: '16px',
+                height: '16px',
+                'border-radius': '50%',
+                background: colorList[idx % colorList.length]
+              }"></span>
           </td>
           <td>{{ row.label }}</td>
           <td>{{ row.value }}</td>
@@ -55,10 +67,14 @@ const props = defineProps({
 });
 
 const colorList = [
-  'var(--main02)', 'var(--main03)',
-  'var(--red01)', 'var(--orange01)',
-  'var(--yellow01)', 'var(--green01)',
-  'var(--mint01)', 'var(--sub01)',
+  'var(--main02)',
+  'var(--main03)',
+  'var(--red01)',
+  'var(--orange01)',
+  'var(--yellow01)',
+  'var(--green01)',
+  'var(--mint01)',
+  'var(--sub01)',
   'var(--off-black)'
 ];
 
@@ -97,7 +113,7 @@ const mainItem = computed(() => {
     return standardizedData.value[selectedIndex.value];
   }
   // 기본값: 가장 큰 비중
-  return standardizedData.value.reduce((a, b) => a.value > b.value ? a : b);
+  return standardizedData.value.reduce((a, b) => (a.value > b.value ? a : b));
 });
 
 function onDataPointSelection(event, chartContext, config) {
@@ -200,7 +216,8 @@ if (app && !app._apexcharts_registered) {
   min-width: 350px;
   width: 100%;
 }
-.pie-table th, .pie-table td {
+.pie-table th,
+.pie-table td {
   border: 1px solid var(--main03);
   padding: 6px 10px;
   text-align: left;
@@ -209,4 +226,4 @@ if (app && !app._apexcharts_registered) {
   background: var(--main04);
   font-weight: 600;
 }
-</style> 
+</style>

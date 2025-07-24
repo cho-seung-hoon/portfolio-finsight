@@ -3,11 +3,12 @@
     <div
       class="long-text-content"
       ref="contentRef"
-      :style="contentStyle"
-    >
+      :style="contentStyle">
       <slot />
     </div>
-    <button class="toggle-btn" @click="toggle">
+    <button
+      class="toggle-btn"
+      @click="toggle">
       {{ expanded ? '접기' : '더보기' }}
     </button>
   </div>
@@ -22,7 +23,9 @@ const maxCollapsedHeight = 90; // px
 
 const contentStyle = computed(() => {
   return {
-    maxHeight: expanded.value ? `${contentRef.value?.scrollHeight || 9999}px` : `${maxCollapsedHeight}px`,
+    maxHeight: expanded.value
+      ? `${contentRef.value?.scrollHeight || 9999}px`
+      : `${maxCollapsedHeight}px`,
     overflow: 'hidden',
     transition: 'max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.7s',
     opacity: expanded.value ? 1 : 0.7 // 선택: 펼칠 때 살짝 fade-in 효과
@@ -74,4 +77,4 @@ function toggle() {
   font-weight: 500;
   letter-spacing: 0.5px;
 }
-</style> 
+</style>

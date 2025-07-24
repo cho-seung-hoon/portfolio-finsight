@@ -6,13 +6,11 @@
       <IconFullHeart
         v-if="heartActive"
         class="heart-icon"
-        @click="toggleHeart"
-      />
+        @click="toggleHeart" />
       <IconEmptyHeart
         v-else
         class="heart-icon"
-        @click="toggleHeart"
-      />
+        @click="toggleHeart" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">
@@ -115,4 +113,4 @@ function toggleHeart() {
   font-size: 12px;
   color: var(--main02);
 }
-</style> 
+</style>

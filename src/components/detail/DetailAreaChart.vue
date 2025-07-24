@@ -6,8 +6,7 @@
         :key="label"
         :class="{ active: selectedRangeIdx === idx }"
         @click.stop.prevent="selectRange(idx)"
-        type="button"
-      >
+        type="button">
         {{ label }}
       </button>
     </div>
@@ -17,8 +16,7 @@
       :options="chartOptions"
       :series="chartSeries"
       class="area-chart"
-      :key="selectedRangeIdx"
-    />
+      :key="selectedRangeIdx" />
   </div>
 </template>
 
@@ -53,17 +51,19 @@ const filteredData = computed(() => {
 const chartSeries = computed(() => [
   {
     name: '수익률',
+    type: 'area', // area 그래프
     data: filteredData.value.map(d => [d.date, d.수익률])
   },
   {
     name: '기준가',
+    type: 'line', // 선 그래프
     data: filteredData.value.map(d => [d.date, d.기준가])
   }
 ]);
 
 const chartOptions = computed(() => ({
   chart: {
-    type: 'area',
+    type: 'line', // 시리즈별 타입을 쓸 때는 'line'으로 지정
     toolbar: { show: false },
     zoom: { enabled: false }
   },
@@ -99,7 +99,7 @@ const chartOptions = computed(() => ({
   ],
   tooltip: {
     x: {
-      format: 'dd/MM/yy'
+      format: 'yyyy/MM/dd'
     },
     y: [
       {
@@ -123,8 +123,8 @@ const chartOptions = computed(() => ({
     type: 'gradient',
     gradient: {
       shadeIntensity: 0.2,
-      opacityFrom: 0.4,
-      opacityTo: 0.1,
+      opacityFrom: 0.8,
+      opacityTo: 0.2,
       stops: [0, 90, 100]
     }
   }
@@ -158,7 +158,9 @@ if (app && !app._apexcharts_registered) {
   padding: 4px 16px;
   font-size: 15px;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 .date-range-btns button.active {
   background: var(--main01);
@@ -167,4 +169,4 @@ if (app && !app._apexcharts_registered) {
 .area-chart {
   width: 100%;
 }
-</style> 
+</style>

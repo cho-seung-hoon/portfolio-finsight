@@ -1,6 +1,9 @@
 <template>
   <div class="pdf-url-box">
-    <div v-for="(group, idx) in pdfList" :key="group.category" class="pdf-category-row">
+    <div
+      v-for="(group, idx) in pdfList"
+      :key="group.category"
+      class="pdf-category-row">
       <div class="pdf-category">{{ group.category }}</div>
       <div class="pdf-links">
         <a
@@ -9,8 +12,7 @@
           :href="item.url"
           class="pdf-link"
           target="_blank"
-          rel="noopener noreferrer"
-        >
+          rel="noopener noreferrer">
           <span class="pdf-icon">📄</span>
           {{ item.label }}
         </a>
@@ -71,4 +73,4 @@ const props = defineProps({
   font-size: 15px;
   margin-right: 2px;
 }
-</style> 
+</style>

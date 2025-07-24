@@ -6,24 +6,20 @@
       :bank="productInfo.bank"
       :title="productInfo.title"
       :yield="productInfo.yield"
-      :priceArr="productInfo.priceArr"
-    />
+      :priceArr="productInfo.priceArr" />
 
     <DetailTabs
       :tabs="tabs"
       :selectedTab="selectedTab"
-      @update:selectedTab="selectTab"
-    />
+      @update:selectedTab="selectTab" />
 
     <DetailSection
       :tabData="tabData"
-      :selectedTab="selectedTab"
-    />
+      :selectedTab="selectedTab" />
 
     <DetailActionButton
       :active="isActive"
-      @click="onClick"
-    />
+      @click="onClick" />
   </div>
 </template>
 
@@ -59,7 +55,7 @@ const tabs = [
   { key: 'news', label: '뉴스' }
 ];
 const selectedTab = ref('info');
-const selectTab = (tab) => {
+const selectTab = tab => {
   selectedTab.value = tab;
 };
 
@@ -67,4 +63,4 @@ const isActive = ref(false);
 const onClick = () => {
   isActive.value = true;
 };
-</script> 
+</script>

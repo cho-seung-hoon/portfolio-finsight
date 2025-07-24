@@ -7,25 +7,21 @@
       :title="productInfo.title"
       :maxRate="productInfo.maxRate"
       :maxRateDesc="productInfo.maxRateDesc"
-      :baseRate="productInfo.baseRate"
-    />
+      :baseRate="productInfo.baseRate" />
 
     <DetailTabs
       :tabs="tabs"
       :selectedTab="selectedTab"
       :indicatorPosition="indicatorPosition"
-      @update:selectedTab="selectTab"
-    />
+      @update:selectedTab="selectTab" />
 
     <DetailSection
       :tabData="tabData"
-      :selectedTab="selectedTab"
-    />
+      :selectedTab="selectedTab" />
 
     <DetailActionButton
       :active="isActive"
-      @click="onClick"
-    />
+      @click="onClick" />
   </div>
 </template>
 
@@ -65,13 +61,13 @@ const tabs = [
   { key: 'notice', label: '유의사항' }
 ];
 const selectedTab = ref('info');
-const selectTab = (tab) => {
+const selectTab = tab => {
   selectedTab.value = tab;
 };
 const indicatorPosition = {
   info: '0px',
   rate: '147px',
-  notice: '294px',
+  notice: '294px'
 };
 
 // 버튼 상태
@@ -79,4 +75,4 @@ const isActive = ref(false);
 const onClick = () => {
   isActive.value = true;
 };
-</script> 
+</script>

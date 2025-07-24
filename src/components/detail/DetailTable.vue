@@ -2,12 +2,22 @@
   <table v-if="Array.isArray(desc) && desc.length">
     <thead>
       <tr>
-        <th v-for="(value, key) in desc[0]" :key="key">{{ key }}</th>
+        <th
+          v-for="(value, key) in desc[0]"
+          :key="key">
+          {{ key }}
+        </th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(row, idx) in desc" :key="idx">
-        <td v-for="(value, key) in row" :key="key">{{ value }}</td>
+      <tr
+        v-for="(row, idx) in desc"
+        :key="idx">
+        <td
+          v-for="(value, key) in row"
+          :key="key">
+          {{ value }}
+        </td>
       </tr>
     </tbody>
   </table>
@@ -30,12 +40,14 @@ table {
   margin-top: 8px;
   font-size: 15px;
 }
-th, td {
+th,
+td {
   border: 1px solid var(--main03);
   padding: 6px 10px;
   text-align: left;
 }
 th {
   font-weight: 600;
+  background: var(--main04);
 }
-</style> 
+</style>

@@ -4,12 +4,15 @@
       type="button"
       class="asset-record-btn-fixed"
       :class="{ active }"
-      @click="$emit('click')"
-    >
-      <span v-if="active" class="asset-record-desc">현재 보유자산입니다.</span>
+      @click="$emit('click')">
       <span
-        :class="['asset-record-btn-text', { 'center': !active }]"
-      >{{ active ? '자세히보기' : '보유자산으로 기록' }}</span>
+        v-if="active"
+        class="asset-record-desc"
+        >현재 보유자산입니다.</span
+      >
+      <span :class="['asset-record-btn-text', { center: !active }]">{{
+        active ? '자세히보기' : '보유자산으로 기록'
+      }}</span>
     </button>
   </div>
 </template>

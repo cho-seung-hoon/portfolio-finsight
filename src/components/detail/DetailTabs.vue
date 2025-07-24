@@ -5,14 +5,12 @@
       :key="tab.key"
       class="tab"
       :class="{ active: selectedTab === tab.key }"
-      @click="$emit('update:selectedTab', tab.key)"
-    >
+      @click="$emit('update:selectedTab', tab.key)">
       {{ tab.label }}
     </div>
     <div
       class="tab-indicator"
-      :style="indicatorStyle"
-    ></div>
+      :style="indicatorStyle"></div>
   </div>
 </template>
 
@@ -21,7 +19,7 @@ import { computed } from 'vue';
 
 const props = defineProps({
   tabs: Array, // [{ key, label }]
-  selectedTab: String,
+  selectedTab: String
 });
 const emit = defineEmits(['update:selectedTab']);
 
@@ -70,7 +68,9 @@ const indicatorStyle = computed(() => {
   height: 4px;
   background: var(--main01);
   border-radius: 2px;
-  transition: left 0.3s, width 0.3s;
+  transition:
+    left 0.3s,
+    width 0.3s;
   z-index: 2;
 }
-</style> 
+</style>

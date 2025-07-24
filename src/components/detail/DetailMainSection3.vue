@@ -6,13 +6,11 @@
       <IconFullHeart
         v-if="heartActive"
         class="heart-icon"
-        @click="toggleHeart"
-      />
+        @click="toggleHeart" />
       <IconEmptyHeart
         v-else
         class="heart-icon"
-        @click="toggleHeart"
-      />
+        @click="toggleHeart" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">
@@ -24,7 +22,9 @@
         <div class="rate-label">기준가(전일대비)</div>
         <div class="rate-value">
           {{ priceValue }}
-          <div :class="priceChangeColor" class="price-change">
+          <div
+            :class="priceChangeColor"
+            class="price-change">
             <template v-if="priceChange > 0">▲</template>
             <template v-else-if="priceChange < 0">▼</template>
             {{ Math.abs(priceChange).toLocaleString() }} ({{ priceChangeRate }})
@@ -44,14 +44,20 @@ const props = defineProps({
   bank: String,
   title: String,
   yield: String, // '25.97%' 등 단일 문자열
-  priceArr: Array  // [오늘 기준가, 전일 기준가]
+  priceArr: Array // [오늘 기준가, 전일 기준가]
 });
 
 const yield1mValue = computed(() => props.yield || '-');
 
-const todayPrice = computed(() => props.priceArr && props.priceArr.length > 0 ? props.priceArr[0] : null);
-const prevPrice = computed(() => props.priceArr && props.priceArr.length > 1 ? props.priceArr[1] : null);
-const priceValue = computed(() => todayPrice.value !== null ? todayPrice.value.toLocaleString() + '원' : '-');
+const todayPrice = computed(() =>
+  props.priceArr && props.priceArr.length > 0 ? props.priceArr[0] : null
+);
+const prevPrice = computed(() =>
+  props.priceArr && props.priceArr.length > 1 ? props.priceArr[1] : null
+);
+const priceValue = computed(() =>
+  todayPrice.value !== null ? todayPrice.value.toLocaleString() + '원' : '-'
+);
 const priceChange = computed(() => {
   if (todayPrice.value === null || prevPrice.value === null) return 0;
   return +(todayPrice.value - prevPrice.value).toFixed(2);
@@ -145,4 +151,4 @@ function toggleHeart() {
 .down {
   color: var(--text-blue);
 }
-</style> 
+</style>

@@ -18,27 +18,38 @@ export const useEtfStore = defineStore('etf', () => {
       risk: 4, // 위험 등급 (1~6)
       info: [
         { type: 'longtext', title: '펀드 특징', desc: 'S&P500 지수를 추종하는 대표적인 ETF 상품' },
-        { type: 'longtext', title: '운용 전략', desc: '이 펀드는 S&P500 지수의 수익률을 최대한 근접이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.\n이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.' },
+        {
+          type: 'longtext',
+          title: '운용 전략',
+          desc: '이 펀드는 S&P500 지수의 수익률을 최대한 근접이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.\n이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.'
+        },
         { type: 'text', title: '운용사', desc: '미래에셋자산운용' },
         { type: 'text', title: '상장일', desc: '2010-10-14' },
         { type: 'text', title: '총보수', desc: '0.09%' },
         { type: 'text', title: '기초지수', desc: 'S&P500' },
-        { type: 'pdf', title: '공시/보고서', desc: [
-          {
-            category: '성과보고서',
-            items: [
-              { label: '자산운용보고서(3개월)', url: 'https://www.samsungfund.com/report/asset-3m.pdf' }
-            ]
-          },
-          {
-            category: '공시문서',
-            items: [
-              { label: '집합투자규약', url: 'https://www.samsungfund.com/docs/rule.pdf' },
-              { label: '투자설명서', url: 'https://www.samsungfund.com/docs/desc.pdf' },
-              { label: '간이투자설명서', url: 'https://www.samsungfund.com/docs/simple.pdf' }
-            ]
-          }
-        ] }
+        {
+          type: 'pdf',
+          title: '공시/보고서',
+          desc: [
+            {
+              category: '성과보고서',
+              items: [
+                {
+                  label: '자산운용보고서(3개월)',
+                  url: 'https://www.samsungfund.com/report/asset-3m.pdf'
+                }
+              ]
+            },
+            {
+              category: '공시문서',
+              items: [
+                { label: '집합투자규약', url: 'https://www.samsungfund.com/docs/rule.pdf' },
+                { label: '투자설명서', url: 'https://www.samsungfund.com/docs/desc.pdf' },
+                { label: '간이투자설명서', url: 'https://www.samsungfund.com/docs/simple.pdf' }
+              ]
+            }
+          ]
+        }
       ],
       yield: [
         {
@@ -58,7 +69,7 @@ export const useEtfStore = defineStore('etf', () => {
             { date: '2024-06-11', 수익률: 2.8, 기준가: 1010 },
             { date: '2024-06-12', 수익률: 2.7, 기준가: 1040 },
             { date: '2024-06-13', 수익률: 3.5, 기준가: 1050 },
-            { date: '2024-06-14', 수익률: 1.5, 기준가: 1060 },
+            { date: '2024-06-14', 수익률: 1.5, 기준가: 1060 }
           ]
         },
         { type: 'text', title: '상장일', desc: '2010-10-14' },
@@ -99,11 +110,8 @@ export const useEtfStore = defineStore('etf', () => {
       title: 'KODEX 200',
       net_assets: '50.00',
       risk: 3,
-      info: [
-        { type: 'text', title: '펀드 특징', desc: '코스피 200 지수를 추종하는 ETF' }
-      ],
-      yield: [
-      ],
+      info: [{ type: 'text', title: '펀드 특징', desc: '코스피 200 지수를 추종하는 ETF' }],
+      yield: [],
       composition: [
         {
           type: 'table',
@@ -114,9 +122,7 @@ export const useEtfStore = defineStore('etf', () => {
           ]
         }
       ],
-      news: [
-        { type: 'text', title: '시장 소식', desc: 'KODEX 200, 안정적인 수익률 기록' }
-      ]
+      news: [{ type: 'text', title: '시장 소식', desc: 'KODEX 200, 안정적인 수익률 기록' }]
     }
   };
 
@@ -152,7 +158,7 @@ export const useEtfStore = defineStore('etf', () => {
       info: product.value.info,
       yield: product.value.yield,
       composition: product.value.composition,
-      news: product.value.news,
+      news: product.value.news
     };
   });
 
@@ -164,4 +170,4 @@ export const useEtfStore = defineStore('etf', () => {
     productInfo,
     tabData
   };
-}); 
+});

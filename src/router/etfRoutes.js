@@ -9,4 +9,4 @@ const etfRoutes = [
   }
 ];
 
-export default etfRoutes; 
+export default etfRoutes;

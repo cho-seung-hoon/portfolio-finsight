@@ -3,8 +3,7 @@
     <div
       v-for="(item, index) in tabData[selectedTab]"
       :key="index"
-      class="section-row"
-    >
+      class="section-row">
       <div class="section-title">{{ item.title }}</div>
       <div class="section-desc">
         <template v-if="item.type === 'longtext' && typeof item.desc === 'string'">
@@ -13,12 +12,15 @@
           </DetailLongText>
         </template>
         <template v-else-if="item.type === 'piechart' && Array.isArray(item.desc)">
-          <div style="margin-bottom: 32px;">
-            <DetailPieChart :data="item.desc" :label-key="'종목명'" :value-key="'비중'" />
+          <div style="margin-bottom: 32px">
+            <DetailPieChart
+              :data="item.desc"
+              :label-key="'종목명'"
+              :value-key="'비중'" />
           </div>
         </template>
         <template v-else-if="item.type === 'areachart' && Array.isArray(item.desc)">
-          <div style="margin-bottom: 32px;">
+          <div style="margin-bottom: 32px">
             <DetailAreaChart :data="item.desc" />
           </div>
         </template>
@@ -32,7 +34,10 @@
           <DetailTable :desc="item.desc" />
         </template>
         <template v-else>
-          <span v-html="item.desc && typeof item.desc === 'string' ? item.desc.replace(/\n/g, '<br>') : ''"></span>
+          <span
+            v-html="
+              item.desc && typeof item.desc === 'string' ? item.desc.replace(/\n/g, '<br>') : ''
+            "></span>
         </template>
       </div>
     </div>
@@ -82,7 +87,8 @@ const props = defineProps({
   margin-top: 8px;
   font-size: 15px;
 }
-.section-desc th, .section-desc td {
+.section-desc th,
+.section-desc td {
   border: 1px solid var(--main03);
   padding: 6px 10px;
   text-align: left;
@@ -103,4 +109,4 @@ const props = defineProps({
   width: 100%;
   box-sizing: border-box;
 }
-</style> 
+</style>
