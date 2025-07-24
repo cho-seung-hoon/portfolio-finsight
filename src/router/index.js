@@ -36,15 +36,15 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    const requiresAuth = to.meta.requiresAuth;
+  const requiresAuth = to.meta.requiresAuth;
 
-    const isLoggedIn = !!localStorage.getItem('token');
+  const isLoggedIn = !!localStorage.getItem('token');
 
-    if (requiresAuth && !isLoggedIn) {
-        next({ name: 'login' });
-    } else {
-        next();
-    }
+  if (requiresAuth && !isLoggedIn) {
+    next({ name: 'login' });
+  } else {
+    next();
+  }
 });
 
 export default router;
