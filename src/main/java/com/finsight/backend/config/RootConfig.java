@@ -14,9 +14,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @ComponentScan(basePackages = {"com.finsight.backend.service"})
@@ -34,6 +37,24 @@ public class RootConfig {
     String username;
     @Value("${jdbc.password}")
     String password;
+
+    @Value("${spring.mail.host}")
+    private String mailHost;
+
+    @Value("${spring.mail.port}")
+    private int mailPort;
+
+    @Value("${spring.mail.username}")
+    private String mailUsername;
+
+    @Value("${spring.mail.password}")
+    private String mailPassword;
+
+    @Value("${spring.mail.properties.mail.smtp.auth}")
+    private String mailSmtpAuth;
+
+    @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
+    private String mailSmtpStarttlsEnable;
 
     @Autowired
     ApplicationContext applicationContext;
@@ -107,5 +128,22 @@ public class RootConfig {
     public DataSourceTransactionManager transactionManager() {
         DataSourceTransactionManager manager = new DataSourceTransactionManager(getHikariDataSource());
         return manager;
+    }
+
+    @Bean
+    public JavaMailSender javaMailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(mailHost);
+        mailSender.setPort(mailPort);
+        mailSender.setUsername(mailUsername);
+        mailSender.setPassword(mailPassword);
+
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", mailSmtpAuth);
+        props.put("mail.smtp.starttls.enable", mailSmtpStarttlsEnable);
+        props.put("mail.debug", "true");
+
+        return mailSender;
     }
 }
