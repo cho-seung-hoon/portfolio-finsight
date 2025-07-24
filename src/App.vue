@@ -11,10 +11,14 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import DefaultLayout from './components/layouts/DefaultLayout.vue';
 import EmptyLayout from './components/layouts/EmptyLayout.vue';
+import HeaderLayout from './components/layouts/HeaderLayout.vue';
+import NavBarLayout from '@/components/layouts/NavBarLayout.vue';
 
 const layouts = {
   DefaultLayout,
-  EmptyLayout
+  EmptyLayout,
+  HeaderLayout,
+  NavBarLayout
 };
 
 const route = useRoute();

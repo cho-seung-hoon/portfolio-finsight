@@ -1,12 +1,8 @@
 <template>
   <div class="layout-container">
-    <div class="header">
-      <Header />
-    </div>
     <div class="content-container">
       <slot></slot>
     </div>
-
     <div class="footer">
       <NavBar />
     </div>
@@ -14,7 +10,6 @@
 </template>
 
 <script setup>
-import Header from './Header.vue';
 import NavBar from './NavBar.vue';
 </script>
 
@@ -25,18 +20,13 @@ import NavBar from './NavBar.vue';
   flex-direction: column;
   height: 100vh;
   overflow-y: auto;
+  margin-bottom: 60px;
 }
-
-.header {
-  height: 56px;
-  flex-shrink: 0;
-}
-
 
 .content-container {
   flex: 1;
   position:relative;
-  padding: 0px 20px 60px 20px;
+  padding: 0 20px;
 }
 
 .footer {
