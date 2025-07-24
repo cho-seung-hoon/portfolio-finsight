@@ -7,6 +7,8 @@ import listRoutes from './listRoutes';
 import myRoutes from './myRoutes';
 import signUpRoutes from './signUpRoutes';
 import invtRoutes from '@/router/invtRoutes.js';
+import watchRoutes from './watchRoutes';
+import searchRoutes from './searchRoutes';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,7 +33,9 @@ const router = createRouter({
     ...listRoutes,
     ...myRoutes,
     ...signUpRoutes,
-    ...invtRoutes
+    ...invtRoutes,
+    ...watchRoutes,
+    ...searchRoutes
   ]
 });
 

@@ -65,8 +65,8 @@ onMounted(() => {
     titleParts: [{ text: '상품탐색', color: 'var(--main01)' }],
     showBackButton: false,
     actions: [
-      { icon: 'search', handler: () => router.push('/list/search') },
-      { icon: 'watch', handler: () => router.push('/list/watch') }
+      { icon: 'search', handler: () => router.push('/search') },
+      { icon: 'watch', handler: () => router.push('/watch') }
     ]
   });
 });
