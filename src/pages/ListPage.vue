@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { ref, computed, onMounted } from 'vue';
 import { useHeaderStore } from '@/stores/header';
 import ListTab from '@/components/list/ListTab.vue';
@@ -69,6 +69,10 @@ onMounted(() => {
       { icon: 'watch', handler: () => router.push('/list/watch') }
     ]
   });
+});
+
+onBeforeRouteLeave((to, from) => {
+  headerStore.resetHeader();
 });
 
 function openModal() {

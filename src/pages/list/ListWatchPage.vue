@@ -18,6 +18,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
 import { useHeaderStore } from '@/stores/header';
 import DepositItem from '@/components/list/DepositItem.vue';
 
@@ -114,6 +115,10 @@ onMounted(() => {
     showBackButton: true,
     actions: []
   });
+});
+
+onBeforeRouteLeave((to, from) => {
+  headerStore.resetHeader();
 });
 </script>
 
