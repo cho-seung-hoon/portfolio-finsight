@@ -56,6 +56,7 @@ function onSortChange(option) {
   flex-direction: column;
   width: 100%;
   gap: 12px;
+  margin-bottom: 60px;
 }
 
 .list-deposit-page-filter-bar {

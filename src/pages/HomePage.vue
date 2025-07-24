@@ -1,18 +1,18 @@
 <template>
-  <div class="box1">
+  <div class="home-item">
     <ExchangeRate/>
   </div>
-  <div class="box2">
+  <div class="home-item">
     <MiniMy/>
   </div>
   <div class="line"></div>
-  <div class="box3">
+  <div class="home-item">
     <NewsChart :chart-data="chartData" @keyword-click="handleKeywordClick"/>
   </div>
-  <div class="box4">
+  <div class="home-item">
     <NewsList :keyword="selectKeyword" :color="selectColor" :news-list="filteredNewsList"/>
   </div>
-  <div class="box5">
+  <div class="home-item">
     <NewsProduct :keyword="selectKeyword" :color="selectColor" :product-list="filteredProductList"/>
   </div>
 </template>
@@ -168,7 +168,7 @@ onBeforeRouteLeave((to, from) => {
 </script>
 
 <style scoped>
-.box1 {
+.home-item {
   margin: 20px 0;
 
 }
@@ -181,20 +181,5 @@ onBeforeRouteLeave((to, from) => {
   width: calc(100% + 40px);
 }
 
-.box2{
-  margin: 20px 0;
-}
 
-.box3{
-  margin:20px 0;
-}
-
-.box4{
-  margin:20px 0;
-}
-
-.box5{
-  margin-top:20px;
-  margin-bottom: 30px;
-}
 </style>
