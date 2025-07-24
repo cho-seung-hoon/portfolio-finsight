@@ -9,7 +9,7 @@ const listRoutes = [
   },
   {
     path: '/list',
-    redirect: '/list/deposits'
+    redirect: '/list/deposit'
   },
   {
     path: '/list/search',
@@ -20,9 +20,9 @@ const listRoutes = [
     }
   },
   {
-    path: '/list/like',
-    name: 'list-like',
-    component: () => import('../pages/list/ListLikePage.vue'),
+    path: '/list/watch',
+    name: 'list-watch',
+    component: () => import('../pages/list/ListWatchPage.vue'),
     meta: {
       layout: 'HeaderLayout'
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="list-deposits-page-container">
+  <div class="list-deposit-page-container">
     <FilterSortBar
       :filters="filters"
       :showFilters="false"
@@ -7,8 +7,8 @@
       :selectedSort="selectedSort"
       @filter-select="onFilterChange"
       @sort-select="onSortChange" />
-    <section class="list-deposits-page-contents">
-      <DepositsItem
+    <section class="list-deposit-page-contents">
+      <DepositItem
         v-for="item in deposits"
         :key="item.product_code"
         :item="item" />
@@ -18,7 +18,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import DepositsItem from '@/components/list/DepositsItem.vue';
+import DepositItem from '@/components/list/DepositItem.vue';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 
 const deposits = [
@@ -51,19 +51,19 @@ function onSortChange(option) {
 </script>
 
 <style scoped>
-.list-deposits-page-container {
+.list-deposit-page-container {
   display: flex;
   flex-direction: column;
   width: 100%;
   gap: 12px;
 }
 
-.list-deposits-page-filter-bar {
+.list-deposit-page-filter-bar {
   display: flex;
   flex-direction: row;
 }
 
-.list-deposits-page-contents {
+.list-deposit-page-contents {
   display: flex;
   flex-direction: column;
   gap: 8px;
