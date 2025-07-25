@@ -12,12 +12,14 @@
       class="form">
       <!-- 아이디, 비밀번호 -->
       <div class="card">
+        <!-- 아이디 -->
         <InputWithIcon
           icon="fa-user"
           placeholder="아이디"
           v-model="form.userId"
           buttonText="확인"
           :error="!!errors.userId"
+          :valid="status.userIdChecked && !errors.userId"
           @button-click="checkUserId"
           @focus="clearError('userId')" />
         <ValidationMessage :message="errors.userId" />
@@ -28,6 +30,7 @@
           placeholder="비밀번호"
           v-model="form.password"
           :error="!!errors.password"
+          :valid="form.password?.length > 0 && !errors.password"
           @blur="validatePassword"
           @focus="clearError('password')" />
         <ValidationMessage :message="errors.password" />
@@ -38,6 +41,7 @@
           placeholder="비밀번호 재확인"
           v-model="form.confirmPassword"
           :error="!!errors.confirmPassword"
+          :valid="form.confirmPassword?.length > 0 && !errors.confirmPassword"
           @blur="validateConfirmPassword"
           @focus="clearError('confirmPassword')" />
         <ValidationMessage :message="errors.confirmPassword" />
@@ -48,14 +52,17 @@
         <InputWithIcon
           icon="fa-user"
           placeholder="이름"
-          v-model="form.name" />
+          v-model="form.name"
+          :valid="form.name?.length > 0" />
 
+        <!-- 닉네임 -->
         <InputWithIcon
           icon="fa-user"
           placeholder="닉네임"
           v-model="form.nickname"
           buttonText="확인"
           :error="!!errors.nickname"
+          :valid="status.nicknameChecked && !errors.nickname"
           @button-click="checkNickname"
           @focus="clearError('nickname')" />
         <ValidationMessage :message="errors.nickname" />
@@ -65,27 +72,32 @@
           placeholder="생년월일 8자리"
           v-model="form.birth"
           :error="!!errors.birth"
+          :valid="form.birth?.length > 0 && !errors.birth"
           @blur="validateBirth"
           @focus="clearError('birth')" />
         <ValidationMessage :message="errors.birth" />
 
+        <!-- 이메일 -->
         <InputWithIcon
           icon="fa-envelope"
           placeholder="이메일"
           v-model="form.email"
           buttonText="인증"
           :error="!!errors.email"
+          :valid="emailStore.verified && !errors.email"
           @button-click="requestCode"
           @focus="clearError('email')" />
         <ValidationMessage :message="errors.email" />
       </div>
 
-      <!-- 인증코드 -->
       <div class="card">
+        <!-- 인증코드 -->
         <VerificationCodeInput
           v-model="form.code"
           :error="!!errors.code"
+          :valid="emailStore.verified && !errors.code"
           @verify="verifyCode"
+          @resend="resendCode"
           @blur="validateCode"
           @focus="clearError('code')" />
         <ValidationMessage :message="errors.code" />
@@ -103,7 +115,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import axios from 'axios';
 import { useEmailStore } from '@/stores/emailStore';
 
@@ -133,6 +145,13 @@ const errors = reactive({
   birth: '',
   email: '',
   code: ''
+});
+
+const status = reactive({
+  userIdChecked: false,
+  nicknameChecked: false,
+  emailVerified: false,
+  codeVerified: false
 });
 
 const showModal = ref(false);
@@ -253,24 +272,34 @@ const validateCode = () => {
 const checkUserId = async () => {
   if (!validateUserId()) return;
   try {
-    const res = await axios.get('/users', {
-      params: { userid: form.userId }
-    });
-    errors.userId = res.data === true ? '이미 사용 중인 아이디입니다.' : '';
+    const res = await axios.get('/users', { params: { userid: form.userId } });
+    if (res.data === true) {
+      errors.userId = '이미 사용 중인 아이디입니다.';
+      status.userIdChecked = false;
+    } else {
+      errors.userId = '';
+      status.userIdChecked = true;
+    }
   } catch {
     errors.userId = '아이디 중복 확인 실패';
+    status.userIdChecked = false;
   }
 };
 
 const checkNickname = async () => {
   if (!form.nickname) return (errors.nickname = '닉네임을 입력해주세요.');
   try {
-    const res = await axios.get('/users', {
-      params: { nickname: form.nickname }
-    });
-    errors.nickname = res.data === true ? '이미 사용 중인 닉네임입니다.' : '';
+    const res = await axios.get('/users', { params: { nickname: form.nickname } });
+    if (res.data === true) {
+      errors.nickname = '이미 사용 중인 닉네임입니다.';
+      status.nicknameChecked = false;
+    } else {
+      errors.nickname = '';
+      status.nicknameChecked = true;
+    }
   } catch {
     errors.nickname = '닉네임 중복 확인 실패';
+    status.nicknameChecked = false;
   }
 };
 
@@ -288,17 +317,6 @@ const requestCode = async () => {
   }
 };
 
-// const verifyCode = async () => {
-//   if (!form.code) return ((errors.code = '인증코드를 입력해주세요.'), false);
-//   emailStore.code = form.code;
-//   emailStore.email = form.email;
-//   await emailStore.verifyCode();
-//   if (!emailStore.verified) {
-//     errors.code = emailStore.error;
-//     return false;
-//   }
-//   return true;
-// };
 const verifyCode = async () => {
   // 1. 기본 유효성 검사
   if (!form.email) {
@@ -327,11 +345,50 @@ const verifyCode = async () => {
   // 5. 결과 처리
   if (!emailStore.verified) {
     errors.code = emailStore.error || '인증코드가 일치하지 않습니다.';
+    status.codeVerified = false;
     return false;
   }
-
+  status.codeVerified = true;
   return true;
 };
+
+const resendCode = async () => {
+  if (!validateEmail()) return;
+  emailStore.email = form.email;
+
+  try {
+    await emailStore.sendCode();
+    alert('인증코드가 다시 전송되었습니다.');
+  } catch {
+    errors.email = '인증코드 재전송 실패';
+  }
+};
+
+// ✅ watch: 입력 변경 시 상태 초기화
+watch(
+  () => form.userId,
+  () => {
+    status.userIdChecked = false;
+  }
+);
+watch(
+  () => form.nickname,
+  () => {
+    status.nicknameChecked = false;
+  }
+);
+watch(
+  () => form.email,
+  () => {
+    emailStore.verified = false;
+  }
+);
+watch(
+  () => form.code,
+  () => {
+    status.codeVerified = false;
+  }
+);
 </script>
 
 <style scoped>
