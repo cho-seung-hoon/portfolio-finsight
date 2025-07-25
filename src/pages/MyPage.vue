@@ -1,12 +1,16 @@
 <template>
   <div class="my-box">
+    <div class="subItem-title">
+      <div class="title">마이페이지</div>
+    </div>
     <div
       class="subItem-img">
       <img
         class="bg-image"
         src="@/assets/my-backgroud.png"
         alt="배경 이미지"
-        loading="eager"/>
+        loading="eager"
+        />
     </div>
     <div
       class="subItem-info">
@@ -35,12 +39,29 @@ import UserMgmt from '@/components/my/UserMgmt.vue';
 }
 
 .subItem-img {
-  margin-top: calc(-1 * 56px);
+  position:relative;
+  margin-top:-56px;
   margin-left: -20px;
   width: calc(100% + 40px);
-  z-index: 0;
-  aspect-ratio: 375 / 180;
+  /*aspect-ratio: 375 / 180;*/
   overflow: hidden;
+  z-index:0;
+}
+
+.subItem-title {
+  display: flex;
+  align-content: center;
+  width: 100%;
+  height: 56px;
+
+}
+.title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  align-content: center;
+  color: var(--white);
+  position: relative;
+  z-index: 1;
 }
 
 .bg-image {
@@ -48,8 +69,6 @@ import UserMgmt from '@/components/my/UserMgmt.vue';
   width: 100%;
   height: 100%;
 }
-
-
 
 .subItem-info {
   margin-left: -20px;

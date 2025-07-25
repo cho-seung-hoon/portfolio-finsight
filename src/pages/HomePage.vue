@@ -27,7 +27,6 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { onBeforeRouteLeave } from 'vue-router';
 import ExchangeRate from '@/components/home/ExchangeRate.vue';
 import MiniMy from '@/components/home/MiniMy.vue';
 import NewsChart from '@/components/home/NewsChart.vue';

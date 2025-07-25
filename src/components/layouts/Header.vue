@@ -24,7 +24,6 @@
 </template>
 
 <script setup>
-import { watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHeaderStore } from '@/stores/header';
 import IconSearch from '@/components/icons/IconSearch.vue';

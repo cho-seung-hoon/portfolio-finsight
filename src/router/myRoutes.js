@@ -4,11 +4,9 @@ const myRoutes = [
     name: 'my',
     component: () => import('../pages/MyPage.vue'),
     meta: {
-      header:{
-        bColor:'transparent',
-        titleParts: [{ text: '마이페이지', color: 'var(--white)' }],
-      }
+      layout:'NavBarLayout'
     }
+
   }
 ];
 
