@@ -157,7 +157,7 @@ const handleKeyPress = event => {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 4rem 1.5rem 2rem;
+  padding: 0 20px;
   position: relative;
   overflow: hidden;
 }
@@ -224,7 +224,6 @@ const handleKeyPress = event => {
 .custom-input:focus {
   outline: none;
   border-color: var(--sub01);
-  box-shadow: 0 0 0 3px rgba(250, 135, 114, 0.1);
 }
 
 .error-container {
@@ -289,9 +288,10 @@ const handleKeyPress = event => {
   opacity: 0.8;
 }
 .cha-icon {
-  width: 320px;
-  height: 500px;
-  margin: 0 auto 1rem;
+  position: absolute;
+  bottom:-140px;
+  width: 300px;
+  left: calc(50% - 150px);  
   color: var(--sub01);
 }
 
@@ -301,23 +301,5 @@ const handleKeyPress = event => {
   object-fit: contain;
 }
 
-/* 모바일 반응형 */
-@media (max-width: 480px) {
-  .login-container {
-    padding: 3rem 1rem 1.5rem;
-  }
 
-  .form-container {
-    max-width: 280px;
-  }
-
-  .logo-text {
-    font-size: var(--font-size-xl);
-  }
-
-  .logo-section {
-    margin-top: 1rem;
-    margin-bottom: 2rem;
-  }
-}
 </style>
