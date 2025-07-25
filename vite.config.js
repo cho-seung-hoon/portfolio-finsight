@@ -21,7 +21,7 @@ export default defineConfig({
         rewrite: path => path.replace(/^\/exchange/, '/site/program/financial/exchangeJSON'),
       }
     }
-    ,host: true,
+    // ,host: true,
   }
 
 });

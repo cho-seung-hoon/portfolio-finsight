@@ -186,7 +186,7 @@ onBeforeUnmount(() => {
 
 .subItem-title02{
   font-size:var(--font-size-sm);
-  font-weight: var(--font-weight-right);
+  font-weight: var(--font-weight-light);
   color:var(--main02);
 }
 </style>
