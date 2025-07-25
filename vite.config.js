@@ -27,7 +27,7 @@ export default defineConfig({
         secure: false
       }
     }
-    ,host: true,
+    // ,host: true,
   }
 
 });
