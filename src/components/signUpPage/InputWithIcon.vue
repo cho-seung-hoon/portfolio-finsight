@@ -4,7 +4,12 @@
     :class="{ error, focus: isFocused }">
     <div class="left">
       <i
-        :class="['fas', iconClass, 'icon']"
+        :class="[
+          'fas',
+          iconClass,
+          'icon',
+          { error: props.error, valid: props.valid && !props.error }
+        ]"
         aria-hidden="true"></i>
       <input
         :type="type"
@@ -33,7 +38,8 @@ const props = defineProps({
   icon: String,
   type: { type: String, default: 'text' },
   buttonText: String,
-  error: Boolean
+  error: Boolean,
+  valid: Boolean // ✅ 추가
 });
 
 const emit = defineEmits(['update:modelValue', 'button-click', 'blur', 'focus']);
@@ -99,6 +105,14 @@ const iconClass = props.icon || 'fa-user';
   min-width: 20px;
   text-align: center;
   transition: color 0.2s ease;
+}
+
+.icon.error {
+  color: #f97b6d;
+}
+
+.icon.valid {
+  color: #28a745; /* Bootstrap success green */
 }
 
 .input-row.focus .icon {

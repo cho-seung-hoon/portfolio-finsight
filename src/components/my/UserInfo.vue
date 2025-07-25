@@ -1,5 +1,5 @@
 <template>
-  <div class="subBox">
+  <div class="subBox2">
     <div class="subItem">
       <div class="name">이진욱 님</div>
       <div class="edit">
@@ -33,9 +33,8 @@
 <script setup>
 </script>
 <style scoped>
-.subBox{
+.subBox2{
   width: 100%;
-  height: 220px;
   padding:20px;
   background-color: var(--main01);
 }
@@ -54,16 +53,16 @@
 
 .info{
   min-width: 65px;
-  font-size:var(--font-size-md);
-  font-width: var(--font-weight-right);
+  font-size:var(--font-size-ms);
+  font-width: var(--font-weight-light);
   color:var(--white);
   margin-left: 10px;
   margin-right: 30px;
 }
 
 .infoValue{
-  font-size:var(--font-size-md);
-  font-width: var(--font-weight-right);
+  font-size:var(--font-size-ms);
+  font-width: var(--font-weight-light);
   color:var(--white);
 }
 img{

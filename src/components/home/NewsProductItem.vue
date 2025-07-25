@@ -1,7 +1,7 @@
 <template>
   <div class="product-item" @click="handleClick">
     <div class="product-title">{{ title }}</div>
-    <div class="product-date">{{ date }}</div>
+<!--    <div class="product-date">{{ date }}</div>-->
   </div>
 </template>
 
@@ -32,8 +32,5 @@ const handleClick = () => {
   overflow: hidden;           /* 넘치는 내용 숨김 */
   text-overflow: ellipsis;    /* 말줄임표 (…) 표시 */
 }
-.product-date {
-  font-size: 0.8rem;
-  color: #999;
-}
+
 </style>

@@ -4,7 +4,9 @@
       <Header />
     </div>
     <div class="content-container">
-      <slot></slot>
+      <router-view v-slot="{ Component}">
+        <component :is="Component"/>
+      </router-view>
     </div>
 
     <div class="footer">
@@ -16,6 +18,41 @@
 <script setup>
 import Header from './Header.vue';
 import NavBar from './NavBar.vue';
+
+/*
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+
+const layoutRef = ref(null);
+const hasScroll = ref(null);
+
+let resizeObserver;
+let mutationObserver;
+
+const checkScroll = () => {
+  const el = layoutRef.value;
+  if (!el) return;
+  const current = el.scrollHeight > el.clientHeight;
+  if (hasScroll.value !== current) {
+    hasScroll.value = current;
+    console.log('스크롤 있음?', current);
+  }
+};
+
+onMounted(() => {
+  const el = layoutRef.value;
+  resizeObserver = new ResizeObserver(checkScroll);
+  resizeObserver.observe(el);
+  mutationObserver = new MutationObserver(checkScroll);
+  mutationObserver.observe(el, { childList: true, subtree: true });
+  checkScroll();
+});
+
+onBeforeUnmount(() => {
+  if (resizeObserver) resizeObserver.disconnect();
+  if (mutationObserver) mutationObserver.disconnect();
+});
+*/
+
 </script>
 
 <style scoped>
@@ -23,8 +60,10 @@ import NavBar from './NavBar.vue';
   display: flex;
   background-color: var(--off-white); /* 본문 배경색 */
   flex-direction: column;
-  height: 100vh;
-  overflow-y: auto;
+  height: 100dvh;
+  overflow-y:auto;
+  overflow-x:hidden;
+
 }
 
 .header {
@@ -35,7 +74,12 @@ import NavBar from './NavBar.vue';
 .content-container {
   flex: 1;
   position: relative;
-  padding: 0px 20px 60px 20px;
+  padding: 0px 20px;
+  margin-bottom: 60px;
+}
+
+.content-container.with-scroll {
+  padding-right: 12px;
 }
 
 .footer {
@@ -46,23 +90,8 @@ import NavBar from './NavBar.vue';
   flex-shrink: 0;
 }
 
-/* 스크롤바 커스터마이징 */
-.layout-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-.layout-container::-webkit-scrollbar-track {
-  background-color: var(--off-white); /* 본문 배경색 */
-}
-
-.layout-container::-webkit-scrollbar-thumb {
-  background-color: var(--main03);
-  border-radius: 6px;
-  border: 2px solid var(--off-white);
-}
-
-.layout-container::-webkit-scrollbar-thumb:hover {
-  background-color: var(--sub01);
+.layout-container::-webkit-scrollbar{
+  display: none;
 }
 
 @media (min-width: 769px) {

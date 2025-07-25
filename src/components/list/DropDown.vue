@@ -1,14 +1,13 @@
 <template>
   <div
     :class="['drop-down-container', align === 'right' ? 'right' : 'left']"
-    ref="root">
+    ref="dropdownRef">
     <div class="drop-down-option-list">
       <div
-        class="drop-down-option"
         v-for="option in options"
         :key="option"
-        :class="{ selected: option === selected }"
-        @click="onClickOption(option)">
+        :class="['drop-down-option', { selected: option === selected }]"
+        @click="selectOption(option)">
         {{ option }}
       </div>
     </div>
@@ -16,7 +15,7 @@
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 const props = defineProps({
   options: { type: Array, default: () => [] },
@@ -24,24 +23,24 @@ const props = defineProps({
   selected: { type: String, default: '' }
 });
 
-// 드롭다운에서 선택한 것을 부모인 FilterSortBar로 전달
-const emit = defineEmits(['select']);
+const emit = defineEmits(['select', 'click-outside']);
 
-function onClickOption(option) {
+const dropdownRef = ref(null);
+
+function selectOption(option) {
   emit('select', option);
 }
 
-// 바깥 클릭 감지
-const root = ref(null);
-
 function handleClickOutside(event) {
-  if (root.value && !root.value.contains(event.target)) {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
     emit('click-outside');
   }
 }
+
 onMounted(() => {
   document.addEventListener('mousedown', handleClickOutside);
 });
+
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleClickOutside);
 });
@@ -52,22 +51,20 @@ onBeforeUnmount(() => {
   position: absolute;
   top: 110%;
   min-width: 120px;
+  padding: 12px 16px;
   background: var(--white);
+  border: 1px solid var(--main03);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(20, 24, 44, 0.12);
-  border: 1px solid var(--main03);
   z-index: 999;
-  padding: 12px 16px;
 }
 
 .drop-down-container.left {
   left: 0;
-  right: auto;
 }
 
 .drop-down-container.right {
   right: 0;
-  left: auto;
 }
 
 .drop-down-option-list {
@@ -77,8 +74,6 @@ onBeforeUnmount(() => {
 }
 
 .drop-down-option {
-  display: flex;
-  flex-direction: row;
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
   color: var(--main01);
@@ -87,7 +82,5 @@ onBeforeUnmount(() => {
 
 .drop-down-option.selected {
   font-weight: var(--font-weight-bold);
-  color: var(--main01);
-  border-radius: 4px;
 }
 </style>

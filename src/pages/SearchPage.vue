@@ -10,6 +10,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
 import { useHeaderStore } from '@/stores/header';
 
 const headerStore = useHeaderStore();
@@ -21,6 +22,10 @@ onMounted(() => {
     showBackButton: true,
     actions: []
   });
+});
+
+onBeforeRouteLeave((to, from) => {
+  headerStore.resetHeader();
 });
 </script>
 

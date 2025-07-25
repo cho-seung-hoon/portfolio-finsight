@@ -1,8 +1,8 @@
 <template>
   <ListTab />
   <section class="page-content">
-    <div v-if="category === 'deposits'">
-      <ListDepositsPage />
+    <div v-if="category === 'deposit'">
+      <ListDepositPage />
     </div>
     <div v-else-if="category === 'fund'">
       <ListFundPage />
@@ -43,11 +43,12 @@
 </template>
 
 <script setup>
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { ref, computed, onMounted } from 'vue';
 import { useHeaderStore } from '@/stores/header';
+import { getFinFilters, setFinFilters } from '@/utils/filterStorage'; // 추가!
 import ListTab from '@/components/list/ListTab.vue';
-import ListDepositsPage from './list/ListDepositsPage.vue';
+import ListDepositPage from './list/ListDepositPage.vue';
 import ListFundPage from './list/ListFundPage.vue';
 import ListEtfPage from './list/ListEtfPage.vue';
 import IconCheck from '@/components/icons/IconCheck.vue';
@@ -65,10 +66,16 @@ onMounted(() => {
     titleParts: [{ text: '상품탐색', color: 'var(--main01)' }],
     showBackButton: false,
     actions: [
-      { icon: 'search', handler: () => router.push('/list/search') },
-      { icon: 'watch', handler: () => router.push('/list/like') }
+      { icon: 'search', handler: () => router.push('/search') },
+      { icon: 'watch', handler: () => router.push('/watch') }
     ]
   });
+
+  isMatched.value = getFinFilters().isMatched || false;
+});
+
+onBeforeRouteLeave((to, from) => {
+  headerStore.resetHeader();
 });
 
 function openModal() {
@@ -83,11 +90,20 @@ function closeModal() {
 
 function confirmMatch() {
   isMatched.value = true;
+  updateIsMatchedInStorage(true);
   showModal.value = false;
 }
 
 function resetMatch() {
   isMatched.value = false;
+  updateIsMatchedInStorage(false);
+}
+
+function updateIsMatchedInStorage(val) {
+  setFinFilters({
+    ...getFinFilters(),
+    isMatched: val
+  });
 }
 </script>
 

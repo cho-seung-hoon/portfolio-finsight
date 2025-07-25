@@ -12,12 +12,14 @@
       class="form">
       <!-- 아이디, 비밀번호 -->
       <div class="card">
+        <!-- 아이디 -->
         <InputWithIcon
           icon="fa-user"
           placeholder="아이디"
           v-model="form.userId"
           buttonText="확인"
           :error="!!errors.userId"
+          :valid="status.userIdChecked && !errors.userId"
           @button-click="checkUserId"
           @focus="clearError('userId')" />
         <ValidationMessage :message="errors.userId" />
@@ -28,6 +30,7 @@
           placeholder="비밀번호"
           v-model="form.password"
           :error="!!errors.password"
+          :valid="form.password?.length > 0 && !errors.password"
           @blur="validatePassword"
           @focus="clearError('password')" />
         <ValidationMessage :message="errors.password" />
@@ -38,6 +41,7 @@
           placeholder="비밀번호 재확인"
           v-model="form.confirmPassword"
           :error="!!errors.confirmPassword"
+          :valid="form.confirmPassword?.length > 0 && !errors.confirmPassword"
           @blur="validateConfirmPassword"
           @focus="clearError('confirmPassword')" />
         <ValidationMessage :message="errors.confirmPassword" />
@@ -48,14 +52,17 @@
         <InputWithIcon
           icon="fa-user"
           placeholder="이름"
-          v-model="form.name" />
+          v-model="form.name"
+          :valid="form.name?.length > 0" />
 
+        <!-- 닉네임 -->
         <InputWithIcon
           icon="fa-user"
           placeholder="닉네임"
           v-model="form.nickname"
           buttonText="확인"
           :error="!!errors.nickname"
+          :valid="status.nicknameChecked && !errors.nickname"
           @button-click="checkNickname"
           @focus="clearError('nickname')" />
         <ValidationMessage :message="errors.nickname" />
@@ -65,27 +72,32 @@
           placeholder="생년월일 8자리"
           v-model="form.birth"
           :error="!!errors.birth"
+          :valid="form.birth?.length > 0 && !errors.birth"
           @blur="validateBirth"
           @focus="clearError('birth')" />
         <ValidationMessage :message="errors.birth" />
 
+        <!-- 이메일 -->
         <InputWithIcon
           icon="fa-envelope"
           placeholder="이메일"
           v-model="form.email"
           buttonText="인증"
           :error="!!errors.email"
+          :valid="emailStore.verified && !errors.email"
           @button-click="requestCode"
           @focus="clearError('email')" />
         <ValidationMessage :message="errors.email" />
       </div>
 
-      <!-- 인증코드 -->
       <div class="card">
+        <!-- 인증코드 -->
         <VerificationCodeInput
           v-model="form.code"
           :error="!!errors.code"
+          :valid="emailStore.verified && !errors.code"
           @verify="verifyCode"
+          @resend="resendCode"
           @blur="validateCode"
           @focus="clearError('code')" />
         <ValidationMessage :message="errors.code" />
@@ -103,11 +115,16 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
+import axios from 'axios';
+import { useEmailStore } from '@/stores/emailStore';
+
 import InputWithIcon from '@/components/signUpPage/InputWithIcon.vue';
 import VerificationCodeInput from '@/components/signUpPage/VerificationCodeInput.vue';
 import ValidationMessage from '@/components/signUpPage/ValidationMessage.vue';
 import CompleteModal from '@/components/signUpPage/CompleteModal.vue';
+
+const emailStore = useEmailStore();
 
 const form = reactive({
   userId: '',
@@ -130,16 +147,50 @@ const errors = reactive({
   code: ''
 });
 
-const showModal = ref(false);
-const receivedCode = ref('123456'); // 예시 코드
+const status = reactive({
+  userIdChecked: false,
+  nicknameChecked: false,
+  emailVerified: false,
+  codeVerified: false
+});
 
+const showModal = ref(false);
+
+const clearError = field => (errors[field] = '');
 const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''));
 
-const handleSignUp = () => {
+const formatBirthDate = birth => {
+  if (!/^\d{8}$/.test(birth)) return '';
+  const y = birth.substring(0, 4);
+  const m = birth.substring(4, 6);
+  const d = birth.substring(6, 8);
+  return `${y}-${m}-${d}`;
+};
+
+const handleSignUp = async () => {
   resetErrors();
-  if (!validateForm()) return;
-  console.log('회원가입 정보:', form);
-  showModal.value = true;
+  const valid = await validateForm();
+  if (!valid) return;
+
+  try {
+    const payload = {
+      userId: form.userId,
+      password: form.password,
+      username: form.name,
+      nickname: form.nickname,
+      birthday: formatBirthDate(form.birth),
+      email: form.email
+    };
+
+    await axios.post('/users', payload);
+    showModal.value = true;
+  } catch (error) {
+    if (error.response?.status === 400) {
+      alert('회원가입 실패: 중복 항목이 있거나 이메일 인증이 완료되지 않았습니다.');
+    } else {
+      alert('서버 오류가 발생했습니다.');
+    }
+  }
 };
 
 const validateForm = () => {
@@ -150,7 +201,13 @@ const validateForm = () => {
   if (!validateNickname()) isValid = false;
   if (!validateBirth()) isValid = false;
   if (!validateEmail()) isValid = false;
-  if (!verifyCode()) isValid = false;
+
+  // ✅ 이메일 인증 여부만 확인
+  if (!emailStore.verified) {
+    errors.code = '이메일 인증을 완료해주세요.';
+    isValid = false;
+  }
+
   return isValid;
 };
 
@@ -202,53 +259,136 @@ const validateBirth = () => {
 
 const validateEmail = () => {
   if (!form.email) return ((errors.email = '이메일을 입력해주세요.'), false);
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!regex.test(form.email)) return ((errors.email = '올바른 이메일 형식이 아닙니다.'), false);
   return true;
 };
 
-const verifyCode = () => {
+const validateCode = () => {
   if (!form.code) return ((errors.code = '인증코드를 입력해주세요.'), false);
-  if (form.code !== receivedCode.value) {
-    errors.code = '인증코드가 일치하지 않습니다.';
-    return false;
-  }
   return true;
-};
-
-const fakeCheckAPI = async (field, value) => {
-  const dummy = {
-    userId: ['testuser', 'admin'],
-    nickname: ['관리자', '홍길동'],
-    email: ['test@example.com']
-  };
-  return dummy[field]?.includes(value);
 };
 
 const checkUserId = async () => {
   if (!validateUserId()) return;
-  const exists = await fakeCheckAPI('userId', form.userId);
-  errors.userId = exists ? '이미 있는 아이디입니다.' : '';
+  try {
+    const res = await axios.get('/users', { params: { userid: form.userId } });
+    if (res.data === true) {
+      errors.userId = '이미 사용 중인 아이디입니다.';
+      status.userIdChecked = false;
+    } else {
+      errors.userId = '';
+      status.userIdChecked = true;
+    }
+  } catch {
+    errors.userId = '아이디 중복 확인 실패';
+    status.userIdChecked = false;
+  }
 };
 
 const checkNickname = async () => {
   if (!form.nickname) return (errors.nickname = '닉네임을 입력해주세요.');
-  const exists = await fakeCheckAPI('nickname', form.nickname);
-  errors.nickname = exists ? '이미 있는 닉네임입니다.' : '';
+  try {
+    const res = await axios.get('/users', { params: { nickname: form.nickname } });
+    if (res.data === true) {
+      errors.nickname = '이미 사용 중인 닉네임입니다.';
+      status.nicknameChecked = false;
+    } else {
+      errors.nickname = '';
+      status.nicknameChecked = true;
+    }
+  } catch {
+    errors.nickname = '닉네임 중복 확인 실패';
+    status.nicknameChecked = false;
+  }
 };
 
 const requestCode = async () => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!form.email) return (errors.email = '이메일을 입력해주세요.');
-  if (!emailRegex.test(form.email)) return (errors.email = '올바른 이메일 형식이 아닙니다.');
-  const exists = await fakeCheckAPI('email', form.email);
-  if (exists) return (errors.email = '이미 등록되어 있는 이메일입니다.');
-  errors.email = '';
-  receivedCode.value = '123456';
-  alert('인증코드가 발송되었습니다: 123456');
+  if (!validateEmail()) return;
+  emailStore.email = form.email;
+  try {
+    await emailStore.sendCode();
+  } catch {
+    if (emailStore.status === 'conflict') {
+      errors.email = emailStore.error; // "이미 가입된 이메일입니다."
+    } else {
+      errors.email = '인증코드 전송 실패';
+    }
+  }
 };
 
-const clearError = field => {
-  errors[field] = '';
+const verifyCode = async () => {
+  // 1. 기본 유효성 검사
+  if (!form.email) {
+    errors.email = '이메일을 입력해주세요.';
+    return false;
+  }
+
+  if (!form.code) {
+    errors.code = '인증코드를 입력해주세요.';
+    return false;
+  }
+
+  // 2. emailStore에 값 설정
+  emailStore.email = form.email;
+  emailStore.code = form.code;
+
+  // 3. 상태 초기화 (이전 실패 흔적 제거)
+  errors.code = '';
+  errors.email = '';
+
+  console.log('📤 인증 요청 → email:', form.email, 'code:', form.code);
+
+  // 4. 실제 인증 요청
+  await emailStore.verifyCode();
+
+  // 5. 결과 처리
+  if (!emailStore.verified) {
+    errors.code = emailStore.error || '인증코드가 일치하지 않습니다.';
+    status.codeVerified = false;
+    return false;
+  }
+  status.codeVerified = true;
+  return true;
 };
+
+const resendCode = async () => {
+  if (!validateEmail()) return;
+  emailStore.email = form.email;
+
+  try {
+    await emailStore.sendCode();
+    alert('인증코드가 다시 전송되었습니다.');
+  } catch {
+    errors.email = '인증코드 재전송 실패';
+  }
+};
+
+// ✅ watch: 입력 변경 시 상태 초기화
+watch(
+  () => form.userId,
+  () => {
+    status.userIdChecked = false;
+  }
+);
+watch(
+  () => form.nickname,
+  () => {
+    status.nicknameChecked = false;
+  }
+);
+watch(
+  () => form.email,
+  () => {
+    emailStore.verified = false;
+  }
+);
+watch(
+  () => form.code,
+  () => {
+    status.codeVerified = false;
+  }
+);
 </script>
 
 <style scoped>

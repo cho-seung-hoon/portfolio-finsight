@@ -9,53 +9,58 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, defineEmits, defineProps, watchEffect } from 'vue';
 import * as d3 from 'd3';
+
+const props = defineProps({
+  chartData: {
+    type: Array,
+    required: true
+  }
+});
+
+const emit = defineEmits(['keyword-click']);
+
+function onBubbleClick(keyword){
+  emit('keyword-click', {
+    label: keyword.label,
+    color: keyword.color
+  });
+}
 
 const chartBox = ref(null);
 let svg, simulation, resizeObserver;
 
-const data = [
-  { label: '트럼프', sentiment: 'positive', value: 60 },
-  { label: 'TSLQ', sentiment: 'neutral', value: 50 },
-  { label: '관세', sentiment: 'negative', value: 10 },
-  { label: 'VOO', sentiment: 'neutral', value: 30 },
-  { label: 'SPY', sentiment: 'positive', value: 30 }
-];
 
 function colorScale(value, sentiment) {
-  const norm = Math.min(value / 100, 1);
-  const scaled = Math.log1p(norm * 9) / Math.log(10);
+  const sentimentColors = {
+    positive: ['#fdd5d9', '#fca2b0', '#ec3a5a'],
+    neutral:  ['#fff3d0', '#fcd978', '#fab809'],
+    negative: ['#d1f5f3', '#6ee5de', '#10b9b2'],
+  };
 
-  let baseColor;
-  if (sentiment === 'positive') baseColor = d3.hsl('#ec3a5a');
-  else if (sentiment === 'neutral') baseColor = d3.hsl('#fab809');
-  else baseColor = d3.hsl('#10b9b2');
+  const sentimentTextColors = {
+    positive: ['#800000', '#b30000', '#ffffff'], // 각 배경색에 대응
+    neutral:  ['#664400', '#996600', '#ffffff'],
+    negative: ['#004444', '#007777', '#ffffff'],
+  };
 
-  const minL = 0.5;   // 더 진한 최저 명도
-  const maxL = 0.9;   // 더 연한 최고 명도
+  let index = 0;
+  if (value > 3) index = 2;
+  else if (value > 1) index = 1;
+  else index = 0;
 
-  const lightness = maxL - scaled * (maxL - minL);
-
-  return d3.hsl(baseColor.h, baseColor.s, lightness).toString();
+  return {
+    bgColor: sentimentColors[sentiment][index],
+    textColor: sentimentTextColors[sentiment][index],
+  };
 }
 
-function getContrastTextColor(bgColor) {
-  const hsl = d3.hsl(bgColor);
 
-  const minTextL = 0.15;  // 텍스트 명도 최저 (진한 검정)
-  const maxTextL = 0.35;  // 텍스트 명도 최고 (밝은 검정)
 
-  let invertedL = maxTextL - hsl.l * (maxTextL - minTextL);
+function drawChart(data, width, height) {
+  if (!data || data.length === 0) return;
 
-  invertedL = Math.min(Math.max(invertedL, minTextL), maxTextL);
-
-  const sat = Math.min(hsl.s * 1.2, 1);
-
-  return d3.hsl(hsl.h, sat, invertedL).toString();
-}
-
-function drawChart(width, height) {
   d3.select(chartBox.value).selectAll('*').remove();
 
   svg = d3.select(chartBox.value)
@@ -65,23 +70,22 @@ function drawChart(width, height) {
 
   const radiusScale = d3.scaleSqrt()
     .domain([d3.min(data, d => d.value), d3.max(data, d => d.value)])
-    .range([15, 50]);
+    .range([20, 45]);
 
 
   const nodes = data.map(d => {
-    const color = colorScale(d.value, d.sentiment);
-    const textColor = getContrastTextColor(color);
-    // console.log(`버블: ${d.label} - 버블색: ${color}, 텍스트색: ${textColor}`);
-    return{
+    const { bgColor, textColor } = colorScale(d.value, d.sentiment);
+    return {
       ...d,
       r: radiusScale(d.value),
       x: width / 2,
       y: height / 2,
-      color: colorScale(d.value, d.sentiment)
-    }});
+      color: bgColor,
+      textColor: textColor
+    }
+  });
 
   simulation = d3.forceSimulation(nodes)
-    // .force('center', d3.forceCenter(width / 2, height / 2))
     .force('charge', d3.forceManyBody().strength(5))
     .force('collision', d3.forceCollide().radius(d => d.r + 3).iterations(2))
     .force('x', d3.forceX(width / 2).strength(0.1))
@@ -98,7 +102,7 @@ function drawChart(width, height) {
     .append('g')
     .attr('transform', d => `translate(${d.x},${d.y})`)
     .style('cursor', 'pointer')
-    .on('click', (event, d) => console.log(`클릭 : ${d.label}`));
+    .on('click', (event, d) => onBubbleClick(d));
 
   bubble.append('circle')
     .attr('r', 0)
@@ -113,12 +117,10 @@ function drawChart(width, height) {
     .text(d => d.label)
     .attr('text-anchor', 'middle')
     .attr('dy', '0.35em')
-    // 초기 상태: 글씨 크기 0, 투명도 0
     .style('font-size', '0px')
     .style('opacity', 0)
     .style('font-weight', '600')
-    .style('fill', d => getContrastTextColor(d.color))
-    // 애니메이션 적용
+    .style('fill', d => d.textColor)
     .transition()
     .duration(800)
     .ease(d3.easeBackOut)
@@ -128,23 +130,36 @@ function drawChart(width, height) {
 
 }
 
-onMounted(() => {
-  const container = chartBox.value;
+watchEffect(() => {
+  // props.chartData가 준비되고, chartBox ref가 연결되었을 때만 실행
+  if (props.chartData && props.chartData.length > 0 && chartBox.value) {
+    const container = chartBox.value;
 
-  function resize() {
-    const width = container.clientWidth;
-    const height = width * 0.6;
-    drawChart(width, height);
+    // 가장 큰 값을 가진 노드를 찾아 초기에 부모에게 알려줌
+    const maxNode = props.chartData.reduce((a, b) => (a.value > b.value ? a : b));
+    const { bgColor } = colorScale(maxNode.value, maxNode.sentiment);
+
+    emit('keyword-click', {
+      label: maxNode.label,
+      color: bgColor
+    });
+
+    // 리사이즈 될 때마다 차트를 다시 그리는 함수
+    function resize() {
+      const width = container.clientWidth;
+      const height = width * 0.6;
+      // props로 받은 chartData를 사용해 차트를 그림
+      drawChart(props.chartData, width, height);
+    }
+
+    resize(); // 최초 실행
+
+    // 리사이즈 이벤트를 감지하여 resize 함수 실행
+    if (resizeObserver) resizeObserver.disconnect(); // 기존 옵저버 연결 해제
+    resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(container);
   }
-
-  resize();
-
-  resizeObserver = new ResizeObserver(() => {
-    resize();
-  });
-  resizeObserver.observe(container);
 });
-
 onBeforeUnmount(() => {
   if (resizeObserver) resizeObserver.disconnect();
   if (simulation) simulation.stop();
@@ -171,7 +186,7 @@ onBeforeUnmount(() => {
 
 .subItem-title02{
   font-size:var(--font-size-sm);
-  font-weight: var(--font-weight-right);
+  font-weight: var(--font-weight-light);
   color:var(--main02);
 }
 </style>
