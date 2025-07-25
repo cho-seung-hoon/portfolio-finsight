@@ -9,7 +9,8 @@
         v-for="(news, index) in filterNews"
         :key="index"
         :title="news.title"
-        :date="news.date" />
+        :url="news.content_url"
+        :date="news.published_at" />
     </div>
   </div>
 </template>
