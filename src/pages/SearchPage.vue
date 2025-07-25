@@ -9,24 +9,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { onBeforeRouteLeave } from 'vue-router';
-import { useHeaderStore } from '@/stores/header';
+import { ref } from 'vue';
 
-const headerStore = useHeaderStore();
 const search = ref('');
 
-onMounted(() => {
-  headerStore.setHeader({
-    titleParts: [{ text: '상품 검색', color: 'var(--main01)' }],
-    showBackButton: true,
-    actions: []
-  });
-});
-
-onBeforeRouteLeave((to, from) => {
-  headerStore.resetHeader();
-});
 </script>
 
 <style scoped>

@@ -1,25 +1,35 @@
 import { defineStore } from 'pinia';
 
-const defaultState = {
+const defaultState = Object.freeze({
   titleParts: [{ text: 'Fin-Sight', color: 'var(--sub01)' }],
   showBackButton: false,
   actions: [],
   showBorder: true,
-  stickyHeader: false
-  // {icon:'search', handler: () => console.log('검색')}, {icon:'watch', handler: () => console.log('관심')}
-};
+  stickyHeader: false,
+  bColor: 'var(--white)',
+  backHandler: null,
+});
+
 export const useHeaderStore = defineStore('header', {
   state: () => ({ ...defaultState }),
+
   actions: {
     setHeader(options) {
-      this.titleParts = options.titleParts || this.titleParts;
-      this.showBackButton = options.showBackButton ?? this.showBackButton;
-      this.actions = options.actions || this.actions;
-      this.showBorder = options.showBorder ?? this.showBorder;
-      this.stickyHeader = options.stickyHeader ?? this.stickyHeader;
+      const merged = {
+        ...defaultState,
+        ...options,
+      };
+
+      this.titleParts = merged.titleParts;
+      this.showBackButton = merged.showBackButton;
+      this.actions = merged.actions;
+      this.showBorder = merged.showBorder;
+      this.stickyHeader = merged.stickyHeader;
+      this.bColor = merged.bColor;
+      this.backHandler = merged.backHandler;
     },
     resetHeader() {
-      this.$patch(defaultState); // 스토어를 기본 상태로 되돌립니다.
-    }
-  }
+      this.$reset();
+    },
+  },
 });

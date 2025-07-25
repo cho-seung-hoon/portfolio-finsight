@@ -4,7 +4,14 @@ const depositRoutes = [
     name: 'DepositDetail',
     component: () => import('../pages/DepositPage.vue'),
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'HeaderLayout',
+      header:{
+        titleParts: [{text:'', color:'transparent'}],
+        showBackButton: true,
+        showBorder: false,
+        bColor:'var(--main01)',
+      }
+
     }
   }
 ];

@@ -1,15 +1,16 @@
 <template>
   <div class="subBox">
     <div class="subItem-title">
-      <span
-        class="keyword"
-        :style="{ color: props.color }"
-        >{{ props.keyword }}</span
-      >
-      <span> 관련 투자 상품</span>
+      <span class="keyword" :style="{ color: props.color }">{{ props.keyword }}</span>
+      <span>보유 상품 목록</span>
     </div>
 
     <div class="filter">
+      <button
+        :class="{ active: selectCategory === '예금' }"
+        @click="selectFilter('예금')">
+        예금
+      </button>
       <button
         :class="{ active: selectCategory === '펀드' }"
         @click="selectFilter('펀드')">
@@ -21,25 +22,24 @@
         ETF
       </button>
     </div>
-    <div
-      class="product-list"
-      v-if="filterProduct.length > 0">
-      <div v-if="selectCategory === 'ETF'">
-        <EtfItem
-          v-for="item in filterProduct"
-          :key="item.product_code"
-          :item="item" />
-      </div>
-      <div v-else>
-        <FundItem
-          v-for="fund in filterProduct"
-          :key="fund.fund_code"
-          :item="fund" />
-      </div>
+    <div class="product-list" v-if="filteredProducts.length > 0">
+      <template v-if="selectCategory === '예금'">
+        <HoldingListDeposit
+          v-for="product in filteredProducts"
+          :key="product.id"
+          :product="product"
+        />
+      </template>
+
+      <template v-else>
+        <HoldingListFundNEtf
+          v-for="product in filteredProducts"
+          :key="product.id"
+          :product="product"
+        />
+      </template>
     </div>
-    <div
-      v-else
-      class="no-products">
+    <div v-else class="no-products">
       관련된 상품이 없습니다.
     </div>
   </div>
@@ -47,24 +47,27 @@
 
 <script setup>
 import { ref, defineProps, computed } from 'vue';
-import EtfItem from '../list/EtfItem.vue';
-import FundItem from '../list/FundItem.vue';
+import HoldingListDeposit from '@/components/holding/HoldingListDeposit.vue';
+import HoldingListFundNEtf from '@/components/holding/HoldingListFund_N_ETF.vue';
+
 const props = defineProps({
   keyword: String,
   color: String,
-  productList: Array // 투자 상품 데이터, 부모에서 전달
+  products: Array  // productList -> products 로 변경
 });
 
-const selectCategory = ref('펀드'); // 기본값
+const selectCategory = ref('예금');
 
 function selectFilter(category) {
   selectCategory.value = category;
 }
 
-const filterProduct = computed(() => {
-  return props.productList.filter(product => product.category === selectCategory.value);
+
+const filteredProducts = computed(() => {
+  return props.products.filter(product => product.productType === selectCategory.value);
 });
 </script>
+
 <style scoped>
 .subBox {
   background-color: var(--white);

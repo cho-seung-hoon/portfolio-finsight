@@ -1,8 +1,8 @@
 <template>
-  <div class="news-item" @click="handleClick">
+  <a class="news-item" :href="url" target="_blank" rel="noopener noreferrer">
     <div class="news-title">{{ title }}</div>
     <div class="news-date">{{ date }}</div>
-  </div>
+  </a>
 </template>
 
 <script setup>
@@ -13,17 +13,20 @@ const props = defineProps({
 });
 
 
-const handleClick = () => {
-  console.log('뉴스 클릭:', props.title); // ✅ 안전하게 동작
-};
+// const handleClick = () => {
+//   console.log('뉴스 클릭:', props.title); // ✅ 안전하게 동작
+// };
 
 </script>
 <style scoped>
 .news-item {
-  padding:12px 0;
+  display: block;
+  padding:15px 0;
   background-color: var(--white);
   border-bottom: 1px solid var(--main04);
   cursor: pointer;
+  text-decoration: none; /* ✅ 링크 스타일 제거 */
+  color: inherit;        /* ✅ 글자색 상속 */
 }
 .news-title {
   font-weight: var(--font-weight-regular);

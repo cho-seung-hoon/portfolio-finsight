@@ -43,7 +43,12 @@
 <section class="sub-section">
     <div class="result-section">
         <h2>나의 투자유형은?</h2><br>
-        <img src="/src/assets/styles/img/stableChart.PNG" alt="stableChart" class="chart-image">
+        <!-- 투자유형에 따라 그래프 보기 -->
+        <img v-if="userType === 'stable'" src="/src/assets/styles/img/stableChart.PNG" alt="stableChart" class="chart-image">
+        <img v-if="userType === 'stableplus'" src="/src/assets/styles/img/stableplusChart.PNG" alt="stableplusChart" class="chart-image">
+        <img v-if="userType === 'neutral'" src="/src/assets/styles/img/neutralChart.PNG" alt="neutralChart" class="chart-image">
+        <img v-if="userType === 'aggressive'" src="/src/assets/styles/img/aggressiveChart.PNG" alt="aggressiveChart" class="chart-image">
+        <img v-else-if="userType === 'veryaggressive'" src="/src/assets/styles/img/veryaggressiveChart.PNG" alt="veryaggressiveChart" class="chart-image">
     </div>
 </section>
 <!-- GrapthSection end -->
@@ -71,7 +76,7 @@
     margin-right: -20px;
 }
 .main-title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
     color: var(--main05);
 }
@@ -125,7 +130,7 @@
     background: var(--main01);
     color: var(--white);
     font-weight: 700;
-    font-size: 24px;
+    font-size: 20px;
     display: flex;
     justify-content: center; 
     border: none;
@@ -171,19 +176,8 @@ const invest_type_description = ref('원금 손실 가능성이 낮은 상품(6�
 const userType = ref('stable') // 예: 고객의 투자유형이 '안정형인 경우'
 
 const router = useRouter()
-
-const routeMap = {
-    stable: '/inv-type-stable-page', // 안정형
-    stableplus: '/inv-type-stableplus-page', // 안정추구형
-    neutral: '/inv-type-neutral-page', // 위험중립형
-    aggressive: '/inv-type-aggressive-page', // 적극투자형
-    veryaggressive: '/inv-type-veryaggressive-page', // 공격투자형
-    default: '/inv-type-stable-page' // default: 안정형
-}
-
 const goToPortfolio = () => {
-    const path = routeMap[userType.value] || routeMap.default
-    router.push(path)
+    router.push('/portfolio-page')
 }
 const goToMain = () => {
     router.push('/')
