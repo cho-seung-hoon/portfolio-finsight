@@ -19,7 +19,6 @@ import EtfItem from '@/components/list/EtfItem.vue';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
 
-// filters: 정렬 포함
 const filters = [
   { key: 'country', label: '국가', options: ['전체', '국내', '국외'] },
   { key: 'etf_type', label: '유형', options: ['전체', '주식형', '채권형', '혼합형'] },
@@ -34,10 +33,10 @@ const selected = ref({
 
 const etfs = [
   {
-    product_code: 'ETF001',
+    product_code: 'etf-001',
     country: '국내',
     etf_type: '주식형',
-    product_name: 'KODEX 200',
+    product_name: 'TIGER 미국S&P500',
     nav: 2000,
     volume: 3000,
     rate_of_return: '3.3% (1개월)',
@@ -45,10 +44,10 @@ const etfs = [
     news_response: '긍정'
   },
   {
-    product_code: 'ETF002',
+    product_code: 'etf-002',
     country: '국내',
     etf_type: '채권형',
-    product_name: 'TIGER 국채3년',
+    product_name: 'KODEX 200',
     nav: 10250,
     volume: 45700,
     rate_of_return: '1.1% (1개월)',

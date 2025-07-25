@@ -1,5 +1,7 @@
 <template>
-  <section class="deposit-item-container">
+  <section
+    class="deposit-item-container"
+    @click="goToDetail">
     <section class="deposit-item-header-section">
       <header class="deposit-item-header">
         {{ item.product_name }}
@@ -18,6 +20,7 @@
 
 <script setup>
 import { defineProps } from 'vue';
+import { useRouter } from 'vue-router';
 import IconHeartStroke from '../icons/IconHeartStroke.vue';
 
 const props = defineProps({
@@ -26,6 +29,12 @@ const props = defineProps({
     required: true
   }
 });
+
+const router = useRouter();
+
+function goToDetail() {
+  router.push(`/deposit/${props.item.product_code}`);
+}
 </script>
 
 <style scoped>
@@ -39,6 +48,7 @@ const props = defineProps({
   background-color: var(--white);
   padding: 20px 28px;
   gap: 12px;
+  cursor: pointer;
 }
 
 .deposit-item-header-section {
