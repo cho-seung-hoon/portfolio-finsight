@@ -25,21 +25,6 @@ export default {
       name: 'MY',
       path: '/my',
       icon: IconMy
-    },
-    {
-      name: '예금',
-      path: '/deposit',
-      icon: null
-    },
-    {
-      name: 'ETF',
-      path: '/etf',
-      icon: null
-    },
-    {
-      name: '펀드',
-      path: '/fund',
-      icon: null
     }
   ]
 };

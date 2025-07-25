@@ -4,34 +4,56 @@
       type="button"
       class="asset-record-btn-fixed"
       :class="{ active }"
-      @click="$emit('click')">
+      @click="handleClick">
       <span
         v-if="active"
         class="asset-record-desc"
         >현재 보유자산입니다.</span
       >
-      <span :class="['asset-record-btn-text', { center: !active }]">{{
-        active ? '자세히보기' : '보유자산으로 기록'
-      }}</span>
+      <!-- <span :class="['asset-record-btn-text', { center: !active }]">{{
+        active ? '자세히보기' : '첫 매수하기'
+      }}</span> -->
+      <span
+        v-if="!active"
+        class="asset-record-btn-text center"
+        >첫 매수하기</span
+      >
+      <!-- 자세히보기는 잠시 주석 처리 -->
+      <!-- <span v-else class="asset-record-btn-text">자세히보기</span> -->
     </button>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-defineProps({
+const props = defineProps({
   bank: String,
   title: String,
   maxRate: String,
   maxRateDesc: String,
   baseRate: String,
-  active: Boolean
+  active: Boolean,
+  category: String,
+  id: [String, Number]
 });
+
+const router = useRouter();
 
 const heartActive = ref(false);
 function toggleHeart() {
   heartActive.value = !heartActive.value;
+}
+
+function handleClick() {
+  if (!props.active) {
+    // 첫 매수하기 버튼 클릭 시 이동
+    router.push(`/${props.category}/buy/${props.id}`);
+  } else {
+    // 자세히보기는 잠시 주석 처리
+    // $emit('click');
+  }
 }
 </script>
 

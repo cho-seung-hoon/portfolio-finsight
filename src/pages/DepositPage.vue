@@ -21,6 +21,8 @@
 
     <DetailActionButton
       :active="isActive"
+      :category="'deposit'"
+      :id="route.params.id"
       @click="onClick" />
   </div>
 </template>

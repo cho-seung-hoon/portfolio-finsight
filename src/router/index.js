@@ -10,6 +10,8 @@ import invtRoutes from '@/router/invtRoutes.js';
 import depositRoutes from './depositRoutes';
 import etfRoutes from './etfRoutes';
 import fundRoutes from './fundRoutes';
+import sellRoutes from './sellRoutes';
+import buyRoutes from './buyRoutes';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,7 +39,9 @@ const router = createRouter({
     ...invtRoutes,
     ...depositRoutes,
     ...etfRoutes,
-    ...fundRoutes
+    ...fundRoutes,
+    ...sellRoutes,
+    ...buyRoutes
   ]
 });
 

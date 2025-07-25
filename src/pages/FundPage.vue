@@ -19,6 +19,8 @@
 
     <DetailActionButton
       :active="isActive"
+      :category="'fund'"
+      :id="route.params.id"
       @click="onClick" />
   </div>
 </template>

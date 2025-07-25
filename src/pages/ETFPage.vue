@@ -19,6 +19,8 @@
 
     <DetailActionButton
       :active="isActive"
+      :category="'etf'"
+      :id="route.params.id"
       @click="onClick" />
   </div>
 </template>
