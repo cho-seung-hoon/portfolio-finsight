@@ -16,9 +16,6 @@
 <script setup>
 import HoldingTotal from '@/components/holding/HoldingTotal.vue';
 import HoldingList from '@/components/holding/HoldingList.vue';
-import { useHeaderStore } from '@/stores/header.js';
-import { onMounted } from 'vue';
-const headerStore = useHeaderStore();
 
 const data = [
   // 예금 데이터
@@ -91,15 +88,6 @@ const data = [
     valuation: 1890000
   }
 ];
-onMounted(() => {
-  headerStore.setHeader({
-    titleParts: [
-      { text: '보유내역', color: 'var(--main01)' },
-    ]
-  });
-});
-
-
 </script>
 
 <style scoped>

@@ -12,7 +12,7 @@ const invtRoutes = [
     name: 'InvTypeMainPage',
     component: InvTypeMainPage,
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'EmptyLayout'
     }
   },
   {
@@ -20,7 +20,7 @@ const invtRoutes = [
     name: 'InvTypeTestStep1Page',
     component: InvTypeTestStep1Page,
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'EmptyLayout'
     }
   },
   {
@@ -28,7 +28,7 @@ const invtRoutes = [
     name: 'InvTypeNoticePage',
     component: InvTypeNoticePage,
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'EmptyLayout'
     }
   },
   {
@@ -36,7 +36,7 @@ const invtRoutes = [
     name: 'InvTypeTestStep2Page',
     component: InvTypeTestStep2Page,
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'EmptyLayout'
     }
   },
   {
@@ -44,7 +44,7 @@ const invtRoutes = [
     name: 'InvTypeResultsPage',
     component: InvTypeResultsPage,
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'EmptyLayout'
     }
   },
   {
@@ -52,7 +52,7 @@ const invtRoutes = [
     name: 'PortfolioPage',
     component: PortfolioPage,
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'EmptyLayout'
     }
   },
 ];

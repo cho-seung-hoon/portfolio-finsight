@@ -151,13 +151,15 @@ const handleKeyPress = event => {
 
 <style scoped>
 .login-container {
-  min-height: 100vh;
+  margin-left: -20px;
+  margin-right: -20px;
+  min-height: 100dvh;
   background: var(--main01);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 0 20px;
+/*  padding: 0 20px;*/
   position: relative;
   overflow: hidden;
 }
