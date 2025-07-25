@@ -27,9 +27,7 @@ export default defineConfig({
         secure: false
       }
     }
+    ,host: true,
   }
-  // option - server
-  // server: {
-  //     host: true,
-  // },
+
 });

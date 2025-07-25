@@ -7,6 +7,11 @@ import listRoutes from './listRoutes';
 import myRoutes from './myRoutes';
 import signUpRoutes from './signUpRoutes';
 import invtRoutes from '@/router/invtRoutes.js';
+import watchRoutes from './watchRoutes';
+import searchRoutes from './searchRoutes';
+import depositRoutes from './depositRoutes';
+import etfRoutes from './etfRoutes';
+import fundRoutes from './fundRoutes';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,21 +35,26 @@ const router = createRouter({
     ...holdingRoutes,
     ...listRoutes,
     ...myRoutes,
-    ...signUpRoutes
-    ...invtRoutes
+    ...signUpRoutes,
+    ...invtRoutes,
+    ...watchRoutes,
+    ...searchRoutes,
+    ...depositRoutes,
+    ...etfRoutes,
+    ...fundRoutes
   ]
 });
 
 router.beforeEach((to, from, next) => {
-    const requiresAuth = to.meta.requiresAuth;
+  const requiresAuth = to.meta.requiresAuth;
 
-    const isLoggedIn = !!localStorage.getItem('token');
+  const isLoggedIn = !!localStorage.getItem('token');
 
-    if (requiresAuth && !isLoggedIn) {
-        next({ name: 'login' });
-    } else {
-        next();
-    }
+  if (requiresAuth && !isLoggedIn) {
+    next({ name: 'login' });
+  } else {
+    next();
+  }
 });
 
 export default router;

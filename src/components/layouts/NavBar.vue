@@ -4,7 +4,8 @@
       class="nav-item"
       v-for="item in config.menus"
       :key="item.name"
-      :to="item.path">
+      :to="item.path"
+      :class="{ active: isActive(item.path) }">
       <component
         :is="item.icon"
         class="icon" />
@@ -15,6 +16,13 @@
 
 <script setup>
 import config from '@/config';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+
+function isActive(path) {
+  return route.path === path || route.path.startsWith(path + '/');
+}
 </script>
 
 <style scoped>
@@ -45,7 +53,7 @@ import config from '@/config';
   margin-bottom: 2px;
 }
 
-.router-link-exact-active {
+.active {
   color: var(--main01);
   font-weight: var(--font-weight-medium);
 }

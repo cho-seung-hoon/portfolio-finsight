@@ -44,6 +44,7 @@ const stickyHeader = computed(()=> headerStore.stickyHeader);
   position: relative;
   overflow-y: auto;
   padding: 0 20px;
+  padding-bottom: 60px;
 }
 
 /* 스크롤바 커스터마이징 */
