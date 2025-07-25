@@ -46,6 +46,7 @@
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { ref, computed, onMounted } from 'vue';
 import { useHeaderStore } from '@/stores/header';
+import { getFinFilters, setFinFilters } from '@/utils/filterStorage'; // 추가!
 import ListTab from '@/components/list/ListTab.vue';
 import ListDepositPage from './list/ListDepositPage.vue';
 import ListFundPage from './list/ListFundPage.vue';
@@ -65,10 +66,12 @@ onMounted(() => {
     titleParts: [{ text: '상품탐색', color: 'var(--main01)' }],
     showBackButton: false,
     actions: [
-      { icon: 'search', handler: () => router.push('/list/search') },
-      { icon: 'watch', handler: () => router.push('/list/watch') }
+      { icon: 'search', handler: () => router.push('/search') },
+      { icon: 'watch', handler: () => router.push('/watch') }
     ]
   });
+
+  isMatched.value = getFinFilters().isMatched || false;
 });
 
 onBeforeRouteLeave((to, from) => {
@@ -87,11 +90,20 @@ function closeModal() {
 
 function confirmMatch() {
   isMatched.value = true;
+  updateIsMatchedInStorage(true);
   showModal.value = false;
 }
 
 function resetMatch() {
   isMatched.value = false;
+  updateIsMatchedInStorage(false);
+}
+
+function updateIsMatchedInStorage(val) {
+  setFinFilters({
+    ...getFinFilters(),
+    isMatched: val
+  });
 }
 </script>
 

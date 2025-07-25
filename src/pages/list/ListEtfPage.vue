@@ -2,11 +2,8 @@
   <div class="list-etf-page-container">
     <FilterSortBar
       :filters="filters"
-      :showFilters="true"
-      :sortOptions="sortOptions"
-      :selectedSort="selectedSort"
-      @filter-select="onFilterChange"
-      @sort-select="onSortChange" />
+      :selected="selected"
+      @change="onChange" />
     <section class="list-etf-page-contents">
       <EtfItem
         v-for="item in etfs"
@@ -17,11 +14,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import EtfItem from '@/components/list/EtfItem.vue';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
+import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
 
-// ETF 데이터
+// filters: 정렬 포함
+const filters = [
+  { key: 'country', label: '국가', options: ['전체', '국내', '국외'] },
+  { key: 'etf_type', label: '유형', options: ['전체', '주식형', '채권형', '혼합형'] },
+  { key: 'sort', label: '정렬', options: ['가나다순', '기준가순'] }
+];
+
+const selected = ref({
+  country: '전체',
+  etf_type: '전체',
+  sort: '가나다순'
+});
+
 const etfs = [
   {
     product_code: 'ETF001',
@@ -58,36 +68,21 @@ const etfs = [
   }
 ];
 
-// 필터 옵션/선택값
-const filters = ref([
-  {
-    key: 'country',
-    label: '국가',
-    selectedOption: '전체',
-    options: ['전체', '국내', '국외']
-  },
-  {
-    key: 'etf_type',
-    label: '유형',
-    selectedOption: '전체',
-    options: ['전체', '주식형', '채권형', '혼합형']
-  }
-]);
+// 마운트 시 로컬스토리지 반영 (없으면 default)
+onMounted(() => {
+  const etf = getFinFilters().etf || {};
+  filters.forEach(opt => {
+    selected.value[opt.key] = opt.options.includes(etf[opt.key]) ? etf[opt.key] : opt.options[0];
+  });
+});
 
-const sortOptions = [
-  { key: 'alphabetical', label: '가나다순' },
-  { key: 'nav', label: '기준가순' }
-];
-
-const selectedSort = ref(sortOptions[0]);
-
-function onFilterChange({ filterKey, option }) {
-  const filter = filters.value.find(f => f.key === filterKey);
-  if (filter) filter.selectedOption = option;
-}
-
-function onSortChange(option) {
-  selectedSort.value = option;
+// 값 변경 시 로컬스토리지 반영
+function onChange(key, value) {
+  selected.value[key] = value;
+  setFinFilters({
+    ...getFinFilters(),
+    etf: { ...selected.value }
+  });
 }
 </script>
 
@@ -98,12 +93,6 @@ function onSortChange(option) {
   width: 100%;
   gap: 12px;
 }
-
-.list-etf-page-filter-bar {
-  display: flex;
-  flex-direction: row;
-}
-
 .list-etf-page-contents {
   display: flex;
   flex-direction: column;
