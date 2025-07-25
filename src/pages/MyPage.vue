@@ -3,17 +3,22 @@
     <div class="subItem-title">
       <div class="title">마이페이지</div>
     </div>
-    <div class="subItem-img">
-      <img class="bg-image" src="@/assets/my-backgroud.png" alt="배경 이미지" />
+    <div
+      class="subItem-img">
+      <img
+        class="bg-image"
+        src="@/assets/my-backgroud.png"
+        alt="배경 이미지" />
     </div>
-    <div class="subItem-info">
-      <UserInfo/>
+    <div
+      class="subItem-info">
+      <UserInfo />
     </div>
     <div class="subItem-invt">
-      <UserInvt/>
+      <UserInvt />
     </div>
     <div class="subItem-user">
-      <UserMgmt/>
+      <UserMgmt />
     </div>
   </div>
 </template>
@@ -32,7 +37,7 @@ onMounted(() => {
   headerStore.setHeader({
     titleParts: [{ text: '마이페이지', color: 'var(--white)' }],
     isTransparent: true,
-    showBorder: false,
+    showBorder: false
   });
 });
 
@@ -42,10 +47,10 @@ onBeforeRouteLeave(() => {
 </script>
 
 <style scoped>
-.my-box{
+.my-box {
   display: flex;
   flex-direction: column;
-  height: calc(100% - 56px);
+  height: 100%;
 }
 
 .subItem-title {
@@ -61,13 +66,13 @@ onBeforeRouteLeave(() => {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
   align-content: center;
-  color:var(--white);
+  color: var(--white);
 }
 
 .subItem-img {
   margin-top: calc(-1 * 56px);
-  margin-left: calc(-1 * 20px);
-  margin-right: calc(-1 * 20px);
+  margin-left: -20px;
+  width: calc(100% + 40px);
   z-index: 0;
 }
 
@@ -77,13 +82,12 @@ onBeforeRouteLeave(() => {
 }
 
 .subItem-info {
-  margin-left: calc(-1 * 20px);
-  margin-right: calc(-1 * 20px);
+  margin-left: -20px;
+  width: calc(100% + 40px);
 }
 
 .subItem-user {
   margin-top: auto;
   padding-bottom: 40px;
 }
-
 </style>

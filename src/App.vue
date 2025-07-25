@@ -1,8 +1,6 @@
 <template>
   <div id="app-container">
-    <component :is="layoutComponent">
-      <router-view />
-    </component>
+    <component :is="layoutComponent" />
   </div>
 </template>
 
@@ -23,10 +21,7 @@ const layouts = {
 
 const route = useRoute();
 
-const layoutComponent = computed(() => {
-  const layoutName = route.meta.layout || 'DefaultLayout';
-  return layouts[layoutName];
-});
+const layoutComponent = computed(() => layouts[route.meta.layout || 'DefaultLayout']);
 </script>
 
 <style>
