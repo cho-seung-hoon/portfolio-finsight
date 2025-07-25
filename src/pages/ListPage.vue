@@ -68,7 +68,8 @@ onMounted(() => {
     actions: [
       { icon: 'search', handler: () => router.push('/search') },
       { icon: 'watch', handler: () => router.push('/watch') }
-    ]
+    ],
+    showBorder: false
   });
 
   isMatched.value = getFinFilters().isMatched || false;

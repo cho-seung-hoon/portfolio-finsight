@@ -26,7 +26,8 @@ onMounted(() => {
   headerStore.setHeader({
     titleParts: [{ text: '검색 결과', color: 'var(--main01)' }],
     showBackButton: true,
-    actions: []
+    actions: [],
+    showBorder: false
   });
 });
 
@@ -60,7 +61,7 @@ function goBack() {
   gap: 8px;
   margin-left: -20px;
   width: calc(100% + 40px);
-  padding: 12px 20px;
+  padding: 8px 20px;
   background-color: var(--main05);
   border-bottom: 1px solid var(--main03);
 }
@@ -69,7 +70,7 @@ function goBack() {
   flex: 1;
   padding: 12px 16px;
   background-color: var(--main04);
-  border: 1px solid var(--main03);
+  border: none;
   border-radius: 12px;
   font-size: var(--font-size-md);
   cursor: pointer;
