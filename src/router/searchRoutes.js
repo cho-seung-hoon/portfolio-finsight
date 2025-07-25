@@ -6,6 +6,12 @@ const searchRoutes = [
     meta: {
       layout: 'HeaderLayout'
     }
+  },
+  {
+    path: '/search/result',
+    name: 'searchResult',
+    component: () => import('../pages/SearchResultPage.vue'),
+    meta: { layout: 'HeaderLayout' }
   }
 ];
 
