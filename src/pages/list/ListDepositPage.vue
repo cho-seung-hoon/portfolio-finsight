@@ -2,11 +2,8 @@
   <div class="list-deposit-page-container">
     <FilterSortBar
       :filters="filters"
-      :showFilters="false"
-      :sortOptions="sortOptions"
-      :selectedSort="selectedSort"
-      @filter-select="onFilterChange"
-      @sort-select="onSortChange" />
+      :selected="selected"
+      @change="onChange" />
     <section class="list-deposit-page-contents">
       <DepositItem
         v-for="item in deposits"
@@ -17,9 +14,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import DepositItem from '@/components/list/DepositItem.vue';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
+import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
+
+const filters = [{ key: 'sort', label: '정렬', options: ['가나다순', '수익률순'] }];
+const selected = ref({
+  sort: '가나다순'
+});
 
 const deposits = [
   {
@@ -38,15 +41,23 @@ const deposits = [
   }
 ];
 
-const sortOptions = [
-  { key: 'alphabetical', label: '가나다순' },
-  { key: 'return', label: '수익률순' }
-];
+// 마운트 시 로컬스토리지 반영 (없으면 default)
+onMounted(() => {
+  const deposit = getFinFilters().deposit || {};
+  filters.forEach(opt => {
+    selected.value[opt.key] = opt.options.includes(deposit[opt.key])
+      ? deposit[opt.key]
+      : opt.options[0];
+  });
+});
 
-const selectedSort = ref(sortOptions[0]);
-
-function onSortChange(option) {
-  selectedSort.value = option;
+// 정렬만 반영
+function onChange(key, value) {
+  selected.value[key] = value;
+  setFinFilters({
+    ...getFinFilters(),
+    deposit: { ...selected.value }
+  });
 }
 </script>
 
@@ -58,12 +69,6 @@ function onSortChange(option) {
   gap: 12px;
   margin-bottom: 60px;
 }
-
-.list-deposit-page-filter-bar {
-  display: flex;
-  flex-direction: row;
-}
-
 .list-deposit-page-contents {
   display: flex;
   flex-direction: column;
