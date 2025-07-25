@@ -1,7 +1,11 @@
 <template>
   <div class="subBox">
     <div class="subItem-title">
-      <span class="keyword" :style="{ color: props.color }">{{ props.keyword }}</span>
+      <span
+        class="keyword"
+        :style="{ color: props.color }"
+        >{{ props.keyword }}</span
+      >
       <span> 관련 투자 상품</span>
     </div>
 
@@ -17,14 +21,25 @@
         ETF
       </button>
     </div>
-    <div class="product-list" v-if="filterProduct.length > 0">
-      <NewsProductItem
-        v-for="(product, index) in filterProduct"
-        :key="index"
-        :title="product.title"
-         />
+    <div
+      class="product-list"
+      v-if="filterProduct.length > 0">
+      <div v-if="selectCategory === 'ETF'">
+        <EtfItem
+          v-for="item in filterProduct"
+          :key="item.product_code"
+          :item="item" />
+      </div>
+      <div v-else>
+        <FundItem
+          v-for="fund in filterProduct"
+          :key="fund.fund_code"
+          :item="fund" />
+      </div>
     </div>
-    <div v-else class="no-products">
+    <div
+      v-else
+      class="no-products">
       관련된 상품이 없습니다.
     </div>
   </div>
@@ -32,11 +47,12 @@
 
 <script setup>
 import { ref, defineProps, computed } from 'vue';
-import NewsProductItem from '@/components/home/NewsProductItem.vue';
+import EtfItem from '../list/EtfItem.vue';
+import FundItem from '../list/FundItem.vue';
 const props = defineProps({
   keyword: String,
   color: String,
-  productList: Array  // 투자 상품 데이터, 부모에서 전달
+  productList: Array // 투자 상품 데이터, 부모에서 전달
 });
 
 const selectCategory = ref('펀드'); // 기본값

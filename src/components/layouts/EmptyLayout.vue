@@ -22,7 +22,6 @@
 .content-container {
   flex: 1;
   position:relative;
-  padding: 0px 20px 60px 20px;
 }
 
 
