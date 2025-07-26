@@ -109,7 +109,7 @@ const rawNewsData = [
 const rawProductData = [
   {
     category: '펀드',
-    fund_code: 'FUND123',
+    product_code: 'fund-001',
     country: '국내',
     fund_type: '주식형',
     product_name: '펀드A',
@@ -120,7 +120,7 @@ const rawProductData = [
   },
   {
     category: '펀드',
-    fund_code: 'FUND456',
+    product_code: 'fund-002',
     country: '해외',
     fund_type: '채권형',
     product_name: '펀드B',
@@ -131,7 +131,7 @@ const rawProductData = [
   },
   {
     category: 'ETF',
-    product_code: 'ETF001',
+    product_code: 'etf-001',
     country: '국내',
     etf_type: '주식형',
     product_name: 'KODEX 200',
@@ -144,7 +144,7 @@ const rawProductData = [
   },
   {
     category: 'ETF',
-    product_code: 'ETF002',
+    product_code: 'etf-002',
     country: '국내',
     etf_type: '채권형',
     product_name: 'TIGER 국채3년',
@@ -157,7 +157,7 @@ const rawProductData = [
   },
   {
     category: 'ETF',
-    product_code: 'ETF003',
+    product_code: 'etf-003',
     country: '국외',
     etf_type: '혼합형',
     product_name: 'ARIRANG 미국리츠',
