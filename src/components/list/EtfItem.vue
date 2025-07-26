@@ -1,5 +1,7 @@
 <template>
-  <section class="etf-item-container">
+  <section
+    class="etf-item-container"
+    @click="goToDetail">
     <section class="etf-item-header-section">
       <div class="etf-item-sub-title">{{ item.country }} ・ {{ item.etf_type }}</div>
       <header class="etf-item-header">
@@ -36,6 +38,7 @@
 
 <script setup>
 import { defineProps } from 'vue';
+import { useRouter } from 'vue-router';
 import IconHeartStroke from '../icons/IconHeartStroke.vue';
 
 const props = defineProps({
@@ -44,6 +47,12 @@ const props = defineProps({
     required: true
   }
 });
+
+const router = useRouter();
+
+function goToDetail() {
+  router.push(`/etf/${props.item.product_code}`);
+}
 </script>
 
 <style scoped>
@@ -57,6 +66,7 @@ const props = defineProps({
   background-color: var(--white);
   padding: 20px 28px;
   gap: 12px;
+  cursor: pointer;
 }
 
 .etf-item-header-section {

@@ -20,8 +20,9 @@
       :selectedTab="selectedTab" />
 
     <DetailActionButton
-      :active="isActive"
-      @click="onClick" />
+      :active="productInfo.isHolding"
+      :category="'deposit'"
+      :id="route.params.id" />
   </div>
 </template>
 
@@ -68,11 +69,5 @@ const indicatorPosition = {
   info: '0px',
   rate: '147px',
   notice: '294px'
-};
-
-// 버튼 상태
-const isActive = ref(false);
-const onClick = () => {
-  isActive.value = true;
 };
 </script>

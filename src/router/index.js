@@ -13,6 +13,8 @@ import depositRoutes from './depositRoutes';
 import etfRoutes from './etfRoutes';
 import fundRoutes from './fundRoutes';
 import { useHeaderStore } from '@/stores/header.js';
+import sellRoutes from './sellRoutes';
+import buyRoutes from './buyRoutes';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,10 +26,9 @@ const router = createRouter({
       meta: {
         header: {
           titleParts: [
-              { text: 'OOO', color: 'var(--sub01)' },
-              { text: '님, 반갑습니다.', color: 'var(--main01)' }
-            ]
-
+            { text: 'OOO', color: 'var(--sub01)' },
+            { text: '님, 반갑습니다.', color: 'var(--main01)' }
+          ]
         }
       }
     },
@@ -48,7 +49,9 @@ const router = createRouter({
     ...searchRoutes,
     ...depositRoutes,
     ...etfRoutes,
-    ...fundRoutes
+    ...fundRoutes,
+    ...sellRoutes,
+    ...buyRoutes
   ]
 });
 
@@ -69,6 +72,7 @@ router.beforeEach((to, from, next) => {
     // 커스텀 backHandler가 경로로 지정된 경우, 실제 함수로 변환
     if (options.backHandler && typeof options.backHandler !== 'function') {
       const backTarget = options.backHandler;
+      console.log('backTarget: ', backTarget);
       options.backHandler = () => router.push(backTarget);
     }
     headerStore.setHeader(options);

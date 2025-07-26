@@ -18,6 +18,7 @@ export const useDepositStore = defineStore('deposit', () => {
       maxRate: '연 6.00%',
       maxRateDesc: '(12개월 세전)',
       baseRate: '연 3.69%',
+      isHolding: false,
       info: [
         {
           type: 'longtext',
@@ -75,6 +76,7 @@ export const useDepositStore = defineStore('deposit', () => {
       maxRate: '연 5.50%',
       maxRateDesc: '(6개월 세전)',
       baseRate: '연 3.00%',
+      isHolding: true,
       info: [
         { type: 'text', title: '상품특징', desc: 'KB 국민은행의 대표 정기예금 상품입니다.' },
         { type: 'text', title: '가입 대상', desc: '실명의 개인' }
