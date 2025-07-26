@@ -44,6 +44,13 @@ export const useSellStore = defineStore('sell', () => {
       code: 'deposit-001',
       date: '2025-08-01',
       maturityDate: '2026-08-01'
+    },
+    'deposit-002': {
+      title: '우리 정기예금',
+      amount: 3000000,
+      code: 'deposit-002',
+      date: '2025-08-10',
+      maturityDate: '2026-08-15'
     }
   };
 

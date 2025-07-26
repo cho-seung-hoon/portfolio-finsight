@@ -18,10 +18,9 @@
       :selectedTab="selectedTab" />
 
     <DetailActionButton
-      :active="isActive"
+      :active="productInfo.isHolding"
       :category="'fund'"
-      :id="route.params.id"
-      @click="onClick" />
+      :id="route.params.id" />
   </div>
 </template>
 
@@ -59,10 +58,5 @@ const tabs = [
 const selectedTab = ref('info');
 const selectTab = tab => {
   selectedTab.value = tab;
-};
-
-const isActive = ref(false);
-const onClick = () => {
-  isActive.value = true;
 };
 </script>

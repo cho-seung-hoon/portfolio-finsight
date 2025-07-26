@@ -12,6 +12,7 @@ export const useFundStore = defineStore('fund', () => {
       title: '미래에셋자산배분TINA펀드',
       yield: '25.97%',
       priceArr: [1414.27, 1373.72], // [오늘 기준가, 전일 기준가]
+      isHolding: false,
       info: [
         {
           type: 'longtext',
@@ -37,6 +38,7 @@ export const useFundStore = defineStore('fund', () => {
       title: '삼성 한국형TDF 2045',
       yield: '-3.21%',
       priceArr: [987.65, 1000.0], // [오늘 기준가, 전일 기준가]
+      isHolding: true,
       info: [
         {
           type: 'longtext',

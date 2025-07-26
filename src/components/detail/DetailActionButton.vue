@@ -1,26 +1,31 @@
 <template>
   <div class="asset-record-btn-fixed-wrapper">
+    <!-- 보유하지 않은 상품일 때 -->
     <button
+      v-if="!active"
       type="button"
       class="asset-record-btn-fixed"
-      :class="{ active }"
-      @click="handleClick">
-      <span
-        v-if="active"
-        class="asset-record-desc"
-        >현재 보유자산입니다.</span
-      >
-      <!-- <span :class="['asset-record-btn-text', { center: !active }]">{{
-        active ? '자세히보기' : '첫 매수하기'
-      }}</span> -->
-      <span
-        v-if="!active"
-        class="asset-record-btn-text center"
-        >첫 매수하기</span
-      >
-      <!-- 자세히보기는 잠시 주석 처리 -->
-      <!-- <span v-else class="asset-record-btn-text">자세히보기</span> -->
+      @click="handleBuyClick">
+      <span class="asset-record-btn-text center">첫 매수하기</span>
     </button>
+
+    <!-- 보유 중인 상품일 때 -->
+    <div
+      v-else
+      class="holding-buttons">
+      <button
+        type="button"
+        class="asset-record-btn-fixed sell-btn"
+        @click="handleSellClick">
+        <span class="asset-record-btn-text">매도하기</span>
+      </button>
+      <button
+        type="button"
+        class="asset-record-btn-fixed buy-btn"
+        @click="handleBuyClick">
+        <span class="asset-record-btn-text">추가 매수하기</span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -34,7 +39,7 @@ const props = defineProps({
   maxRate: String,
   maxRateDesc: String,
   baseRate: String,
-  active: Boolean,
+  active: Boolean, // isHolding 값을 받는 prop
   category: String,
   id: [String, Number]
 });
@@ -46,14 +51,14 @@ function toggleHeart() {
   heartActive.value = !heartActive.value;
 }
 
-function handleClick() {
-  if (!props.active) {
-    // 첫 매수하기 버튼 클릭 시 이동
-    router.push(`/${props.category}/buy/${props.id}`);
-  } else {
-    // 자세히보기는 잠시 주석 처리
-    // $emit('click');
-  }
+function handleBuyClick() {
+  // 첫 매수하기 또는 추가 매수하기 버튼 클릭 시 이동
+  router.push(`/${props.category}/buy/${props.id}`);
+}
+
+function handleSellClick() {
+  // 매도하기 버튼 클릭 시 이동
+  router.push(`/${props.category}/sell/${props.id}`);
 }
 </script>
 
@@ -87,16 +92,25 @@ function handleClick() {
   box-sizing: border-box;
   border: none;
 }
-.asset-record-btn-fixed.active {
+.holding-buttons {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.holding-buttons .asset-record-btn-fixed {
+  flex: 1;
+  min-height: 56px;
+}
+
+.sell-btn {
   background: var(--sub01);
   color: var(--white);
-  padding-top: 8px;
-  padding-bottom: 7px;
 }
-.asset-record-desc {
-  font-size: 12px;
-  color: var(--main02);
-  text-align: center;
+
+.buy-btn {
+  background: var(--main01);
+  color: var(--white);
 }
 .asset-record-btn-text {
   text-align: center;

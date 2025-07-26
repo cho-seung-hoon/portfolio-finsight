@@ -40,6 +40,13 @@ export const useBuyStore = defineStore('buy', () => {
       code: 'deposit-001',
       date: '2025-08-01',
       maturityDate: '2026-08-01'
+    },
+    'deposit-002': {
+      title: '우리리 정기예금',
+      amount: 300000,
+      code: 'deposit-002',
+      date: '2025-08-04',
+      maturityDate: '2026-08-10'
     }
   };
 
