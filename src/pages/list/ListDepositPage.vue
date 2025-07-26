@@ -26,16 +26,16 @@ const selected = ref({
 
 const deposits = [
   {
-    product_code: 'SH123',
-    product_name: '시그니처 정기예금',
-    company_name: '신한은행',
+    product_code: 'deposit-001',
+    product_name: 'SH 첫만남우대예금',
+    company_name: 'SH 수협은행',
     intr_rate: 1.2,
     intr_rate2: 2.8
   },
   {
-    product_code: 'KB123',
-    product_name: '플러스 정기예금',
-    company_name: '국민은행',
+    product_code: 'deposit-002',
+    product_name: 'KB Star 정기예금',
+    company_name: 'KB 국민은행',
     intr_rate: 1.5,
     intr_rate2: 3.0
   }

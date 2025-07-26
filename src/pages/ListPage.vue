@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { ref, computed, onMounted } from 'vue';
 import { getFinFilters, setFinFilters } from '@/utils/filterStorage'; // 추가!
 import ListTab from '@/components/list/ListTab.vue';
@@ -54,10 +54,13 @@ import IconCheck from '@/components/icons/IconCheck.vue';
 import BottomModal from './list/BottomModal.vue';
 
 const route = useRoute();
-const router = useRouter();
 const category = computed(() => route.params.category);
 const isMatched = ref(false);
 const showModal = ref(false);
+
+onMounted(() => {
+  isMatched.value = getFinFilters().isMatched || false;
+});
 
 function openModal() {
   if (!isMatched.value) {

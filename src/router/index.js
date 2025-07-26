@@ -72,6 +72,7 @@ router.beforeEach((to, from, next) => {
     // 커스텀 backHandler가 경로로 지정된 경우, 실제 함수로 변환
     if (options.backHandler && typeof options.backHandler !== 'function') {
       const backTarget = options.backHandler;
+      console.log('backTarget: ', backTarget);
       options.backHandler = () => router.push(backTarget);
     }
     headerStore.setHeader(options);
