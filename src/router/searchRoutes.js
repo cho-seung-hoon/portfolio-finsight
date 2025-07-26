@@ -7,7 +7,8 @@ const searchRoutes = [
       layout: 'HeaderLayout',
       header: {
         titleParts: [{ text: '상품검색', color: 'var(--main01)' }],
-        showBackButton: true
+        showBackButton: true,
+        showBorder: false
       }
     }
   },
