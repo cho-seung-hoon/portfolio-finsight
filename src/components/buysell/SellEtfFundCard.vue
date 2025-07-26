@@ -1,8 +1,8 @@
 <template>
   <div class="sell-info-card">
     <div
-      class="info-row"
-      v-if="holdingQuantity !== undefined">
+      v-if="holdingQuantity !== undefined"
+      class="info-row">
       <span class="info-label">보유 수량</span>
       <span class="info-value">{{ holdingQuantity ?? '-' }}</span>
     </div>

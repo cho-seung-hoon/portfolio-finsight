@@ -1,6 +1,8 @@
 <template>
   <div class="layout-container">
-    <div class="scroll-wrapper" ref="scrollRef">
+    <div
+      ref="scrollRef"
+      class="scroll-wrapper">
       <div class="header">
         <Header />
       </div>
@@ -15,8 +17,13 @@
       <NavBar />
     </div>
 
-    <div v-show="hasScroll" class="custom-scrollbar" ref="trackEl">
-      <div class="custom-scrollbar-thumb" ref="thumbEl"></div>
+    <div
+      v-show="hasScroll"
+      ref="trackEl"
+      class="custom-scrollbar">
+      <div
+        ref="thumbEl"
+        class="custom-scrollbar-thumb"></div>
     </div>
   </div>
 </template>
@@ -85,7 +92,7 @@ let isDragging = false;
 let startY = 0;
 let startScrollTop = 0;
 
-const onThumbMouseDown = (e) => {
+const onThumbMouseDown = e => {
   e.preventDefault();
   isDragging = true;
   startY = e.clientY;
@@ -97,7 +104,7 @@ const onThumbMouseDown = (e) => {
   document.addEventListener('mouseup', onMouseUp);
 };
 
-const onMouseMove = (e) => {
+const onMouseMove = e => {
   if (!isDragging) return;
   const container = scrollRef.value; // 대상을 scrollRef로 변경
   const track = trackEl.value;
@@ -172,7 +179,6 @@ watch(route, () => {
 </script>
 
 <style scoped>
-
 /* 레이아웃 컨테이너: Flexbox, 세로 방향 */
 .layout-container {
   display: flex;
@@ -193,7 +199,6 @@ watch(route, () => {
 .scroll-wrapper::-webkit-scrollbar {
   display: none;
 }
-
 
 /* 커스텀 스크롤바: 전체 높이에서 푸터 높이만큼을 제외한 위치에 표시 */
 .custom-scrollbar {

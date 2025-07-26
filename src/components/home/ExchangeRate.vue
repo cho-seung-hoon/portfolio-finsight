@@ -1,14 +1,18 @@
 <template>
   <div class="subBox">
-    <div class="subItem" v-for="(item, index) in filterData" :key="index">
-      <div class="subItem-title"> {{ item.cur_nm }}  {{ item.cur_unit }} </div>
+    <div
+      v-for="(item, index) in filterData"
+      :key="index"
+      class="subItem">
+      <div class="subItem-title">{{ item.cur_nm }} {{ item.cur_unit }}</div>
       <div class="subItem-content">
-        <img class="flag"
-        :src="`https://flagcdn.com/${getCountryCode(item.cur_unit)}.svg`"
-        width="20"
-        alt="item.cur_unit">
-         {{ item.deal_bas_r }} </div>
-
+        <img
+          class="flag"
+          :src="`https://flagcdn.com/${getCountryCode(item.cur_unit)}.svg`"
+          width="20"
+          alt="item.cur_unit" />
+        {{ item.deal_bas_r }}
+      </div>
     </div>
   </div>
 </template>
@@ -18,30 +22,30 @@ import { ref, onMounted } from 'vue';
 import { get } from '@/api/exchangeRate.js';
 
 const filterData = ref([]);
-const getCountryCode = (curUnit) => {
+const getCountryCode = curUnit => {
   const mapping = {
     USD: 'us',
     EUR: 'eu',
     'JPY(100)': 'jp',
     CNH: 'cn',
-    THB: 'th',
+    THB: 'th'
   };
   return mapping[curUnit] || 'un'; // 매핑되지 않은 경우 'un' (Unknown)
 };
 
 const fetchData = async () => {
-  try{
+  try {
     const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
-    const data = await get({ 'authkey' : apiKey, 'data' : 'AP01', 'searchdate' : '20250721'});
+    const data = await get({ authkey: apiKey, data: 'AP01', searchdate: '20250721' });
 
     const targetCurrencies = ['CNH', 'EUR', 'JPY(100)', 'USD', 'THB'];
     filterData.value = data.filter(item => targetCurrencies.includes(item.cur_unit));
-    console.log("test - test01");
+    console.log('test - test01');
     console.log(filterData);
-  } catch (error){
-    console.error("error");
+  } catch (error) {
+    console.error('error');
   }
-}
+};
 
 onMounted(() => {
   fetchData();
@@ -67,16 +71,16 @@ onMounted(() => {
   border: 1px solid var(--main04);
 }
 
-.subItem-title{
+.subItem-title {
   font-size: var(--font-size-sm);
-  color:var(--main02);
+  color: var(--main02);
   font-weight: var(--font-weight-medium);
   margin: 5px 0;
 }
-.flag{
-  border:1px solid var(--main02);
+.flag {
+  border: 1px solid var(--main02);
 }
-.subItem-content{
+.subItem-content {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   margin: 5px 0;

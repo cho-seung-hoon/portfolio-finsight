@@ -4,7 +4,9 @@
       <div class="subItem-title01">뉴스 키워드</div>
       <div class="subItem-title02">지난 7일 집계</div>
     </div>
-    <div ref="chartBox" class="chartBox"></div>
+    <div
+      ref="chartBox"
+      class="chartBox"></div>
   </div>
 </template>
 
@@ -21,7 +23,7 @@ const props = defineProps({
 
 const emit = defineEmits(['keyword-click']);
 
-function onBubbleClick(keyword){
+function onBubbleClick(keyword) {
   emit('keyword-click', {
     label: keyword.label,
     color: keyword.color
@@ -31,18 +33,17 @@ function onBubbleClick(keyword){
 const chartBox = ref(null);
 let svg, simulation, resizeObserver;
 
-
 function colorScale(value, sentiment) {
   const sentimentColors = {
     positive: ['#fdd5d9', '#fca2b0', '#ec3a5a'],
-    neutral:  ['#fff3d0', '#fcd978', '#fab809'],
-    negative: ['#d1f5f3', '#6ee5de', '#10b9b2'],
+    neutral: ['#fff3d0', '#fcd978', '#fab809'],
+    negative: ['#d1f5f3', '#6ee5de', '#10b9b2']
   };
 
   const sentimentTextColors = {
     positive: ['#800000', '#b30000', '#ffffff'], // 각 배경색에 대응
-    neutral:  ['#664400', '#996600', '#ffffff'],
-    negative: ['#004444', '#007777', '#ffffff'],
+    neutral: ['#664400', '#996600', '#ffffff'],
+    negative: ['#004444', '#007777', '#ffffff']
   };
 
   let index = 0;
@@ -52,26 +53,21 @@ function colorScale(value, sentiment) {
 
   return {
     bgColor: sentimentColors[sentiment][index],
-    textColor: sentimentTextColors[sentiment][index],
+    textColor: sentimentTextColors[sentiment][index]
   };
 }
-
-
 
 function drawChart(data, width, height) {
   if (!data || data.length === 0) return;
 
   d3.select(chartBox.value).selectAll('*').remove();
 
-  svg = d3.select(chartBox.value)
-    .append('svg')
-    .attr('width', width)
-    .attr('height', height);
+  svg = d3.select(chartBox.value).append('svg').attr('width', width).attr('height', height);
 
-  const radiusScale = d3.scaleSqrt()
+  const radiusScale = d3
+    .scaleSqrt()
     .domain([d3.min(data, d => d.value), d3.max(data, d => d.value)])
     .range([20, 45]);
-
 
   const nodes = data.map(d => {
     const { bgColor, textColor } = colorScale(d.value, d.sentiment);
@@ -82,12 +78,19 @@ function drawChart(data, width, height) {
       y: height / 2,
       color: bgColor,
       textColor: textColor
-    }
+    };
   });
 
-  simulation = d3.forceSimulation(nodes)
+  simulation = d3
+    .forceSimulation(nodes)
     .force('charge', d3.forceManyBody().strength(5))
-    .force('collision', d3.forceCollide().radius(d => d.r + 3).iterations(2))
+    .force(
+      'collision',
+      d3
+        .forceCollide()
+        .radius(d => d.r + 3)
+        .iterations(2)
+    )
     .force('x', d3.forceX(width / 2).strength(0.1))
     .force('y', d3.forceY(height * 0.5).strength(0.2))
     .stop();
@@ -96,7 +99,8 @@ function drawChart(data, width, height) {
 
   const g = svg.append('g');
 
-  const bubble = g.selectAll('g')
+  const bubble = g
+    .selectAll('g')
     .data(nodes)
     .enter()
     .append('g')
@@ -104,7 +108,8 @@ function drawChart(data, width, height) {
     .style('cursor', 'pointer')
     .on('click', (event, d) => onBubbleClick(d));
 
-  bubble.append('circle')
+  bubble
+    .append('circle')
     .attr('r', 0)
     .attr('fill', d => d.color)
     .transition()
@@ -112,8 +117,8 @@ function drawChart(data, width, height) {
     .ease(d3.easeBackOut)
     .attr('r', d => d.r);
 
-
-  bubble.append('text')
+  bubble
+    .append('text')
     .text(d => d.label)
     .attr('text-anchor', 'middle')
     .attr('dy', '0.35em')
@@ -126,8 +131,6 @@ function drawChart(data, width, height) {
     .ease(d3.easeBackOut)
     .style('opacity', 1)
     .style('font-size', d => Math.max(d.r / 3, 10) + 'px');
-
-
 }
 
 watchEffect(() => {
@@ -168,25 +171,25 @@ onBeforeUnmount(() => {
 <style scoped>
 .chartBox {
   background-color: var(--white);
-  border:1px solid var(--main04);
+  border: 1px solid var(--main04);
   border-radius: 8px;
 }
 
-.subItem{
+.subItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 10px 5px;
 }
 
-.subItem-title01{
-  font-size:var(--font-size-md);
+.subItem-title01 {
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
 }
 
-.subItem-title02{
-  font-size:var(--font-size-sm);
+.subItem-title02 {
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-light);
-  color:var(--main02);
+  color: var(--main02);
 }
 </style>

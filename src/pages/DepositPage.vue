@@ -5,24 +5,24 @@
     <DetailMainDeposit
       :bank="productInfo.bank"
       :title="productInfo.title"
-      :maxRate="productInfo.maxRate"
-      :maxRateDesc="productInfo.maxRateDesc"
-      :baseRate="productInfo.baseRate" />
+      :max-rate="productInfo.maxRate"
+      :max-rate-desc="productInfo.maxRateDesc"
+      :base-rate="productInfo.baseRate" />
 
     <DetailTabs
       :tabs="tabs"
-      :selectedTab="selectedTab"
-      :indicatorPosition="indicatorPosition"
-      @update:selectedTab="selectTab" />
+      :selected-tab="selectedTab"
+      :indicator-position="indicatorPosition"
+      @update:selected-tab="selectTab" />
 
     <DetailSection
-      :tabData="tabData"
-      :selectedTab="selectedTab" />
+      :tab-data="tabData"
+      :selected-tab="selectedTab" />
 
     <DetailActionButton
+      :id="route.params.id"
       :active="productInfo.isHolding"
-      :category="'deposit'"
-      :id="route.params.id" />
+      :category="'deposit'" />
   </div>
 </template>
 

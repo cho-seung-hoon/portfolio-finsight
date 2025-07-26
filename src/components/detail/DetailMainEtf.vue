@@ -22,8 +22,8 @@
         <div class="rate-label">위험 등급</div>
         <div class="star-row">
           <component
-            v-for="n in 6"
             :is="n <= risk ? IconFillStar : IconEmptyStar"
+            v-for="n in 6"
             :key="n"
             class="star-icon" />
         </div>

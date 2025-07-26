@@ -6,7 +6,6 @@ import InvTypeResultsPage from '@/pages/InvTypePages/InvTypeResultsPage.vue';
 import PortfolioPage from '@/pages/PortfolioPages/PortfolioPage.vue';
 
 const invtRoutes = [
-
   {
     path: '/inv-type-main-page',
     name: 'InvTypeMainPage',
@@ -54,7 +53,7 @@ const invtRoutes = [
     meta: {
       layout: 'EmptyLayout'
     }
-  },
+  }
 ];
 
 export default invtRoutes;

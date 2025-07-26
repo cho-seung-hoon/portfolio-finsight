@@ -8,8 +8,8 @@
         :value="quantity"
         min="1"
         max="99"
-        @input="onInputQuantity"
-        autocomplete="off" />
+        autocomplete="off"
+        @input="onInputQuantity" />
       <span style="margin-left: 4px">좌</span>
     </div>
     <div class="info-row">

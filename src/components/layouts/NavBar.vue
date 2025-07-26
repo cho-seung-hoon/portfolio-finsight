@@ -1,9 +1,9 @@
 <template>
   <div class="container">
     <router-link
-      class="nav-item"
       v-for="item in config.menus"
       :key="item.name"
+      class="nav-item"
       :to="item.path"
       :class="{ active: isActive(item.path) }">
       <component

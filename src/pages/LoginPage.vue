@@ -17,22 +17,22 @@
       <div class="input-group">
         <label class="input-label">ID</label>
         <input
-          type="text"
           v-model="formData.id"
-          @keypress="handleKeyPress"
+          type="text"
           placeholder="아이디"
-          class="custom-input" />
+          class="custom-input"
+          @keypress="handleKeyPress" />
       </div>
 
       <!-- 비밀번호 입력 -->
       <div class="input-group">
         <label class="input-label">PW</label>
         <input
-          type="password"
           v-model="formData.password"
-          @keypress="handleKeyPress"
+          type="password"
           placeholder="비밀번호"
-          class="custom-input" />
+          class="custom-input"
+          @keypress="handleKeyPress" />
       </div>
 
       <!-- 에러 메시지 영역 (하단 고정) -->
@@ -46,15 +46,15 @@
 
       <!-- 로그인 버튼 -->
       <button
-        @click="handleLogin"
-        class="login-btn">
+        class="login-btn"
+        @click="handleLogin">
         로그인
       </button>
 
       <!-- 회원가입 링크 -->
       <button
-        @click="handleSignup"
-        class="signup-link">
+        class="signup-link"
+        @click="handleSignup">
         회원가입
       </button>
 
@@ -159,7 +159,7 @@ const handleKeyPress = event => {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-/*  padding: 0 20px;*/
+  /*  padding: 0 20px;*/
   position: relative;
   overflow: hidden;
 }
@@ -291,9 +291,9 @@ const handleKeyPress = event => {
 }
 .cha-icon {
   position: absolute;
-  bottom:-140px;
+  bottom: -140px;
   width: 300px;
-  left: calc(50% - 150px);  
+  left: calc(50% - 150px);
   color: var(--sub01);
 }
 
@@ -302,6 +302,4 @@ const handleKeyPress = event => {
   height: 100%;
   object-fit: contain;
 }
-
-
 </style>

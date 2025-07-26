@@ -9,8 +9,8 @@
       </div>
     </div>
     <div
-      class="info-row"
-      v-if="price">
+      v-if="price"
+      class="info-row">
       <span class="info-label">{{ priceLabel || '현재 1좌당' }}</span>
       <span class="info-value">{{ price?.toLocaleString() }}원</span>
     </div>

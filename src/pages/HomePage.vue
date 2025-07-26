@@ -213,7 +213,6 @@ onMounted(() => {
   allNews.value = rawNewsData;
   allProducts.value = rawProductData;
 });
-
 </script>
 
 <style scoped>

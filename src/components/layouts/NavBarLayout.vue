@@ -1,8 +1,8 @@
 <template>
   <div class="layout-container">
     <div class="content-container">
-      <router-view v-slot="{ Component}">
-        <component :is="Component"/>
+      <router-view v-slot="{ Component }">
+        <component :is="Component" />
       </router-view>
     </div>
     <div class="footer">
@@ -23,12 +23,12 @@ import NavBar from './NavBar.vue';
   height: 100vh;
   overflow-y: auto;
   margin-bottom: 60px;
-  overflow-x:hidden;
+  overflow-x: hidden;
 }
 
 .content-container {
   flex: 1;
-  position:relative;
+  position: relative;
   padding: 0 20px;
 }
 

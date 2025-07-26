@@ -7,7 +7,7 @@ const defaultState = Object.freeze({
   showBorder: true,
   stickyHeader: false,
   bColor: 'var(--white)',
-  backHandler: null,
+  backHandler: null
 });
 
 export const useHeaderStore = defineStore('header', {
@@ -17,7 +17,7 @@ export const useHeaderStore = defineStore('header', {
     setHeader(options) {
       const merged = {
         ...defaultState,
-        ...options,
+        ...options
       };
 
       this.titleParts = merged.titleParts;
@@ -30,6 +30,6 @@ export const useHeaderStore = defineStore('header', {
     },
     resetHeader() {
       this.$reset();
-    },
-  },
+    }
+  }
 });

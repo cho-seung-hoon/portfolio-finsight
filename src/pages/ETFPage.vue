@@ -10,17 +10,17 @@
 
     <DetailTabs
       :tabs="tabs"
-      :selectedTab="selectedTab"
-      @update:selectedTab="selectTab" />
+      :selected-tab="selectedTab"
+      @update:selected-tab="selectTab" />
 
     <DetailSection
-      :tabData="tabData"
-      :selectedTab="selectedTab" />
+      :tab-data="tabData"
+      :selected-tab="selectedTab" />
 
     <DetailActionButton
+      :id="route.params.id"
       :active="productInfo.isHolding"
-      :category="'etf'"
-      :id="route.params.id" />
+      :category="'etf'" />
   </div>
 </template>
 

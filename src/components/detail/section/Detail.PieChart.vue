@@ -174,7 +174,7 @@ const chartOptions = computed(() => ({
 // vue3-apexcharts 등록
 const app = getCurrentInstance()?.appContext.app;
 if (app && !app._apexcharts_registered) {
-  app.component('apexchart', VueApexCharts);
+  app.component('Apexchart', VueApexCharts);
   app._apexcharts_registered = true;
 }
 </script>

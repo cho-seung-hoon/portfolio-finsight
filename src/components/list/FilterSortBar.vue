@@ -17,15 +17,15 @@
           v-if="openedFilter === filter.key"
           :options="filter.options"
           :selected="selected[filter.key]"
+          align="left"
           @select="option => selectFilterOption(filter.key, option)"
-          @click-outside="openedFilter = null"
-          align="left" />
+          @click-outside="openedFilter = null" />
       </div>
     </div>
     <div
+      v-if="sortFilter"
       class="filter-sort-bar-sort"
-      style="position: relative; display: inline-block"
-      v-if="sortFilter">
+      style="position: relative; display: inline-block">
       <span
         class="filter-sort-bar-sort-label"
         @click="openSort">
@@ -35,9 +35,9 @@
         v-if="openedSort"
         :options="sortFilter.options"
         :selected="selected[sortFilter.key]"
+        align="right"
         @select="option => selectFilterOption(sortFilter.key, option)"
-        @click-outside="openedSort = false"
-        align="right" />
+        @click-outside="openedSort = false" />
     </div>
   </div>
 </template>

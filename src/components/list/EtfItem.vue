@@ -27,8 +27,8 @@
         <span class="value">{{ item.risk_grade }}등급</span>
       </div>
       <div
-        class="info-row"
-        v-if="item.news_response">
+        v-if="item.news_response"
+        class="info-row">
         <span class="label">뉴스</span>
         <span class="value">{{ item.news_response }}</span>
       </div>

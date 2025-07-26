@@ -2,8 +2,8 @@
   <div class="list-search-page-container">
     <section class="list-search-page-header">
       <input
-        type="text"
         v-model="search"
+        type="text"
         placeholder="상품을 입력하세요"
         class="list-search-page-input" />
       <button class="list-search-page-complete-button">완료</button>
@@ -12,7 +12,7 @@
       <SearchSuggestItem
         v-for="(name, idx) in allProducts"
         :key="idx"
-        :productName="name" />
+        :product-name="name" />
     </section>
   </div>
 </template>

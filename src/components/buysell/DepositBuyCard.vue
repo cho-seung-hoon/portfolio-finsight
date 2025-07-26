@@ -22,8 +22,8 @@
         :value="amount && amount.value !== undefined ? amount.value : amount"
         min="1"
         max="10000000"
-        @input="onInputAmount"
-        autocomplete="off" />
+        autocomplete="off"
+        @input="onInputAmount" />
       <span style="margin-left: 4px">원</span>
     </div>
   </div>

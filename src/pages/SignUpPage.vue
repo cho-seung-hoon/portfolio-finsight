@@ -8,16 +8,16 @@
     <hr />
 
     <form
-      @submit.prevent="handleSignUp"
-      class="form">
+      class="form"
+      @submit.prevent="handleSignUp">
       <!-- 아이디, 비밀번호 -->
       <div class="card">
         <!-- 아이디 -->
         <InputWithIcon
+          v-model="form.userId"
           icon="fa-user"
           placeholder="아이디"
-          v-model="form.userId"
-          buttonText="확인"
+          button-text="확인"
           :error="!!errors.userId"
           :valid="status.userIdChecked && !errors.userId"
           @button-click="checkUserId"
@@ -25,10 +25,10 @@
         <ValidationMessage :message="errors.userId" />
 
         <InputWithIcon
+          v-model="form.password"
           icon="fa-lock"
           type="password"
           placeholder="비밀번호"
-          v-model="form.password"
           :error="!!errors.password"
           :valid="form.password?.length > 0 && !errors.password"
           @blur="validatePassword"
@@ -36,10 +36,10 @@
         <ValidationMessage :message="errors.password" />
 
         <InputWithIcon
+          v-model="form.confirmPassword"
           icon="fa-lock"
           type="password"
           placeholder="비밀번호 재확인"
-          v-model="form.confirmPassword"
           :error="!!errors.confirmPassword"
           :valid="form.confirmPassword?.length > 0 && !errors.confirmPassword"
           @blur="validateConfirmPassword"
@@ -50,17 +50,17 @@
       <!-- 이름, 닉네임, 생년월일, 이메일 -->
       <div class="card">
         <InputWithIcon
+          v-model="form.name"
           icon="fa-user"
           placeholder="이름"
-          v-model="form.name"
           :valid="form.name?.length > 0" />
 
         <!-- 닉네임 -->
         <InputWithIcon
+          v-model="form.nickname"
           icon="fa-user"
           placeholder="닉네임"
-          v-model="form.nickname"
-          buttonText="확인"
+          button-text="확인"
           :error="!!errors.nickname"
           :valid="status.nicknameChecked && !errors.nickname"
           @button-click="checkNickname"
@@ -68,9 +68,9 @@
         <ValidationMessage :message="errors.nickname" />
 
         <InputWithIcon
+          v-model="form.birth"
           icon="fa-calendar"
           placeholder="생년월일 8자리"
-          v-model="form.birth"
           :error="!!errors.birth"
           :valid="form.birth?.length > 0 && !errors.birth"
           @blur="validateBirth"
@@ -79,10 +79,10 @@
 
         <!-- 이메일 -->
         <InputWithIcon
+          v-model="form.email"
           icon="fa-envelope"
           placeholder="이메일"
-          v-model="form.email"
-          buttonText="인증"
+          button-text="인증"
           :error="!!errors.email"
           :valid="emailStore.verified && !errors.email"
           @button-click="requestCode"

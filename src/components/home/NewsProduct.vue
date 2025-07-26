@@ -22,8 +22,8 @@
       </button>
     </div>
     <div
-      class="product-list"
-      v-if="filterProduct.length > 0">
+      v-if="filterProduct.length > 0"
+      class="product-list">
       <div v-if="selectCategory === 'ETF'">
         <EtfItem
           v-for="item in filterProduct"

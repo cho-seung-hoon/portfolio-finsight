@@ -1,16 +1,13 @@
 <template>
   <div class="my-box">
-    <div
-      class="subItem-img">
+    <div class="subItem-img">
       <img
         class="bg-image"
         src="@/assets/my-backgroud.png"
         alt="배경 이미지"
-        loading="eager"
-        />
+        loading="eager" />
     </div>
-    <div
-      class="subItem-info">
+    <div class="subItem-info">
       <UserInfo />
     </div>
     <div class="subItem-invt">
@@ -36,12 +33,12 @@ import UserMgmt from '@/components/my/UserMgmt.vue';
 }
 
 .subItem-img {
-  position:relative;
-  margin-top:-56px;
+  position: relative;
+  margin-top: -56px;
   margin-left: -20px;
   width: calc(100% + 40px);
   overflow: hidden;
-  z-index:0;
+  z-index: 0;
 }
 
 .bg-image {

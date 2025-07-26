@@ -1,7 +1,11 @@
 <template>
   <div class="subBox">
     <div class="subItem-title">
-      <span class="keyword" :style="{ color: props.color }">{{ props.keyword }}</span>
+      <span
+        class="keyword"
+        :style="{ color: props.color }"
+        >{{ props.keyword }}</span
+      >
       <span> 관련 뉴스</span>
     </div>
     <div class="news-list">
@@ -21,7 +25,7 @@ import NewsListItem from '@/components/home/NewsListItem.vue';
 const props = defineProps({
   keyword: String,
   color: String,
-  newsList: Array  // 뉴스 목록 데이터, 부모에서 전달
+  newsList: Array // 뉴스 목록 데이터, 부모에서 전달
 });
 
 const filterNews = computed(() => {

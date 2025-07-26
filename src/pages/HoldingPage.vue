@@ -6,7 +6,7 @@
     </div>
   </div>
   <div class="holding-box">
-    <HoldingTotal/>
+    <HoldingTotal />
   </div>
   <div class="holding-box">
     <HoldingList :products="data" />
@@ -91,17 +91,16 @@ const data = [
 </script>
 
 <style scoped>
-.holding-box{
-  margin:20px 0px;
+.holding-box {
+  margin: 20px 0px;
 }
-.portfolio{
+.portfolio {
   display: flex;
   justify-content: space-between;
   background-color: var(--main01);
-  color:var(--white);
-  padding:20px;
-  padding:10px 20px;
+  color: var(--white);
+  padding: 20px;
+  padding: 10px 20px;
   border-radius: 8px;
 }
-
 </style>

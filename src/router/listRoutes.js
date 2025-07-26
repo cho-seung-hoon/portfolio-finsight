@@ -3,8 +3,8 @@ const listRoutes = [
     path: '/list/:category',
     name: 'list-category',
     component: () => import('../pages/ListPage.vue'),
-    meta:{
-      header:{
+    meta: {
+      header: {
         titleParts: [{ text: '상품탐색', color: 'var(--main01)' }],
         showBackButton: false,
         actions: [

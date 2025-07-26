@@ -15,8 +15,8 @@
     <div
       class="list-page-banner"
       :class="{ matched: isMatched }"
-      @click="openModal"
-      style="cursor: pointer">
+      style="cursor: pointer"
+      @click="openModal">
       <div
         class="list-page-banner-comment"
         :class="isMatched ? 'matched' : 'default'">

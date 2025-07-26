@@ -9,7 +9,7 @@
       price-label="예금액" />
     <DepositBuyCard
       :period="period"
-      :startDate="buyStore.productInfo?.date"
+      :start-date="buyStore.productInfo?.date"
       :amount="amount"
       @update:period="val => (period.value = val)"
       @update:amount="val => (amount.value = val)" />

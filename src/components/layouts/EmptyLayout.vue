@@ -1,15 +1,14 @@
 <template>
   <div class="layout-container">
     <div class="content-container">
-      <router-view v-slot="{ Component}">
-        <component :is="Component"/>
+      <router-view v-slot="{ Component }">
+        <component :is="Component" />
       </router-view>
     </div>
   </div>
 </template>
 
-<script setup>
-</script>
+<script setup></script>
 
 <style scoped>
 .layout-container {
@@ -18,17 +17,16 @@
   flex-direction: column;
   height: 100vh;
   overflow-y: auto;
-  overflow-x:hidden;
+  overflow-x: hidden;
 }
 
 .content-container {
   flex: 1;
-  position:relative;
+  position: relative;
   padding: 0 20px;
 }
 
 .layout-container::-webkit-scrollbar {
   display: none;
 }
-
 </style>

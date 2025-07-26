@@ -6,21 +6,21 @@
       :bank="productInfo.bank"
       :title="productInfo.title"
       :yield="productInfo.yield"
-      :priceArr="productInfo.priceArr" />
+      :price-arr="productInfo.priceArr" />
 
     <DetailTabs
       :tabs="tabs"
-      :selectedTab="selectedTab"
-      @update:selectedTab="selectTab" />
+      :selected-tab="selectedTab"
+      @update:selected-tab="selectTab" />
 
     <DetailSection
-      :tabData="tabData"
-      :selectedTab="selectedTab" />
+      :tab-data="tabData"
+      :selected-tab="selectedTab" />
 
     <DetailActionButton
+      :id="route.params.id"
       :active="productInfo.isHolding"
-      :category="'fund'"
-      :id="route.params.id" />
+      :category="'fund'" />
   </div>
 </template>
 
