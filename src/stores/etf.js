@@ -16,6 +16,7 @@ export const useEtfStore = defineStore('etf', () => {
       title: 'TIGER 미국S&P500',
       net_assets: '25.23', // 순자산 총액 (억 단위 문자열)
       risk: 4, // 위험 등급 (1~6)
+      isHolding: false,
       info: [
         { type: 'longtext', title: '펀드 특징', desc: 'S&P500 지수를 추종하는 대표적인 ETF 상품' },
         {
@@ -110,6 +111,7 @@ export const useEtfStore = defineStore('etf', () => {
       title: 'KODEX 200',
       net_assets: '50.00',
       risk: 3,
+      isHolding: true,
       info: [{ type: 'text', title: '펀드 특징', desc: '코스피 200 지수를 추종하는 ETF' }],
       yield: [],
       composition: [
