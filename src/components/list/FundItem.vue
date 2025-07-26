@@ -1,5 +1,7 @@
 <template>
-  <section class="fund-item-container">
+  <section
+    class="fund-item-container"
+    @click="goToDetail">
     <section class="fund-item-header-section">
       <div class="fund-item-sub-title">{{ item.country }} ・ {{ item.fund_type }}</div>
       <header class="fund-item-header">
@@ -26,6 +28,7 @@
 
 <script setup>
 import { defineProps } from 'vue';
+import { useRouter } from 'vue-router';
 import IconHeartStroke from '../icons/IconHeartStroke.vue';
 
 const props = defineProps({
@@ -34,6 +37,12 @@ const props = defineProps({
     required: true
   }
 });
+
+const router = useRouter();
+
+function goToDetail() {
+  router.push(`/fund/${props.item.product_code}`);
+}
 </script>
 
 <style scoped>

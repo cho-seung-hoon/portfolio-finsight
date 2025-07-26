@@ -33,19 +33,19 @@ const selected = ref({
 
 const funds = [
   {
-    fund_code: 'FUND123',
+    product_code: 'fund-001',
     country: '국내',
     fund_type: '주식형',
-    product_name: '펀드A',
+    product_name: '미래에셋자산배분TINA펀드',
     rate_of_return: 37.31,
     risk_grade: 1,
     news_response: '긍정'
   },
   {
-    fund_code: 'FUND456',
+    product_code: 'fund-002',
     country: '해외',
     fund_type: '채권형',
-    product_name: '펀드B',
+    product_name: '삼성 한국형TDF 2045',
     rate_of_return: 12.1,
     risk_grade: 3,
     news_response: '중립'
