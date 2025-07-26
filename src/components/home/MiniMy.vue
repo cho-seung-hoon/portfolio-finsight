@@ -48,7 +48,7 @@
 
 .calc {
   font-size: var(--font-size-md);
-  font-weight: var(--font-weight-right);
+  font-weight: var(--font-weight-light);
 
 }
 
@@ -73,6 +73,6 @@ img {
 .phrase {
   color: var(--white);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-right);
+  font-weight: var(--font-weight-light);
 }
 </style>

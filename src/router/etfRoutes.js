@@ -4,7 +4,13 @@ const etfRoutes = [
     name: 'ETFDetail',
     component: () => import('../pages/ETFPage.vue'),
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'HeaderLayout',
+      header:{
+        titleParts: [{text:'', color:'transparent'}],
+        showBackButton: true,
+        showBorder: false,
+        bColor:'var(--main01)',
+      }
     }
   }
 ];

@@ -20,10 +20,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
-import { useHeaderStore } from '@/stores/header';
 import SearchSuggestItem from '@/components/list/SearchSuggestItem.vue';
 
-const headerStore = useHeaderStore();
 const search = ref('');
 
 const allProducts = [
@@ -44,17 +42,6 @@ onMounted(() => {
     search.value = stateQuery;
     window.history.replaceState({}, '');
   }
-
-  headerStore.setHeader({
-    titleParts: [{ text: '상품 검색', color: 'var(--main01)' }],
-    showBackButton: true,
-    actions: [],
-    showBorder: false
-  });
-});
-
-onBeforeRouteLeave(() => {
-  headerStore.resetHeader();
 });
 </script>
 

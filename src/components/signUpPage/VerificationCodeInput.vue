@@ -5,6 +5,7 @@
     <div class="left">
       <i
         class="fas fa-key icon"
+        :class="{ error, valid: valid && !error }"
         aria-hidden="true"></i>
       <input
         type="text"
@@ -36,7 +37,8 @@ import { ref } from 'vue';
 
 const props = defineProps({
   modelValue: String,
-  error: Boolean
+  error: Boolean,
+  valid: Boolean // ✅ 유효성 전달용
 });
 
 const emit = defineEmits(['update:modelValue', 'verify', 'resend', 'blur', 'focus']);
@@ -47,12 +49,12 @@ const isFocused = ref(false);
 
 const handleFocus = e => {
   isFocused.value = true;
-  emit('focus', e); // ✅ 외부로 전달
+  emit('focus', e);
 };
 
 const handleBlur = e => {
   isFocused.value = false;
-  emit('blur', e); // 기존 유지
+  emit('blur', e);
 };
 </script>
 
@@ -102,8 +104,12 @@ const handleBlur = e => {
   transition: color 0.2s ease;
 }
 
-.input-row.focus .icon {
+.icon.error {
   color: #f97b6d;
+}
+
+.icon.valid {
+  color: #28a745;
 }
 
 input {

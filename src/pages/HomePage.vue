@@ -27,7 +27,6 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useHeaderStore } from '@/stores/header';
 import { onBeforeRouteLeave } from 'vue-router';
 import ExchangeRate from '@/components/home/ExchangeRate.vue';
 import MiniMy from '@/components/home/MiniMy.vue';
@@ -35,7 +34,6 @@ import NewsChart from '@/components/home/NewsChart.vue';
 import NewsList from '@/components/home/NewsList.vue';
 import NewsProduct from '@/components/home/NewsProduct.vue';
 
-const headerStore = useHeaderStore();
 const chartData = ref([]);
 const allNews = ref([]);
 const allProducts = ref([]);
@@ -108,18 +106,7 @@ const rawNewsData = [
     sentiment: 'neutral'
   }
 ];
-// const rawProductData = [
-//   {
-//     id: 1,
-//     title: '미국 테크 Top10 ETF',
-//     category: 'ETF',
-//     labels: ['미국 증시', '엔비디아', '테슬라']
-//   },
-//   { id: 2, title: '글로벌 채권 펀드', category: '펀드', labels: ['채권', '금리'] },
-//   { id: 3, title: 'KOSPI 200 인덱스 펀드', category: '펀드', labels: ['코스피'] },
-//   { id: 4, title: '차세대 전기차 ETF', category: 'ETF', labels: ['전기차', '테슬라'] },
-//   { id: 5, title: '친환경 에너지 솔루션 ETF', category: 'ETF', labels: ['친환경 에너지'] }
-// ];
+
 const rawProductData = [
   {
     category: '펀드',
@@ -195,13 +182,6 @@ const filteredProductList = computed(() => {
 });
 
 onMounted(() => {
-  headerStore.setHeader({
-    titleParts: [
-      { text: 'OOO', color: 'var(--sub01)' },
-      { text: '님, 반갑습니다.', color: 'var(--main01)' }
-    ]
-  });
-
   const keywordAnalysis = new Map();
   rawNewsData.forEach(news => {
     news.labels.forEach(label => {
@@ -235,9 +215,6 @@ onMounted(() => {
   allProducts.value = rawProductData;
 });
 
-onBeforeRouteLeave((to, from) => {
-  headerStore.resetHeader();
-});
 </script>
 
 <style scoped>

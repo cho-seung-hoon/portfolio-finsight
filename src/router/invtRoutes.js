@@ -3,11 +3,7 @@ import InvTypeTestStep1Page from '@/pages/InvTypePages/InvTypeTestStep1Page.vue'
 import InvTypeNoticePage from '@/pages/InvTypePages/InvTypeNoticePage.vue';
 import InvTypeTestStep2Page from '@/pages/InvTypePages/InvTypeTestStep2Page.vue';
 import InvTypeResultsPage from '@/pages/InvTypePages/InvTypeResultsPage.vue';
-import InvTypeStablePage from '@/pages/PortfolioPages/InvTypeStablePage.vue';
-import InvTypeStablePlusPage from '@/pages/PortfolioPages/InvTypeStablePlusPage.vue';
-import InvTypeNeutralPage from '@/pages/PortfolioPages/InvTypeNeutralPage.vue';
-import InvTypeAggressivePage from '@/pages/PortfolioPages/InvTypeAggressivePage.vue';
-import InvTypeVeryAggressivePage from '@/pages/PortfolioPages/InvTypeVeryAggressivePage.vue';
+import PortfolioPage from '@/pages/PortfolioPages/PortfolioPage.vue';
 
 const invtRoutes = [
 
@@ -16,7 +12,7 @@ const invtRoutes = [
     name: 'InvTypeMainPage',
     component: InvTypeMainPage,
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'EmptyLayout'
     }
   },
   {
@@ -24,7 +20,7 @@ const invtRoutes = [
     name: 'InvTypeTestStep1Page',
     component: InvTypeTestStep1Page,
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'EmptyLayout'
     }
   },
   {
@@ -32,7 +28,7 @@ const invtRoutes = [
     name: 'InvTypeNoticePage',
     component: InvTypeNoticePage,
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'EmptyLayout'
     }
   },
   {
@@ -40,7 +36,7 @@ const invtRoutes = [
     name: 'InvTypeTestStep2Page',
     component: InvTypeTestStep2Page,
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'EmptyLayout'
     }
   },
   {
@@ -48,50 +44,17 @@ const invtRoutes = [
     name: 'InvTypeResultsPage',
     component: InvTypeResultsPage,
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'EmptyLayout'
     }
   },
   {
-    path: '/inv-type-stable-page',
-    name: 'InvTypeStablePage',
-    component: InvTypeStablePage,
+    path: '/portfolio-page',
+    name: 'PortfolioPage',
+    component: PortfolioPage,
     meta: {
-      layout: 'HeaderLayout'
+      layout: 'EmptyLayout'
     }
   },
-  {
-    path: '/inv-type-stableplus-page',
-    name: 'InvTypeStablePlusPage',
-    component: InvTypeStablePlusPage,
-    meta: {
-      layout: 'HeaderLayout'
-    }
-  },
-  {
-    path: '/inv-type-neutral-page',
-    name: 'InvTypeNeutralPage',
-    component: InvTypeNeutralPage,
-    meta: {
-      layout: 'HeaderLayout'
-    }
-  },
-  {
-    path: '/inv-type-aggressive-page',
-    name: 'InvTypeAggressivePage',
-    component: InvTypeAggressivePage,
-    meta: {
-      layout: 'HeaderLayout'
-    }
-  },
-  {
-    path: '/inv-type-veryaggressive-page',
-    name: 'InvTypeVeryAggressivePage',
-    component: InvTypeVeryAggressivePage,
-    meta: {
-      layout: 'HeaderLayout'
-    }
-  },
-
 ];
 
 export default invtRoutes;

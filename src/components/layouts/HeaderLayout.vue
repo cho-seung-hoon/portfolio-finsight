@@ -4,7 +4,9 @@
       <Header />
     </div>
     <div class="content-container">
-      <slot></slot>
+      <router-view v-slot="{ Component}">
+        <component :is="Component" />
+      </router-view>
     </div>
   </div>
 </template>
@@ -43,26 +45,12 @@ const stickyHeader = computed(()=> headerStore.stickyHeader);
   flex: 1;
   position: relative;
   overflow-y: auto;
-  padding: 0 20px;
-  padding-bottom: 60px;
+  overflow-x:hidden;
+  padding: 0 20px 60px;
 }
 
-/* 스크롤바 커스터마이징 */
 .content-container::-webkit-scrollbar {
-  width: 8px;
+  display: none;
 }
 
-.content-container::-webkit-scrollbar-track {
-  background-color: var(--off-white); /* 본문 배경색 */
-}
-
-.content-container::-webkit-scrollbar-thumb {
-  background-color: var(--main03);
-  border-radius: 6px;
-  border: 2px solid var(--off-white);
-}
-
-.content-container::-webkit-scrollbar-thumb:hover {
-  background-color: var(--sub01);
-}
 </style>

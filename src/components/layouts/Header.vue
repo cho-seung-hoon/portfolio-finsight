@@ -1,51 +1,55 @@
 <template>
-  <div class="container" :class="{'no-border' : !showBorder}">
-     <button class="backButton" v-if="headerStore.showBackButton" @click="goBack">
+  <div class="container" :class="{'no-border' : !showBorder}" :style="{ backgroundColor: bColor }">
+     <button class="backButton" v-if="showBackButton" @click="backHandler">
        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M22.5 9L13.5 18L22.5 27" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
      </button>
     <div class="title">
       <span
-        v-for="(part, index) in headerStore.titleParts"
+        v-for="(part, index) in titleParts"
         :key="index"
         :style="{ color: part.color }">
         {{ part.text }}
       </span>
     </div>
-    <div class="actions" v-if="headerStore.actions.length > 0">
-      <div v-for="(action, index) in headerStore.actions"
-           :key="index"
-           @click="action.handler">
+    <div class="actions" v-if="actions.length > 0">
+      <router-link
+        v-for="action in actions"
+        :key="action.icon"      :to="action.to"          class="action-button"    >
         <component :is="iconComponents[action.icon]" />
-      </div>
+      </router-link>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { watch } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useHeaderStore } from '@/stores/header';
-import { useRouter } from 'vue-router';
 import IconSearch from '@/components/icons/IconSearch.vue';
 import IconWatch from '@/components/icons/IconWatch.vue';
 
-
-const router = useRouter();
 const headerStore = useHeaderStore();
 
-const showBorder = computed(()=> headerStore.showBorder);
+const {
+  titleParts,
+  showBackButton,
+  actions,
+  showBorder,
+  bColor,
+  backHandler
+} = storeToRefs(headerStore);
 
-const goBack = () => router.back();
 
 const iconComponents = {
   search: IconSearch,
   watch: IconWatch,
 };
+
 </script>
 
 <style scoped>
-
 .container {
   display: flex;
   align-items: center;
@@ -70,6 +74,7 @@ const iconComponents = {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
   align-content: center;
+  z-index:1;
 }
 
 .actions{
@@ -77,5 +82,10 @@ const iconComponents = {
   display: flex;
   align-items: center;
   gap:12px;
+  color:var(--main01);
+}
+
+.action-button{
+  all:unset;
 }
 </style>
