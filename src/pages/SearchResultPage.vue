@@ -12,37 +12,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
-import { useHeaderStore } from '@/stores/header';
+import { useRoute } from 'vue-router';
 
-const headerStore = useHeaderStore();
 const route = useRoute();
-const router = useRouter();
 const search = ref('');
 
 onMounted(() => {
   search.value = route.query.query ?? '';
-
-  headerStore.setHeader({
-    titleParts: [{ text: '검색 결과', color: 'var(--main01)' }],
-    showBackButton: true,
-    actions: [],
-    showBorder: false
-  });
 });
-
-onBeforeRouteLeave(() => {
-  headerStore.resetHeader();
-});
-
-function goBack() {
-  router.push({
-    path: '/search',
-    state: {
-      query: search.value
-    }
-  });
-}
 </script>
 
 <style scoped>
