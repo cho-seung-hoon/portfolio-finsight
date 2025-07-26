@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, defineEmits, defineProps, watchEffect } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watchEffect } from 'vue';
 import * as d3 from 'd3';
 
 const props = defineProps({
