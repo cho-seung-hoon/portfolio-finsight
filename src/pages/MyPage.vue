@@ -1,8 +1,5 @@
 <template>
   <div class="my-box">
-    <div class="subItem-title">
-      <div class="title">마이페이지</div>
-    </div>
     <div
       class="subItem-img">
       <img
@@ -43,25 +40,8 @@ import UserMgmt from '@/components/my/UserMgmt.vue';
   margin-top:-56px;
   margin-left: -20px;
   width: calc(100% + 40px);
-  /*aspect-ratio: 375 / 180;*/
   overflow: hidden;
   z-index:0;
-}
-
-.subItem-title {
-  display: flex;
-  align-content: center;
-  width: 100%;
-  height: 56px;
-
-}
-.title {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  align-content: center;
-  color: var(--white);
-  position: relative;
-  z-index: 1;
 }
 
 .bg-image {
