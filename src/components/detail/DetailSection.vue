@@ -1,12 +1,22 @@
 <template>
   <div class="section">
     <div
-      v-for="(item, index) in tabData[selectedTab]"
+      v-for="(item, index) in Array.isArray(tabData?.[selectedTab]) ? tabData[selectedTab] : []"
       :key="index"
       class="section-row">
       <div class="section-title">{{ item.title }}</div>
       <div class="section-desc">
-        <template v-if="item.type === 'longtext' && typeof item.desc === 'string'">
+        <template v-if="item.type === 'holdingsummary' && typeof item.desc === 'object'">
+          <DetailHoldingSummary :data="item.desc" />
+        </template>
+        <template
+          v-else-if="item.type === 'holdingsummarydeposit' && typeof item.desc === 'object'">
+          <DetailHoldingSummaryDeposit :data="item.desc" />
+        </template>
+        <template v-else-if="item.type === 'holdinghistory' && Array.isArray(item.desc)">
+          <DetailHoldingHistory :data="item.desc" />
+        </template>
+        <template v-else-if="item.type === 'longtext' && typeof item.desc === 'string'">
           <DetailLongText>
             <span v-html="item.desc.replace(/\n/g, '<br>')"></span>
           </DetailLongText>
@@ -30,6 +40,13 @@
         <template v-else-if="item.type === 'table' && Array.isArray(item.desc)">
           <DetailTable :desc="item.desc" />
         </template>
+        <template v-else-if="item.type === 'news' && Array.isArray(item.desc)">
+          <NewsList
+            class="news-list-in-detail"
+            :newsList="item.desc"
+            :keyword="item.keyword || ''"
+            :color="item.color || '#007AFF'" />
+        </template>
         <template v-else-if="Array.isArray(item.desc)">
           <DetailTable :desc="item.desc" />
         </template>
@@ -50,6 +67,11 @@ import DetailPieChart from './section/Detail.PieChart.vue';
 import DetailPdfUrl from './section/DetailPdfUrl.vue';
 import DetailTable from './section/DetailTable.vue';
 import DetailAreaChart from './DetailAreaChart.vue';
+import DetailHoldingSummary from './section/DetailHoldingSummary.vue';
+import DetailHoldingSummaryDeposit from './section/DetailHoldingSummaryDeposit.vue';
+import DetailHoldingHistory from './section/DetailHoldingHistory.vue';
+import NewsList from '@/components/home/NewsList.vue';
+
 const props = defineProps({
   tabData: Object,
   selectedTab: String
@@ -108,5 +130,10 @@ const props = defineProps({
   border-radius: 8px;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* NewsList 컴포넌트 내부의 subItem-title 숨기기 */
+.news-list-in-detail :deep(.subItem-title) {
+  display: none;
 }
 </style>

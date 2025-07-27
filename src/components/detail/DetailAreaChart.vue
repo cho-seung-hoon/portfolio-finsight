@@ -21,9 +21,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, getCurrentInstance } from 'vue';
+import { ref, computed, watch } from 'vue';
 import ApexCharts from 'apexcharts';
-import VueApexCharts from 'vue3-apexcharts';
 
 const props = defineProps({
   data: {
@@ -130,12 +129,7 @@ const chartOptions = computed(() => ({
   }
 }));
 
-// vue3-apexcharts 등록
-const app = getCurrentInstance()?.appContext.app;
-if (app && !app._apexcharts_registered) {
-  app.component('apexchart', VueApexCharts);
-  app._apexcharts_registered = true;
-}
+// vue3-apexcharts 등록은 main.js에서 처리
 </script>
 
 <style scoped>

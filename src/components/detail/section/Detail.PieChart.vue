@@ -47,9 +47,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, getCurrentInstance } from 'vue';
+import { ref, computed, watch } from 'vue';
 import ApexCharts from 'apexcharts';
-import VueApexCharts from 'vue3-apexcharts';
 
 const props = defineProps({
   data: {
@@ -67,15 +66,16 @@ const props = defineProps({
 });
 
 const colorList = [
-  'var(--main02)',
-  'var(--main03)',
   'var(--red01)',
   'var(--orange01)',
   'var(--yellow01)',
   'var(--green01)',
   'var(--mint01)',
   'var(--sub01)',
-  'var(--off-black)'
+  '#6a5acd',
+  '#00acc1',
+  '#ff69b4',
+  '#8d6e63'
 ];
 
 function getStandardizedData() {
@@ -171,12 +171,7 @@ const chartOptions = computed(() => ({
   }
 }));
 
-// vue3-apexcharts 등록
-const app = getCurrentInstance()?.appContext.app;
-if (app && !app._apexcharts_registered) {
-  app.component('apexchart', VueApexCharts);
-  app._apexcharts_registered = true;
-}
+// vue3-apexcharts 등록은 main.js에서 처리
 </script>
 
 <style scoped>
@@ -218,12 +213,22 @@ if (app && !app._apexcharts_registered) {
 }
 .pie-table th,
 .pie-table td {
-  border: 1px solid var(--main03);
+  border: 1px solid var(--main02); /* 기존보다 좀 더 은은한 테두리 */
   padding: 6px 10px;
   text-align: left;
 }
+
 .pie-table th {
-  background: var(--main04);
+  background-color: #d4dbf9; /* var(--main01) 보다 연한 블루 계열 */
   font-weight: 600;
+  color: var(--main01); /* 진한 글씨색으로 가독성 확보 */
+}
+
+.pie-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9; /* 연한 회색으로 행 구분 */
+}
+
+.pie-table tbody tr:hover {
+  background-color: #f1f5ff; /* 살짝 더 밝은 블루 톤 호버 효과 */
 }
 </style>
