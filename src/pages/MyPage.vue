@@ -1,20 +1,19 @@
 <template>
   <div class="my-box">
-    <div
-      class="subItem-img">
+    <div class="subItem-img">
       <img
         class="bg-image"
         src="@/assets/my-backgroud.png"
         alt="배경 이미지"
-        loading="eager"/>
+        loading="eager" />
     </div>
-    <div
-      class="subItem-info">
+    <div class="subItem-info">
       <UserInfo />
     </div>
     <div class="subItem-invt">
       <UserInvt />
     </div>
+    <div>찜한 목록</div>
     <div class="subItem-user">
       <UserMgmt />
     </div>
@@ -48,8 +47,6 @@ import UserMgmt from '@/components/my/UserMgmt.vue';
   width: 100%;
   height: 100%;
 }
-
-
 
 .subItem-info {
   margin-left: -20px;
