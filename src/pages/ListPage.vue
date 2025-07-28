@@ -98,7 +98,7 @@ onMounted(() => {
 <style scoped>
 .page-content {
   width: 100%;
-  padding: 12px 0px;
+  padding: 12px 0px 50px;
 }
 
 .list-page-banner-wrapper {

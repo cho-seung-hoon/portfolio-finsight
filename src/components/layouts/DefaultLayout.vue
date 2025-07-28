@@ -134,7 +134,6 @@ watch(route, () => {
   flex-direction: column;
   height: 100dvh;
   position: relative;
-
 }
 
 .layout-container::-webkit-scrollbar {
@@ -174,6 +173,7 @@ watch(route, () => {
   padding: 0px 20px;
   min-height: 0;
   padding-bottom: 80px;
+  flex: 1;
 }
 
 .footer {
