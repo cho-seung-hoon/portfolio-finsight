@@ -156,8 +156,9 @@ watch(route, () => {
   position: absolute;
   right: 0;
   top: 0;
-  bottom: 60px;
+  bottom: 0px;
   width: 5px;
+  z-index:10;
 }
 
 .custom-scrollbar-thumb {
