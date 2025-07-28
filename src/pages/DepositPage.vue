@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDepositStore } from '@/stores/deposit';
 import { storeToRefs } from 'pinia';
