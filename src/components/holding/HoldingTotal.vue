@@ -8,7 +8,7 @@
     </div>
 
     <div class="total-info">
-      <div class="total-info-icon">
+      <div class="total-info-icon deposit-icon">
         <img
           src="@/assets/logo.svg"
           alt="임시 이미지" />
@@ -20,12 +20,11 @@
         </div>
         <div class="total-info-detail-item">
           <div class="total-info-detail-item-2">80%</div>
-          <div class="total-info-detail-item-2">$500.00</div>
         </div>
       </div>
     </div>
     <div class="total-info">
-      <div class="total-info-icon">
+      <div class="total-info-icon domestic-icon">
         <img
           src="@/assets/logo.svg"
           alt="임시 이미지" />
@@ -37,12 +36,11 @@
         </div>
         <div class="total-info-detail-item">
           <div class="total-info-detail-item-2">80%</div>
-          <div class="total-info-detail-item-2">$500.00</div>
         </div>
       </div>
     </div>
     <div class="total-info">
-      <div class="total-info-icon">
+      <div class="total-info-icon overseas-icon">
         <img
           src="@/assets/logo.svg"
           alt="임시 이미지" />
@@ -102,19 +100,19 @@ onMounted(() => {
 }
 /* 각각의 색상은 자유롭게 변경하세요 */
 .total-deposit {
-  background-color: #4caf50; /* 초록 */
+  background-color: #fb8233;
   display: block;
   height: 100%;
 }
 
 .total-domestic {
-  background-color: #2196f3; /* 파랑 */
+  background-color: #10b9b2;
   display: block;
   height: 100%;
 }
 
 .total-overseas {
-  background-color: #ff9800; /* 주황 */
+  background-color: #fab809;
   display: block;
   height: 100%;
 }
@@ -139,6 +137,17 @@ onMounted(() => {
   height: 50px;
   background-color: var(--main04);
   border-radius: 50px;
+}
+.deposit-icon {
+  border: 2px solid #fb8233;
+}
+
+.domestic-icon {
+  border: 2px solid #10b9b2;
+}
+
+.overseas-icon {
+  border: 2px solid #fab809;
 }
 
 .total-info-icon img {

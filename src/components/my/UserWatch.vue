@@ -5,7 +5,6 @@
       class="more-button"
       @click="goToWatchPage">
       더보기
-      <ChevronRightIcon class="chevron-icon" />
     </button>
   </div>
   <div class="subBox">
@@ -22,9 +21,7 @@
         </div>
         <button
           class="wishlist-btn active"
-          @click.stop="toggleWishlist(item)">
-          <HeartIcon class="heart-icon" />
-        </button>
+          @click.stop="toggleWishlist(item)"></button>
       </div>
 
       <div class="subItem-title">{{ item.name }}</div>
@@ -261,7 +258,6 @@ onMounted(() => {
   transition: all 0.2s ease;
 }
 
-
 .subItem:last-child {
   margin-right: 0;
 }
@@ -371,11 +367,11 @@ onMounted(() => {
 }
 
 .return-rate-positive {
-  color: #059669;
+  color: #dc2626;
 }
 
 .return-rate-negative {
-  color: #dc2626;
+  color: #2563eb;
 }
 
 .return-rate-neutral {
