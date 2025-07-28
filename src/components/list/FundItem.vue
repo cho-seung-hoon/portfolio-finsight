@@ -15,6 +15,11 @@
         </div>
         <IconHeartStroke />
       </header>
+      <div
+        v-if="item.isPopularInUserGroup"
+        class="user-group-popular-badge">
+        안정추구형 HOT
+      </div>
     </section>
     <section class="fund-item-content-section">
       <div class="info-row">
@@ -133,6 +138,13 @@ function getSegmentStyle(key) {
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
   color: var(--main02);
+}
+
+.user-group-popular-badge {
+  margin-top: 4px;
+  font-size: var(--font-size-ms);
+  font-weight: var(--font-weight-medium);
+  color: var(--green01);
 }
 
 .fund-item-content-section {

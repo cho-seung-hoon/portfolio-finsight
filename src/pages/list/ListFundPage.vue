@@ -45,7 +45,8 @@ const funds = [
       neutral: 30,
       negative: 50
     },
-    userOwns: true
+    userOwns: true,
+    isPopularInUserGroup: true
   },
   {
     product_code: 'fund-002',
@@ -60,7 +61,8 @@ const funds = [
       neutral: 20,
       negative: 20
     },
-    userOwns: false
+    userOwns: false,
+    isPopularInUserGroup: true
   },
   {
     product_code: 'fund-003',
@@ -75,7 +77,8 @@ const funds = [
       neutral: 50,
       negative: 20
     },
-    userOwns: true
+    userOwns: true,
+    isPopularInUserGroup: false
   }
 ];
 

@@ -31,7 +31,8 @@ const deposits = [
     company_name: 'SH 수협은행',
     intr_rate: 1.2,
     intr_rate2: 2.8,
-    userOwns: true
+    userOwns: true,
+    isPopularInUserGroup: false
   },
   {
     product_code: 'deposit-002',
@@ -39,7 +40,8 @@ const deposits = [
     company_name: 'KB 국민은행',
     intr_rate: 1.5,
     intr_rate2: 3.0,
-    userOwns: false
+    userOwns: false,
+    isPopularInUserGroup: true
   }
 ];
 
