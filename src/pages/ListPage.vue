@@ -51,7 +51,7 @@ import ListDepositPage from './list/ListDepositPage.vue';
 import ListFundPage from './list/ListFundPage.vue';
 import ListEtfPage from './list/ListEtfPage.vue';
 import IconCheck from '@/components/icons/IconCheck.vue';
-import BottomModal from './list/BottomModal.vue';
+import BottomModal from '@/components/list/BottomModal.vue';
 
 const route = useRoute();
 const category = computed(() => route.params.category);
