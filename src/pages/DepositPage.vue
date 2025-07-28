@@ -23,6 +23,8 @@
       :active="productInfo.isHolding"
       :category="'deposit'"
       :id="route.params.id" />
+
+      
   </div>
 </template>
 

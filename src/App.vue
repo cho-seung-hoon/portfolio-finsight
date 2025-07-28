@@ -1,14 +1,8 @@
 <template>
   <div id="app-container">
     <component :is="layoutComponent" />
-    <AgreememtModal
-      :isVisible="true"
-      productType="deposit"
-      productName="정기예금"
-      transactionType="buy"
-      @close="() => {}"
-      @confirm="data => console.log('Confirmed:', data)" />
   </div>
+  
 </template>
 
 <script setup>
@@ -18,7 +12,6 @@ import DefaultLayout from './components/layouts/DefaultLayout.vue';
 import EmptyLayout from './components/layouts/EmptyLayout.vue';
 import HeaderLayout from './components/layouts/HeaderLayout.vue';
 import NavBarLayout from '@/components/layouts/NavBarLayout.vue';
-import AgreememtModal from './pages/buysell/AgreememtModal.vue';
 
 const layouts = {
   DefaultLayout,

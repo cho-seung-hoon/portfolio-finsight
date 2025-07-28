@@ -21,6 +21,7 @@
     <BuySellMessage
       :error="buyStore.error"
       :success="buyStore.buyResult?.message" />
+    
   </div>
 </template>
 
@@ -30,6 +31,7 @@ import ProductInfo from '@/components/buysell/ProductInfo.vue';
 import DepositBuyCard from '@/components/buysell/DepositBuyCard.vue';
 import BuyButton from '@/components/buysell/BuyButton.vue';
 import BuySellMessage from '@/components/buysell/BuySellMessage.vue';
+import AgreememtModal from './AgreememtModal.vue';
 import { ref, onMounted } from 'vue';
 import { useBuyStore } from '@/stores/buy';
 import { useRoute, useRouter } from 'vue-router';
