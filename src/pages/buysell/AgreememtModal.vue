@@ -1,99 +1,127 @@
 <template>
+  <!-- 모달 오버레이 -->
   <div
     v-if="isVisible"
-    class="modal-overlay"
+    class="modal fade show d-block"
+    tabindex="-1"
+    style="background-color: rgba(0, 0, 0, 0.5)"
     @click="closeModal">
     <div
-      class="modal-container"
+      class="modal-dialog modal-dialog-centered modal-lg"
       @click.stop>
-      <!-- 모달 헤더 -->
-      <div class="modal-header">
-        <h2 class="modal-title">{{ getModalTitle() }}</h2>
-      </div>
-
-      <!-- 모달 콘텐츠 -->
       <div class="modal-content">
-        <!-- 상품 정보 -->
-        <div class="product-info">
-          <div
-            class="product-type-badge"
-            :class="getProductTypeClass()">
-            {{ getProductTypeText() }}
-          </div>
-          <h3 class="product-name">{{ productName }}</h3>
-          <p class="transaction-type">{{ transactionType === 'buy' ? '매수' : '매도' }}</p>
+        <!-- 모달 헤더 -->
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold">{{ getModalTitle() }}</h5>
+          <button
+            type="button"
+            class="btn-close"
+            @click="closeModal"
+            aria-label="Close"></button>
         </div>
 
-        <!-- 약관 리스트 -->
-        <div class="terms-section">
-          <h4 class="terms-title">약관 동의</h4>
-          <div class="terms-list">
-            <div
-              v-for="term in getTermsForProduct()"
-              :key="term.id"
-              class="term-item">
-              <label class="term-checkbox">
+        <!-- 모달 바디 -->
+        <div
+          class="modal-body"
+          style="max-height: 70vh; overflow-y: auto">
+          <!-- 상품 정보 -->
+          <div class="text-center mb-4 pb-4 border-bottom">
+            <span
+              class="badge rounded-pill mb-2 px-3 py-2"
+              :class="getProductTypeBadgeClass()">
+              {{ getProductTypeText() }}
+            </span>
+            <h4 class="fw-bold text-dark mb-2">{{ productName }}</h4>
+            <p class="text-muted mb-0 fs-5">
+              {{ transactionType === 'buy' ? '매수' : '매도' }}
+            </p>
+          </div>
+
+          <!-- 약관 리스트 -->
+          <div class="mb-4">
+            <h5 class="fw-semibold text-dark mb-3">약관 동의</h5>
+
+            <div class="list-group list-group-flush">
+              <div
+                v-for="term in getTermsForProduct()"
+                :key="term.id"
+                class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-start-0 border-end-0">
+                <div class="form-check flex-grow-1">
+                  <input
+                    class="form-check-input me-3"
+                    type="checkbox"
+                    :id="`term-${term.id}`"
+                    v-model="term.agreed"
+                    @change="updateAgreementStatus" />
+                  <label
+                    class="form-check-label text-dark"
+                    :for="`term-${term.id}`">
+                    {{ term.title }}
+                    <span
+                      v-if="term.required"
+                      class="text-danger ms-1 small"
+                      >(필수)</span
+                    >
+                  </label>
+                </div>
+                <button
+                  class="btn btn-outline-secondary btn-sm ms-2"
+                  @click="showTermDetail(term)">
+                  보기
+                </button>
+              </div>
+            </div>
+
+            <!-- 전체 동의 -->
+            <div class="mt-4 pt-3 border-top">
+              <div class="form-check">
                 <input
+                  class="form-check-input me-3"
                   type="checkbox"
-                  v-model="term.agreed"
-                  @change="updateAgreementStatus" />
-                <span class="checkmark"></span>
-                <span class="term-text">{{ term.title }}</span>
-                <span
-                  v-if="term.required"
-                  class="required-mark"
-                  >(필수)</span
-                >
-              </label>
-              <button
-                class="view-detail-button"
-                @click="showTermDetail(term)">
-                보기
-              </button>
+                  id="allAgree"
+                  v-model="allAgreed"
+                  @change="toggleAllAgreement" />
+                <label
+                  class="form-check-label fw-semibold text-dark"
+                  for="allAgree">
+                  전체 약관에 동의합니다
+                </label>
+              </div>
             </div>
           </div>
 
-          <!-- 전체 동의 -->
-          <div class="all-agree-section">
-            <label class="term-checkbox all-agree">
-              <input
-                type="checkbox"
-                v-model="allAgreed"
-                @change="toggleAllAgreement" />
-              <span class="checkmark"></span>
-              <span class="term-text">전체 약관에 동의합니다</span>
-            </label>
+          <!-- 주요 안내사항 -->
+          <div class="mb-3">
+            <h5 class="fw-semibold text-dark mb-3">주요 안내사항</h5>
+            <div class="alert alert-light border">
+              <ul class="mb-0 ps-3">
+                <li
+                  v-for="notice in getNoticesForProduct()"
+                  :key="notice"
+                  class="text-muted small mb-2">
+                  {{ notice }}
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
-        <!-- 주요 안내사항 -->
-        <div class="notice-section">
-          <h4 class="notice-title">주요 안내사항</h4>
-          <div class="notice-content">
-            <ul class="notice-list">
-              <li
-                v-for="notice in getNoticesForProduct()"
-                :key="notice">
-                {{ notice }}
-              </li>
-            </ul>
-          </div>
+        <!-- 모달 푸터 -->
+        <div class="modal-footer border-top">
+          <button
+            type="button"
+            class="btn btn-outline-secondary flex-fill me-2"
+            @click="closeModal">
+            취소
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary flex-fill ms-2"
+            :disabled="!canProceed"
+            @click="handleConfirm">
+            {{ transactionType === 'buy' ? '매수 진행' : '매도 진행' }}
+          </button>
         </div>
-      </div>
-
-      <!-- 모달 푸터 -->
-      <div class="modal-footer">
-        <button
-          class="cancel-button"
-          @click="closeModal">
-          취소
-        </button>
-        <button
-          class="confirm-button"
-          :disabled="!canProceed"
-          @click="handleConfirm">
-          {{ transactionType === 'buy' ? '매수 진행' : '매도 진행' }}
-        </button>
       </div>
     </div>
   </div>
@@ -107,7 +135,32 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import TermDetailModal from './TermDetailModal.vue';
+
+// TermDetailModal 컴포넌트 정의
+const TermDetailModal = {
+  props: ['term'],
+  emits: ['close'],
+  template: `
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);" @click="$emit('close')">
+      <div class="modal-dialog modal-dialog-centered modal-lg" @click.stop>
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">{{ term.title }}</h5>
+            <button type="button" class="btn-close" @click="$emit('close')" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+            <div class="text-muted" style="line-height: 1.6; white-space: pre-line;">
+              {{ term.content }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary w-100" @click="$emit('close')">확인</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+};
 
 const props = defineProps({
   isVisible: Boolean,
@@ -132,34 +185,38 @@ const emit = defineEmits(['close', 'confirm']);
 const selectedTerm = ref(null);
 const allAgreed = ref(false);
 
+// 약관 데이터
 const depositTerms = ref([
   {
     id: 1,
     title: '예금거래 기본약관',
     required: true,
     agreed: false,
-    content: '예금거래에 관한 기본적인 약관입니다...'
+    content:
+      '예금거래에 관한 기본적인 약관입니다...\n\n제1조 (목적)\n본 약관은 고객과 은행 간의 예금거래에 관한 기본적인 사항을 정함을 목적으로 합니다.\n\n제2조 (적용범위)\n본 약관은 모든 예금상품에 적용됩니다.'
   },
   {
     id: 2,
     title: '예금자보호법에 관한 사항',
     required: true,
     agreed: false,
-    content: '예금자보호법 관련 내용입니다...'
+    content:
+      '예금자보호법 관련 내용입니다...\n\n예금보험공사는 예금자보호법에 따라 예금을 보호합니다.\n보호한도: 1인당 5천만원까지'
   },
   {
     id: 3,
     title: '금리변동 안내',
     required: true,
     agreed: false,
-    content: '금리변동에 관한 안내사항입니다...'
+    content:
+      '금리변동에 관한 안내사항입니다...\n\n시장금리 변동에 따라 예금금리가 변동될 수 있습니다.'
   },
   {
     id: 4,
     title: '세금 관련 안내',
     required: false,
     agreed: false,
-    content: '세금 관련 안내사항입니다...'
+    content: '세금 관련 안내사항입니다...\n\n이자소득에 대해서는 소득세법에 따라 세금이 부과됩니다.'
   }
 ]);
 
@@ -169,35 +226,39 @@ const fundTerms = ref([
     title: '집합투자규약',
     required: true,
     agreed: false,
-    content: '집합투자규약 내용입니다...'
+    content:
+      '집합투자규약 내용입니다...\n\n펀드의 운용방침, 투자대상, 수수료 등에 관한 사항을 규정합니다.'
   },
   {
     id: 2,
     title: '투자설명서',
     required: true,
     agreed: false,
-    content: '투자설명서 내용입니다...'
+    content:
+      '투자설명서 내용입니다...\n\n펀드의 투자목적, 위험요소, 비용 등에 대한 상세한 설명입니다.'
   },
   {
     id: 3,
     title: '투자위험고지서',
     required: true,
     agreed: false,
-    content: '투자위험에 관한 고지사항입니다...'
+    content:
+      '투자위험에 관한 고지사항입니다...\n\n투자원금의 손실 가능성과 관련 위험요소들을 안내합니다.'
   },
   {
     id: 4,
     title: '펀드 수수료 안내',
     required: true,
     agreed: false,
-    content: '펀드 수수료에 관한 안내입니다...'
+    content:
+      '펀드 수수료에 관한 안내입니다...\n\n판매수수료, 운용보수, 기타비용 등에 대한 안내입니다.'
   },
   {
     id: 5,
     title: '개인정보 수집·이용 동의',
     required: false,
     agreed: false,
-    content: '개인정보 처리방침입니다...'
+    content: '개인정보 처리방침입니다...\n\n개인정보의 수집, 이용, 보관에 관한 사항을 안내합니다.'
   }
 ]);
 
@@ -207,36 +268,39 @@ const etfTerms = ref([
     title: 'ETF 투자설명서',
     required: true,
     agreed: false,
-    content: 'ETF 투자설명서 내용입니다...'
+    content: 'ETF 투자설명서 내용입니다...\n\nETF의 투자목적, 기초지수, 운용방법 등을 설명합니다.'
   },
   {
     id: 2,
     title: '상장지수펀드 투자위험고지서',
     required: true,
     agreed: false,
-    content: 'ETF 투자위험 고지사항입니다...'
+    content:
+      'ETF 투자위험 고지사항입니다...\n\n시장위험, 추적오차위험 등 ETF 투자시 발생할 수 있는 위험을 안내합니다.'
   },
   {
     id: 3,
     title: '거래수수료 안내',
     required: true,
     agreed: false,
-    content: '거래수수료에 관한 안내입니다...'
+    content: '거래수수료에 관한 안내입니다...\n\nETF 매매시 발생하는 수수료에 대한 안내입니다.'
   },
   {
     id: 4,
     title: '시장가격 변동 위험 안내',
     required: true,
     agreed: false,
-    content: '시장가격 변동위험에 관한 내용입니다...'
+    content: '시장가격 변동위험에 관한 내용입니다...\n\n시장상황에 따른 가격변동 위험을 안내합니다.'
   }
 ]);
 
+// 컴퓨티드 속성
 const canProceed = computed(() => {
   const terms = getTermsForProduct();
   return terms.filter(term => term.required).every(term => term.agreed);
 });
 
+// 메서드
 function getModalTitle() {
   const typeText = getProductTypeText();
   const actionText = props.transactionType === 'buy' ? '매수' : '매도';
@@ -252,8 +316,13 @@ function getProductTypeText() {
   return typeMap[props.productType] || '투자 상품';
 }
 
-function getProductTypeClass() {
-  return `product-type-${props.productType}`;
+function getProductTypeBadgeClass() {
+  const classMap = {
+    deposit: 'text-bg-primary',
+    fund: 'text-bg-warning',
+    etf: 'text-bg-success'
+  };
+  return classMap[props.productType] || 'text-bg-secondary';
 }
 
 function getTermsForProduct() {
@@ -331,6 +400,7 @@ function resetAgreements() {
   allAgreed.value = false;
 }
 
+// 모달이 열릴 때 약관 상태 초기화
 watch(
   () => props.isVisible,
   newValue => {
@@ -342,282 +412,23 @@ watch(
 </script>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
+/* 부트스트랩 기본 스타일을 사용하므로 최소한의 커스텀 스타일만 추가 */
+.form-check-input:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
 }
 
-.modal-container {
-  background: white;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+.form-check-input:focus {
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
+.btn:disabled {
+  opacity: 0.65;
 }
 
-.modal-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0;
-}
-
-.modal-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-}
-
-.product-info {
-  text-align: center;
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.product-type-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.product-type-deposit {
-  background-color: #dbeafe;
-  color: #1d4ed8;
-}
-
-.product-type-fund {
-  background-color: #fef3c7;
-  color: #d97706;
-}
-
-.product-type-etf {
-  background-color: #d1fae5;
-  color: #059669;
-}
-
-.product-name {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 8px 0;
-}
-
-.transaction-type {
-  font-size: 16px;
-  color: #6b7280;
-  margin: 0;
-}
-
-.terms-section {
-  margin-bottom: 32px;
-}
-
-.terms-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 16px;
-}
-
-.terms-list {
-  space-y: 12px;
-}
-
-.term-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #f9fafb;
-}
-
-.term-checkbox {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  cursor: pointer;
-}
-
-.term-checkbox input[type='checkbox'] {
-  display: none;
-}
-
-.checkmark {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #d1d5db;
-  border-radius: 4px;
-  margin-right: 12px;
-  position: relative;
-  transition: all 0.2s;
-}
-
-.term-checkbox input[type='checkbox']:checked + .checkmark {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
-}
-
-.term-checkbox input[type='checkbox']:checked + .checkmark::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.term-text {
-  font-size: 14px;
-  color: #374151;
-  flex: 1;
-}
-
-.required-mark {
-  color: #ef4444;
-  font-size: 12px;
-  margin-left: 4px;
-}
-
-.view-detail-button {
-  background: none;
-  border: 1px solid #d1d5db;
-  color: #6b7280;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.view-detail-button:hover {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
-}
-
-.all-agree-section {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
-}
-
-.all-agree .checkmark {
-  border-color: #3b82f6;
-}
-
-.all-agree .term-text {
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.notice-section {
-  margin-bottom: 24px;
-}
-
-.notice-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 12px;
-}
-
-.notice-content {
-  background-color: #f9fafb;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.notice-list {
-  margin: 0;
-  padding-left: 20px;
-  color: #6b7280;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.notice-list li {
-  margin-bottom: 8px;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 12px;
-  padding: 20px 24px;
-  border-top: 1px solid #e5e7eb;
-}
-
-.cancel-button {
-  flex: 1;
-  padding: 12px 24px;
-  background: white;
-  border: 1px solid #d1d5db;
-  color: #6b7280;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.cancel-button:hover {
-  background-color: #f9fafb;
-}
-
-.confirm-button {
-  flex: 2;
-  padding: 12px 24px;
-  background: #3b82f6;
-  border: none;
-  color: white;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.confirm-button:hover:not(:disabled) {
-  background: #2563eb;
-}
-
-.confirm-button:disabled {
-  background: #d1d5db;
-  cursor: not-allowed;
-}
-
-.term-detail-modal {
-  max-width: 600px;
-}
-
-.term-content {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #374151;
-  white-space: pre-line;
+.list-group-item:last-child {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
 }
 </style>

@@ -5,59 +5,59 @@
     <DetailMainDeposit
       :bank="productInfo.bank"
       :title="productInfo.title"
-      :maxRate="productInfo.maxRate"
-      :maxRateDesc="productInfo.maxRateDesc"
-      :baseRate="productInfo.baseRate" />
+      :max-rate="productInfo.maxRate"
+      :max-rate-desc="productInfo.maxRateDesc"
+      :base-rate="productInfo.baseRate" />
 
     <DetailTabs
       :tabs="tabs"
-      :selectedTab="selectedTab"
-      :indicatorPosition="indicatorPosition"
-      @update:selectedTab="selectTab" />
+      :selected-tab="selectedTab"
+      :indicator-position="indicatorPosition"
+      @update:selected-tab="selectTab" />
 
     <DetailSection
-      :tabData="tabData"
-      :selectedTab="selectedTab" />
+      :tab-data="tabData"
+      :selected-tab="selectedTab" />
 
     <DetailActionButton
+      :id="route.params.id"
       :active="productInfo.isHolding"
       :category="'deposit'"
-      :id="route.params.id" />
-
-      
+      @click="showModal = true" />
   </div>
+
+  <button @click="showModal == true">버튼</button>
+  <!-- 모달 컴포넌트 -->
+  <AgreememtModal
+    v-if="showModal"
+    @close="showModal = false" />
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDepositStore } from '@/stores/deposit';
 import { storeToRefs } from 'pinia';
 
-// DetailMainSection: 예금/ETF 등 상품의 주요 정보를 보여주는 상단 섹션 컴포넌트
-// DetailTabs: 상품 상세 정보의 탭 네비게이션 컴포넌트
-// DetailSection: 선택된 탭에 따라 상세 내용을 보여주는 컴포넌트
-// DetailActionButton: 상품 가입/신청 등 주요 액션 버튼 컴포넌트
 import DetailMainDeposit from '@/components/detail/DetailMainDeposit.vue';
 import DetailTabs from '@/components/detail/DetailTabs.vue';
 import DetailSection from '@/components/detail/DetailSection.vue';
 import DetailActionButton from '@/components/detail/DetailActionButton.vue';
+import AgreememtModal from './buysell/AgreememtModal.vue';
 
 const route = useRoute();
-
 const depositStore = useDepositStore();
 const { productInfo, tabData, isLoading, error } = storeToRefs(depositStore);
+
+const showModal = ref(false);
 
 onMounted(() => {
   const productId = route.params.id;
   if (productId) {
     depositStore.fetchProduct(productId);
-  } else {
-    console.warn('DepositPage: 상품 ID가 URL에 없습니다.');
   }
 });
 
-// 탭 관련 데이터
 const tabs = [
   { key: 'info', label: '상품안내' },
   { key: 'rate', label: '금리안내' },

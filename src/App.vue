@@ -2,7 +2,6 @@
   <div id="app-container">
     <component :is="layoutComponent" />
   </div>
-  
 </template>
 
 <script setup>
