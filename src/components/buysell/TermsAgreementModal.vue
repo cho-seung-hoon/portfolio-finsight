@@ -31,8 +31,8 @@
               class="term-item">
               <label class="term-checkbox">
                 <input
-                  type="checkbox"
                   v-model="term.agreed"
+                  type="checkbox"
                   @change="updateAgreementStatus" />
                 <span class="checkmark"></span>
                 <span class="term-text">{{ term.title }}</span>
@@ -54,8 +54,8 @@
           <div class="all-agree-section">
             <label class="term-checkbox all-agree">
               <input
-                type="checkbox"
                 v-model="allAgreed"
+                type="checkbox"
                 @change="toggleAllAgreement" />
               <span class="checkmark"></span>
               <span class="term-text">전체 약관에 동의합니다</span>
@@ -97,9 +97,9 @@
   <!-- 약관 상세 모달 -->
   <TermDetailModal
     v-if="selectedTerm"
+    ref="termDetailModalRef"
     :term="selectedTerm"
-    @close="selectedTerm = null"
-    ref="termDetailModalRef" />
+    @close="selectedTerm = null" />
 </template>
 
 <script setup>

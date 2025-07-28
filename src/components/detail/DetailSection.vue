@@ -43,7 +43,7 @@
         <template v-else-if="item.type === 'news' && Array.isArray(item.desc)">
           <NewsList
             class="news-list-in-detail"
-            :newsList="item.desc"
+            :news-list="item.desc"
             :keyword="item.keyword || ''"
             :color="item.color || '#007AFF'" />
         </template>

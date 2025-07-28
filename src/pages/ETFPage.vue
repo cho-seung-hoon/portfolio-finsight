@@ -8,19 +8,19 @@
       <DetailMainEtf
         :bank="productInfo.productCompanyName"
         :title="productInfo.productName"
-        :mainYield="productInfo.mainYield"
-        :currentPrice="productInfo.currentPrice"
+        :main-yield="productInfo.mainYield"
+        :current-price="productInfo.currentPrice"
         :net_assets="productInfo.etfNetAssets"
         :risk="productInfo.productRiskGrade" />
 
       <DetailTabs
         :tabs="tabs"
-        :selectedTab="selectedTab"
-        @update:selectedTab="selectTab" />
+        :selected-tab="selectedTab"
+        @update:selected-tab="selectTab" />
 
       <DetailSection
-        :tabData="tabData"
-        :selectedTab="selectedTab" />
+        :tab-data="tabData"
+        :selected-tab="selectedTab" />
 
       <DetailActionButton
         :id="productInfo.productCode"
@@ -33,17 +33,17 @@
     <!-- 모달 컴포넌트들 -->
     <FundEtfBuyModal
       ref="buyModalRef"
-      :productInfo="productInfo"
-      :productType="'ETF'"
-      :isLoading="isBuyLoading"
+      :product-info="productInfo"
+      :product-type="'ETF'"
+      :is-loading="isBuyLoading"
       @close="handleModalClose"
       @submit="handleBuySubmit" />
 
     <FundEtfSellModal
       ref="sellModalRef"
-      :productInfo="productInfo"
-      :productType="'ETF'"
-      :isLoading="isSellLoading"
+      :product-info="productInfo"
+      :product-type="'ETF'"
+      :is-loading="isSellLoading"
       @close="handleModalClose"
       @submit="handleSellSubmit" />
 

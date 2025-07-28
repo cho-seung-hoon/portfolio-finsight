@@ -8,19 +8,19 @@
       <DetailMainDeposit
         :bank="productInfo.productCompanyName"
         :title="productInfo.productName"
-        :maxRate="productInfo.depositMtrtInt"
-        :maxRateDesc="'(12개월 세전)'"
-        :baseRate="productInfo.depositMtrtInt" />
+        :max-rate="productInfo.depositMtrtInt"
+        :max-rate-desc="'(12개월 세전)'"
+        :base-rate="productInfo.depositMtrtInt" />
 
       <DetailTabs
         :tabs="tabs"
-        :selectedTab="selectedTab"
-        :indicatorPosition="indicatorPosition"
-        @update:selectedTab="selectTab" />
+        :selected-tab="selectedTab"
+        :indicator-position="indicatorPosition"
+        @update:selected-tab="selectTab" />
 
       <DetailSection
-        :tabData="tabData"
-        :selectedTab="selectedTab" />
+        :tab-data="tabData"
+        :selected-tab="selectedTab" />
 
       <DetailActionButton
         :id="productInfo.productCode"
@@ -33,25 +33,25 @@
     <!-- 모달 컴포넌트들 -->
     <TermsAgreementModal
       ref="termsModalRef"
-      :productType="'deposit'"
-      :productName="productInfo?.productName || ''"
-      :transactionType="currentTransactionType"
+      :product-type="'deposit'"
+      :product-name="productInfo?.productName || ''"
+      :transaction-type="currentTransactionType"
       @close="handleModalClose"
       @confirm="handleTermsConfirm" />
 
     <DepositBuyModal
       ref="buyModalRef"
-      :productInfo="productInfo"
-      :minAmount="new Decimal(1000000)"
-      :maxAmount="productInfo?.depositMaxLimit || new Decimal(0)"
-      :isLoading="isBuyLoading"
+      :product-info="productInfo"
+      :min-amount="new Decimal(1000000)"
+      :max-amount="productInfo?.depositMaxLimit || new Decimal(0)"
+      :is-loading="isBuyLoading"
       @close="handleModalClose"
       @submit="handleBuySubmit" />
 
     <DepositSellModal
       ref="sellModalRef"
-      :productInfo="{ ...productInfo, holdingData: depositStore.holdingData }"
-      :isLoading="isSellLoading"
+      :product-info="{ ...productInfo, holdingData: depositStore.holdingData }"
+      :is-loading="isSellLoading"
       @close="handleModalClose"
       @submit="handleSellSubmit" />
 

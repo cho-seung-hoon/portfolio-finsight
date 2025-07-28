@@ -8,17 +8,17 @@
       <DetailMainFund
         :bank="productInfo.productCompanyName"
         :title="productInfo.productName"
-        :mainYield="productInfo.mainYield"
-        :priceArr="productInfo.priceArr" />
+        :main-yield="productInfo.mainYield"
+        :price-arr="productInfo.priceArr" />
 
       <DetailTabs
         :tabs="tabs"
-        :selectedTab="selectedTab"
-        @update:selectedTab="selectTab" />
+        :selected-tab="selectedTab"
+        @update:selected-tab="selectTab" />
 
       <DetailSection
-        :tabData="tabData"
-        :selectedTab="selectedTab" />
+        :tab-data="tabData"
+        :selected-tab="selectedTab" />
 
       <DetailActionButton
         :id="productInfo.productCode"
@@ -31,17 +31,17 @@
     <!-- 모달 컴포넌트들 -->
     <FundEtfBuyModal
       ref="buyModalRef"
-      :productInfo="productInfo"
-      :productType="'FUND'"
-      :isLoading="isBuyLoading"
+      :product-info="productInfo"
+      :product-type="'FUND'"
+      :is-loading="isBuyLoading"
       @close="handleModalClose"
       @submit="handleBuySubmit" />
 
     <FundEtfSellModal
       ref="sellModalRef"
-      :productInfo="productInfo"
-      :productType="'FUND'"
-      :isLoading="isSellLoading"
+      :product-info="productInfo"
+      :product-type="'FUND'"
+      :is-loading="isSellLoading"
       @close="handleModalClose"
       @submit="handleSellSubmit" />
 
