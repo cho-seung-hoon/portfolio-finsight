@@ -15,6 +15,10 @@
       </div>
     </div>
   </div>
+  <div class="date">
+    <span>기준일:</span>
+    <span>0000.00.00</span>
+  </div>
 </template>
 
 <script setup>
@@ -52,8 +56,15 @@ onMounted(() => {
 });
 </script>
 <style scoped>
+.date {
+  text-align: right;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-light);
+  color: var(--main02);
+}
+
 .subBox {
-  margin: 15px 0px;
+  margin: 10px 0px;
   display: flex;
   overflow-x: auto;
 }
@@ -61,6 +72,7 @@ onMounted(() => {
 .subBox::-webkit-scrollbar {
   display: none;
 }
+
 .subItem {
   flex-shrink: 0;
   width: 140px;
@@ -77,9 +89,11 @@ onMounted(() => {
   font-weight: var(--font-weight-medium);
   margin: 5px 0;
 }
+
 .flag {
   border: 1px solid var(--main02);
 }
+
 .subItem-content {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);

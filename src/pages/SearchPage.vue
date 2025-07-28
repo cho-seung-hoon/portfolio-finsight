@@ -19,7 +19,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { onBeforeRouteLeave } from 'vue-router';
 import SearchSuggestItem from '@/components/list/SearchSuggestItem.vue';
 
 const search = ref('');

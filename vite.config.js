@@ -9,6 +9,7 @@ export default defineConfig({
   plugins: [vue(), vueDevTools()],
   resolve: {
     alias: {
+      vue: 'vue/dist/vue.esm-bundler.js',
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
@@ -27,6 +28,6 @@ export default defineConfig({
         secure: false
       }
     }
-    // ,host: true,
+    ,host: true,
   }
 });

@@ -6,6 +6,7 @@
     <button
       v-if="showBackButton"
       class="backButton"
+      :style="{ color: backButtonColor }"
       @click="backHandler">
       <svg
         width="36"
@@ -15,8 +16,8 @@
         xmlns="http://www.w3.org/2000/svg">
         <path
           d="M22.5 9L13.5 18L22.5 27"
-          stroke="black"
-          stroke-width="2"
+          stroke="currentColor"
+          style="stroke-width: 2"
           stroke-linecap="round"
           stroke-linejoin="round" />
       </svg>
@@ -29,35 +30,51 @@
         {{ part.text }}
       </span>
     </div>
-    <div
-      v-if="actions.length > 0"
-      class="actions">
-      <router-link
-        v-for="action in actions"
-        :key="action.icon"
-        :to="action.to"
-        class="action-button">
-        <component :is="iconComponents[action.icon]" />
-      </router-link>
+    <div class="actions">
+      <div v-if="actions.length > 0">
+        <router-link
+          class="action-button"
+          v-for="action in actions"
+          :key="action.icon"
+          :to="action.to">
+          <component :is="iconComponents[action.icon]" />
+        </router-link>
+      </div>
+      <div
+        class="time"
+        :style="{ color: backButtonColor }"
+        @click="handleTimeClick">
+        00:00
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHeaderStore } from '@/stores/header';
 import IconSearch from '@/components/icons/IconSearch.vue';
-import IconWatch from '@/components/icons/IconWatch.vue';
+
+const emit = defineEmits(['open-time-modal']);
+
 
 const headerStore = useHeaderStore();
 
 const { titleParts, showBackButton, actions, showBorder, bColor, backHandler } =
   storeToRefs(headerStore);
 
+const backButtonColor = computed(() => {
+  return bColor.value === 'var(--white)' ? 'var(--black)' : 'var(--white)';
+});
+
 const iconComponents = {
-  search: IconSearch,
-  watch: IconWatch
+  search: IconSearch
 };
+
+function handleTimeClick() {
+  emit('open-time-modal'); // 여기서 이벤트를 발생시킵니다.
+}
 </script>
 
 <style scoped>
@@ -73,11 +90,13 @@ const iconComponents = {
 .container.no-border {
   border-bottom: none;
 }
+
 .backButton {
   all: unset;
   display: flex;
   align-items: center;
 }
+
 .title {
   min-width: 0px;
   flex: 1;
@@ -89,14 +108,30 @@ const iconComponents = {
 }
 
 .actions {
-  margin: 0 10px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  margin: 0 10px;
+  gap: 10px;
   color: var(--main01);
+}
+
+.time {
+  padding: 2px 5px;
+  margin-right: 8px;
+  /*
+    text-decoration: underline;
+    text-decoration-thickness: 0.5px;*/
+  font-weight: var(--font-weight-light);
+  font-size: var(--font-size-md);
+  z-index: 1;
+  /*  border: 1px solid var(--main01);*/
+  border-radius: 8px;
+  background-color: rgb(from var(--white) r g b / 0.7);
 }
 
 .action-button {
   all: unset;
+  display: flex;
+  align-items: center;
 }
 </style>
