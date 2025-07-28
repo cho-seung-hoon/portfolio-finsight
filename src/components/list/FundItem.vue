@@ -5,7 +5,14 @@
     <section class="fund-item-header-section">
       <div class="fund-item-sub-title">{{ item.country }} ・ {{ item.fund_type }}</div>
       <header class="fund-item-header">
-        {{ item.product_name }}
+        <div class="fund-item-title-left">
+          {{ item.product_name }}
+          <span
+            v-if="item.userOwns"
+            class="own-tag">
+            보유중
+          </span>
+        </div>
         <IconHeartStroke />
       </header>
     </section>
@@ -99,12 +106,26 @@ function getSegmentStyle(key) {
 
 .fund-item-header {
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semi-bold);
   color: var(--main01);
+}
+
+.fund-item-title-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.own-tag {
+  background-color: var(--main04);
+  color: var(--main02);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: 2px 4px;
+  border-radius: 4px;
 }
 
 .fund-item-sub-title {

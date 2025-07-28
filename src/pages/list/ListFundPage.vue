@@ -44,7 +44,8 @@ const funds = [
       positive: 20,
       neutral: 30,
       negative: 50
-    }
+    },
+    userOwns: true
   },
   {
     product_code: 'fund-002',
@@ -58,7 +59,8 @@ const funds = [
       positive: 60,
       neutral: 20,
       negative: 20
-    }
+    },
+    userOwns: false
   },
   {
     product_code: 'fund-003',
@@ -72,7 +74,8 @@ const funds = [
       positive: 30,
       neutral: 50,
       negative: 20
-    }
+    },
+    userOwns: true
   }
 ];
 

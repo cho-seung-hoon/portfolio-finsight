@@ -30,14 +30,16 @@ const deposits = [
     product_name: 'SH 첫만남우대예금',
     company_name: 'SH 수협은행',
     intr_rate: 1.2,
-    intr_rate2: 2.8
+    intr_rate2: 2.8,
+    userOwns: true
   },
   {
     product_code: 'deposit-002',
     product_name: 'KB Star 정기예금',
     company_name: 'KB 국민은행',
     intr_rate: 1.5,
-    intr_rate2: 3.0
+    intr_rate2: 3.0,
+    userOwns: false
   }
 ];
 

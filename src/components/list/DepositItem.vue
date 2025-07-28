@@ -5,7 +5,14 @@
     <section class="deposit-item-header-section">
       <div class="deposit-item-sub-title">{{ item.company_name }}</div>
       <header class="deposit-item-header">
-        {{ item.product_name }}
+        <div class="deposit-item-title-left">
+          {{ item.product_name }}
+          <span
+            v-if="item.userOwns"
+            class="own-tag">
+            보유중
+          </span>
+        </div>
         <IconHeartStroke />
       </header>
     </section>
@@ -58,12 +65,26 @@ function goToDetail() {
 
 .deposit-item-header {
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semi-bold);
   color: var(--main01);
+}
+
+.deposit-item-title-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.own-tag {
+  background-color: var(--main04);
+  color: var(--main02);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: 2px 4px;
+  border-radius: 4px;
 }
 
 .deposit-item-sub-title {

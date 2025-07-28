@@ -5,7 +5,14 @@
     <section class="etf-item-header-section">
       <div class="etf-item-sub-title">{{ item.country }} ・ {{ item.etf_type }}</div>
       <header class="etf-item-header">
-        {{ item.product_name }}
+        <div class="etf-item-title-left">
+          {{ item.product_name }}
+          <span
+            v-if="item.userOwns"
+            class="own-tag">
+            보유중
+          </span>
+        </div>
         <IconHeartStroke />
       </header>
     </section>
@@ -104,12 +111,26 @@ function getSegmentStyle(key) {
 
 .etf-item-header {
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semi-bold);
   color: var(--main01);
+}
+
+.etf-item-title-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.own-tag {
+  background-color: var(--main04);
+  color: var(--main02);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: 2px 4px;
+  border-radius: 4px;
 }
 
 .etf-item-sub-title {

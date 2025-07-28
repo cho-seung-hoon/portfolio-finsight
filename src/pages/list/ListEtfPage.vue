@@ -45,7 +45,8 @@ const etfs = [
       positive: 20,
       neutral: 30,
       negative: 50
-    }
+    },
+    userOwns: false
   },
   {
     product_code: 'etf-002',
@@ -60,7 +61,8 @@ const etfs = [
       positive: 30,
       neutral: 60,
       negative: 10
-    }
+    },
+    userOwns: true
   },
   {
     product_code: 'ETF003',
@@ -75,7 +77,8 @@ const etfs = [
       positive: 62,
       neutral: 25,
       negative: 13
-    }
+    },
+    userOwns: true
   }
 ];
 
