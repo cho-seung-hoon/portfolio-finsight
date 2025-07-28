@@ -131,7 +131,7 @@ const handleLogin = async () => {
       console.log(accessToken);
       localStorage.setItem('accessToken', accessToken);
       router.push('/');
-    }
+    } 
   } catch (error) {
     errorMessage.value = '로그인에 실패하였습니다. 다시 시도해주세요!';
   }
