@@ -14,13 +14,18 @@
               negative: record.historyQuantity < 0
             }">
             {{ record.historyQuantity > 0 ? '+' : ''
-            }}{{ record.historyQuantity?.toLocaleString() || 0 }}좌
+            }}{{ new Decimal(record.historyQuantity || 0).toNumber().toLocaleString() }}좌
           </span>
         </div>
         <div class="history-details">
           <span class="price-per-unit"
             >1좌당
-            {{ (record.historyAmount / record.historyQuantity)?.toLocaleString() || 0 }}원</span
+            {{
+              new Decimal(record.historyAmount || 0)
+                .dividedBy(record.historyQuantity || 1)
+                .toNumber()
+                .toLocaleString()
+            }}원</span
           >
           <span
             class="total-amount"
@@ -29,7 +34,7 @@
               negative: record.historyAmount < 0
             }">
             {{ record.historyAmount > 0 ? '+' : ''
-            }}{{ record.historyAmount?.toLocaleString() || 0 }}원
+            }}{{ new Decimal(record.historyAmount || 0).toNumber().toLocaleString() }}원
           </span>
         </div>
       </div>
@@ -38,6 +43,8 @@
 </template>
 
 <script setup>
+import Decimal from 'decimal.js';
+
 const props = defineProps({
   data: {
     type: Array,

@@ -51,19 +51,21 @@
             id="amount"
             v-model="formData.amount"
             type="text"
+            inputmode="numeric"
+            pattern="[0-9,]*"
             class="form-control"
             :placeholder="`최소 ${formatCurrency(minAmount)} ~ 최대 ${formatCurrency(maxAmount)}`"
-            @input="handleAmountInput"
-            required />
+            required
+            @input="handleAmountInput" />
           <div class="korean-number-wrapper">
             <div
-              class="korean-number"
-              v-if="formData.amount && getKoreanNumber(formData.amount)">
+              v-if="formData.amount && getKoreanNumber(formData.amount)"
+              class="korean-number">
               {{ getKoreanNumber(formData.amount) }} 원
             </div>
             <div
-              class="korean-number"
-              v-else>
+              v-else
+              class="korean-number">
               입력 대기 중
             </div>
           </div>
@@ -71,8 +73,8 @@
             가입 가능한 금액: {{ formatCurrency(minAmount) }} ~ {{ formatCurrency(maxAmount) }}
           </div>
           <div
-            class="korean-number"
-            v-if="minAmount && getKoreanNumber(minAmount)">
+            v-if="minAmount && getKoreanNumber(minAmount)"
+            class="korean-number">
             최소 {{ getKoreanNumber(minAmount) }} 원
           </div>
         </div>
@@ -86,8 +88,8 @@
         </button>
         <button
           class="btn btn-primary"
-          @click="handleSubmit"
-          :disabled="!isFormValid || isLoading">
+          :disabled="!isFormValid || isLoading"
+          @click="handleSubmit">
           {{ isLoading ? '처리중...' : '가입하기' }}
         </button>
       </div>
@@ -96,13 +98,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import { useBuyStore } from '@/stores/buy';
+// import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
+// import { useBuyStore } from '@/stores/buy';
 import {
   formatInputNumber,
   parseNumberFromComma,
   convertToKoreanNumber
 } from '@/utils/numberUtils';
+import Decimal from 'decimal.js';
 
 const props = defineProps({
   productInfo: {
@@ -126,7 +130,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'submit']);
 
 const modalRef = ref(null);
-const buyStore = useBuyStore();
+// const buyStore = useBuyStore();
 
 // 중복 close 이벤트 방지
 const isClosing = ref(false);
@@ -151,14 +155,15 @@ const isFormValid = computed(() => {
   return (
     formData.value.period &&
     formData.value.amount &&
-    amount >= props.minAmount &&
-    amount <= props.maxAmount
+    new Decimal(amount).gte(props.minAmount) &&
+    new Decimal(amount).lte(props.maxAmount)
   );
 });
 
 // 통화 포맷팅
 const formatCurrency = amount => {
-  return new Intl.NumberFormat('ko-KR').format(amount) + ' 원';
+  const decimalAmount = new Decimal(amount);
+  return new Intl.NumberFormat('ko-KR').format(decimalAmount.toNumber()) + ' 원';
 };
 
 // 폼 초기화 함수
@@ -194,6 +199,22 @@ const closeModal = () => {
   }, 100);
 };
 
+// 외부에서 모달을 닫을 때 close 이벤트를 보내지 않는 메서드
+const closeModalSilently = () => {
+  if (isClosing.value) return;
+
+  isClosing.value = true;
+
+  if (modalRef.value) {
+    modalRef.value.close();
+  }
+
+  // 100ms 후에 닫기 상태 초기화
+  setTimeout(() => {
+    isClosing.value = false;
+  }, 100);
+};
+
 // 배경 클릭 처리
 const handleBackdropClick = event => {
   if (event.target === modalRef.value) {
@@ -207,7 +228,7 @@ const handleSubmit = () => {
 
   emit('submit', {
     period: formData.value.period,
-    amount: parseNumberFromComma(formData.value.amount),
+    amount: new Decimal(parseNumberFromComma(formData.value.amount)),
     startDate: todayDate.value,
     code: props.productInfo?.productCode
   });
@@ -217,10 +238,14 @@ const handleSubmit = () => {
 const handleAmountInput = event => {
   if (!event || !event.target) return;
   let value = event.target.value;
+
+  // 숫자와 쉼표만 허용
+  value = value.replace(/[^0-9,]/g, '');
+
   let numValue = parseNumberFromComma(value);
 
   // 최대 금액 제한
-  if (numValue > props.maxAmount) {
+  if (new Decimal(numValue).gt(props.maxAmount)) {
     numValue = props.maxAmount;
     value = String(numValue);
   }
@@ -237,7 +262,8 @@ const getKoreanNumber = value => {
 // 외부에서 모달 열기 메서드 노출
 defineExpose({
   openModal,
-  closeModal
+  closeModal,
+  closeModalSilently
 });
 
 // 모달이 열릴 때와 닫힐 때 폼 초기화
@@ -266,6 +292,9 @@ watch(
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 2000;
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: hidden;
 }
 
 .modal::backdrop {
@@ -275,18 +304,29 @@ watch(
 .modal-content {
   background: var(--white);
   border-radius: 12px;
-  min-width: 400px;
-  max-width: 500px;
+  width: calc(90vw - 32px);
+  max-width: 408px;
+  min-width: 288px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  margin: 0 16px;
+  overflow: hidden;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 24px 16px 24px;
+  padding: 20px 16px 16px 16px;
   border-bottom: 1px solid var(--main04);
   background: var(--main01);
+  border-radius: 12px 12px 0 0;
+}
+
+@media (min-width: 768px) {
+  .modal-header {
+    padding: 24px 24px 16px 24px;
+  }
 }
 
 .modal-header h2 {
@@ -316,7 +356,16 @@ watch(
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 16px;
+  overflow-y: auto;
+  max-height: 50vh;
+  overscroll-behavior: contain;
+}
+
+@media (min-width: 768px) {
+  .modal-body {
+    padding: 24px;
+  }
 }
 
 .product-info {
@@ -365,6 +414,8 @@ watch(
   background: var(--white);
   box-sizing: border-box;
   text-align: right;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .form-control:focus {
@@ -419,8 +470,15 @@ watch(
 .modal-footer {
   display: flex;
   gap: 12px;
-  padding: 16px 24px 24px 24px;
+  padding: 16px;
   border-top: 1px solid var(--main04);
+  border-radius: 0 0 12px 12px;
+}
+
+@media (min-width: 768px) {
+  .modal-footer {
+    padding: 16px 24px 24px 24px;
+  }
 }
 
 .btn {

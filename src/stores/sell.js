@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import axios from 'axios'; // axios 임포트
+import Decimal from 'decimal.js';
 
 export const useSellStore = defineStore('sell', () => {
   const isLoading = ref(false);
@@ -25,8 +26,8 @@ export const useSellStore = defineStore('sell', () => {
           historyTradeType: 'sell',
           historyTradeDate: new Date().toISOString().split('T')[0],
           historyQuantity: payload.quantity,
-          historyAmount: payload.quantity * (payload.price || 0),
-          remainingQuantity: Math.max(0, (payload.quantity && 100 - payload.quantity) || 0)
+          historyAmount: new Decimal(payload.quantity || 0).times(payload.price || 0).toNumber(),
+          remainingQuantity: Math.max(0, new Decimal(100).minus(payload.quantity || 0).toNumber())
         };
       } else if (payload.category === 'DEPOSIT') {
         dummy = {
@@ -37,7 +38,7 @@ export const useSellStore = defineStore('sell', () => {
           historyTradeDate: new Date().toISOString().split('T')[0],
           historyQuantity: 1,
           historyAmount: payload.amount || 0,
-          remainingAmount: Math.max(0, (payload.amount && 5000000 - payload.amount) || 0)
+          remainingAmount: Math.max(0, new Decimal(5000000).minus(payload.amount || 0).toNumber())
         };
       }
       sellResult.value = dummy;

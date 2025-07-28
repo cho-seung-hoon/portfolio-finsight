@@ -3,10 +3,16 @@
  */
 
 import { formatNumberAll } from 'hangul-util';
+import Decimal from 'decimal.js';
 
 // 숫자에 콤마를 추가하는 함수
 export function formatNumberWithComma(num) {
   if (num === null || num === undefined || num === '') return '';
+
+  // Decimal 객체인 경우 toNumber() 사용
+  if (num instanceof Decimal) {
+    return new Intl.NumberFormat('ko-KR').format(num.toNumber());
+  }
 
   // 숫자가 아닌 경우 원본 반환
   if (isNaN(num)) return num;
@@ -22,7 +28,7 @@ export function parseNumberFromComma(str) {
   const cleanStr = str.replace(/,/g, '');
   const num = parseFloat(cleanStr);
 
-  return isNaN(num) ? 0 : num;
+  return isNaN(num) ? 0 : new Decimal(num);
 }
 
 // 입력값을 콤마 포맷팅과 함께 처리하는 함수
@@ -46,6 +52,11 @@ export function formatInputNumber(value) {
 export function convertToKoreanNumber(value) {
   if (!value) return '';
 
+  // Decimal 객체인 경우 toNumber() 사용
+  if (value instanceof Decimal) {
+    return formatNumberAll(value.toNumber());
+  }
+
   // 숫자인 경우 직접 변환
   if (typeof value === 'number') {
     return formatNumberAll(value);
@@ -53,5 +64,5 @@ export function convertToKoreanNumber(value) {
 
   // 문자열인 경우 parseNumberFromComma 사용
   const num = parseNumberFromComma(value);
-  return formatNumberAll(num);
+  return formatNumberAll(num instanceof Decimal ? num.toNumber() : num);
 }

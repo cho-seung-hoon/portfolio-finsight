@@ -14,7 +14,9 @@
     "axios": "^1.10.0",
     "bootstrap": "^5.3.7",
     "d3": "^7.9.0",
+    "decimal.js": "^10.6.0",
     "hangul-util": "^0.1.6",
+    "lightweight-charts": "^5.0.8",
     "pinia": "^3.0.1",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
@@ -22,10 +24,6 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
-    "eslint": "^9.31.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.3",
-    "eslint-plugin-vue": "^10.3.0",
     "prettier": "^3.6.2",
     "vite": "^6.2.1",
     "vite-plugin-vue-devtools": "^7.7.2"

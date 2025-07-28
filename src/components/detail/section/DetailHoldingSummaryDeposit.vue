@@ -13,7 +13,7 @@
         <div class="info-row">
           <span class="label">예금액</span>
           <span class="value current-value"
-            >{{ data.holdingsTotalPrice?.toLocaleString() || 0 }}원</span
+            >{{ new Decimal(data.holdingsTotalPrice || 0).toNumber().toLocaleString() }}원</span
           >
         </div>
       </div>
@@ -22,6 +22,8 @@
 </template>
 
 <script setup>
+import Decimal from 'decimal.js';
+
 const props = defineProps({
   data: {
     type: Object,

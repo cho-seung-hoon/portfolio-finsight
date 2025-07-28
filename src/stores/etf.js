@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import Decimal from 'decimal.js';
 
 // ETF 상품 관련 상태 및 로직을 관리하는 Pinia 스토어
 // 실제 API 연동 전까지 mock 데이터로 동작
@@ -48,7 +49,7 @@ export const useEtfStore = defineStore('etf', () => {
       etfMinTradingUnit: 1,
       etfTaxType: '배당소득세',
       currentPrice: '15,000', // 현재 시세
-      price: 15000, // 매수/매도용 가격
+      price: new Decimal(15000), // 매수/매도용 가격
       isHolding: false,
       holdingQuantity: 0, // 보유 수량
       info: [
@@ -197,7 +198,7 @@ export const useEtfStore = defineStore('etf', () => {
       etfMinTradingUnit: 1,
       etfTaxType: '배당소득세',
       currentPrice: '12,500', // 현재 시세
-      price: 12500, // 매수/매도용 가격
+      price: new Decimal(12500), // 매수/매도용 가격
       isHolding: true,
       holdingQuantity: 150, // 보유 수량
       info: [
@@ -254,27 +255,27 @@ export const useEtfStore = defineStore('etf', () => {
       userId: 'user123',
       productCode: 'etf-002',
       productCategory: 'etf',
-      holdingsTotalPrice: 1500000, // 150만원
-      holdingsTotalQuantity: 150, // 150좌
+      holdingsTotalPrice: new Decimal(1500000), // 150만원
+      holdingsTotalQuantity: new Decimal(150), // 150좌
       holdingsStatus: 'holding',
-      currentPricePerUnit: 10000, // 1좌당 1만원
-      currentTotalValue: 1500000, // 현재 평가액
+      currentPricePerUnit: new Decimal(10000), // 1좌당 1만원
+      currentTotalValue: new Decimal(1500000), // 현재 평가액
       investmentHistory: [
         {
           historyId: 'history-001',
           holdingsId: 'holding-etf-002',
           historyTradeType: 'buy',
           historyTradeDate: '2025.01.10',
-          historyQuantity: 100, // 100좌 매수
-          historyAmount: 950000
+          historyQuantity: new Decimal(100), // 100좌 매수
+          historyAmount: new Decimal(950000)
         },
         {
           historyId: 'history-002',
           holdingsId: 'holding-etf-002',
           historyTradeType: 'buy',
           historyTradeDate: '2025.02.15',
-          historyQuantity: 50, // 50좌 추가 매수
-          historyAmount: 550000
+          historyQuantity: new Decimal(50), // 50좌 추가 매수
+          historyAmount: new Decimal(550000)
         }
       ]
     }

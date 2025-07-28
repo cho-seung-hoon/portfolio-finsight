@@ -5,18 +5,18 @@
         v-for="(label, idx) in rangeLabels"
         :key="label"
         :class="{ active: selectedRangeIdx === idx }"
-        @click.stop.prevent="selectRange(idx)"
-        type="button">
+        type="button"
+        @click.stop.prevent="selectRange(idx)">
         {{ label }}
       </button>
     </div>
     <apexchart
+      :key="selectedRangeIdx"
       type="area"
       height="320"
       :options="chartOptions"
       :series="chartSeries"
-      class="area-chart"
-      :key="selectedRangeIdx" />
+      class="area-chart" />
   </div>
 </template>
 

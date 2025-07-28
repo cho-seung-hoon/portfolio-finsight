@@ -23,9 +23,9 @@
         :selectedTab="selectedTab" />
 
       <DetailActionButton
+        :id="productInfo.productCode"
         :active="productInfo.isHolding"
         :category="'etf'"
-        :id="productInfo.productCode"
         @buy="handleBuyClick"
         @sell="handleSellClick" />
     </div>

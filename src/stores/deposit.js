@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import Decimal from 'decimal.js';
 
 // API 모듈 임포트 (추후 생성 예정)
 // import { fetchDepositProduct } from '@/api/deposit';
@@ -20,7 +21,7 @@ export const useDepositStore = defineStore('deposit', () => {
       depositJoinMember: '실명의 개인(1인 1계좌)',
       depositSpclCnd: '우대 조건: 신규가입 시 최고 연 0.30%p 추가',
       depositMtrtInt: '연 3.69%',
-      depositMaxLimit: 10000000, // 최대 예금 가능 금액: 1천만원
+      depositMaxLimit: new Decimal(10000000), // 최대 예금 가능 금액: 1천만원
       depositJoinWay: '인터넷뱅킹, 모바일뱅킹',
       depositJoinDeny: '서민전용',
       depositEtcNote: '상품 가입 전 반드시 상품설명서 및 약관을 확인하시기 바랍니다.',
@@ -113,7 +114,7 @@ export const useDepositStore = defineStore('deposit', () => {
       depositJoinMember: '실명의 개인',
       depositSpclCnd: '우대 조건 없음',
       depositMtrtInt: '연 3.00%',
-      depositMaxLimit: 5000000, // 최대 예금 가능 금액: 500만원
+      depositMaxLimit: new Decimal(5000000), // 최대 예금 가능 금액: 500만원
       depositJoinWay: '인터넷뱅킹, 모바일뱅킹',
       depositJoinDeny: '제한 없음',
       depositEtcNote: '상품설명서를 꼭 확인하세요.',
@@ -166,7 +167,7 @@ export const useDepositStore = defineStore('deposit', () => {
       userId: 'user123',
       productCode: 'deposit-002',
       productCategory: 'deposit',
-      holdingsTotalPrice: 5000000, // 예금액 500만원
+      holdingsTotalPrice: new Decimal(5000000), // 예금액 500만원
       holdingsTotalQuantity: 1, // 예금은 수량 개념이 없으므로 1
       holdingsStatus: 'holding',
       contractDate: '2025.01.15', // 예금 체결일

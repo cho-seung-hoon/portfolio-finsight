@@ -27,10 +27,10 @@
           <div class="info-value-wrapper">
             <div class="info-value">{{ formatCurrency(holdingData?.holdingsTotalPrice || 0) }}</div>
             <div
-              class="korean-number"
               v-if="
                 holdingData?.holdingsTotalPrice && getKoreanNumber(holdingData.holdingsTotalPrice)
-              ">
+              "
+              class="korean-number">
               {{ getKoreanNumber(holdingData.holdingsTotalPrice) }} 원
             </div>
           </div>
@@ -70,8 +70,8 @@
         </button>
         <button
           class="btn btn-primary"
-          @click="handleSubmit"
-          :disabled="isLoading">
+          :disabled="isLoading"
+          @click="handleSubmit">
           {{ isLoading ? '처리중...' : '해지하기' }}
         </button>
       </div>
@@ -82,6 +82,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { convertToKoreanNumber } from '@/utils/numberUtils';
+import Decimal from 'decimal.js';
 
 const props = defineProps({
   productInfo: {
@@ -126,17 +127,10 @@ const remainingPeriod = computed(() => {
     return `${days}일`;
   }
 });
-
-// 해지 시 수령금액 예상 (간단한 계산)
-const estimatedAmount = computed(() => {
-  const baseAmount = holdingData.value?.depositAmount || 0;
-  // 실제로는 이자율과 해지 수수료 등을 고려해야 함
-  return baseAmount;
-});
-
 // 통화 포맷팅
 const formatCurrency = amount => {
-  return new Intl.NumberFormat('ko-KR').format(amount) + ' 원';
+  const decimalAmount = new Decimal(amount);
+  return new Intl.NumberFormat('ko-KR').format(decimalAmount.toNumber()) + ' 원';
 };
 
 // 날짜 포맷팅
@@ -173,6 +167,22 @@ const closeModal = () => {
   }, 100);
 };
 
+// 외부에서 모달을 닫을 때 close 이벤트를 보내지 않는 메서드
+const closeModalSilently = () => {
+  if (isClosing.value) return;
+
+  isClosing.value = true;
+
+  if (modalRef.value) {
+    modalRef.value.close();
+  }
+
+  // 100ms 후에 닫기 상태 초기화
+  setTimeout(() => {
+    isClosing.value = false;
+  }, 100);
+};
+
 // 배경 클릭 처리
 const handleBackdropClick = event => {
   if (event.target === modalRef.value) {
@@ -196,7 +206,8 @@ const getKoreanNumber = value => {
 // 외부에서 모달 열기 메서드 노출
 defineExpose({
   openModal,
-  closeModal
+  closeModal,
+  closeModalSilently
 });
 
 // 모달이 닫힐 때 폼 초기화 (일관성을 위해 추가)
@@ -221,6 +232,9 @@ watch(
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 2000;
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: hidden;
 }
 
 .modal::backdrop {
@@ -230,18 +244,29 @@ watch(
 .modal-content {
   background: var(--white);
   border-radius: 12px;
-  min-width: 400px;
-  max-width: 500px;
+  width: calc(90vw - 32px);
+  max-width: 408px;
+  min-width: 288px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  margin: 0 16px;
+  overflow: hidden;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 24px 16px 24px;
+  padding: 20px 16px 16px 16px;
   border-bottom: 1px solid var(--main04);
   background: var(--main01);
+  border-radius: 12px 12px 0 0;
+}
+
+@media (min-width: 768px) {
+  .modal-header {
+    padding: 24px 24px 16px 24px;
+  }
 }
 
 .modal-header h2 {
@@ -271,7 +296,16 @@ watch(
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 16px;
+  overflow-y: auto;
+  max-height: 50vh;
+  overscroll-behavior: contain;
+}
+
+@media (min-width: 768px) {
+  .modal-body {
+    padding: 24px;
+  }
 }
 
 .product-info {
@@ -386,8 +420,15 @@ watch(
 .modal-footer {
   display: flex;
   gap: 12px;
-  padding: 16px 24px 24px 24px;
+  padding: 16px;
   border-top: 1px solid var(--main04);
+  border-radius: 0 0 12px 12px;
+}
+
+@media (min-width: 768px) {
+  .modal-footer {
+    padding: 16px 24px 24px 24px;
+  }
 }
 
 .btn {

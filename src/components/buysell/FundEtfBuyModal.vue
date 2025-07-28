@@ -27,8 +27,8 @@
           <div class="info-value-wrapper">
             <div class="info-value">{{ formatCurrency(productInfo?.price || 0) }}</div>
             <div
-              class="korean-number"
-              v-if="productInfo?.price && getKoreanNumber(productInfo.price)">
+              v-if="productInfo?.price && getKoreanNumber(productInfo.price)"
+              class="korean-number">
               {{ getKoreanNumber(productInfo.price) }} 원
             </div>
           </div>
@@ -41,19 +41,21 @@
             id="quantity"
             v-model="formData.quantity"
             type="text"
+            inputmode="numeric"
+            pattern="[0-9,]*"
             class="form-control"
             :placeholder="`매수할 주 수를 입력하세요`"
-            @input="handleQuantityInput"
-            required />
+            required
+            @input="handleQuantityInput" />
           <div class="korean-number-wrapper">
             <div
-              class="korean-number"
-              v-if="formData.quantity && getKoreanNumber(formData.quantity)">
+              v-if="formData.quantity && getKoreanNumber(formData.quantity)"
+              class="korean-number">
               {{ getKoreanNumber(formData.quantity) }} 주
             </div>
             <div
-              class="korean-number"
-              v-else>
+              v-else
+              class="korean-number">
               입력 대기 중
             </div>
           </div>
@@ -84,8 +86,8 @@
         </button>
         <button
           class="btn btn-primary"
-          @click="handleSubmit"
-          :disabled="!isFormValid || isLoading">
+          :disabled="!isFormValid || isLoading"
+          @click="handleSubmit">
           {{ isLoading ? '처리중...' : '매수하기' }}
         </button>
       </div>
@@ -100,6 +102,7 @@ import {
   parseNumberFromComma,
   convertToKoreanNumber
 } from '@/utils/numberUtils';
+import Decimal from 'decimal.js';
 
 const props = defineProps({
   productInfo: {
@@ -141,21 +144,21 @@ const todayDate = computed(() => {
 const totalAmount = computed(() => {
   const price = props.productInfo?.price || 0;
   const quantity = parseNumberFromComma(formData.value.quantity) || 0;
-  const calculatedAmount = price * quantity;
+  const calculatedAmount = new Decimal(price).times(quantity);
 
   // 10억 제한 (1,000,000,000원)
-  const maxAllowedAmount = 1000000000;
-  return calculatedAmount > maxAllowedAmount ? maxAllowedAmount : calculatedAmount;
+  const maxAllowedAmount = new Decimal(1000000000);
+  return calculatedAmount.gt(maxAllowedAmount) ? maxAllowedAmount : calculatedAmount;
 });
 
 // 폼 유효성 검사
 const isFormValid = computed(() => {
   const quantity = parseNumberFromComma(formData.value.quantity);
   const price = props.productInfo?.price || 0;
-  const totalAmountValue = quantity * price;
+  const totalAmountValue = new Decimal(quantity).times(price);
 
   // 10억 제한 확인
-  if (totalAmountValue > 1000000000) {
+  if (totalAmountValue.gt(1000000000)) {
     return false;
   }
 
@@ -164,7 +167,8 @@ const isFormValid = computed(() => {
 
 // 통화 포맷팅
 const formatCurrency = amount => {
-  return new Intl.NumberFormat('ko-KR').format(amount) + ' 원';
+  const decimalAmount = new Decimal(amount);
+  return new Intl.NumberFormat('ko-KR').format(decimalAmount.toNumber()) + ' 원';
 };
 
 // 폼 초기화 함수
@@ -214,7 +218,7 @@ const handleSubmit = () => {
   if (!isFormValid.value) return;
 
   emit('submit', {
-    quantity: parseNumberFromComma(formData.value.quantity),
+    quantity: new Decimal(parseNumberFromComma(formData.value.quantity)),
     price: props.productInfo?.price,
     buyDate: todayDate.value,
     code: props.productInfo?.productCode,
@@ -226,13 +230,17 @@ const handleSubmit = () => {
 const handleQuantityInput = event => {
   if (!event || !event.target) return;
   let value = event.target.value;
+
+  // 숫자와 쉼표만 허용
+  value = value.replace(/[^0-9,]/g, '');
+
   let numValue = parseNumberFromComma(value);
   const price = props.productInfo?.price || 0;
 
   // 10억 제한 확인
-  const maxQuantityFor10Billion = Math.floor(1000000000 / price);
-  if (numValue > maxQuantityFor10Billion) {
-    numValue = maxQuantityFor10Billion;
+  const maxQuantityFor10Billion = new Decimal(1000000000).dividedBy(price).floor();
+  if (new Decimal(numValue).gt(maxQuantityFor10Billion)) {
+    numValue = maxQuantityFor10Billion.toNumber();
     value = String(numValue);
   }
 
@@ -274,6 +282,9 @@ watch(
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 2000;
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: hidden;
 }
 
 .modal::backdrop {
@@ -283,18 +294,29 @@ watch(
 .modal-content {
   background: var(--white);
   border-radius: 12px;
-  min-width: 400px;
-  max-width: 500px;
+  width: calc(90vw - 32px);
+  max-width: 408px;
+  min-width: 288px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  margin: 0 16px;
+  overflow: hidden;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 24px 16px 24px;
+  padding: 20px 16px 16px 16px;
   border-bottom: 1px solid var(--main04);
   background: var(--main01);
+  border-radius: 12px 12px 0 0;
+}
+
+@media (min-width: 768px) {
+  .modal-header {
+    padding: 24px 24px 16px 24px;
+  }
 }
 
 .modal-header h2 {
@@ -324,7 +346,16 @@ watch(
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 16px;
+  overflow-y: auto;
+  max-height: 50vh;
+  overscroll-behavior: contain;
+}
+
+@media (min-width: 768px) {
+  .modal-body {
+    padding: 24px;
+  }
 }
 
 .product-info {
@@ -442,8 +473,15 @@ watch(
 .modal-footer {
   display: flex;
   gap: 12px;
-  padding: 16px 24px 24px 24px;
+  padding: 16px;
   border-top: 1px solid var(--main04);
+  border-radius: 0 0 12px 12px;
+}
+
+@media (min-width: 768px) {
+  .modal-footer {
+    padding: 16px 24px 24px 24px;
+  }
 }
 
 .btn {

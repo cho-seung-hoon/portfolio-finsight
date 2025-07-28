@@ -72,7 +72,7 @@ function getBuyButtonText() {
   if (props.category === 'deposit') {
     return '상품 가입하기';
   }
-  return '첫 매수하기';
+  return '주문하기';
 }
 
 // 매도/해지 버튼 텍스트 반환

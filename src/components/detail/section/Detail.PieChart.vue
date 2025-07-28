@@ -16,33 +16,35 @@
         <div class="center-label">{{ mainItem.label }}</div>
       </div>
     </div>
-    <table class="pie-table">
-      <thead>
-        <tr>
-          <th>색</th>
-          <th>종목명</th>
-          <th>비중(%)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(row, idx) in standardizedData"
-          :key="row.label">
-          <td>
-            <span
-              :style="{
-                display: 'inline-block',
-                width: '16px',
-                height: '16px',
-                'border-radius': '50%',
-                background: colorList[idx % colorList.length]
-              }"></span>
-          </td>
-          <td>{{ row.label }}</td>
-          <td>{{ row.value }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-container">
+      <table class="pie-table">
+        <thead>
+          <tr>
+            <th>색</th>
+            <th>종목명</th>
+            <th>비중(%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="(row, idx) in standardizedData"
+            :key="row.label">
+            <td>
+              <span
+                :style="{
+                  display: 'inline-block',
+                  width: '16px',
+                  height: '16px',
+                  'border-radius': '50%',
+                  background: colorList[idx % colorList.length]
+                }"></span>
+            </td>
+            <td>{{ row.label }}</td>
+            <td>{{ row.value }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -204,18 +206,33 @@ const chartOptions = computed(() => ({
   color: var(--off-black);
   margin-top: 2px;
 }
-.pie-table {
+.table-container {
   margin: 24px 0 0 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1px;
+}
+
+.pie-table {
   border-collapse: collapse;
   font-size: 15px;
-  min-width: 350px;
   width: 100%;
+  min-width: 300px;
 }
 .pie-table th,
 .pie-table td {
   border: 1px solid var(--main02); /* 기존보다 좀 더 은은한 테두리 */
-  padding: 6px 10px;
+  padding: 8px 12px;
   text-align: left;
+  white-space: nowrap;
+}
+
+.pie-table td:nth-child(2) {
+  white-space: normal;
+  word-break: break-word;
+  max-width: 150px;
 }
 
 .pie-table th {

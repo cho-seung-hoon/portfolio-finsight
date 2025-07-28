@@ -4,20 +4,26 @@
       <div class="summary-info">
         <div class="info-row">
           <span class="label">나의 투자 총 금액</span>
-          <span class="value">{{ data.holdingsTotalPrice?.toLocaleString() || 0 }}원</span>
+          <span class="value"
+            >{{ new Decimal(data.holdingsTotalPrice || 0).toNumber().toLocaleString() }}원</span
+          >
         </div>
         <div class="info-row">
           <span class="label">나의 현재 보유량</span>
-          <span class="value">{{ data.holdingsTotalQuantity?.toLocaleString() || 0 }}좌</span>
+          <span class="value"
+            >{{ new Decimal(data.holdingsTotalQuantity || 0).toNumber().toLocaleString() }}좌</span
+          >
         </div>
         <div class="info-row">
           <span class="label">현재 1좌당 금액</span>
-          <span class="value">{{ data.currentPricePerUnit?.toLocaleString() || 0 }}원</span>
+          <span class="value"
+            >{{ new Decimal(data.currentPricePerUnit || 0).toNumber().toLocaleString() }}원</span
+          >
         </div>
         <div class="info-row">
           <span class="label">나의 현재 보유대금 (평가액)</span>
           <span class="value current-value"
-            >{{ data.currentTotalValue?.toLocaleString() || 0 }}원</span
+            >{{ new Decimal(data.currentTotalValue || 0).toNumber().toLocaleString() }}원</span
           >
         </div>
       </div>
@@ -26,6 +32,8 @@
 </template>
 
 <script setup>
+import Decimal from 'decimal.js';
+
 const props = defineProps({
   data: {
     type: Object,

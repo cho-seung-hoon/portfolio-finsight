@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import axios from 'axios';
+import Decimal from 'decimal.js';
 
 export const useBuyStore = defineStore('buy', () => {
   const isLoading = ref(false);
@@ -23,7 +24,8 @@ export const useBuyStore = defineStore('buy', () => {
         historyTradeType: 'buy',
         historyTradeDate: new Date().toISOString().split('T')[0],
         historyQuantity: payload.quantity || 1,
-        historyAmount: payload.amount || payload.quantity * (payload.price || 0)
+        historyAmount:
+          payload.amount || new Decimal(payload.quantity || 0).times(payload.price || 0).toNumber()
       };
       buyResult.value = dummy;
       return dummy;

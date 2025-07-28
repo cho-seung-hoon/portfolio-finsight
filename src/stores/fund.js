@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import Decimal from 'decimal.js';
 
 export const useFundStore = defineStore('fund', () => {
   const product = ref(null);
@@ -36,8 +37,8 @@ export const useFundStore = defineStore('fund', () => {
       ],
       fundEstablishedDate: '2020-01-01',
       mainYield: { value: 25.97, months: 3 }, // 수익률 (개월 수와 값)
-      priceArr: [1414.27, 1373.72], // [오늘 기준가, 전일 기준가]
-      price: 1414.27, // 매수/매도용 가격
+      priceArr: [new Decimal(1414.27), new Decimal(1373.72)], // [오늘 기준가, 전일 기준가]
+      price: new Decimal(1414.27), // 매수/매도용 가격
       isHolding: false,
       holdingQuantity: 0, // 보유 수량
       info: [
@@ -117,8 +118,8 @@ export const useFundStore = defineStore('fund', () => {
       ],
       fundEstablishedDate: '2020-06-01',
       mainYield: { value: -3.21, months: 1 }, // 수익률 (개월 수와 값)
-      priceArr: [987.65, 1000.0], // [오늘 기준가, 전일 기준가]
-      price: 987.65, // 매수/매도용 가격
+      priceArr: [new Decimal(987.65), new Decimal(1000.0)], // [오늘 기준가, 전일 기준가]
+      price: new Decimal(987.65), // 매수/매도용 가격
       isHolding: true,
       holdingQuantity: 2000, // 보유 수량
       info: [
@@ -177,27 +178,27 @@ export const useFundStore = defineStore('fund', () => {
       userId: 'user123',
       productCode: 'fund-002',
       productCategory: 'fund',
-      holdingsTotalPrice: 2000000, // 200만원
-      holdingsTotalQuantity: 2000, // 2000좌
+      holdingsTotalPrice: new Decimal(2000000), // 200만원
+      holdingsTotalQuantity: new Decimal(2000), // 2000좌
       holdingsStatus: 'holding',
-      currentPricePerUnit: 987.65, // 현재 기준가
-      currentTotalValue: 1975300, // 현재 평가액 (2000 * 987.65)
+      currentPricePerUnit: new Decimal(987.65), // 현재 기준가
+      currentTotalValue: new Decimal(1975300), // 현재 평가액 (2000 * 987.65)
       investmentHistory: [
         {
           historyId: 'history-001',
           holdingsId: 'holding-fund-002',
           historyTradeType: 'buy',
           historyTradeDate: '2025.01.05',
-          historyQuantity: 1200, // 1200좌 매수
-          historyAmount: 1200000
+          historyQuantity: new Decimal(1200), // 1200좌 매수
+          historyAmount: new Decimal(1200000)
         },
         {
           historyId: 'history-002',
           holdingsId: 'holding-fund-002',
           historyTradeType: 'buy',
           historyTradeDate: '2025.02.10',
-          historyQuantity: 800, // 800좌 추가 매수
-          historyAmount: 800000
+          historyQuantity: new Decimal(800), // 800좌 추가 매수
+          historyAmount: new Decimal(800000)
         }
       ]
     }
