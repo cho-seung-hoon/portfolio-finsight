@@ -19,9 +19,9 @@ import DepositItem from '@/components/list/DepositItem.vue';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
 
-const filters = [{ key: 'sort', label: '정렬', options: ['가나다순', '수익률순'] }];
+const filters = [{ key: 'sort', label: '정렬', options: ['기본금리순', '최고금리순'] }];
 const selected = ref({
-  sort: '가나다순'
+  sort: '기본금리순'
 });
 
 const deposits = [

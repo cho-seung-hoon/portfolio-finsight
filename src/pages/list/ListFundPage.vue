@@ -22,7 +22,7 @@ import FundItem from '@/components/list/FundItem.vue';
 const filters = [
   { key: 'country', label: '국가', options: ['전체', '국내', '국외'] },
   { key: 'fund_type', label: '유형', options: ['전체', '주식형', '채권형', '혼합형'] },
-  { key: 'sort', label: '정렬', options: ['가나다순', '수익률순'] }
+  { key: 'sort', label: '정렬', options: ['수익률순', '펀드규모순', '조회수순'] }
 ];
 
 const selected = ref({
