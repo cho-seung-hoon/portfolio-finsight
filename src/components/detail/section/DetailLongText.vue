@@ -4,7 +4,7 @@
       ref="contentRef"
       class="long-text-content"
       :style="contentStyle">
-      <slot />
+      <slot></slot>
     </div>
     <button
       class="toggle-btn"

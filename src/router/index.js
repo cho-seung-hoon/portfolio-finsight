@@ -12,9 +12,8 @@ import searchRoutes from './searchRoutes';
 import depositRoutes from './depositRoutes';
 import etfRoutes from './etfRoutes';
 import fundRoutes from './fundRoutes';
+import portfolioRoutes from './portfolioRoutes';
 import { useHeaderStore } from '@/stores/header.js';
-import sellRoutes from './sellRoutes';
-import buyRoutes from './buyRoutes';
 import startRoutes from './startRoutes';
 
 const router = createRouter({
@@ -51,9 +50,8 @@ const router = createRouter({
     ...depositRoutes,
     ...etfRoutes,
     ...fundRoutes,
-    ...sellRoutes,
-    ...buyRoutes,
-    ...startRoutes
+    ...startRoutes,
+    ...portfolioRoutes
   ]
 });
 

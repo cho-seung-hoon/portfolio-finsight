@@ -23,6 +23,8 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:selectedTab']);
 
+// 보유기록 탭이 있을 경우 최상단에 추가하는 로직은 상위에서 tabs 배열을 조작하여 넘겨주도록 안내
+// selectedTab이 'holding'일 때 DetailSection을 통해 holdingsummary와 holdinghistory 컴포넌트가 렌더링됩니다.
 const indicatorStyle = computed(() => {
   const idx = props.tabs.findIndex(tab => tab.key === props.selectedTab);
   const width = 100 / props.tabs.length;
