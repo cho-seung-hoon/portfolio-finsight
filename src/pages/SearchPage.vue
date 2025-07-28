@@ -61,16 +61,16 @@ onMounted(() => {
   margin-left: -20px;
   width: calc(100% + 40px);
   padding: 8px 20px;
-  background-color: var(--main05);
+  background-color: var(--white);
   border-bottom: 1px solid var(--main03);
 }
 
 .list-search-page-input {
   flex: 1;
-  padding: 12px 16px;
+  padding: 12px 28px;
   background-color: var(--main04);
   border: none;
-  border-radius: 12px;
+  border-radius: 20px;
   font-size: var(--font-size-md);
   outline: none;
 }
