@@ -13,3 +13,17 @@
 body {
   font-family: 'Pretendard';
 }
+
+button {
+  font-family: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  border: 0;
+  cursor: pointer;
+}
+
+input {
+  font-family: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
