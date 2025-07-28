@@ -12,7 +12,6 @@
       @submit.prevent="handleSignUp">
       <!-- 아이디, 비밀번호 -->
       <div class="card">
-        <!-- 아이디 -->
         <InputWithIcon
           v-model="form.userId"
           icon="fa-user"
@@ -20,10 +19,11 @@
           button-text="확인"
           :error="!!errors.userId"
           :valid="status.userIdChecked && !errors.userId"
+          autocapitalize="off"
+          autocomplete="off"
+          autocorrect="off"
           @button-click="checkUserId"
           @focus="clearError('userId')" />
-        <ValidationMessage :message="errors.userId" />
-
         <InputWithIcon
           v-model="form.password"
           icon="fa-lock"
@@ -33,8 +33,6 @@
           :valid="form.password?.length > 0 && !errors.password"
           @blur="validatePassword"
           @focus="clearError('password')" />
-        <ValidationMessage :message="errors.password" />
-
         <InputWithIcon
           v-model="form.confirmPassword"
           icon="fa-lock"
@@ -44,6 +42,12 @@
           :valid="form.confirmPassword?.length > 0 && !errors.confirmPassword"
           @blur="validateConfirmPassword"
           @focus="clearError('confirmPassword')" />
+      </div>
+
+      <!-- ✅ 에러 메시지 통합 표시 -->
+      <div class="validation-block">
+        <ValidationMessage :message="errors.userId" />
+        <ValidationMessage :message="errors.password" />
         <ValidationMessage :message="errors.confirmPassword" />
       </div>
 
@@ -53,19 +57,21 @@
           v-model="form.name"
           icon="fa-user"
           placeholder="이름"
-          :valid="form.name?.length > 0" />
+          :error="!!errors.name"
+          :valid="form.name?.trim().length > 0 && !errors.name"
+          @blur="validateName"
+          @focus="clearError('name')" />
 
-        <!-- 닉네임 -->
-        <InputWithIcon
+        <!-- <InputWithIcon
           v-model="form.nickname"
           icon="fa-user"
           placeholder="닉네임"
           button-text="확인"
           :error="!!errors.nickname"
-          :valid="status.nicknameChecked && !errors.nickname"
+          :valid="form.nickname?.trim().length > 0 && status.nicknameChecked && !errors.nickname"
           @button-click="checkNickname"
-          @focus="clearError('nickname')" />
-        <ValidationMessage :message="errors.nickname" />
+          @blur="validateNickname"
+          @focus="clearError('nickname')" /> -->
 
         <InputWithIcon
           v-model="form.birth"
@@ -75,9 +81,7 @@
           :valid="form.birth?.length > 0 && !errors.birth"
           @blur="validateBirth"
           @focus="clearError('birth')" />
-        <ValidationMessage :message="errors.birth" />
 
-        <!-- 이메일 -->
         <InputWithIcon
           v-model="form.email"
           icon="fa-envelope"
@@ -85,13 +89,23 @@
           button-text="인증"
           :error="!!errors.email"
           :valid="emailStore.verified && !errors.email"
+          autocapitalize="off"
+          autocomplete="off"
+          autocorrect="off"
           @button-click="requestCode"
           @focus="clearError('email')" />
-        <ValidationMessage :message="errors.email" />
       </div>
 
+      <!-- ✅ 에러 메시지 통합 표시 -->
+      <div class="validation-block">
+        <!-- <ValidationMessage :message="errors.nickname" /> -->
+        <ValidationMessage :message="errors.birth" />
+        <ValidationMessage :message="errors.email" />
+        <ValidationMessage :message="errors.name" />
+      </div>
+
+      <!-- 인증코드 입력 -->
       <div class="card">
-        <!-- 인증코드 -->
         <VerificationCodeInput
           v-model="form.code"
           :error="!!errors.code"
@@ -100,6 +114,9 @@
           @resend="resendCode"
           @blur="validateCode"
           @focus="clearError('code')" />
+      </div>
+
+      <div class="validation-block">
         <ValidationMessage :message="errors.code" />
       </div>
 
@@ -110,7 +127,12 @@
       </button>
     </form>
 
-    <CompleteModal v-if="showModal" />
+    <!-- 완료/에러 모달 -->
+    <CompleteModal v-if="showCompleteModal" />
+    <AlertModal
+      v-if="showModal"
+      :message="modalMessage"
+      @close="showModal = false" />
   </div>
 </template>
 
@@ -123,6 +145,7 @@ import InputWithIcon from '@/components/signUpPage/InputWithIcon.vue';
 import VerificationCodeInput from '@/components/signUpPage/VerificationCodeInput.vue';
 import ValidationMessage from '@/components/signUpPage/ValidationMessage.vue';
 import CompleteModal from '@/components/signUpPage/CompleteModal.vue';
+import AlertModal from '@/components/signUpPage/AlertModal.vue'; // ✅ 추가
 
 const emailStore = useEmailStore();
 
@@ -154,7 +177,13 @@ const status = reactive({
   codeVerified: false
 });
 
+const showCompleteModal = ref(false);
 const showModal = ref(false);
+const modalMessage = ref('');
+const openModal = msg => {
+  modalMessage.value = msg;
+  showModal.value = true;
+};
 
 const clearError = field => (errors[field] = '');
 const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''));
@@ -181,15 +210,14 @@ const handleSignUp = async () => {
       birthday: formatBirthDate(form.birth),
       email: form.email
     };
-
     await axios.post('/users', payload);
-    showModal.value = true;
+    showCompleteModal.value = true;
   } catch (error) {
-    if (error.response?.status === 400) {
-      alert('회원가입 실패: 중복 항목이 있거나 이메일 인증이 완료되지 않았습니다.');
-    } else {
-      alert('서버 오류가 발생했습니다.');
-    }
+    openModal(
+      error.response?.status === 400
+        ? '회원가입 실패: 중복 항목이 있거나 이메일 인증이 완료되지 않았습니다.'
+        : '서버 오류가 발생했습니다.'
+    );
   }
 };
 
@@ -198,74 +226,113 @@ const validateForm = () => {
   if (!validateUserId()) isValid = false;
   if (!validatePassword()) isValid = false;
   if (!validateConfirmPassword()) isValid = false;
-  if (!validateNickname()) isValid = false;
+  if (!validateName()) isValid = false;
+  // if (!validateNickname()) isValid = false;
   if (!validateBirth()) isValid = false;
   if (!validateEmail()) isValid = false;
-
-  // ✅ 이메일 인증 여부만 확인
   if (!emailStore.verified) {
-    errors.code = '이메일 인증을 완료해주세요.';
+    errors.code = '● 이메일 인증을 완료해주세요.';
     isValid = false;
   }
-
   return isValid;
 };
 
 const validateUserId = () => {
-  if (!form.userId) return ((errors.userId = '아이디를 입력해주세요.'), false);
+  if (!form.userId) return ((errors.userId = '● 아이디를 입력해주세요.'), false);
   if (!/^[a-z0-9]{5,20}$/.test(form.userId)) {
-    errors.userId = '5~20자의 영문 소문자, 숫자만 사용 가능합니다.';
+    errors.userId = '● 5~20자의 영문 소문자, 숫자만 사용 가능합니다.';
     return false;
   }
   return true;
 };
-
 const validatePassword = () => {
   const pw = form.password;
   const rules = [/[a-z]/, /[A-Z]/, /\d/, /[^a-zA-Z0-9]/];
   const ruleCount = rules.filter(r => r.test(pw)).length;
-  if (!pw) return ((errors.password = '비밀번호를 입력해주세요.'), false);
+  if (!pw) return ((errors.password = '● 비밀번호를 입력해주세요.'), false);
   if (pw.length < 10 || ruleCount < 2) {
     errors.password =
-      '영문 대/소문자, 숫자, 특수문자 중 2종 이상 조합으로\n10자 이상이어야 합니다.';
+      '● 영문 대/소문자, 숫자, 특수문자 중 2종 이상 조합으로\n10자 이상이어야 합니다.';
+    return false;
+  }
+  return true;
+};
+const validateConfirmPassword = () => {
+  if (!form.confirmPassword)
+    return ((errors.confirmPassword = '● 비밀번호 재확인을 입력해주세요.'), false);
+  if (form.password !== form.confirmPassword) {
+    errors.confirmPassword = '● 비밀번호가 일치하지 않습니다.';
     return false;
   }
   return true;
 };
 
-const validateConfirmPassword = () => {
-  if (!form.confirmPassword)
-    return ((errors.confirmPassword = '비밀번호 재확인을 입력해주세요.'), false);
-  if (form.password !== form.confirmPassword) {
-    errors.confirmPassword = '비밀번호가 일치하지 않습니다.';
+// const validateName = () => {
+//   const name = form.name?.trim() || '';
+//   if (name === '') return ((errors.name = '● 이름을 입력해주세요.'), false);
+//   if (!/^[가-힣]{2,5}$/.test(name)) {
+//     errors.name = '● 이름은 2~5자의 한글만 입력 가능합니다.';
+//     return false;
+//   }
+//   return true;
+// };
+
+const validateName = () => {
+  const name = form.name?.trim() || '';
+  if (name === '') {
+    errors.name = '● 이름을 입력해주세요.';
     return false;
   }
-  return true;
+
+  const isKoreanOnly = /^[가-힣]{2,10}$/.test(name);
+  const isEnglishOnly = /^[a-zA-Z]{2,20}$/.test(name);
+
+  if (isKoreanOnly) {
+    if (name.length < 2 || name.length > 5) {
+      errors.name = '● 한글 이름은 2~5자 사이로 입력해주세요.';
+      return false;
+    }
+    return true;
+  }
+
+  if (isEnglishOnly) {
+    if (name.length < 2 || name.length > 20) {
+      errors.name = '● 영문 이름은 2~20자 사이로 입력해주세요.';
+      return false;
+    }
+    return true;
+  }
+
+  errors.name = '● 올바른 이름을 입력해주세요.';
+  return false;
 };
 
 const validateNickname = () => {
-  if (!form.nickname) return ((errors.nickname = '닉네임을 입력해주세요.'), false);
+  const nickname = form.nickname?.trim() || '';
+  if (nickname === '') return ((errors.nickname = '● 닉네임을 입력해주세요.'), false);
+  if (!/^[가-힣a-zA-Z0-9]{2,10}$/.test(nickname)) {
+    errors.nickname = '● 닉네임은 2~10자의 한글, 영문, 숫자만 입력 가능합니다.';
+    return false;
+  }
   return true;
 };
 
 const validateBirth = () => {
-  if (!form.birth) return ((errors.birth = '생년월일을 입력해주세요.'), false);
+  if (!form.birth) return ((errors.birth = '● 생년월일을 입력해주세요.'), false);
   if (!/^\d{8}$/.test(form.birth)) {
-    errors.birth = '생년월일은 8자리 숫자로 입력해 주세요.';
+    errors.birth = '● 생년월일은 8자리 숫자로 입력해 주세요.';
     return false;
   }
   return true;
 };
-
 const validateEmail = () => {
-  if (!form.email) return ((errors.email = '이메일을 입력해주세요.'), false);
+  if (!form.email) return ((errors.email = '● 이메일을 입력해주세요.'), false);
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!regex.test(form.email)) return ((errors.email = '올바른 이메일 형식이 아닙니다.'), false);
+  if (!regex.test(form.email)) return ((errors.email = '● 올바른 이메일 형식이 아닙니다.'), false);
   return true;
 };
-
 const validateCode = () => {
-  if (!form.code) return ((errors.code = '인증코드를 입력해주세요.'), false);
+  if (!form.code) return ((errors.code = '● 인증코드를 입력해주세요.'), false);
   return true;
 };
 
@@ -274,81 +341,63 @@ const checkUserId = async () => {
   try {
     const res = await axios.get('/users', { params: { userid: form.userId } });
     if (res.data === true) {
-      errors.userId = '이미 사용 중인 아이디입니다.';
+      errors.userId = '● 이미 사용 중인 아이디입니다.';
       status.userIdChecked = false;
     } else {
       errors.userId = '';
       status.userIdChecked = true;
     }
   } catch {
-    errors.userId = '아이디 중복 확인 실패';
+    errors.userId = '● 아이디 중복 확인 실패';
     status.userIdChecked = false;
   }
 };
 
-const checkNickname = async () => {
-  if (!form.nickname) return (errors.nickname = '닉네임을 입력해주세요.');
-  try {
-    const res = await axios.get('/users', { params: { nickname: form.nickname } });
-    if (res.data === true) {
-      errors.nickname = '이미 사용 중인 닉네임입니다.';
-      status.nicknameChecked = false;
-    } else {
-      errors.nickname = '';
-      status.nicknameChecked = true;
-    }
-  } catch {
-    errors.nickname = '닉네임 중복 확인 실패';
-    status.nicknameChecked = false;
-  }
-};
+// const checkNickname = async () => {
+//   if (!form.nickname) return (errors.nickname = '● 닉네임을 입력해주세요.');
+//   try {
+//     const res = await axios.get('/users', { params: { nickname: form.nickname } });
+//     if (res.data === true) {
+//       errors.nickname = '● 이미 사용 중인 닉네임입니다.';
+//       status.nicknameChecked = false;
+//     } else {
+//       errors.nickname = '';
+//       status.nicknameChecked = true;
+//     }
+//   } catch {
+//     errors.nickname = '● 닉네임 중복 확인 실패';
+//     status.nicknameChecked = false;
+//   }
+// };
 
 const requestCode = async () => {
   if (!validateEmail()) return;
   emailStore.email = form.email;
   try {
-    await emailStore.sendCode();
+    const msg = await emailStore.sendCode();
+    openModal(msg);
   } catch {
-    if (emailStore.status === 'conflict') {
-      errors.email = emailStore.error; // "이미 가입된 이메일입니다."
-    } else {
-      errors.email = '인증코드 전송 실패';
-    }
+    openModal(emailStore.error || '인증코드 전송 실패');
   }
 };
 
 const verifyCode = async () => {
-  // 1. 기본 유효성 검사
-  if (!form.email) {
-    errors.email = '이메일을 입력해주세요.';
+  if (!form.email || !form.code) {
+    errors.code = '● 이메일과 인증코드를 모두 입력해주세요.';
     return false;
   }
-
-  if (!form.code) {
-    errors.code = '인증코드를 입력해주세요.';
-    return false;
-  }
-
-  // 2. emailStore에 값 설정
   emailStore.email = form.email;
   emailStore.code = form.code;
-
-  // 3. 상태 초기화 (이전 실패 흔적 제거)
   errors.code = '';
-  errors.email = '';
-
-  console.log('📤 인증 요청 → email:', form.email, 'code:', form.code);
-
-  // 4. 실제 인증 요청
   await emailStore.verifyCode();
-
-  // 5. 결과 처리
   if (!emailStore.verified) {
-    errors.code = emailStore.error || '인증코드가 일치하지 않습니다.';
+    errors.code = emailStore.error || '● 인증코드가 일치하지 않습니다.';
     status.codeVerified = false;
+    openModal(errors.code);
     return false;
   }
   status.codeVerified = true;
+  openModal('이메일 인증 성공!');
   return true;
 };
 
@@ -357,47 +406,44 @@ const resendCode = async () => {
   emailStore.email = form.email;
 
   try {
-    await emailStore.sendCode();
-    alert('인증코드가 다시 전송되었습니다.');
+    const msg = await emailStore.sendCode();
+    openModal('인증코드가 다시 전송되었습니다.');
   } catch {
-    errors.email = '인증코드 재전송 실패';
+    openModal('인증코드 재전송 실패');
   }
 };
 
 // ✅ watch: 입력 변경 시 상태 초기화
 watch(
   () => form.userId,
-  () => {
-    status.userIdChecked = false;
-  }
+  () => (status.userIdChecked = false)
 );
 watch(
   () => form.nickname,
-  () => {
-    status.nicknameChecked = false;
-  }
+  () => (status.nicknameChecked = false)
 );
 watch(
   () => form.email,
-  () => {
-    emailStore.verified = false;
-  }
+  () => (emailStore.verified = false)
 );
 watch(
   () => form.code,
-  () => {
-    status.codeVerified = false;
-  }
+  () => (status.codeVerified = false)
 );
 </script>
 
 <style scoped>
 .signup {
-  max-width: 460px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
+  /* max-width: 460px; */
+  /* margin: 0 auto; */
+  /* margin-left: -20px; */
+  /* margin-right: -20px; */
+  width: 100%;
+  height: 100%;
+  /* padding: 2rem 1rem; */
   text-align: center;
   font-family: 'Pretendard', sans-serif;
+  position: relative; /* ✅ 모달 위치 기준점이 됨 */
 }
 .logo {
   width: 60px;
@@ -438,5 +484,10 @@ hr {
   font-size: 1rem;
   margin-top: 10px;
   cursor: pointer;
+}
+.validation-block {
+  margin-top: 2px;
+  text-align: left;
+  padding-left: 12px;
 }
 </style>

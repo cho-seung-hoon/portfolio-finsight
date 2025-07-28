@@ -15,6 +15,7 @@ import fundRoutes from './fundRoutes';
 import { useHeaderStore } from '@/stores/header.js';
 import sellRoutes from './sellRoutes';
 import buyRoutes from './buyRoutes';
+import startRoutes from './startRoutes';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,7 +52,8 @@ const router = createRouter({
     ...etfRoutes,
     ...fundRoutes,
     ...sellRoutes,
-    ...buyRoutes
+    ...buyRoutes,
+    ...startRoutes
   ]
 });
 

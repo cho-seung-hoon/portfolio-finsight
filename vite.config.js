@@ -27,7 +27,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       }
+<<<<<<< HEAD
+    },
+    host: true
+=======
     }
     ,host: true,
+>>>>>>> 6e06ac8bf1958b55b993773a0d4ce6a493230e19
   }
 });
