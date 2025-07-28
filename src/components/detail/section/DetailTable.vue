@@ -2,7 +2,7 @@
   <div
     v-if="Array.isArray(desc) && desc.length"
     class="table-container">
-    <table>
+    <table class="detail-table">
       <thead>
         <tr>
           <th
@@ -25,11 +25,15 @@
       </tbody>
     </table>
   </div>
-  <div v-else>데이터가 없습니다.</div>
+  <div
+    v-else
+    class="no-data">
+    데이터가 없습니다.
+  </div>
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   desc: {
     type: Array,
     required: true
@@ -39,38 +43,151 @@ const props = defineProps({
 
 <style scoped>
 .table-container {
-  margin-top: 8px;
+  margin: 16px 0 0 0;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 1px;
+  background: var(--white);
 }
 
-table {
+.detail-table {
   border-collapse: collapse;
-  font-size: 15px;
+  font-size: 14px;
   width: 100%;
-  min-width: 300px;
+  min-width: 280px;
+  background: var(--white);
 }
-th,
-td {
-  border: 1px solid var(--main02); /* 기존보다 더 은은한 테두리 */
-  padding: 8px 12px;
+
+.detail-table th,
+.detail-table td {
+  border: 1px solid #e8eaed;
+  padding: 12px 16px;
   text-align: left;
   white-space: nowrap;
+  vertical-align: middle;
 }
 
-th {
-  background-color: #d4dbf9; /* var(--main01) 보다 연한 블루 계열 */
+.detail-table th {
+  background-color: #e8ecff;
   font-weight: 600;
-  color: var(--main01); /* 진한 글씨색으로 가독성 확보 */
+  color: var(--main01);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-tbody tr:nth-child(even) {
-  background-color: #f9f9f9; /* alternate row: 연한 회색 */
+.detail-table tbody tr:nth-child(even) {
+  background-color: #fafbfc;
 }
 
-tbody tr:hover {
-  background-color: #f1f5ff; /* 살짝 블루톤 hover */
+.detail-table tbody tr:hover {
+  background-color: #f0f4ff;
+  transition: background-color 0.2s ease;
+}
+
+.detail-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.no-data {
+  text-align: center;
+  padding: 24px;
+  color: #666;
+  font-size: 14px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .table-container {
+    margin: 12px 0 0 0;
+    border-radius: 8px;
+  }
+
+  .detail-table {
+    font-size: 13px;
+    min-width: 260px;
+  }
+
+  .detail-table th,
+  .detail-table td {
+    padding: 10px 12px;
+  }
+
+  .detail-table th {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  .no-data {
+    padding: 20px;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .table-container {
+    margin: 8px 0 0 0;
+    border-radius: 6px;
+  }
+
+  .detail-table {
+    font-size: 12px;
+    min-width: 240px;
+  }
+
+  .detail-table th,
+  .detail-table td {
+    padding: 8px 10px;
+  }
+
+  .detail-table th {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .no-data {
+    padding: 16px;
+    font-size: 12px;
+    margin: 8px 0;
+  }
+}
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) and (pointer: coarse) {
+  .detail-table tbody tr {
+    min-height: 44px;
+  }
+
+  .detail-table th,
+  .detail-table td {
+    touch-action: manipulation;
+  }
+}
+
+/* 긴 텍스트 처리 */
+.detail-table td {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .detail-table td {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .detail-table td {
+    max-width: 120px;
+  }
 }
 </style>

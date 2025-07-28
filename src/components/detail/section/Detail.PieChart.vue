@@ -4,7 +4,8 @@
       class="donut-chart-wrapper"
       style="position: relative; display: flex; justify-content: center; align-items: center">
       <apexchart
-        width="320"
+        :width="chartWidth"
+        :height="chartHeight"
         type="donut"
         :options="chartOptions"
         :series="series"
@@ -49,7 +50,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
   data: {
@@ -78,6 +79,32 @@ const colorList = [
   '#ff69b4',
   '#8d6e63'
 ];
+
+const windowWidth = ref(window.innerWidth);
+
+const updateWindowWidth = () => {
+  windowWidth.value = window.innerWidth;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', updateWindowWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateWindowWidth);
+});
+
+const chartWidth = computed(() => {
+  if (windowWidth.value <= 480) return 240;
+  if (windowWidth.value <= 768) return 280;
+  return 320;
+});
+
+const chartHeight = computed(() => {
+  if (windowWidth.value <= 480) return 240;
+  if (windowWidth.value <= 768) return 280;
+  return 320;
+});
 
 function getStandardizedData() {
   if (!props.data || props.data.length === 0) return [];
@@ -129,6 +156,19 @@ const chartOptions = computed(() => ({
     toolbar: { show: false },
     events: {
       dataPointSelection: onDataPointSelection
+    },
+    animations: {
+      enabled: true,
+      easing: 'easeinout',
+      speed: 800,
+      animateGradually: {
+        enabled: true,
+        delay: 150
+      },
+      dynamicAnimation: {
+        enabled: true,
+        speed: 350
+      }
     }
   },
   labels: labels.value,
@@ -139,7 +179,7 @@ const chartOptions = computed(() => ({
   dataLabels: {
     enabled: true,
     style: {
-      fontSize: '15px',
+      fontSize: 'clamp(12px, 2.5vw, 15px)',
       fontWeight: 'bold',
       colors: ['#222']
     },
@@ -151,13 +191,22 @@ const chartOptions = computed(() => ({
     },
     background: {
       enabled: false
-    }
+    },
+    offsetY: 0
   },
   tooltip: {
+    enabled: true,
+    theme: 'light',
+    style: {
+      fontSize: '14px'
+    },
     y: {
       formatter: function (val) {
         return `${val.toFixed(1)}%`;
       }
+    },
+    marker: {
+      show: true
     }
   },
   plotOptions: {
@@ -167,9 +216,62 @@ const chartOptions = computed(() => ({
         labels: {
           show: false
         }
+      },
+      offsetY: 0,
+      customScale: 1
+    }
+  },
+  states: {
+    hover: {
+      filter: {
+        type: 'darken',
+        value: 0.1
+      }
+    },
+    active: {
+      filter: {
+        type: 'darken',
+        value: 0.15
       }
     }
-  }
+  },
+  responsive: [
+    {
+      breakpoint: 768,
+      options: {
+        chart: {
+          width: '100%',
+          height: 280
+        },
+        dataLabels: {
+          style: {
+            fontSize: '13px'
+          }
+        }
+      }
+    },
+    {
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: '100%',
+          height: 240
+        },
+        dataLabels: {
+          style: {
+            fontSize: '12px'
+          }
+        },
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '65%'
+            }
+          }
+        }
+      }
+    }
+  ]
 }));
 </script>
 
@@ -178,13 +280,20 @@ const chartOptions = computed(() => ({
   display: flex;
   justify-content: center;
   align-items: center;
-}
-.donut-chart-wrapper {
-  position: relative;
-  width: 320px;
-  height: 320px;
+  width: 100%;
+  max-width: 320px;
   margin: 0 auto;
 }
+
+.donut-chart-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  aspect-ratio: 1;
+  margin: 0 auto;
+}
+
 .donut-center-label {
   position: absolute;
   top: 50%;
@@ -192,57 +301,155 @@ const chartOptions = computed(() => ({
   transform: translate(-50%, -50%);
   text-align: center;
   pointer-events: none;
+  width: 80%;
 }
+
 .center-value {
-  font-size: 2.2rem;
+  font-size: clamp(1.8rem, 4vw, 2.2rem);
   font-weight: bold;
   color: var(--off-black);
+  line-height: 1.2;
 }
+
 .center-label {
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
   color: var(--off-black);
   margin-top: 2px;
+  line-height: 1.3;
 }
+
 .table-container {
   margin: 24px 0 0 0;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
   padding: 1px;
+  background: var(--white);
 }
 
 .pie-table {
   border-collapse: collapse;
-  font-size: 15px;
+  font-size: 14px;
   width: 100%;
-  min-width: 300px;
+  min-width: 280px;
+  background: var(--white);
 }
+
 .pie-table th,
 .pie-table td {
-  border: 1px solid var(--main02); /* 기존보다 좀 더 은은한 테두리 */
-  padding: 8px 12px;
+  padding: 12px 16px;
   text-align: left;
   white-space: nowrap;
+  vertical-align: middle;
 }
 
 .pie-table td:nth-child(2) {
   white-space: normal;
   word-break: break-word;
-  max-width: 150px;
+  max-width: 120px;
+  min-width: 80px;
 }
 
 .pie-table th {
-  background-color: #d4dbf9; /* var(--main01) 보다 연한 블루 계열 */
+  background-color: #e8ecff;
   font-weight: 600;
-  color: var(--main01); /* 진한 글씨색으로 가독성 확보 */
+  color: var(--main01);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .pie-table tbody tr:nth-child(even) {
-  background-color: #f9f9f9; /* 연한 회색으로 행 구분 */
+  background-color: #fafbfc;
 }
 
 .pie-table tbody tr:hover {
-  background-color: #f1f5ff; /* 살짝 더 밝은 블루 톤 호버 효과 */
+  background-color: #f0f4ff;
+  transition: background-color 0.2s ease;
+}
+
+.pie-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .donut-chart-wrapper {
+    max-width: 280px;
+  }
+
+  .donut-center-label {
+    width: 85%;
+  }
+
+  .table-container {
+    margin: 16px 0 0 0;
+    border-radius: 8px;
+  }
+
+  .pie-table {
+    font-size: 13px;
+    min-width: 260px;
+  }
+
+  .pie-table th,
+  .pie-table td {
+    padding: 10px 12px;
+  }
+
+  .pie-table td:nth-child(2) {
+    max-width: 100px;
+    min-width: 70px;
+  }
+
+  .pie-table th {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .donut-chart-wrapper {
+    max-width: 240px;
+  }
+
+  .donut-center-label {
+    width: 90%;
+  }
+
+  .table-container {
+    margin: 12px 0 0 0;
+    border-radius: 6px;
+  }
+
+  .pie-table {
+    font-size: 12px;
+    min-width: 240px;
+  }
+
+  .pie-table th,
+  .pie-table td {
+    padding: 8px 10px;
+  }
+
+  .pie-table td:nth-child(2) {
+    max-width: 80px;
+    min-width: 60px;
+  }
+
+  .pie-table th {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+}
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) and (pointer: coarse) {
+  .donut-chart-wrapper {
+    touch-action: manipulation;
+  }
 }
 </style>

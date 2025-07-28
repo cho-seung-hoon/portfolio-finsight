@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
   data: {
@@ -108,7 +108,7 @@ const chartOptions = computed(() => ({
       }
     ]
   },
-  colors: ['var(--main01)', 'var(--red01)'],
+  colors: ['#2563eb', '#059669'],
   legend: {
     show: true,
     position: 'top',
@@ -120,9 +120,9 @@ const chartOptions = computed(() => ({
   fill: {
     type: 'gradient',
     gradient: {
-      shadeIntensity: 0.2,
-      opacityFrom: 0.8,
-      opacityTo: 0.2,
+      shadeIntensity: 0.3,
+      opacityFrom: 0.9,
+      opacityTo: 0.4,
       stops: [0, 90, 100]
     }
   }
@@ -134,30 +134,105 @@ const chartOptions = computed(() => ({
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
+  padding: 0 8px;
 }
+
 .date-range-btns {
   display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 16px;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
+
 .date-range-btns button {
   background: var(--main03);
   color: var(--main01);
   border: none;
-  border-radius: 16px;
-  padding: 4px 16px;
-  font-size: 15px;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition:
-    background 0.2s,
-    color 0.2s;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: center;
 }
+
+.date-range-btns button:hover {
+  background: var(--main02);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .date-range-btns button.active {
   background: var(--main01);
-  color: var(--main05);
+  color: var(--white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+
 .area-chart {
   width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .area-chart-wrapper {
+    padding: 0 4px;
+  }
+
+  .date-range-btns {
+    gap: 4px;
+    margin-bottom: 12px;
+    justify-content: center;
+  }
+
+  .date-range-btns button {
+    padding: 5px 12px;
+    font-size: 13px;
+    border-radius: 16px;
+    min-width: 50px;
+  }
+
+  .area-chart {
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .area-chart-wrapper {
+    padding: 0 2px;
+  }
+
+  .date-range-btns {
+    gap: 3px;
+    margin-bottom: 10px;
+  }
+
+  .date-range-btns button {
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 14px;
+    min-width: 45px;
+  }
+
+  .area-chart {
+    border-radius: 6px;
+  }
+}
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) and (pointer: coarse) {
+  .date-range-btns button {
+    min-height: 36px;
+    touch-action: manipulation;
+  }
+
+  .date-range-btns button:active {
+    transform: scale(0.95);
+  }
 }
 </style>
