@@ -84,6 +84,7 @@ onMounted(() => {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .list-search-page-content {
