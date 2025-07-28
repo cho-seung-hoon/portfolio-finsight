@@ -1,4 +1,4 @@
-const signUpRoutes = [
+const startRoutes = [
   {
     path: '/start',
     name: 'Start',
@@ -9,4 +9,4 @@ const signUpRoutes = [
   }
 ];
 
-export default signUpRoutes;
+export default startRoutes;

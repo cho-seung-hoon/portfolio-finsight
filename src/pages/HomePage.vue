@@ -2,9 +2,6 @@
   <div class="home-box">
     <ExchangeRate />
   </div>
-  <div class="home-box">
-    <MiniMy />
-  </div>
   <div class="line"></div>
   <div class="home-box">
     <NewsChart
@@ -103,6 +100,56 @@ const rawNewsData = [
     published_at: '2025-07-22',
     labels: ['환율', '코스피'],
     sentiment: 'neutral'
+  },
+  {
+    id: 7,
+    title: '정부, 반도체 산업 지원 확대 방안 발표',
+    summary:
+      '정부가 시스템 반도체 경쟁력 강화를 위해 대규모 세제 혜택 및 R&D 지원을 포함한 종합 대책을 발표했습니다.',
+    content_url: 'https://example.com/news/5',
+    published_at: '2025-07-22',
+    labels: ['반도체', '코스피'],
+    sentiment: 'positive'
+  },
+  {
+    id: 8,
+    title: '정부, 반도체 산업 지원 확대 방안 발표',
+    summary:
+      '정부가 시스템 반도체 경쟁력 강화를 위해 대규모 세제 혜택 및 R&D 지원을 포함한 종합 대책을 발표했습니다.',
+    content_url: 'https://example.com/news/5',
+    published_at: '2025-07-22',
+    labels: ['반도체', '코스피'],
+    sentiment: 'positive'
+  },
+  {
+    id: 9,
+    title: '정부, 반도체 산업 지원 확대 방안 발표',
+    summary:
+      '정부가 시스템 반도체 경쟁력 강화를 위해 대규모 세제 혜택 및 R&D 지원을 포함한 종합 대책을 발표했습니다.',
+    content_url: 'https://example.com/news/5',
+    published_at: '2025-07-22',
+    labels: ['반도체', '코스피'],
+    sentiment: 'positive'
+  },
+  {
+    id: 10,
+    title: '정부, 반도체 산업 지원 확대 방안 발표',
+    summary:
+      '정부가 시스템 반도체 경쟁력 강화를 위해 대규모 세제 혜택 및 R&D 지원을 포함한 종합 대책을 발표했습니다.',
+    content_url: 'https://example.com/news/5',
+    published_at: '2025-07-22',
+    labels: ['반도체', '코스피'],
+    sentiment: 'positive'
+  },
+  {
+    id: 11,
+    title: '정부, 반도체 산업 지원 확대 방안 발표',
+    summary:
+      '정부가 시스템 반도체 경쟁력 강화를 위해 대규모 세제 혜택 및 R&D 지원을 포함한 종합 대책을 발표했습니다.',
+    content_url: 'https://example.com/news/5',
+    published_at: '2025-07-22',
+    labels: ['반도체', '코스피'],
+    sentiment: 'positive'
   }
 ];
 

@@ -13,6 +13,9 @@
     <div class="subItem-invt">
       <UserInvt />
     </div>
+    <div class="subItem-watch">
+      <UserWatch />
+    </div>
     <div class="subItem-user">
       <UserMgmt />
     </div>
@@ -23,6 +26,7 @@
 import UserInfo from '@/components/my/UserInfo.vue';
 import UserInvt from '@/components/my/UserInvt.vue';
 import UserMgmt from '@/components/my/UserMgmt.vue';
+import UserWatch from '@/components/my/UserWatch.vue';
 </script>
 
 <style scoped>
