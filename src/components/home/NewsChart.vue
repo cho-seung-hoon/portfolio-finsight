@@ -1,8 +1,22 @@
 <template>
   <div class="subBox">
     <div class="subItem">
-      <div class="subItem-title01">뉴스 키워드</div>
-      <div class="subItem-title02">지난 7일 집계</div>
+      <div class="subItem-left">
+        <div class="subItem-title01">뉴스 키워드</div>
+        <div class="subItem-title02">지난 7일 집계</div>
+      </div>
+      <div class="subItem-right">
+        <div
+          class="icon-wrapper"
+          @click="showTooltip = !showTooltip">
+          <IconQuestion />
+        </div>
+        <div
+          v-if="showTooltip"
+          class="tooltip-content">
+          각 키워드의 언급량과 긍/부정 감성을 나타냅니다.
+        </div>
+      </div>
     </div>
     <div
       ref="chartBox"
@@ -11,7 +25,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watchEffect } from 'vue';
+import IconQuestion from '@/components/icons/IconQuestion.vue';
+import { ref, onBeforeUnmount, watchEffect } from 'vue';
 import * as d3 from 'd3';
 
 const props = defineProps({
@@ -22,6 +37,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['keyword-click']);
+
+const showTooltip = ref(false);
 
 function onBubbleClick(keyword) {
   emit('keyword-click', {
@@ -41,7 +58,7 @@ function colorScale(value, sentiment) {
   };
 
   const sentimentTextColors = {
-    positive: ['#800000', '#b30000', '#ffffff'], // 각 배경색에 대응
+    positive: ['#800000', '#b30000', '#ffffff'],
     neutral: ['#664400', '#996600', '#ffffff'],
     negative: ['#004444', '#007777', '#ffffff']
   };
@@ -67,7 +84,7 @@ function drawChart(data, width, height) {
   const radiusScale = d3
     .scaleSqrt()
     .domain([d3.min(data, d => d.value), d3.max(data, d => d.value)])
-    .range([20, 45]);
+    .range([25, 40]); // 버블 크기 조절
 
   const nodes = data.map(d => {
     const { bgColor, textColor } = colorScale(d.value, d.sentiment);
@@ -81,30 +98,10 @@ function drawChart(data, width, height) {
     };
   });
 
-  simulation = d3
-    .forceSimulation(nodes)
-    .force('charge', d3.forceManyBody().strength(5))
-    .force(
-      'collision',
-      d3
-        .forceCollide()
-        .radius(d => d.r + 3)
-        .iterations(2)
-    )
-    .force('x', d3.forceX(width / 2).strength(0.1))
-    .force('y', d3.forceY(height * 0.5).strength(0.2))
-    .stop();
-
-  for (let i = 0; i < 300; i++) simulation.tick();
-
-  const g = svg.append('g');
+  const g = svg.append('g').selectAll('g').data(nodes).enter().append('g');
 
   const bubble = g
-    .selectAll('g')
-    .data(nodes)
-    .enter()
     .append('g')
-    .attr('transform', d => `translate(${d.x},${d.y})`)
     .style('cursor', 'pointer')
     .on('click', (event, d) => onBubbleClick(d));
 
@@ -131,14 +128,34 @@ function drawChart(data, width, height) {
     .ease(d3.easeBackOut)
     .style('opacity', 1)
     .style('font-size', d => Math.max(d.r / 3, 10) + 'px');
+
+  simulation = d3
+    .forceSimulation(nodes)
+    .force('charge', d3.forceManyBody().strength(5))
+    .force(
+      'collision',
+      d3
+        .forceCollide()
+        .radius(d => d.r + 2) // 버블 간 간격 조절
+        .iterations(2)
+    )
+    .force('x', d3.forceX(width / 2).strength(0.1))
+    .force('y', d3.forceY(height * 0.5).strength(0.2))
+    .on('tick', () => {
+      // 버블이 경계를 넘어가지 않도록 위치 제한
+      nodes.forEach(d => {
+        d.x = Math.max(d.r, Math.min(width - d.r, d.x));
+        d.y = Math.max(d.r, Math.min(height - d.r, d.y));
+      });
+
+      g.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
 }
 
 watchEffect(() => {
-  // props.chartData가 준비되고, chartBox ref가 연결되었을 때만 실행
   if (props.chartData && props.chartData.length > 0 && chartBox.value) {
     const container = chartBox.value;
 
-    // 가장 큰 값을 가진 노드를 찾아 초기에 부모에게 알려줌
     const maxNode = props.chartData.reduce((a, b) => (a.value > b.value ? a : b));
     const { bgColor } = colorScale(maxNode.value, maxNode.sentiment);
 
@@ -147,32 +164,36 @@ watchEffect(() => {
       color: bgColor
     });
 
-    // 리사이즈 될 때마다 차트를 다시 그리는 함수
     function resize() {
       const width = container.clientWidth;
       const height = width * 0.6;
-      // props로 받은 chartData를 사용해 차트를 그림
       drawChart(props.chartData, width, height);
     }
 
-    resize(); // 최초 실행
+    resize();
 
-    // 리사이즈 이벤트를 감지하여 resize 함수 실행
-    if (resizeObserver) resizeObserver.disconnect(); // 기존 옵저버 연결 해제
+    if (resizeObserver) resizeObserver.disconnect();
     resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(container);
   }
 });
+
 onBeforeUnmount(() => {
   if (resizeObserver) resizeObserver.disconnect();
   if (simulation) simulation.stop();
 });
 </script>
+
 <style scoped>
+.subBox {
+  position: relative;
+}
 .chartBox {
   background-color: var(--white);
   border: 1px solid var(--main04);
   border-radius: 8px;
+  min-height: 200px; /* 차트 영역의 최소 높이 설정 */
+  padding: 5px;
 }
 
 .subItem {
@@ -180,6 +201,12 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   align-items: center;
   margin: 10px 5px;
+}
+
+.subItem-left {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
 }
 
 .subItem-title01 {
@@ -191,5 +218,47 @@ onBeforeUnmount(() => {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-light);
   color: var(--main02);
+}
+
+.subItem-right {
+  display: flex;
+  justify-content: center;
+  width: 20px;
+}
+
+.icon-wrapper {
+  cursor: pointer; /* 클릭할 수 있다는 것을 알려줍니다 */
+}
+
+.tooltip-content {
+  position: absolute;
+  top: 30px;
+  right: 0px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color:  rgb(from var(--main01) r g b / 0.7);
+  color: var(--white);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.tooltip-content::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  right: 10px;
+  border: 6px solid;
+  border-color: transparent transparent var(--main02) transparent;
+}
+
+
+:deep(.chartBox svg g > circle) {
+  transition: all 0.05s ease-out;
+}
+
+:deep(.chartBox svg g:active > circle) {
+  transform: scale(0.95);
+  filter: brightness(0.9);
 }
 </style>

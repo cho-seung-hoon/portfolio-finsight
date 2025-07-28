@@ -1,5 +1,8 @@
 <template>
   <div class="holding-box">
+    <div class="minimy">
+      <MiniMy />
+    </div>
     <div class="portfolio">
       <div class="portfolio-title">내 성향에 맞는 포트폴리오 보기</div>
       <div class="portfolio-icon">+</div>
@@ -16,6 +19,7 @@
 <script setup>
 import HoldingTotal from '@/components/holding/HoldingTotal.vue';
 import HoldingList from '@/components/holding/HoldingList.vue';
+import MiniMy from '@/components/home/MiniMy.vue';
 
 const data = [
   // 예금 데이터
@@ -106,6 +110,7 @@ const data = [
 .holding-box {
   margin: 20px 0px;
 }
+
 .portfolio {
   display: flex;
   justify-content: space-between;

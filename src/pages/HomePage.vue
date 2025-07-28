@@ -2,9 +2,6 @@
   <div class="home-box">
     <ExchangeRate />
   </div>
-  <div class="home-box">
-    <MiniMy />
-  </div>
   <div class="line"></div>
   <div class="home-box">
     <NewsChart
