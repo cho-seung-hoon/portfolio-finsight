@@ -41,51 +41,63 @@ const data = [
     productName: '비대면 자유예금',
     value: 10000000,
     date: '2025-12-31',
-    status: '정상' // 정상 status 추가
+    status: '정상'
   },
-  // 펀드 데이터
+  // 펀드 데이터 (수익률 정보 추가)
   {
     productType: '펀드',
     tags: ['해외', '주식형'],
     productName: '글로벌 IT 리더 증권투자신탁',
-    quantity: 150.5, // 좌
-    valuation: 3250000
+    quantity: 150.5,
+    valuation: 3250000,
+    returnRate: 2.45, // 전일 대비 수익률
+    returnAmount: 77500 // 전일 대비 수익 금액
   },
   {
     productType: '펀드',
     tags: ['국내', '채권형'],
     productName: '안정성장 국공채 펀드',
-    quantity: 500, // 좌
-    valuation: 5120000
+    quantity: 500,
+    valuation: 5120000,
+    returnRate: -1.23,
+    returnAmount: -63840
   },
-  // ETF 데이터
+  {
+    productType: '펀드',
+    tags: ['국내', '혼합형'],
+    productName: '균형성장 혼합형 펀드',
+    quantity: 200,
+    valuation: 2800000,
+    returnRate: 0.87,
+    returnAmount: 24080
+  },
+  // ETF 데이터 (수익률 정보 추가)
   {
     productType: 'ETF',
     tags: ['해외', '주식형'],
     productName: 'TIGER 미국 S&P500',
-    quantity: 50, // 주
-    valuation: 750000
+    quantity: 50,
+    valuation: 750000,
+    returnRate: 1.85,
+    returnAmount: 13650
   },
   {
     productType: 'ETF',
-    tags: ['해외', '주식형'],
+    tags: ['국내', '주식형'],
     productName: 'KODEX 2차전지산업',
-    quantity: 100, // 주
-    valuation: 1890000
+    quantity: 100,
+    valuation: 1890000,
+    returnRate: -3.42,
+    returnAmount: -66780
   },
   {
     productType: 'ETF',
-    tags: ['해외', '주식형'],
-    productName: 'TIGER 미국 S&P500',
-    quantity: 50, // 주
-    valuation: 750000
-  },
-  {
-    productType: 'ETF',
-    tags: ['해외', '주식형'],
-    productName: 'KODEX 2차전지산업',
-    quantity: 100, // 주
-    valuation: 1890000
+    tags: ['해외', '채권형'],
+    productName: 'KODEX 미국채 10년',
+    quantity: 75,
+    valuation: 980000,
+    returnRate: 0.56,
+    returnAmount: 5440
   }
 ];
 </script>
