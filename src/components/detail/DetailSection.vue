@@ -35,7 +35,7 @@
           </div>
         </template>
         <template v-else-if="item.type === 'pdf' && Array.isArray(item.desc)">
-          <DetailPdfUrl :pdfList="item.desc" />
+          <DetailPdfUrl :pdf-list="item.desc" />
         </template>
         <template v-else-if="item.type === 'table' && Array.isArray(item.desc)">
           <DetailTable :desc="item.desc" />

@@ -2,9 +2,6 @@
   <div class="home-box">
     <ExchangeRate />
   </div>
-  <div class="home-box">
-    <MiniMy />
-  </div>
   <div class="line"></div>
   <div class="home-box">
     <NewsChart
@@ -27,7 +24,6 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { onBeforeRouteLeave } from 'vue-router';
 import ExchangeRate from '@/components/home/ExchangeRate.vue';
 import MiniMy from '@/components/home/MiniMy.vue';
 import NewsChart from '@/components/home/NewsChart.vue';
@@ -104,13 +100,63 @@ const rawNewsData = [
     published_at: '2025-07-22',
     labels: ['환율', '코스피'],
     sentiment: 'neutral'
+  },
+  {
+    id: 7,
+    title: '정부, 반도체 산업 지원 확대 방안 발표',
+    summary:
+      '정부가 시스템 반도체 경쟁력 강화를 위해 대규모 세제 혜택 및 R&D 지원을 포함한 종합 대책을 발표했습니다.',
+    content_url: 'https://example.com/news/5',
+    published_at: '2025-07-22',
+    labels: ['반도체', '코스피'],
+    sentiment: 'positive'
+  },
+  {
+    id: 8,
+    title: '정부, 반도체 산업 지원 확대 방안 발표',
+    summary:
+      '정부가 시스템 반도체 경쟁력 강화를 위해 대규모 세제 혜택 및 R&D 지원을 포함한 종합 대책을 발표했습니다.',
+    content_url: 'https://example.com/news/5',
+    published_at: '2025-07-22',
+    labels: ['반도체', '코스피'],
+    sentiment: 'positive'
+  },
+  {
+    id: 9,
+    title: '정부, 반도체 산업 지원 확대 방안 발표',
+    summary:
+      '정부가 시스템 반도체 경쟁력 강화를 위해 대규모 세제 혜택 및 R&D 지원을 포함한 종합 대책을 발표했습니다.',
+    content_url: 'https://example.com/news/5',
+    published_at: '2025-07-22',
+    labels: ['반도체', '코스피'],
+    sentiment: 'positive'
+  },
+  {
+    id: 10,
+    title: '정부, 반도체 산업 지원 확대 방안 발표',
+    summary:
+      '정부가 시스템 반도체 경쟁력 강화를 위해 대규모 세제 혜택 및 R&D 지원을 포함한 종합 대책을 발표했습니다.',
+    content_url: 'https://example.com/news/5',
+    published_at: '2025-07-22',
+    labels: ['반도체', '코스피'],
+    sentiment: 'positive'
+  },
+  {
+    id: 11,
+    title: '정부, 반도체 산업 지원 확대 방안 발표',
+    summary:
+      '정부가 시스템 반도체 경쟁력 강화를 위해 대규모 세제 혜택 및 R&D 지원을 포함한 종합 대책을 발표했습니다.',
+    content_url: 'https://example.com/news/5',
+    published_at: '2025-07-22',
+    labels: ['반도체', '코스피'],
+    sentiment: 'positive'
   }
 ];
 
 const rawProductData = [
   {
     category: '펀드',
-    fund_code: 'FUND123',
+    product_code: 'fund-001',
     country: '국내',
     fund_type: '주식형',
     product_name: '펀드A',
@@ -121,7 +167,7 @@ const rawProductData = [
   },
   {
     category: '펀드',
-    fund_code: 'FUND456',
+    product_code: 'fund-002',
     country: '해외',
     fund_type: '채권형',
     product_name: '펀드B',
@@ -132,7 +178,7 @@ const rawProductData = [
   },
   {
     category: 'ETF',
-    product_code: 'ETF001',
+    product_code: 'etf-001',
     country: '국내',
     etf_type: '주식형',
     product_name: 'KODEX 200',
@@ -145,7 +191,7 @@ const rawProductData = [
   },
   {
     category: 'ETF',
-    product_code: 'ETF002',
+    product_code: 'etf-002',
     country: '국내',
     etf_type: '채권형',
     product_name: 'TIGER 국채3년',
@@ -158,7 +204,7 @@ const rawProductData = [
   },
   {
     category: 'ETF',
-    product_code: 'ETF003',
+    product_code: 'etf-003',
     country: '국외',
     etf_type: '혼합형',
     product_name: 'ARIRANG 미국리츠',
@@ -214,7 +260,6 @@ onMounted(() => {
   allNews.value = rawNewsData;
   allProducts.value = rawProductData;
 });
-
 </script>
 
 <style scoped>

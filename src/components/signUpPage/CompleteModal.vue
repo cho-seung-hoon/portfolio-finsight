@@ -24,16 +24,17 @@ const goToLogin = () => router.push('/login');
 
 <style scoped>
 .modal-overlay {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4);
+  width: calc(100% + 40px);
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 999;
+  margin: 0 -20px;
 }
 
 .modal-content {

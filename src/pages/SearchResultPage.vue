@@ -12,14 +12,25 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import { useHeaderStore } from '@/stores/header';
 
 const route = useRoute();
+const router = useRouter();
 const search = ref('');
 
 onMounted(() => {
   search.value = route.query.query ?? '';
 });
+
+function goBack() {
+  router.push({
+    path: '/search',
+    state: {
+      query: search.value
+    }
+  });
+}
 </script>
 
 <style scoped>

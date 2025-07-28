@@ -1,7 +1,7 @@
 <template>
   <div
-    :class="['drop-down-container', align === 'right' ? 'right' : 'left']"
-    ref="dropdownRef">
+    ref="dropdownRef"
+    :class="['drop-down-container', align === 'right' ? 'right' : 'left']">
     <div class="drop-down-option-list">
       <div
         v-for="option in options"

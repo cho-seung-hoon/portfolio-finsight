@@ -50,7 +50,6 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import ApexCharts from 'apexcharts';
 
 const props = defineProps({
   data: {
@@ -172,8 +171,6 @@ const chartOptions = computed(() => ({
     }
   }
 }));
-
-// vue3-apexcharts 등록은 main.js에서 처리
 </script>
 
 <style scoped>

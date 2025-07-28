@@ -1,7 +1,11 @@
 <template>
   <div class="subBox">
     <div class="subItem-title">
-      <span class="keyword" :style="{ color: props.color }">{{ props.keyword }}</span>
+      <span
+        class="keyword"
+        :style="{ color: props.color }"
+        >{{ props.keyword }}</span
+      >
       <span>보유 상품 목록</span>
     </div>
 
@@ -22,24 +26,26 @@
         ETF
       </button>
     </div>
-    <div class="product-list" v-if="filteredProducts.length > 0">
+    <div
+      v-if="filteredProducts.length > 0"
+      class="product-list">
       <template v-if="selectCategory === '예금'">
         <HoldingListDeposit
           v-for="product in filteredProducts"
           :key="product.id"
-          :product="product"
-        />
+          :product="product" />
       </template>
 
       <template v-else>
         <HoldingListFundNEtf
           v-for="product in filteredProducts"
           :key="product.id"
-          :product="product"
-        />
+          :product="product" />
       </template>
     </div>
-    <div v-else class="no-products">
+    <div
+      v-else
+      class="no-products">
       관련된 상품이 없습니다.
     </div>
   </div>
@@ -53,7 +59,7 @@ import HoldingListFundNEtf from '@/components/holding/HoldingListFund_N_ETF.vue'
 const props = defineProps({
   keyword: String,
   color: String,
-  products: Array  // productList -> products 로 변경
+  products: Array // productList -> products 로 변경
 });
 
 const selectCategory = ref('예금');
@@ -61,7 +67,6 @@ const selectCategory = ref('예금');
 function selectFilter(category) {
   selectCategory.value = category;
 }
-
 
 const filteredProducts = computed(() => {
   return props.products.filter(product => product.productType === selectCategory.value);

@@ -2,76 +2,81 @@
   <div class="subBox2">
     <div class="subItem">
       <div class="name">이진욱 님</div>
-      <div class="edit">
-      </div>
+      <div class="edit"></div>
     </div>
 
     <div class="subItem">
-      <img src="@/assets/logo.svg" alt="임시 이미지" />
+      <img
+        src="@/assets/logo.svg"
+        alt="임시 이미지" />
       <div class="info">닉네임</div>
       <div class="infoValue">OOO</div>
     </div>
     <div class="subItem">
-      <img src="@/assets/logo.svg" alt="임시 이미지" />
+      <img
+        src="@/assets/logo.svg"
+        alt="임시 이미지" />
       <div class="info">이메일</div>
       <div class="infoValue">OOO@OOO.OOO</div>
     </div>
     <div class="subItem">
-      <img src="@/assets/logo.svg" alt="임시 이미지" />
+      <img
+        src="@/assets/logo.svg"
+        alt="임시 이미지" />
       <div class="info">생년월일</div>
       <div class="infoValue">OOOO.OO.OO</div>
     </div>
     <div class="subItem">
-      <img src="@/assets/logo.svg" alt="임시 이미지" />
+      <img
+        src="@/assets/logo.svg"
+        alt="임시 이미지" />
       <div class="info">가입일</div>
       <div class="infoValue">OOOO.OO.OO</div>
     </div>
-
   </div>
 </template>
 
-<script setup>
-</script>
+<script setup></script>
 <style scoped>
-.subBox2{
+.subBox2 {
   width: 100%;
-  padding:20px;
+  padding: 20px;
   background-color: var(--main01);
 }
 
-.subItem{
-  margin:10px 0;
+.subItem {
+  margin: 10px 0;
   align-items: center;
   display: flex;
 }
 
-.name{
+.name {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semi-bold);
-  color:var(--white);
+  color: var(--white);
 }
 
-.info{
+.info {
   min-width: 65px;
-  font-size:var(--font-size-ms);
+  font-size: var(--font-size-ms);
   font-width: var(--font-weight-light);
-  color:var(--white);
+  color: var(--white);
   margin-left: 10px;
   margin-right: 30px;
 }
 
-.infoValue{
-  font-size:var(--font-size-ms);
+.infoValue {
+  font-size: var(--font-size-ms);
   font-width: var(--font-weight-light);
-  color:var(--white);
+  color: var(--white);
 }
-img{
+img {
   width: 25px;
-  margin:0 5px;
-  border:1px solid var(--white);
+  margin: 0 5px;
+  border: 1px solid var(--white);
 }
 
-.infoValue{
+.infoValue {
   padding-left: 15px;
   border-left: 2px solid var(--white);
 }

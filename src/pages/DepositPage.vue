@@ -64,6 +64,12 @@
       :timestamp="toastConfig.timestamp"
       :duration="3000" />
   </div>
+
+  <button @click="showModal == true">버튼</button>
+  <!-- 모달 컴포넌트 -->
+  <AgreememtModal
+    v-if="showModal"
+    @close="showModal = false" />
 </template>
 
 <script setup>
@@ -75,10 +81,6 @@ import { useSellStore } from '@/stores/sell';
 import { storeToRefs } from 'pinia';
 import Decimal from 'decimal.js';
 
-// DetailMainSection: 예금/ETF 등 상품의 주요 정보를 보여주는 상단 섹션 컴포넌트
-// DetailTabs: 상품 상세 정보의 탭 네비게이션 컴포넌트
-// DetailSection: 선택된 탭에 따라 상세 내용을 보여주는 컴포넌트
-// DetailActionButton: 상품 가입/신청 등 주요 액션 버튼 컴포넌트
 import DetailMainDeposit from '@/components/detail/DetailMainDeposit.vue';
 import DetailTabs from '@/components/detail/DetailTabs.vue';
 import DetailSection from '@/components/detail/DetailSection.vue';
@@ -89,7 +91,6 @@ import DepositSellModal from '@/components/buysell/DepositSellModal.vue';
 import ToastMessage from '@/components/common/ToastMessage.vue';
 
 const route = useRoute();
-
 const depositStore = useDepositStore();
 const buyStore = useBuyStore();
 const sellStore = useSellStore();

@@ -14,6 +14,7 @@ import etfRoutes from './etfRoutes';
 import fundRoutes from './fundRoutes';
 import portfolioRoutes from './portfolioRoutes';
 import { useHeaderStore } from '@/stores/header.js';
+import startRoutes from './startRoutes';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -49,6 +50,7 @@ const router = createRouter({
     ...depositRoutes,
     ...etfRoutes,
     ...fundRoutes,
+    ...startRoutes,
     ...portfolioRoutes
   ]
 });
