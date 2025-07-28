@@ -22,9 +22,20 @@
         <span class="label">위험등급</span>
         <span class="value">{{ item.risk_grade }}</span>
       </div>
-      <div class="info-row">
-        <span class="label">뉴스</span>
-        <span class="value">{{ item.news_response }}</span>
+      <div class="news-response-box">
+        <span class="news-label">뉴스반응</span>
+        <div class="news-bar-wrapper">
+          <div
+            v-for="(key, index) in ['positive', 'neutral', 'negative']"
+            :key="key"
+            class="news-bar-segment"
+            :class="{
+              left: index === 0,
+              center: index === 1,
+              right: index === 2
+            }"
+            :style="getSegmentStyle(key)"></div>
+        </div>
       </div>
     </section>
   </section>
@@ -46,6 +57,25 @@ const router = useRouter();
 
 function goToDetail() {
   router.push(`/fund/${props.item.product_code}`);
+}
+
+const colorMap = {
+  positive: 'var(--newsPositive)',
+  neutral: 'var(--newsNeutral)',
+  negative: 'var(--newsNegative)'
+};
+
+function getSegmentStyle(key) {
+  const values = props.item.news_response;
+  const total = Object.values(values).reduce((sum, v) => sum + v, 0);
+  const maxKey = Object.keys(values).reduce((a, b) => (values[a] > values[b] ? a : b));
+
+  return {
+    width: `${(values[key] / total) * 100}%`,
+    height: '100%',
+    backgroundColor: key === maxKey ? colorMap[key] : 'var(--main04)',
+    marginRight: key !== 'negative' ? '3px' : '0'
+  };
 }
 </script>
 
@@ -109,5 +139,51 @@ function goToDetail() {
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
   color: var(--main01);
+}
+
+.news-response-box {
+  display: flex;
+  flex-direction: row;
+  width: 200px;
+  align-items: center;
+  background-color: var(--main05);
+  padding: 8px;
+  border: 1px solid var(--main04);
+  border-radius: 12px;
+  justify-content: space-between;
+  margin-left: auto;
+}
+
+.news-label {
+  font-size: var(--font-size-sm);
+  color: var(--main02);
+}
+
+.news-bar-wrapper {
+  display: flex;
+  flex-direction: row;
+  width: 120px;
+  height: 16px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-left: 8px;
+}
+
+.news-bar-segment {
+  transition: background-color 0.3s ease-in-out;
+}
+
+.news-bar-segment.left {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.news-bar-segment.right {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.news-bar-segment.center {
+  border-radius: 0;
 }
 </style>

@@ -40,7 +40,11 @@ const funds = [
     rate_of_return: 37.31,
     scale: 2000,
     risk_grade: 1,
-    news_response: '긍정'
+    news_response: {
+      positive: 20,
+      neutral: 30,
+      negative: 50
+    }
   },
   {
     product_code: 'fund-002',
@@ -50,7 +54,25 @@ const funds = [
     rate_of_return: 12.1,
     scale: 3000,
     risk_grade: 3,
-    news_response: '중립'
+    news_response: {
+      positive: 60,
+      neutral: 20,
+      negative: 20
+    }
+  },
+  {
+    product_code: 'fund-003',
+    country: '해외',
+    fund_type: '채권형',
+    product_name: '삼성 한국형TDF 2045',
+    rate_of_return: 12.1,
+    scale: 3000,
+    risk_grade: 3,
+    news_response: {
+      positive: 30,
+      neutral: 50,
+      negative: 20
+    }
   }
 ];
 

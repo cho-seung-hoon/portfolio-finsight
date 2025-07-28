@@ -41,7 +41,11 @@ const etfs = [
     volume: 3000,
     rate_of_return: '3.3% (1개월)',
     risk_grade: 3,
-    news_response: '긍정'
+    news_response: {
+      positive: 20,
+      neutral: 30,
+      negative: 50
+    }
   },
   {
     product_code: 'etf-002',
@@ -52,7 +56,11 @@ const etfs = [
     volume: 45700,
     rate_of_return: '1.1% (1개월)',
     risk_grade: 2,
-    news_response: '중립'
+    news_response: {
+      positive: 30,
+      neutral: 60,
+      negative: 10
+    }
   },
   {
     product_code: 'ETF003',
@@ -63,7 +71,11 @@ const etfs = [
     volume: 12800,
     rate_of_return: '-0.8% (1개월)',
     risk_grade: 4,
-    news_response: '부정'
+    news_response: {
+      positive: 62,
+      neutral: 25,
+      negative: 13
+    }
   }
 ];
 
