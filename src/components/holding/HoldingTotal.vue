@@ -1,12 +1,6 @@
 <template>
   <div class="holding-total-box">
     <div class="total-title">투자 모아보기</div>
-<<<<<<< HEAD
-    <div class="total-calc"></div>
-
-    <div class="total-info">
-      <div class="total-info-icon">
-=======
     <div class="total-calc">
       <span class="total-deposit"></span>
       <span class="total-domestic"></span>
@@ -15,7 +9,6 @@
 
     <div class="total-info">
       <div class="total-info-icon deposit-icon">
->>>>>>> fix/#40-holdings
         <img
           src="@/assets/logo.svg"
           alt="임시 이미지" />
