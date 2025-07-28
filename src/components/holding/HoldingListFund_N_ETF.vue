@@ -19,7 +19,6 @@
       <div class="product-title">현재 평가액</div>
       <div class="product-value">{{ product.valuation }} 원</div>
     </div>
-    <<<<<<< HEAD =======
     <div class="product-in return-info">
       <div class="product-title">전일 대비</div>
       <div
@@ -29,7 +28,6 @@
         <span>{{ formatReturnAmount(product.returnAmount) }}원</span>
       </div>
     </div>
-    >>>>>>> fix/#40-holdings
   </div>
 </template>
 <script setup>
