@@ -133,7 +133,11 @@ const handleLogin = async () => {
       router.push('/');
     }
   } catch (error) {
-    errorMessage.value = '로그인에 실패하였습니다. 다시 시도해주세요!';
+    if (error.response && error.response.status === 400) {
+      errorMessage.value = error.response.data?.error || '잘못된 요청입니다.';
+    } else {
+      errorMessage.value = '로그인에 실패하였습니다. 다시 시도해주세요!';
+    }
   }
 };
 
