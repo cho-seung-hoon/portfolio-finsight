@@ -1,69 +1,74 @@
 <template>
-  <div class="login-container">
-    <!-- 로고 섹션 -->
-    <div class="logo-section">
-      <div class="logo-icon">
-        <img
-          :src="logoSrc"
-          alt="Fin-Sight Logo"
-          class="logo-svg" />
-      </div>
-      <h1 class="logo-text">Fin-Sight</h1>
-    </div>
-
-    <!-- 로그인 폼 -->
-    <div class="form-container">
-      <!-- ID 입력 -->
-      <div class="input-group">
-        <label class="input-label">ID</label>
-        <input
-          v-model="formData.id"
-          type="text"
-          placeholder="아이디"
-          class="custom-input"
-          @keypress="handleKeyPress" />
-      </div>
-
-      <!-- 비밀번호 입력 -->
-      <div class="input-group">
-        <label class="input-label">PW</label>
-        <input
-          v-model="formData.password"
-          type="password"
-          placeholder="비밀번호"
-          class="custom-input"
-          @keypress="handleKeyPress" />
-      </div>
-
-      <!-- 에러 메시지 영역 (하단 고정) -->
-      <div class="error-container">
-        <div
-          v-if="errorMessage"
-          class="error-message">
-          {{ errorMessage }}
+  <div class="login">
+    <div class="login-container">
+      <!-- 로고 섹션 -->
+      <div class="logo-section">
+        <div class="logo-icon">
+          <img
+            :src="logoSrc"
+            alt="Fin-Sight Logo"
+            class="logo-svg" />
         </div>
+        <h1 class="logo-text">Fin-Sight</h1>
       </div>
 
-      <!-- 로그인 버튼 -->
-      <button
-        class="login-btn"
-        @click="handleLogin">
-        로그인
-      </button>
+      <!-- 로그인 폼 -->
+      <div class="form-container">
+        <!-- ID 입력 -->
+        <div class="input-group">
+          <label class="input-label">ID</label>
+          <input
+            v-model="formData.id"
+            type="text"
+            placeholder="아이디"
+            class="custom-input"
+            @keypress="handleKeyPress" />
+        </div>
 
-      <!-- 회원가입 링크 -->
-      <button
-        class="signup-link"
-        @click="handleSignup">
-        회원가입
-      </button>
+        <!-- 비밀번호 입력 -->
+        <div class="input-group">
+          <label class="input-label">PW</label>
+          <input
+            v-model="formData.password"
+            type="password"
+            placeholder="비밀번호"
+            class="custom-input"
+            @keypress="handleKeyPress" />
+        </div>
 
-      <div class="cha-icon">
-        <img
-          :src="chaSrc"
-          alt="Fin-Sight cha"
-          class="cha-svg" />
+        <!-- 에러 메시지 -->
+        <div class="error-container">
+          <div
+            v-if="errorMessage"
+            class="error-message">
+            {{ errorMessage }}
+          </div>
+        </div>
+
+        <!-- 로그인 버튼 -->
+        <button
+          class="login-btn"
+          @click="handleLogin">
+          로그인
+        </button>
+
+        <!-- 회원가입 링크 -->
+        <button
+          class="signup-link"
+          @click="handleSignup">
+          회원가입
+        </button>
       </div>
+
+      <!-- 곰 캐릭터 이미지 -->
+      <!-- <div class="cha-icon-wrapper">
+        <div class="cha-mask">
+          <img
+            :src="chaSrc"
+            alt="Fin-Sight cha"
+            class="cha-svg" />
+        </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -82,22 +87,8 @@ const formData = reactive({
 
 const errorMessage = ref('');
 
-axios.interceptors.request.use(
-  config => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  error => {
-    return Promise.reject(error);
-  }
-);
-
-// 유효성 검증
 const isFormValid = computed(() => {
-  return formData.id.trim().length > 0 && formData.password.trim().length > 0;
+  return formData.id.trim() && formData.password.trim();
 });
 
 const validateForm = () => {
@@ -112,13 +103,9 @@ const validateForm = () => {
   return true;
 };
 
-// 로그인 핸들러
 const handleLogin = async () => {
   errorMessage.value = '';
-
-  if (!validateForm()) {
-    return;
-  }
+  if (!validateForm()) return;
 
   try {
     const response = await axios.post('http://localhost:8080/users/login', {
@@ -128,16 +115,17 @@ const handleLogin = async () => {
 
     if (response.data.success) {
       const accessToken = response.data.data.accessToken;
-      console.log(accessToken);
       localStorage.setItem('accessToken', accessToken);
       router.push('/');
     }
   } catch (error) {
-    errorMessage.value = '로그인에 실패하였습니다. 다시 시도해주세요!';
+    errorMessage.value =
+      error.response?.status === 401
+        ? '아이디 또는 비밀번호가 올바르지 않습니다.'
+        : '로그인에 실패하였습니다. 다시 시도해주세요!';
   }
 };
 
-// 회원가입 포워드
 const handleSignup = () => {
   router.push('/signup');
 };
@@ -150,18 +138,30 @@ const handleKeyPress = event => {
 </script>
 
 <style scoped>
-.login-container {
+.login {
   margin-left: -20px;
   margin-right: -20px;
+}
+/* .login-container {
   min-height: 100dvh;
   background: var(--main01);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  /*  padding: 0 20px;*/
+  justify-content: space-between;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+} */
+.login-container {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* space-between 제거 */
+  align-items: center;
+  background: var(--main01);
+  padding: 2rem 1rem 0; /* 하단 padding 제거 */
+  box-sizing: border-box;
   position: relative;
-  overflow: hidden;
 }
 
 .logo-section {
@@ -193,47 +193,37 @@ const handleKeyPress = event => {
 .form-container {
   width: 100%;
   max-width: 320px;
-  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .input-group {
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .input-label {
-  display: block;
   color: var(--white);
-  font-weight: var(--font-weight-medium);
-  margin-bottom: 0.5rem;
   font-size: var(--font-size-sm);
+  margin-bottom: 0.5rem;
 }
 
 .custom-input {
-  width: 100%;
   padding: 1rem;
-  background: transparent;
   border: 2px solid var(--main03);
   border-radius: 8px;
+  background: transparent;
   color: var(--white);
   font-size: var(--font-size-md);
-  transition: all 0.3s ease;
 }
 
 .custom-input::placeholder {
   color: var(--main02);
 }
 
-.custom-input:focus {
-  outline: none;
-  border-color: var(--sub01);
-}
-
 .error-container {
   min-height: 35px;
-  margin-bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
 }
 
 .error-message {
@@ -247,59 +237,44 @@ const handleKeyPress = event => {
   border: 1px solid var(--red01);
 }
 
-.login-btn {
-  width: 100%;
+.login-btn,
+.signup-link {
   padding: 1rem;
-  background: var(--sub01);
-  color: var(--white);
-  border: none;
   border-radius: 8px;
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semi-bold);
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 1.5rem;
+  transition: 0.3s;
 }
 
-.login-btn:hover {
+.login-btn {
   background: var(--sub01);
-  transform: translateY(-1px);
-  opacity: 0.9;
-}
-
-.login-btn:active {
-  transform: translateY(0);
+  color: var(--white);
+  border: none;
 }
 
 .signup-link {
-  display: block;
-  width: 100%;
   background: transparent;
   color: var(--sub01);
   border: none;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-regular);
-  cursor: pointer;
-  text-decoration: none;
-  transition: color 0.3s ease;
 }
 
-.signup-link:hover {
-  color: var(--sub01);
-  text-decoration: underline;
-  opacity: 0.8;
+/* 곰 캐릭터 영역 */
+.cha-icon-wrapper {
+  width: 100%;
+  max-width: 300px;
+  height: 150px;
+  overflow: hidden;
+  margin-top: auto; /* 아래쪽으로 밀어냄 */
 }
-.cha-icon {
-  position: absolute;
-  bottom: -140px;
-  width: 300px;
-  left: calc(50% - 150px);
-  color: var(--sub01);
+
+.cha-mask {
+  transform: translateY(5%);
 }
 
 .cha-svg {
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: contain;
 }
 </style>

@@ -10,13 +10,32 @@ export const useEmailStore = defineStore('email', () => {
   const error = ref('');
   const status = ref(''); // "success" | "error" | "conflict" | "unauthorized"
 
-  // ✅ 1. 인증코드 요청
+  // // ✅ 1. 인증코드 요청
+  // const sendCode = async () => {
+  //   try {
+  //     const res = await axios.post('/users/email', { email: email.value });
+  //     error.value = '';
+  //     status.value = 'success';
+  //     alert(res.data.message || '인증 코드가 전송되었습니다.');
+  //   } catch (e) {
+  //     if (e.response?.status === 409) {
+  //       error.value = '이미 가입된 이메일입니다.';
+  //       status.value = 'conflict';
+  //     } else {
+  //       error.value = '인증코드 전송 실패';
+  //       status.value = 'error';
+  //     }
+  //     throw e; // 프론트에서 catch 가능
+  //   }
+  // };
+
+  // emailStore.js 수정
   const sendCode = async () => {
     try {
       const res = await axios.post('/users/email', { email: email.value });
       error.value = '';
       status.value = 'success';
-      alert(res.data.message || '인증 코드가 전송되었습니다.');
+      return res.data.message || '인증 코드가 전송되었습니다.';
     } catch (e) {
       if (e.response?.status === 409) {
         error.value = '이미 가입된 이메일입니다.';
@@ -25,7 +44,7 @@ export const useEmailStore = defineStore('email', () => {
         error.value = '인증코드 전송 실패';
         status.value = 'error';
       }
-      throw e; // 프론트에서 catch 가능
+      throw new Error(error.value);
     }
   };
 
@@ -40,7 +59,7 @@ export const useEmailStore = defineStore('email', () => {
       if (verified.value) {
         error.value = '';
         status.value = 'success';
-        alert('이메일 인증 성공!');
+        // alert('이메일 인증 성공!');
       } else {
         error.value = '인증 코드가 일치하지 않습니다.';
         status.value = 'unauthorized';
