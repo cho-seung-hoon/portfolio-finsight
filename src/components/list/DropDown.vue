@@ -17,7 +17,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-const props = defineProps({
+const { options, align, selected } = defineProps({
   options: { type: Array, default: () => [] },
   align: { type: String, default: 'left' },
   selected: { type: String, default: '' }
