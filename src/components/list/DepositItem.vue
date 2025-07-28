@@ -3,11 +3,11 @@
     class="deposit-item-container"
     @click="goToDetail">
     <section class="deposit-item-header-section">
+      <div class="deposit-item-sub-title">{{ item.company_name }}</div>
       <header class="deposit-item-header">
         {{ item.product_name }}
         <IconHeartStroke />
       </header>
-      <div class="deposit-item-sub-title">{{ item.company_name }}</div>
     </section>
     <section class="deposit-item-content-section">
       <div class="info-row">

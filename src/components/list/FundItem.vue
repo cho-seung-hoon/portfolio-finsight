@@ -15,6 +15,10 @@
         <span class="value">{{ item.rate_of_return }} (3개월)</span>
       </div>
       <div class="info-row">
+        <span class="label">펀드규모</span>
+        <span class="value">{{ item.scale }}</span>
+      </div>
+      <div class="info-row">
         <span class="label">위험등급</span>
         <span class="value">{{ item.risk_grade }}</span>
       </div>

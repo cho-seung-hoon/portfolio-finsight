@@ -38,6 +38,7 @@ const funds = [
     fund_type: '주식형',
     product_name: '미래에셋자산배분TINA펀드',
     rate_of_return: 37.31,
+    scale: 2000,
     risk_grade: 1,
     news_response: '긍정'
   },
@@ -47,6 +48,7 @@ const funds = [
     fund_type: '채권형',
     product_name: '삼성 한국형TDF 2045',
     rate_of_return: 12.1,
+    scale: 3000,
     risk_grade: 3,
     news_response: '중립'
   }
