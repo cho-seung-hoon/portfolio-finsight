@@ -73,6 +73,12 @@ function goToDetail() {
   gap: 12px;
   cursor: pointer;
   animation: fadeSlideIn 0.6s ease;
+  transition: transform 0.2s ease;
+}
+
+.deposit-item-container:active {
+  transform: scale(0.98);
+  background-color: var(--main04);
 }
 
 .deposit-item-header-section {

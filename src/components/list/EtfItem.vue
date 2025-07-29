@@ -119,6 +119,12 @@ function getSegmentStyle(key) {
   gap: 12px;
   cursor: pointer;
   animation: fadeSlideIn 0.6s ease;
+  transition: transform 0.2s ease;
+}
+
+.etf-item-container:active {
+  transform: scale(0.98);
+  background-color: var(--main04);
 }
 
 .etf-item-header-section {

@@ -14,6 +14,7 @@
           v-for="item in deposits"
           :key="item.product_code"
           :item="item" />
+        <button class="search-category-more-button">예금 더보기</button>
       </section>
       <section class="search-category-section">
         <h4 class="search-category-label">펀드</h4>
@@ -21,6 +22,7 @@
           v-for="item in funds"
           :key="item.product_code"
           :item="item" />
+        <button class="search-category-more-button">펀드 더보기</button>
       </section>
       <section class="search-category-section">
         <h4 class="search-category-label">ETF</h4>
@@ -28,6 +30,7 @@
           v-for="item in etfs"
           :key="item.product_code"
           :item="item" />
+        <button class="search-category-more-button">ETF 더보기</button>
       </section>
       <section class="search-category-section">
         <h4 class="search-category-label">관련 뉴스</h4>
@@ -215,5 +218,25 @@ function goBack() {
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-medium);
   padding: 0px 28px;
+}
+
+.search-category-more-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: var(--main04);
+  justify-content: center;
+  padding: 12px;
+  color: var(--main02);
+  border-radius: 12px;
+  font-size: var(--font-size-ms);
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.search-category-more-button:active {
+  transform: scale(0.98);
+  background-color: var(--main03);
 }
 </style>
