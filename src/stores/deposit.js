@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import Decimal from 'decimal.js';
+import { useLoadingStore } from './loading';
 
 // API 모듈 임포트 (추후 생성 예정)
 // import { fetchDepositProduct } from '@/api/deposit';
@@ -10,6 +11,7 @@ export const useDepositStore = defineStore('deposit', () => {
   const product = ref(null);
   const isLoading = ref(false);
   const error = ref(null);
+  const loadingStore = useLoadingStore();
 
   // 여러 목업 상품 데이터
   const mockProducts = {
@@ -178,13 +180,16 @@ export const useDepositStore = defineStore('deposit', () => {
   // Actions
   async function fetchProduct(productId) {
     isLoading.value = true;
+    // 로딩 상태 초기화
+    loadingStore.resetLoading();
+    loadingStore.startLoading('예금 정보를 불러오는 중...');
     error.value = null;
     try {
       // const response = await fetchDepositProduct(productId); // 실제 API 호출
       // product.value = response.data;
 
-      // Mock API 호출 (2초 딜레이)
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // 0.5초 대기 (더미 데이터 로딩 시뮬레이션)
+      await new Promise(resolve => setTimeout(resolve, 500));
       if (mockProducts[productId]) {
         product.value = mockProducts[productId];
       } else {
@@ -195,6 +200,7 @@ export const useDepositStore = defineStore('deposit', () => {
       console.error(e);
     } finally {
       isLoading.value = false;
+      loadingStore.stopLoading();
     }
   }
 

@@ -29,6 +29,9 @@ import MiniMy from '@/components/home/MiniMy.vue';
 import NewsChart from '@/components/home/NewsChart.vue';
 import NewsList from '@/components/home/NewsList.vue';
 import NewsProduct from '@/components/home/NewsProduct.vue';
+import { useLoadingStore } from '@/stores/loading';
+
+const loadingStore = useLoadingStore();
 
 const chartData = ref([]);
 const allNews = ref([]);
@@ -227,7 +230,16 @@ const filteredProductList = computed(() => {
   return allProducts.value.filter(product => product.labels.includes(selectKeyword.value));
 });
 
-onMounted(() => {
+onMounted(async () => {
+  // 로딩 상태 초기화
+  loadingStore.resetLoading();
+
+  // 로딩 시작
+  loadingStore.startLoading('홈 데이터를 불러오는 중...');
+
+  // 0.5초 대기 (더미 데이터 로딩 시뮬레이션)
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   const keywordAnalysis = new Map();
   rawNewsData.forEach(news => {
     news.labels.forEach(label => {
@@ -259,6 +271,9 @@ onMounted(() => {
   chartData.value = bubbleChartData.slice(0, 10);
   allNews.value = rawNewsData;
   allProducts.value = rawProductData;
+
+  // 로딩 종료
+  loadingStore.stopLoading();
 });
 </script>
 

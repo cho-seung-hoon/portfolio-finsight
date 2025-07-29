@@ -22,6 +22,11 @@
         ref="thumbEl"
         class="custom-scrollbar-thumb"></div>
     </div>
+
+    <!-- 로딩 스피너 -->
+    <LoadingSpinner
+      v-if="loadingStore.isLoading"
+      :text="loadingStore.loadingText" />
   </div>
 </template>
 
@@ -29,8 +34,9 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useHeaderStore } from '@/stores/header';
 import Header from './Header.vue';
-import TimeModal from '@/components/layouts/TimeModal.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import { useRoute } from 'vue-router';
+import { useLoadingStore } from '@/stores/loading';
 
 const isModalVisible = ref(false);
 const openModal = () => {
@@ -41,6 +47,7 @@ const closeModal = () => {
 };
 
 const headerStore = useHeaderStore();
+const loadingStore = useLoadingStore();
 
 const stickyHeader = computed(() => headerStore.stickyHeader);
 
