@@ -16,6 +16,7 @@
     "d3": "^7.9.0",
     "decimal.js": "^10.6.0",
     "hangul-util": "^0.1.6",
+    "jwt-decode": "^4.0.0",
     "lightweight-charts": "^5.0.8",
     "pinia": "^3.0.1",
     "vue": "^3.5.13",
