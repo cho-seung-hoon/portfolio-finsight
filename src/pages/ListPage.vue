@@ -138,7 +138,7 @@ function updateIsMatchedInStorage(val) {
   color: var(--main02);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 16px;
-  box-shadow: 0 8px 50px 0 rgba(13, 17, 37, 0.05);
+  box-shadow: 0 8px 50px 0 rgba(51, 56, 83, 0.1);
 }
 
 .list-page-banner.matched {

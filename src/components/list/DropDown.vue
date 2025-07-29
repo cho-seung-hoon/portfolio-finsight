@@ -56,10 +56,12 @@ onBeforeUnmount(() => {
   top: 110%;
   min-width: 120px;
   padding: 12px 16px;
-  background: var(--white);
-  border: 1px solid var(--main03);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(20, 24, 44, 0.12);
+  box-shadow: 0 8px 50px 0 rgba(51, 56, 83, 0.1);
   z-index: 999;
 }
 

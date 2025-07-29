@@ -96,6 +96,17 @@ function getSegmentStyle(key) {
 </script>
 
 <style scoped>
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .etf-item-container {
   display: flex;
   flex-direction: column;
@@ -107,6 +118,7 @@ function getSegmentStyle(key) {
   padding: 20px 28px;
   gap: 12px;
   cursor: pointer;
+  animation: fadeSlideIn 0.6s ease;
 }
 
 .etf-item-header-section {
@@ -173,7 +185,6 @@ function getSegmentStyle(key) {
 }
 
 .value {
-  font-size: 20px;
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
   color: var(--main01);
