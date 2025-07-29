@@ -117,7 +117,7 @@ const handleLogin = async () => {
       const accessToken = response.data.data.accessToken;
       localStorage.setItem('accessToken', accessToken);
       router.push('/');
-    }
+    } 
   } catch (error) {
     if (error.response && error.response.status === 400) {
       errorMessage.value = error.response.data?.error || '잘못된 요청입니다.';
