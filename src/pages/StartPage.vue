@@ -2,7 +2,7 @@
   <div class="intro-page">
     <!-- 상단 캐릭터 이미지 -->
     <img
-      src="@/assets/cha2.png"
+      src="@/assets/moving_bear.gif"
       alt="Fin-Sight 캐릭터"
       class="intro-image" />
 
