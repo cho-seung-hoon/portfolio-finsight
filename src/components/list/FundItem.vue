@@ -102,6 +102,7 @@ function getSegmentStyle(key) {
   background-color: var(--white);
   padding: 20px 28px;
   gap: 12px;
+  cursor: pointer;
 }
 
 .fund-item-header-section {

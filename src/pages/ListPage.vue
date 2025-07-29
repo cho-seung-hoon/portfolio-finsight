@@ -36,16 +36,18 @@
     </div>
   </div>
 
-  <BottomModal
-    v-if="showModal"
-    @confirm="confirmMatch"
-    @cancel="closeModal" />
+  <Transition name="slide-up">
+    <BottomModal
+      v-if="showModal"
+      @confirm="confirmMatch"
+      @cancel="closeModal" />
+  </Transition>
 </template>
 
 <script setup>
 import { useRoute } from 'vue-router';
 import { ref, computed, onMounted } from 'vue';
-import { getFinFilters, setFinFilters } from '@/utils/filterStorage'; // 추가!
+import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
 import ListTab from '@/components/list/ListTab.vue';
 import ListDepositPage from './list/ListDepositPage.vue';
 import ListFundPage from './list/ListFundPage.vue';
@@ -89,10 +91,6 @@ function updateIsMatchedInStorage(val) {
     isMatched: val
   });
 }
-
-onMounted(() => {
-  isMatched.value = getFinFilters().isMatched || false;
-});
 </script>
 
 <style scoped>

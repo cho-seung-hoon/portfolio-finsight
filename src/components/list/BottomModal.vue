@@ -36,7 +36,7 @@ import RecommendImg from '@/assets/image/recommend_02_stableplus.png';
 
 <style scoped>
 .bottom-modal-overlay {
-  position: fixed;
+  position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
@@ -46,6 +46,7 @@ import RecommendImg from '@/assets/image/recommend_02_stableplus.png';
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  transition: background 0.3s ease-out;
 }
 
 .bottom-modal {
@@ -56,6 +57,7 @@ import RecommendImg from '@/assets/image/recommend_02_stableplus.png';
   box-shadow: 0 -2px 16px rgba(20, 24, 44, 0.08);
   padding: 60px 20px;
   box-sizing: border-box;
+  transition: transform 0.3s ease-out;
 }
 
 @media (max-width: 768px) {
@@ -112,5 +114,34 @@ import RecommendImg from '@/assets/image/recommend_02_stableplus.png';
 .bottom-modal-footer-btn.primary {
   background: #28ca6e;
   color: var(--white);
+}
+
+.slide-up-enter-from .bottom-modal,
+.slide-up-leave-to .bottom-modal {
+  transform: translateY(100%);
+}
+
+.slide-up-enter-from.bottom-modal-overlay,
+.slide-up-leave-to.bottom-modal-overlay {
+  background: rgba(20, 24, 44, 0);
+}
+
+.slide-up-enter-active .bottom-modal,
+.slide-up-leave-active .bottom-modal,
+.slide-up-enter-active.bottom-modal-overlay,
+.slide-up-leave-active.bottom-modal-overlay {
+  transition:
+    transform 0.3s ease-out,
+    background 0.3s ease-out;
+}
+
+.slide-up-enter-to .bottom-modal,
+.slide-up-leave-from .bottom-modal {
+  transform: translateY(0);
+}
+
+.slide-up-enter-to.bottom-modal-overlay,
+.slide-up-leave-from.bottom-modal-overlay {
+  background: rgba(20, 24, 44, 0.13);
 }
 </style>

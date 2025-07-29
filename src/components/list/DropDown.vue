@@ -59,7 +59,7 @@ onBeforeUnmount(() => {
   background: var(--white);
   border: 1px solid var(--main03);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(20, 24, 44, 0.12);
+  box-shadow: 0 10px 30px rgba(20, 24, 44, 0.12);
   z-index: 999;
 }
 
