@@ -17,9 +17,13 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue';
 import HoldingTotal from '@/components/holding/HoldingTotal.vue';
 import HoldingList from '@/components/holding/HoldingList.vue';
 import MiniMy from '@/components/home/MiniMy.vue';
+import { useLoadingStore } from '@/stores/loading';
+
+const loadingStore = useLoadingStore();
 
 const data = [
   // 예금 데이터
@@ -104,6 +108,20 @@ const data = [
     returnAmount: 5440
   }
 ];
+
+onMounted(async () => {
+  // 로딩 상태 초기화
+  loadingStore.resetLoading();
+
+  // 로딩 시작
+  loadingStore.startLoading('보유 내역을 불러오는 중...');
+
+  // 0.5초 대기 (더미 데이터 로딩 시뮬레이션)
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // 로딩 종료
+  loadingStore.stopLoading();
+});
 </script>
 
 <style scoped>

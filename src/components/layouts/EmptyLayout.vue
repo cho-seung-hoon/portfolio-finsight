@@ -17,12 +17,21 @@
         ref="thumbEl"
         class="custom-scrollbar-thumb"></div>
     </div>
+
+    <!-- 로딩 스피너 -->
+    <LoadingSpinner
+      v-if="loadingStore.isLoading"
+      :text="loadingStore.loadingText" />
   </div>
 </template>
 
 <script setup>
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import { onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
+import { useLoadingStore } from '@/stores/loading';
+
+const loadingStore = useLoadingStore();
 
 const scrollRef = ref(null);
 const trackEl = ref(null);

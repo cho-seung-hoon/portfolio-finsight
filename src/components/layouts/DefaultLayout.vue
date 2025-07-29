@@ -25,15 +25,23 @@
         ref="thumbEl"
         class="custom-scrollbar-thumb"></div>
     </div>
+
+    <!-- 로딩 스피너 -->
+    <LoadingSpinner
+      v-if="loadingStore.isLoading"
+      :text="loadingStore.loadingText" />
   </div>
 </template>
 
 <script setup>
 import Header from './Header.vue';
 import NavBar from './NavBar.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import { onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
-import TimeModal from '@/components/layouts/TimeModal.vue';
+import { useLoadingStore } from '@/stores/loading';
+
+const loadingStore = useLoadingStore();
 
 const isModalVisible = ref(false);
 const openModal = () => {

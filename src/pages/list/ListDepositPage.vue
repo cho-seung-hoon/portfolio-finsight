@@ -18,6 +18,9 @@ import { ref, onMounted } from 'vue';
 import DepositItem from '@/components/list/DepositItem.vue';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
+import { useLoadingStore } from '@/stores/loading';
+
+const loadingStore = useLoadingStore();
 
 const filters = [{ key: 'sort', label: '정렬', options: ['기본금리순', '최고금리순'] }];
 const selected = ref({
@@ -46,13 +49,25 @@ const deposits = [
 ];
 
 // 마운트 시 로컬스토리지 반영 (없으면 default)
-onMounted(() => {
+onMounted(async () => {
+  // 로딩 상태 초기화
+  loadingStore.resetLoading();
+
+  // 로딩 시작
+  loadingStore.startLoading('예금 목록을 불러오는 중...');
+
+  // 0.5초 대기 (더미 데이터 로딩 시뮬레이션)
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   const deposit = getFinFilters().deposit || {};
   filters.forEach(opt => {
     selected.value[opt.key] = opt.options.includes(deposit[opt.key])
       ? deposit[opt.key]
       : opt.options[0];
   });
+
+  // 로딩 종료
+  loadingStore.stopLoading();
 });
 
 // 정렬만 반영

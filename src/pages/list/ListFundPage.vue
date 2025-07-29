@@ -18,6 +18,9 @@ import { ref, onMounted } from 'vue';
 import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import FundItem from '@/components/list/FundItem.vue';
+import { useLoadingStore } from '@/stores/loading';
+
+const loadingStore = useLoadingStore();
 
 const filters = [
   { key: 'country', label: '국가', options: ['전체', '국내', '국외'] },
@@ -83,11 +86,23 @@ const funds = [
 ];
 
 // 마운트 시 로컬스토리지 반영 (없으면 default)
-onMounted(() => {
+onMounted(async () => {
+  // 로딩 상태 초기화
+  loadingStore.resetLoading();
+
+  // 로딩 시작
+  loadingStore.startLoading('펀드 목록을 불러오는 중...');
+
+  // 0.5초 대기 (더미 데이터 로딩 시뮬레이션)
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   const fund = getFinFilters().fund || {};
   filters.forEach(opt => {
     selected.value[opt.key] = opt.options.includes(fund[opt.key]) ? fund[opt.key] : opt.options[0];
   });
+
+  // 로딩 종료
+  loadingStore.stopLoading();
 });
 
 // 값 변경 시 로컬스토리지 반영
