@@ -60,6 +60,26 @@
 <!-- Complete Button end -->
 </template>
 
+<script setup>
+// imports
+import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+
+// func.
+const name = ref('이진욱');
+const invest_type = ref('안정형');
+const invest_type_description = ref('원금 손실 가능성이 낮은 상품(6등급)');
+const userType = ref('stable'); // 예: 고객의 투자유형이 '안정형인 경우'
+
+const router = useRouter();
+const goToPortfolio = () => {
+  router.push('/portfolio-page');
+};
+const goToMain = () => {
+  router.push('/');
+};
+</script>
+
 <style scoped>
 /* Notice Section Styles */
 .notice-wrapper {

@@ -1,37 +1,94 @@
 <template>
   <div class="asset-record-btn-fixed-wrapper">
+    <!-- 보유하지 않은 상품일 때 -->
     <button
+      v-if="!active"
       type="button"
       class="asset-record-btn-fixed"
-      :class="{ active }"
-      @click="$emit('click')">
-      <span
-        v-if="active"
-        class="asset-record-desc"
-        >현재 보유자산입니다.</span
-      >
-      <span :class="['asset-record-btn-text', { center: !active }]">{{
-        active ? '자세히보기' : '보유자산으로 기록'
-      }}</span>
+      @click="handleBuyClick">
+      <span class="asset-record-btn-text center">{{ getBuyButtonText() }}</span>
     </button>
+
+    <!-- 보유 중인 상품일 때 -->
+    <div
+      v-else
+      class="holding-buttons">
+      <button
+        type="button"
+        class="asset-record-btn-fixed sell-btn"
+        @click="handleSellClick">
+        <span class="asset-record-btn-text">{{ getSellButtonText() }}</span>
+      </button>
+      <button
+        v-if="category !== 'deposit'"
+        type="button"
+        class="asset-record-btn-fixed buy-btn"
+        @click="handleBuyClick">
+        <span class="asset-record-btn-text">{{ getAdditionalBuyButtonText() }}</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 
-defineProps({
+const props = defineProps({
   bank: String,
   title: String,
   maxRate: String,
   maxRateDesc: String,
   baseRate: String,
-  active: Boolean
+  active: Boolean, // isHolding 값을 받는 prop
+  category: String,
+  id: [String, Number]
 });
+
+const emit = defineEmits(['buy', 'sell']);
 
 const heartActive = ref(false);
 function toggleHeart() {
   heartActive.value = !heartActive.value;
+}
+
+function handleBuyClick() {
+  // 첫 매수하기 또는 추가 매수하기 버튼 클릭 시 이벤트 emit
+  emit('buy', {
+    category: props.category,
+    id: props.id
+  });
+}
+
+function handleSellClick() {
+  // 매도하기/해지하기 버튼 클릭 시 이벤트 emit
+  emit('sell', {
+    category: props.category,
+    id: props.id
+  });
+}
+
+// 첫 매수/가입 버튼 텍스트 반환
+function getBuyButtonText() {
+  if (props.category === 'deposit') {
+    return '상품 가입하기';
+  }
+  return '주문하기';
+}
+
+// 매도/해지 버튼 텍스트 반환
+function getSellButtonText() {
+  if (props.category === 'deposit') {
+    return '해지하기';
+  }
+  return '매도하기';
+}
+
+// 추가 매수 버튼 텍스트 반환
+function getAdditionalBuyButtonText() {
+  if (props.category === 'deposit') {
+    return '추가 가입하기';
+  }
+  return '추가 매수하기';
 }
 </script>
 
@@ -43,7 +100,7 @@ function toggleHeart() {
   bottom: 30px;
   width: 100%;
   max-width: 408px;
-  z-index: 1000;
+  z-index: 900; /* 모달 배경 뒤에 위치하도록 수정 */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -65,16 +122,25 @@ function toggleHeart() {
   box-sizing: border-box;
   border: none;
 }
-.asset-record-btn-fixed.active {
+.holding-buttons {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.holding-buttons .asset-record-btn-fixed {
+  flex: 1;
+  min-height: 56px;
+}
+
+.sell-btn {
   background: var(--sub01);
   color: var(--white);
-  padding-top: 8px;
-  padding-bottom: 7px;
 }
-.asset-record-desc {
-  font-size: 12px;
-  color: var(--main02);
-  text-align: center;
+
+.buy-btn {
+  background: var(--main01);
+  color: var(--white);
 }
 .asset-record-btn-text {
   text-align: center;

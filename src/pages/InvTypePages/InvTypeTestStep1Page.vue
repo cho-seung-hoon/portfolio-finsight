@@ -9,63 +9,134 @@
 -->
 
 <template>
-<!-- Main Section start -->
-<!-- Q1 Section -->
-<div class="question-box">
-  <h2 class="question-title">고객님의 금융소비자 유형을 선택해주세요.</h2>
-  <div class="check-button-group">
-    <button :class="['check-button', { active: consumerType === '일반' }]" @click="consumerType = '일반'">일반금융소비자</button>
-    <button :class="['check-button', { active: consumerType === '전문' }]" @click="selectProfessionalConsumer">전문금융소비자<br />(영업점가입대상)</button>
-  </div>
-  
-  <!-- Question Guide Section -->
-  <div class="guide-link" @click="goToNotion">전문금융소비자 안내 &gt;</div>
-
-  <!-- Question Modal Section start-->
-  <div v-if="isModalOpen" class="modal-overlay">
-    <div class="modal-box">
-      <h3>전문금융소비자 안내</h3><br>
-      <p>
-        전문금융소비자에 해당하시는 고객님의 경우 영업점에 직접 방문하셔야만 가입이 가능합니다.
-        <br><br>
-        ※ 따라서 본 서비스의 이용이 제한됩니다.
-      </p>
-      <br>
-      <button class="modal-complete-button" @click="closeModal">확인하였습니다.</button>
+  <<<<<<< HEAD
+  <!-- Main Section start -->
+  <!-- Q1 Section -->
+  <div class="question-box">
+    <h2 class="question-title">고객님의 금융소비자 유형을 선택해주세요.</h2>
+    <div class="check-button-group">
+      <button
+        :class="['check-button', { active: consumerType === '일반' }]"
+        @click="consumerType = '일반'">
+        일반금융소비자
+      </button>
+      <button
+        :class="['check-button', { active: consumerType === '전문' }]"
+        @click="selectProfessionalConsumer">
+        전문금융소비자<br />(영업점가입대상)
+      </button>
     </div>
-    <!-- Question Modal Section end-->
-  </div>
-</div>
 
-<!-- Q2 Section -->
-<div class="question-box">
-  <h2 class="question-title">다음의 금융취약소비자에 해당하십니까?</h2>
-  <ul class="list-section">
-    <li class="sub-section-list">고령자(만 65세 이상)</li>
-    <li class="sub-section-list">은퇴자 또는 주부</li>
-    <li class="sub-section-list">금융투자상품 가입시 유의사항 안내가 필요한 분</li>
-  </ul>
-  <div class="check-button-group">
-    <button :class="['check-button', { active: isVulnerable === false }]" @click="isVulnerable = false">아니오</button>
-    <button :class="['check-button', { active: isVulnerable === true }]" @click="isVulnerable = true">예</button>
-  </div>
-</div>
+    <!-- Question Guide Section -->
+    <div
+      class="guide-link"
+      @click="goToNotion">
+      전문금융소비자 안내 &gt;
+    </div>
 
-<!-- Q3 Section -->
-<div class="question-box">
-  <h2 class="question-title">
-    <span class="highlight-blue">최근 1개월 </span>이내 대출을 받았거나,
-    <span class="highlight-blue">앞으로 1개월 이내</span> 대출을 받을 예정인가요?
-  </h2>
-  <div class="check-button-group">
-    <button :class="['check-button', { active: hasLoan === false }]" @click="hasLoan = false">아니오</button>
-    <button :class="['check-button', { active: hasLoan === true }]" @click="hasLoan = true">예</button>
+    <!-- Question Modal Section start-->
+    <div
+      v-if="isModalOpen"
+      class="modal-overlay">
+      <div class="modal-box">
+        <h3>전문금융소비자 안내</h3>
+        <br />
+        <p>
+          전문금융소비자에 해당하시는 고객님의 경우 영업점에 직접 방문하셔야만 가입이 가능합니다.
+          <br /><br />
+          ※ 따라서 본 서비스의 이용이 제한됩니다.
+        </p>
+        <br />
+        <button
+          class="modal-complete-button"
+          @click="closeModal">
+          확인하였습니다.
+        </button>
+      </div>
+      <!-- Question Modal Section end-->
+    </div>
   </div>
-  <!-- Complete Button -->
-  <button class="complete-button" @click="goToNext" :disabled="isNextDisabled">다음 단계로</button>
-</div>
-<!-- Main Section end-->
+
+  <!-- Q2 Section -->
+  <div class="question-box">
+    <h2 class="question-title">다음의 금융취약소비자에 해당하십니까?</h2>
+    <ul class="list-section">
+      <li class="sub-section-list">고령자(만 65세 이상)</li>
+      <li class="sub-section-list">은퇴자 또는 주부</li>
+      <li class="sub-section-list">금융투자상품 가입시 유의사항 안내가 필요한 분</li>
+    </ul>
+    <div class="check-button-group">
+      <button
+        :class="['check-button', { active: isVulnerable === false }]"
+        @click="isVulnerable = false">
+        아니오
+      </button>
+      <button
+        :class="['check-button', { active: isVulnerable === true }]"
+        @click="isVulnerable = true">
+        예
+      </button>
+    </div>
+  </div>
+
+  <!-- Q3 Section -->
+  <div class="question-box">
+    <h2 class="question-title">
+      <span class="highlight-blue">최근 1개월 </span>이내 대출을 받았거나,
+      <span class="highlight-blue">앞으로 1개월 이내</span> 대출을 받을 예정인가요?
+    </h2>
+    <div class="check-button-group">
+      <button
+        :class="['check-button', { active: hasLoan === false }]"
+        @click="hasLoan = false">
+        아니오
+      </button>
+      <button
+        :class="['check-button', { active: hasLoan === true }]"
+        @click="hasLoan = true">
+        예
+      </button>
+    </div>
+    <!-- Complete Button -->
+    <button
+      class="complete-button"
+      :disabled="isNextDisabled"
+      @click="goToNext">
+      다음 단계로
+    </button>
+  </div>
+  <!-- Main Section end-->
 </template>
+
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+const router = useRouter();
+const consumerType = ref(null);
+const isVulnerable = ref(null);
+const hasLoan = ref(null);
+
+const goToNotion = () => {
+  router.push('/inv-type-notice-page');
+};
+const goToNext = () => {
+  router.push('/inv-type-test-step-2-page');
+};
+
+// modal func.
+const isModalOpen = ref(false);
+const selectProfessionalConsumer = () => {
+  consumerType.value = '전문';
+  isModalOpen.value = true;
+};
+
+// 전문금융 소비자 안내 화면 -- 이후 비활성화 기능
+const isNextDisabled = ref(false);
+const closeModal = () => {
+  isModalOpen.value = false;
+  isNextDisabled.value = true; // "다음 단계로" 버튼 비활성화
+};
+</script>
 
 <style scoped>
 /* Question Section Styles */
@@ -145,7 +216,7 @@
   font-weight: 700;
   font-size: 18px;
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   border: none;
   cursor: pointer;
   width: calc(100%);
@@ -169,7 +240,7 @@
 position: absolute;
 bottom: 0;
 left: 0;
-width: 100%; 
+width: 100%;
 padding: 16px 0;
 background: var(--main01);
 color: var(--white);
@@ -191,33 +262,4 @@ color: #666;
   font-weight: bold;
 }
 </style>
-
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-const router = useRouter()
-const consumerType = ref(null)
-const isVulnerable = ref(null)
-const hasLoan = ref(null)
-
-const goToNotion = () => {
-  router.push('/inv-type-notice-page')
-}
-const goToNext = () => {
-  router.push('/inv-type-test-step-2-page')
-}
-
-// modal func.
-const isModalOpen = ref(false)
-const selectProfessionalConsumer = () => {
-consumerType.value = '전문'
-isModalOpen.value = true
-}
-
-// 전문금융 소비자 안내 화면 -- 이후 비활성화 기능
-const isNextDisabled = ref(false)
-const closeModal = () => {
-isModalOpen.value = false
-isNextDisabled.value = true // "다음 단계로" 버튼 비활성화
-}
-</script>
+======= >>>>>>> develop

@@ -3,14 +3,7 @@
     <div class="product-bank">{{ bank }}</div>
     <div class="product-title-row">
       <div class="product-title">{{ title }}</div>
-      <IconFullHeart
-        v-if="heartActive"
-        class="heart-icon"
-        @click="toggleHeart" />
-      <IconEmptyHeart
-        v-else
-        class="heart-icon"
-        @click="toggleHeart" />
+      <HeartToggle @toggle="handleHeartToggle" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">
@@ -28,9 +21,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import IconEmptyHeart from '@/components/icons/IconEmptyHeart.vue';
-import IconFullHeart from '@/components/icons/IconFullHeart.vue';
+import HeartToggle from '@/components/common/HeartToggle.vue';
 
 defineProps({
   bank: String,
@@ -40,10 +31,9 @@ defineProps({
   baseRate: String
 });
 
-const heartActive = ref(false);
-function toggleHeart() {
-  heartActive.value = !heartActive.value;
-}
+const handleHeartToggle = isActive => {
+  // 하트 상태 변경 처리 (필요시 추가 로직 구현)
+};
 </script>
 
 <style scoped>
@@ -66,13 +56,7 @@ function toggleHeart() {
   font-weight: 700;
   color: var(--main05);
 }
-.heart-icon {
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  user-select: none;
-  display: inline-block;
-}
+
 .product-bank {
   font-size: 18px;
   font-weight: 500;

@@ -5,9 +5,9 @@ const watchRoutes = [
     component: () => import('../pages/WatchPage.vue'),
     meta: {
       layout: 'HeaderLayout',
-      header:{
+      header: {
         titleParts: [{ text: '찜한 목록', color: 'var(--main01)' }],
-        showBackButton: true,
+        showBackButton: true
       }
     }
   }

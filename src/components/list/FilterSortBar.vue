@@ -14,30 +14,30 @@
           <IconArrowDown class="icon-arrow-down" />
         </button>
         <DropDown
-          v-if="openedFilter === filter.key"
           :options="filter.options"
           :selected="selected[filter.key]"
+          align="left"
+          :show="openedFilter === filter.key"
           @select="option => selectFilterOption(filter.key, option)"
-          @click-outside="openedFilter = null"
-          align="left" />
+          @click-outside="openedFilter = null" />
       </div>
     </div>
     <div
+      v-if="sortFilter"
       class="filter-sort-bar-sort"
-      style="position: relative; display: inline-block"
-      v-if="sortFilter">
+      style="position: relative; display: inline-block">
       <span
         class="filter-sort-bar-sort-label"
         @click="openSort">
         {{ selected[sortFilter.key] }}
       </span>
       <DropDown
-        v-if="openedSort"
         :options="sortFilter.options"
         :selected="selected[sortFilter.key]"
+        align="right"
+        :show="openedSort"
         @select="option => selectFilterOption(sortFilter.key, option)"
-        @click-outside="openedSort = false"
-        align="right" />
+        @click-outside="openedSort = false" />
     </div>
   </div>
 </template>
@@ -70,6 +70,7 @@ function openSort() {
 
 function selectFilterOption(filterKey, option) {
   emit('change', filterKey, option);
+  // 드롭다운이 닫히도록 상태를 업데이트합니다.
   openedFilter.value = null;
   openedSort.value = false;
 }

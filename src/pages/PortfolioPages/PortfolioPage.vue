@@ -422,11 +422,11 @@ watch(() => route.query.userType, (newUserType) => {
 <style scoped>
 /* Header Section styles*/
 .sub-title {
-    background: var(--main01);
-    padding: 10px 3px 5px 3px;
-    border: none;
-    border-radius: 5px;
-    font-size: 15px;
+  background: var(--main01);
+  padding: 10px 3px 5px 3px;
+  border: none;
+  border-radius: 5px;
+  font-size: 15px;
 }
 .result-section {
     margin: 10px 10px 10px 10px;
@@ -434,11 +434,11 @@ watch(() => route.query.userType, (newUserType) => {
 
 /* Main Section Styles */
 .sub-section {
-    margin-bottom: 30px;
-    border: 3px solid var(--main03);
-    border-radius: 5px;
-    background-color: var(--main05);
-    height: auto;
+  margin-bottom: 30px;
+  border: 3px solid var(--main03);
+  border-radius: 5px;
+  background-color: var(--main05);
+  height: auto;
 }
 
 /* Table Section style */
@@ -447,39 +447,39 @@ watch(() => route.query.userType, (newUserType) => {
     width: 100%;
 }
 .table-style {
-    border: 1px solid var(--main03);
-    text-align: center;
-    padding: 8px 10px;
+  border: 1px solid var(--main03);
+  text-align: center;
+  padding: 8px 10px;
 }
 
 /* Table Highlight Styles */
 .table-highlight-veryaggressive {
-    color: var(--red01);
-    font-weight: bold;
-    background-color: var(--red02);
-    border: 2px solid var(--red01);
-    text-align: center;
+  color: var(--red01);
+  font-weight: bold;
+  background-color: var(--red02);
+  border: 2px solid var(--red01);
+  text-align: center;
 }
 .table-highlight-aggressive {
-    color: var(--orange01);
-    font-weight: bold;
-    background-color: var(--orange02);
-    border: 2px solid var(--orange01);
-    text-align: center;
+  color: var(--orange01);
+  font-weight: bold;
+  background-color: var(--orange02);
+  border: 2px solid var(--orange01);
+  text-align: center;
 }
 .table-highlight-neutral {
-    color: var(--yellow01);
-    font-weight: bold;
-    background-color: var(--yellow02);
-    border: 2px solid var(--yellow01);
-    text-align: center;
+  color: var(--yellow01);
+  font-weight: bold;
+  background-color: var(--yellow02);
+  border: 2px solid var(--yellow01);
+  text-align: center;
 }
 .table-highlight-stableplus {
-    color: var(--green01);
-    font-weight: bold;
-    background-color: var(--green02);
-    border: 2px solid var(--green01);
-    text-align: center;
+  color: var(--green01);
+  font-weight: bold;
+  background-color: var(--green02);
+  border: 2px solid var(--green01);
+  text-align: center;
 }
 .table-highlight-stable {
     color: var(--mint01);
@@ -491,32 +491,32 @@ watch(() => route.query.userType, (newUserType) => {
 
 /* Text Highlight Styles */
 .highlight-blue {
-    color: var(--text-blue);
-    font-weight: bold;
+  color: var(--text-blue);
+  font-weight: bold;
 }
 .highlight-red {
-    color: var(--text-red);
-    font-weight: bold;
+  color: var(--text-red);
+  font-weight: bold;
 }
 .highlight-white {
-    color: var(--main05);
-    font-weight: bold;
+  color: var(--main05);
+  font-weight: bold;
 }
 .highlight-veryaggressive {
-    color: var(--red01);
-    font-weight: bold;
+  color: var(--red01);
+  font-weight: bold;
 }
 .highlight-aggressive {
-    color: var(--orange01);
-    font-weight: bold;
+  color: var(--orange01);
+  font-weight: bold;
 }
 .highlight-neutral {
-    color: var(--yellow01);
-    font-weight: bold;
+  color: var(--yellow01);
+  font-weight: bold;
 }
 .highlight-stableplus {
-    color: var(--green01);
-    font-weight: bold;
+  color: var(--green01);
+  font-weight: bold;
 }
 .highlight-stable {
     color: var(--mint01);
@@ -525,9 +525,9 @@ watch(() => route.query.userType, (newUserType) => {
 
 /* NoticeSection Styles */
 .notice {
-    margin-top: 18px;
-    font-size: var(--font-size-sm);
-    color: #8c8c8c;
+  margin-top: 18px;
+  font-size: var(--font-size-sm);
+  color: #8c8c8c;
 }
 
 /* Button Styles */

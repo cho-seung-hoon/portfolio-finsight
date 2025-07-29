@@ -15,8 +15,8 @@
     <div
       class="list-page-banner"
       :class="{ matched: isMatched }"
-      @click="openModal"
-      style="cursor: pointer">
+      style="cursor: pointer"
+      @click="openModal">
       <div
         class="list-page-banner-comment"
         :class="isMatched ? 'matched' : 'default'">
@@ -36,22 +36,24 @@
     </div>
   </div>
 
-  <BottomModal
-    v-if="showModal"
-    @confirm="confirmMatch"
-    @cancel="closeModal" />
+  <Transition name="slide-up">
+    <BottomModal
+      v-if="showModal"
+      @confirm="confirmMatch"
+      @cancel="closeModal" />
+  </Transition>
 </template>
 
 <script setup>
 import { useRoute } from 'vue-router';
 import { ref, computed, onMounted } from 'vue';
-import { getFinFilters, setFinFilters } from '@/utils/filterStorage'; // 추가!
+import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
 import ListTab from '@/components/list/ListTab.vue';
 import ListDepositPage from './list/ListDepositPage.vue';
 import ListFundPage from './list/ListFundPage.vue';
 import ListEtfPage from './list/ListEtfPage.vue';
 import IconCheck from '@/components/icons/IconCheck.vue';
-import BottomModal from './list/BottomModal.vue';
+import BottomModal from '@/components/list/BottomModal.vue';
 
 const route = useRoute();
 const category = computed(() => route.params.category);
@@ -89,16 +91,12 @@ function updateIsMatchedInStorage(val) {
     isMatched: val
   });
 }
-
-onMounted(() => {
-  isMatched.value = getFinFilters().isMatched || false;
-});
 </script>
 
 <style scoped>
 .page-content {
   width: 100%;
-  padding: 12px 0px;
+  padding: 12px 0px 50px;
 }
 
 .list-page-banner-wrapper {
@@ -140,7 +138,7 @@ onMounted(() => {
   color: var(--main02);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 16px;
-  box-shadow: 0 8px 50px 0 rgba(13, 17, 37, 0.05);
+  box-shadow: 0 8px 50px 0 rgba(51, 56, 83, 0.1);
 }
 
 .list-page-banner.matched {

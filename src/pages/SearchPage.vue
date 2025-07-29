@@ -2,8 +2,8 @@
   <div class="list-search-page-container">
     <section class="list-search-page-header">
       <input
-        type="text"
         v-model="search"
+        type="text"
         placeholder="상품을 입력하세요"
         class="list-search-page-input" />
       <button class="list-search-page-complete-button">완료</button>
@@ -12,14 +12,13 @@
       <SearchSuggestItem
         v-for="(name, idx) in allProducts"
         :key="idx"
-        :productName="name" />
+        :product-name="name" />
     </section>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { onBeforeRouteLeave } from 'vue-router';
 import SearchSuggestItem from '@/components/list/SearchSuggestItem.vue';
 
 const search = ref('');
@@ -62,16 +61,16 @@ onMounted(() => {
   margin-left: -20px;
   width: calc(100% + 40px);
   padding: 8px 20px;
-  background-color: var(--main05);
+  background-color: var(--white);
   border-bottom: 1px solid var(--main03);
 }
 
 .list-search-page-input {
   flex: 1;
-  padding: 12px 16px;
+  padding: 12px 28px;
   background-color: var(--main04);
   border: none;
-  border-radius: 12px;
+  border-radius: 20px;
   font-size: var(--font-size-md);
   outline: none;
 }
@@ -85,6 +84,7 @@ onMounted(() => {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .list-search-page-content {

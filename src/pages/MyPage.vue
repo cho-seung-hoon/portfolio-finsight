@@ -1,19 +1,20 @@
 <template>
   <div class="my-box">
-    <div
-      class="subItem-img">
+    <div class="subItem-img">
       <img
         class="bg-image"
         src="@/assets/my-backgroud.png"
         alt="배경 이미지"
-        loading="eager"/>
+        loading="eager" />
     </div>
-    <div
-      class="subItem-info">
+    <div class="subItem-info">
       <UserInfo />
     </div>
     <div class="subItem-invt">
       <UserInvt />
+    </div>
+    <div class="subItem-watch">
+      <UserWatch />
     </div>
     <div class="subItem-user">
       <UserMgmt />
@@ -25,6 +26,7 @@
 import UserInfo from '@/components/my/UserInfo.vue';
 import UserInvt from '@/components/my/UserInvt.vue';
 import UserMgmt from '@/components/my/UserMgmt.vue';
+import UserWatch from '@/components/my/UserWatch.vue';
 </script>
 
 <style scoped>
@@ -35,12 +37,12 @@ import UserMgmt from '@/components/my/UserMgmt.vue';
 }
 
 .subItem-img {
-  margin-top: calc(-1 * 56px);
+  position: relative;
+  margin-top: -56px;
   margin-left: -20px;
   width: calc(100% + 40px);
-  z-index: 0;
-  aspect-ratio: 375 / 180;
   overflow: hidden;
+  z-index: 0;
 }
 
 .bg-image {
@@ -48,8 +50,6 @@ import UserMgmt from '@/components/my/UserMgmt.vue';
   width: 100%;
   height: 100%;
 }
-
-
 
 .subItem-info {
   margin-left: -20px;

@@ -30,18 +30,16 @@
 <!-- Main Section end -->
 </template>
 
-
 <script setup>
 // imports
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 
 // func.
-const router = useRouter()
+const router = useRouter();
 const goToNext = () => {
-    router.push('/inv-type-test-step-1-page')
-}
+  router.push('/inv-type-test-step-1-page');
+};
 </script>
-
 
 <style scoped>
 /* Main Section Styles */
@@ -85,13 +83,15 @@ const goToNext = () => {
   font-weight: bold;
   width: calc(80%);
   cursor: pointer;
-  display: block;     
+  display: block;
   margin: 0 auto;
-  transition: transform 1s ease, box-shadow 0.1s ease;
+  transition:
+    transform 1s ease,
+    box-shadow 0.1s ease;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 .next-button:active {
-  transform: scale(0.80);
+  transform: scale(0.8);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 .next-button:hover {

@@ -5,11 +5,11 @@ const etfRoutes = [
     component: () => import('../pages/ETFPage.vue'),
     meta: {
       layout: 'HeaderLayout',
-      header:{
-        titleParts: [{text:'', color:'transparent'}],
+      header: {
+        titleParts: [{ text: '', color: 'transparent' }],
         showBackButton: true,
         showBorder: false,
-        bColor:'var(--main01)',
+        bColor: 'var(--main01)'
       }
     }
   }

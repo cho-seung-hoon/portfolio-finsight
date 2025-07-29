@@ -25,11 +25,10 @@
 <!-- QuestionSection (01) ~ (07) start -->
 <!-- 투자성향 페이지 출처: https://invest_test.isweb.co.kr/main_new -->
 
-<!-- QuestionSection (01) -->
-<section class="sub-section"> 
+  <!-- QuestionSection (01) -->
+  <section class="sub-section">
     <p class="question-title">
-        <strong>Q1.</strong> 고객님의 
-        <span class="highlight-blue">연령대</span>는 어떻게 되시나요?
+      <strong>Q1.</strong> 고객님의 <span class="highlight-blue">연령대</span>는 어떻게 되시나요?
     </p>
     <div class="answer-list">
         <input type="radio" name="q1" :value="1" :id="'q1-1'" v-model="selectedAnswers.q1" />
@@ -117,10 +116,10 @@
         <input type="checkbox" name="q3" :value="5" :id="'q3-5'" v-model="selectedAnswers.q3" />
         <label for="q3-5"> ELW, 선물옵션, 시장수익률 이상의 수익을 추구하는 주식형펀드 ,파생상품에 투자하는 펀드, 주식 신용거래 등</label>
     </div>
-</section>
+  </section>
 
-<!-- QuestionSection (04) -->
-<section class="sub-section"> 
+  <!-- QuestionSection (02) -->
+  <section class="sub-section">
     <p class="question-title">
         <strong>Q4.</strong> 금융상품 투자에 대한 고객님의
         <span class="highlight-blue">지식수준</span>은 어느 정도라고 생각하시나요?
@@ -144,10 +143,10 @@
         <input type="radio" name="q4" :value="4" :id="'q4-4'" v-model="selectedAnswers.q4" />
         <label for="q4-4"> [ 매우 높은 수준 ] 금융상품을 비롯하여 모든 투자대상 상품의 차이를 이해할 수 있는 정도</label>
     </div>
-</section>
+  </section>
 
-<!-- QuestionSection (05) -->
-<section class="sub-section"> 
+  <!-- QuestionSection (03) -->
+  <section class="sub-section">
     <p class="question-title">
         <strong>Q5.</strong> 고객님께서 현재
         <span class="highlight-blue">투자하고자 하는 자금</span>은 전체 금융자산(부동산 등을 제외) 중 
@@ -177,10 +176,10 @@
         <input type="radio" name="q5" :value="5" :id="'q5-5'" v-model="selectedAnswers.q5" />
         <label for="q5-5"> 40% 이상</label>
     </div>
-</section>
+  </section>
 
-<!-- QuestionSection (06) -->
-<section class="sub-section"> 
+  <!-- QuestionSection (04) -->
+  <section class="sub-section">
     <p class="question-title">
         <strong>Q6.</strong> 다음 중 고객님의 
         <span class="highlight-blue">수입원</span>을 가장 잘 나타내고 있는 것은 어느 것인가요?
@@ -199,10 +198,10 @@
         <input type="radio" name="q6" :value="3" :id="'q6-3'" v-model="selectedAnswers.q6" />
         <label for="q6-3"> 현재 일정한 수입이 없으며, 연금이 주수입원이다.</label>
     </div>
-</section>
+  </section>
 
-<!-- QuestionSection (07) -->
-<section class="sub-section"> 
+  <!-- QuestionSection (05) -->
+  <section class="sub-section">
     <p class="question-title">
         <strong>Q7.</strong> 만약 투자원금에 
         <span class="highlight-red">손실</span>이 발생할 경우, 다음 중 
@@ -264,6 +263,22 @@
 <!-- Modal Section end -->
 </template>
 
+<script setup>
+// imports
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+// func.
+const isModalOpen = ref(false);
+const router = useRouter();
+const goToNext = () => {
+  isModalOpen.value = true;
+};
+const closeModal = () => {
+  isModalOpen.value = false;
+  router.push('/inv-type-results-page');
+};
+</script>
 
 <style scoped>
 /* Main Section Styles */
@@ -294,16 +309,16 @@
     width: calc(100%);
 }
 .question-title {
-    margin: 34px 40px 34px 40px;
-    font-size: 15px;
+  margin: 34px 40px 34px 40px;
+  font-size: 15px;
 }
 .answer-list {
-    margin: 0px 45px 34px 45px;
-    display: auto;
+  margin: 0px 45px 34px 45px;
+  display: auto;
 }
 .answer-boundary {
-    border: 1px solid var(--main04);
-    margin: 10px 5px 10px 5px;
+  border: 1px solid var(--main04);
+  margin: 10px 5px 10px 5px;
 }
 
 /* Notice Section Styles */
@@ -337,37 +352,37 @@
 
 /* Modal Section Styles */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
 }
 .modal-box {
-    background-color: white;
+  background-color: white;
 
-    padding: 24px;
-    width: 90%;
-    max-width: 320px;
-    text-align: left;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  width: 90%;
+  max-width: 320px;
+  text-align: left;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 .modal-complete-button {
-    padding: 10px 10px;
-    background: var(--main01);
-    color: var(--white);
-    font-weight: 700;
-    font-size: 18px;
-    display: flex;
-    justify-content: center; 
-    border: none;
-    cursor: pointer;
-    width: calc(100%);
+  padding: 10px 10px;
+  background: var(--main01);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  width: calc(100%);
 }
 
 /* Highlight styles */

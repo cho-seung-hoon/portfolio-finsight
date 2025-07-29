@@ -21,7 +21,6 @@ import { ref, onMounted } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import DepositItem from '@/components/list/DepositItem.vue';
 
-
 const tabs = [
   { label: '예금', value: 'deposit' },
   { label: '펀드', value: 'fund' },
@@ -106,7 +105,6 @@ const deposits = [
 function selectTab(tab) {
   selected.value = tab;
 }
-
 </script>
 
 <style scoped>

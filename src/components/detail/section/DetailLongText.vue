@@ -1,10 +1,10 @@
 <template>
   <div class="long-text-container">
     <div
-      class="long-text-content"
       ref="contentRef"
+      class="long-text-content"
       :style="contentStyle">
-      <slot />
+      <slot></slot>
     </div>
     <button
       class="toggle-btn"
