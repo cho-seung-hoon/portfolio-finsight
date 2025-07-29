@@ -7,9 +7,7 @@ const listRoutes = [
       header: {
         titleParts: [{ text: '상품탐색', color: 'var(--main01)' }],
         showBackButton: false,
-        actions: [
-          { icon: 'search', to: '/search' }
-        ],
+        actions: [{ icon: 'search', to: '/search' }],
         showBorder: false
       }
     }

@@ -13,7 +13,7 @@ const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
-app.component('apexchart', VueApexCharts);
+app.component('Apexchart', VueApexCharts);
 
 router.isReady().then(() => {
   app.mount('#app');
