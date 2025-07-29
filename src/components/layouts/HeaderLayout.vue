@@ -22,9 +22,6 @@
         ref="thumbEl"
         class="custom-scrollbar-thumb"></div>
     </div>
-    <TimeModal
-      v-if="isModalVisible"
-      @close="closeModal" />
   </div>
 </template>
 
@@ -46,7 +43,6 @@ const closeModal = () => {
 const headerStore = useHeaderStore();
 
 const stickyHeader = computed(() => headerStore.stickyHeader);
-
 
 const scrollRef = ref(null);
 const trackEl = ref(null);
@@ -141,7 +137,6 @@ watch(route, () => {
   display: none;
 }
 
-
 .scroll-wrapper {
   flex-grow: 1;
   overflow-y: auto;
@@ -158,7 +153,7 @@ watch(route, () => {
   top: 0;
   bottom: 0px;
   width: 5px;
-  z-index:10;
+  z-index: 10;
 }
 
 .custom-scrollbar-thumb {
@@ -166,7 +161,6 @@ watch(route, () => {
   height: 50px;
   background-color: rgb(from var(--main01) r g b / 0.2);
 }
-
 
 .header {
   height: 56px;
@@ -188,5 +182,4 @@ watch(route, () => {
 .custom-scrollbar-thumb:active {
   cursor: grabbing;
 }
-
 </style>

@@ -25,10 +25,6 @@
         ref="thumbEl"
         class="custom-scrollbar-thumb"></div>
     </div>
-
-    <TimeModal
-      v-if="isModalVisible"
-      @close="closeModal" />
   </div>
 </template>
 
@@ -134,7 +130,6 @@ watch(route, () => {
   flex-direction: column;
   height: 100dvh;
   position: relative;
-
 }
 
 .layout-container::-webkit-scrollbar {

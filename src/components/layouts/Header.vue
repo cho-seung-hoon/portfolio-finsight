@@ -42,22 +42,22 @@
       </div>
       <div
         class="time"
-        :style="{ color: backButtonColor }"
-        @click="handleTimeClick">
+        :style="{ color: backButtonColor }">
         00:00
       </div>
+      <button @click="handleExtendSession">시간연장</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHeaderStore } from '@/stores/header';
 import IconSearch from '@/components/icons/IconSearch.vue';
 
 const emit = defineEmits(['open-time-modal']);
-
+const accessToken = ref('');
 
 const headerStore = useHeaderStore();
 
@@ -72,9 +72,18 @@ const iconComponents = {
   search: IconSearch
 };
 
-function handleTimeClick() {
-  emit('open-time-modal'); // 여기서 이벤트를 발생시킵니다.
+async function handleExtendSession() {
+  try {
+    const response = await axios.get('http://localhost:8080'); // 액세스 토큰 발급 url
+    accessToken = response.data.data;
+    console.log('로그인 연장 성공:', response.data.success);
+  } catch (error) {
+    console.error('로그인 연장 실패:', response.data.success);
+  }
 }
+// function handleTimeClick() {
+//   emit('open-time-modal'); // 여기서 이벤트를 발생시킵니다.
+// }
 </script>
 
 <style scoped>
