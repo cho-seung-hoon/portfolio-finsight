@@ -60,7 +60,6 @@ const emit = defineEmits(['open-time-modal']);
 
 const accessToken = ref('');
 
-
 const headerStore = useHeaderStore();
 
 const { titleParts, showBackButton, actions, showBorder, bColor, backHandler } =
@@ -77,7 +76,7 @@ const iconComponents = {
 async function handleExtendSession() {
   try {
     const response = await axios.get('http://localhost:8080'); // 액세스 토큰 발급 url
-    accessToken = response.data.data;
+    accessToken.value = response.data.data;
     console.log('로그인 연장 성공:', response.data.success);
   } catch (error) {
     console.error('로그인 연장 실패:', response.data.success);

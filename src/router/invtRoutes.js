@@ -19,7 +19,11 @@ const invtRoutes = [
     name: 'InvTypeTestStep1Page',
     component: InvTypeTestStep1Page,
     meta: {
-      layout: 'EmptyLayout'
+      layout: 'HeaderLayout',
+      header: {
+        titleParts: [{ text: '투자성향분석', color: 'var(--white)' }],
+        bColor: 'var(--main01)'
+      }
     }
   },
   {
@@ -27,7 +31,11 @@ const invtRoutes = [
     name: 'InvTypeNoticePage',
     component: InvTypeNoticePage,
     meta: {
-      layout: 'EmptyLayout'
+      layout: 'HeaderLayout',
+      header: {
+        titleParts: [{ text: '금융소비자 구분 안내', color: 'var(--white)' }],
+        bColor: 'var(--main01)'
+      }
     }
   },
   {
@@ -35,7 +43,11 @@ const invtRoutes = [
     name: 'InvTypeTestStep2Page',
     component: InvTypeTestStep2Page,
     meta: {
-      layout: 'EmptyLayout'
+      layout: 'HeaderLayout',
+      header: {
+        titleParts: [{ text: '투자성향분석', color: 'var(--white)' }],
+        bColor: 'var(--main01)'
+      }
     }
   },
   {
@@ -43,7 +55,11 @@ const invtRoutes = [
     name: 'InvTypeResultsPage',
     component: InvTypeResultsPage,
     meta: {
-      layout: 'EmptyLayout'
+      layout: 'HeaderLayout',
+      header: {
+        titleParts: [{ text: '투자성향분석 결과', color: 'var(--white)' }],
+        bColor: 'var(--main01)'
+      }
     }
   },
   {
@@ -51,7 +67,11 @@ const invtRoutes = [
     name: 'PortfolioPage',
     component: PortfolioPage,
     meta: {
-      layout: 'EmptyLayout'
+      layout: 'HeaderLayout',
+      header: {
+        titleParts: [{ text: '나의 포트폴리오', color: 'var(--white)' }],
+        bColor: 'var(--main01)'
+      }
     }
   }
 ];
