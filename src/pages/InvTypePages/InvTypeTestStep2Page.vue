@@ -263,23 +263,6 @@
 <!-- Modal Section end -->
 </template>
 
-<script setup>
-// imports
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-
-// func.
-const isModalOpen = ref(false);
-const router = useRouter();
-const goToNext = () => {
-  isModalOpen.value = true;
-};
-const closeModal = () => {
-  isModalOpen.value = false;
-  router.push('/inv-type-results-page');
-};
-</script>
-
 <style scoped>
 /* Main Section Styles */
 .main-section {
