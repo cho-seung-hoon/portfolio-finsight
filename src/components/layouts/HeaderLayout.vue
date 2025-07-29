@@ -46,7 +46,7 @@ const stickyHeader = computed(()=> headerStore.stickyHeader);
   position: relative;
   overflow-y: auto;
   overflow-x:hidden;
-  padding: 0 20px 60px;
+  padding: 0 20px;
 }
 
 .content-container::-webkit-scrollbar {

@@ -9,9 +9,9 @@
 -->
 <template>
 <!-- TitleSection start-->
-<div class="main-section">
+<!-- <div class="main-section">
     <h1 class="main-title">금융소비자 구분 안내</h1>
-</div>
+</div> -->
 <!-- TitleSection end-->
 
 <!-- MainSection start-->
@@ -69,15 +69,16 @@
         </ul>
     </section>
     <!-- SubSection_3 end -->
+
+    <!-- CompleteButton -->
+    <button
+        class="complete-button"
+        @click="backToPrevious"
+        >위 안내사항을 확인하였습니다.
+    </button> 
 </div>
 <!-- MainSection end-->
 
-<!-- CompleteButton -->
-<button
-    class="main-section complete-button"
-    @click="backToPrevious"
-    >위 안내사항을 확인하였습니다.
-</button> 
 </template>
 
 <script setup>
@@ -94,12 +95,18 @@ const backToPrevious = () => {
 <style scoped>
 /* TitleSection styles */
 .main-section {
-    background: var(--main01);
-    padding: 32px 32px 24px 32px;
-    text-align: left;
-    width: calc(100% + 40px);
-    margin-left: -20px;
-    margin-right: -20px;
+    position: relative;
+    border: 2px solid var(--main03);
+    border-radius: 10px;
+    width: 300px;
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 11px;
+    color: #8c8c8c;
+    background-color: var(--main05);
+    justify-content: center;
+    cursor: pointer;
+    padding: 10px;
 }
 .main-title {
     font-size: 20px;
@@ -149,14 +156,17 @@ const backToPrevious = () => {
 
 /* CompleteButton styles */
 .complete-button {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%; 
     padding: 16px 0;
     background: var(--main01);
     color: var(--white);
     font-weight: 700;
     font-size: 20px;
-    display: flex;
-    justify-content: center; 
     border: none;
     cursor: pointer;
+  z-index: 1000; /* 다른 요소보다 위에 오도록 */
 }
 </style>

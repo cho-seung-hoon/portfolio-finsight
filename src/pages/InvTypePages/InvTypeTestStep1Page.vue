@@ -1,5 +1,4 @@
 <template>
-    <!-- <div class="main-section"> -->
     <!-- QuestionSection 1 -->
     <div class="question-box">
       <h2 class="question-title">고객님의 금융소비자 유형을 선택해주세요.</h2>
@@ -127,8 +126,8 @@ const closeModal = () => {
   
   <style scoped>
   /* TitleSection */
-  .main-section {
-    background: var(--main04);
+.main-section {
+  background: var(--main04);
   text-align: left;
   width: calc(100% + 40px);
   margin: 0 -20px;
@@ -138,7 +137,7 @@ const closeModal = () => {
   justify-content: center; /* 수직 중앙 */
   align-items: center;     /* 수평 중앙 */
   padding: 0 20px;
-  }
+}
   .main-title {
     font-size: 20px;
     font-weight: 700;
