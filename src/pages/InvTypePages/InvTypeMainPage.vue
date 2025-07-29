@@ -12,11 +12,12 @@
     <!-- FigureSection -->
     <img src="/src/assets/cha2.png" alt="stableChart" class="figure-image">
     <p class="main-title">
-      Fin-Sight가 투자성향별<br />
-      맞춤 <span class="highlight-sub highlight-font">자산배분안</span>을 알려드려요 !
+      Fin-Sight가<br>
+      투자성향별 맞춤<br>
+      <span class="highlight-sub">자산배분안</span>을 알려드려요 !
     </p>
     <button class="next-button" @click="goToNext">
-      나의 투자성향 분석하러가기
+      나의 투자성향 분석하기
     </button>
   </div>
 </template>
@@ -45,10 +46,10 @@ const goToNext = () => {
     margin-right: -20px;
 }
 .main-title {
-    font-size: 28px;
+    font-size: 20px;
     font-weight: bold;
     color: black;
-    padding: 20px 75px 50px 75px;
+    padding: 20px 50px 20px 50px;
 }
 
 /* NextButton styles */
@@ -57,7 +58,7 @@ const goToNext = () => {
   background: var(--main01);
   color: var(--main05);
   border-radius: 30px;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   width: calc(80%);
   cursor: pointer;
