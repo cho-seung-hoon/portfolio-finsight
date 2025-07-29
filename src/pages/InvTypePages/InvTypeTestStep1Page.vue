@@ -219,7 +219,7 @@ const closeModal = () => {
   font-size: 20px;
   border: none;
   cursor: pointer;
-  z-index: 1000; /* 다른 요소보다 위에 오도록 */
+  z-index: 700; /* 다른 요소보다 위에 오도록 */
 }
 .complete-button:disabled {
   background-color: #ccc;
