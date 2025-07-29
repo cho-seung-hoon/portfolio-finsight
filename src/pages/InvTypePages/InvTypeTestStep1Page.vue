@@ -1,11 +1,5 @@
 <template>
-    <!-- TitleSection start -->
-    <!-- <div class="main-section">
-      <h1 class="main-title">투자성향분석</h1>
-    </div>
-    <br /> -->
-    <!-- TitleSection end -->
-  
+    <!-- <div class="main-section"> -->
     <!-- QuestionSection 1 -->
     <div class="question-box">
       <h2 class="question-title">고객님의 금융소비자 유형을 선택해주세요.</h2>
@@ -18,12 +12,26 @@
         </button>
         <button
           :class="['check-button', { active: consumerType === '전문' }]"
-          @click="consumerType = '전문'"
+          @click="selectProfessionalConsumer"
+          
         >
           전문금융소비자<br />(영업점가입대상)
         </button>
       </div>
       <div class="guide-link" @click="goToNotion">전문금융소비자 안내 &gt;</div>
+
+      <!-- 팝업(모달) -->
+    <div v-if="isModalOpen" class="modal-overlay">
+        <div class="modal-box">
+            <h3>전문금융소비자 안내</h3><br>
+            <p>전문금융소비자에 해당하시는 고객님의 경우 영업점에 직접 방문하셔야만 가입이 가능합니다.
+              
+              <br><br>※ 따라서 본 서비스의 이용이 제한됩니다.</p>
+            <br>
+            <button class="modal-complete-button" @click="closeModal">확인하였습니다.</button>
+        </div>
+    </div>
+
     </div>
   
     <!-- QuestionSection 2 -->
@@ -70,12 +78,16 @@
           예
         </button>
       </div>
+      <!-- Complete Button -->
+      <button
+        class="complete-button"
+        @click="goToNext"
+        :disabled="isNextDisabled"
+      >
+  다음 단계로
+</button>
     </div>
-  
-    <!-- Complete Button -->
-    <button class="complete-button" @click="goToNext">
-      다음 단계로
-    </button>
+    <!-- MainSection end-->
   </template>
   
   <script setup>
@@ -94,6 +106,23 @@
   const goToNext = () => {
     router.push('/inv-type-test-step-2-page')
   }
+
+// modal func.
+const isModalOpen = ref(false)
+
+const selectProfessionalConsumer = () => {
+  consumerType.value = '전문'
+  isModalOpen.value = true
+}
+
+
+// 전문금융 소비자 안내 화면 -- 이후 비활성화 기능
+const isNextDisabled = ref(false)
+const closeModal = () => {
+  isModalOpen.value = false
+  isNextDisabled.value = true // "다음 단계로" 버튼 비활성화
+}
+
   </script>
   
   <style scoped>
@@ -178,11 +207,11 @@
   }
   
   /* Next Button */
-  .complete-button {
-  position: fixed;
+.complete-button {
+  position: absolute;
   bottom: 0;
   left: 0;
-  width: 100%; /* 전체 너비 */
+  width: 100%; 
   padding: 16px 0;
   background: var(--main01);
   color: var(--white);
@@ -192,11 +221,54 @@
   cursor: pointer;
   z-index: 1000; /* 다른 요소보다 위에 오도록 */
 }
+.complete-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  color: #666;
+}
+
   
   /* Highlight */
   .highlight-blue {
     color: var(--text-blue);
     font-weight: bold;
   }
+
+  
+/* Modal styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+.modal-box {
+    background-color: white;
+
+    padding: 24px;
+    width: 90%;
+    max-width: 320px;
+    text-align: left;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-complete-button {
+    padding: 10px 10px;
+    background: var(--main01);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    justify-content: center; 
+    border: none;
+    cursor: pointer;
+    width: calc(100%);
+}
   </style>
   
