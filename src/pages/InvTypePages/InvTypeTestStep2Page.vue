@@ -263,22 +263,6 @@
 <!-- Modal Section end -->
 </template>
 
-<script setup>
-// imports
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-
-// func.
-const isModalOpen = ref(false);
-const router = useRouter();
-const goToNext = () => {
-  isModalOpen.value = true;
-};
-const closeModal = () => {
-  isModalOpen.value = false;
-  router.push('/inv-type-results-page');
-};
-</script>
 
 <style scoped>
 /* Main Section Styles */
@@ -352,16 +336,16 @@ const closeModal = () => {
 
 /* Modal Section Styles */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
 }
 .modal-box {
   background-color: white;
