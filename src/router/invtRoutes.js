@@ -20,7 +20,11 @@ const invtRoutes = [
     name: 'InvTypeTestStep1Page',
     component: InvTypeTestStep1Page,
     meta: {
-      layout: 'EmptyLayout'
+      layout: 'HeaderLayout',
+      header:{
+        titleParts:[{text:'투자성향분석', color:'var(--white)'}],
+        bColor:'var(--main01)'
+      }
     }
   },
   {
