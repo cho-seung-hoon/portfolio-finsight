@@ -38,12 +38,16 @@ const goToNext = () => {
 <style scoped>
 /* TitleSection styles */
 .main-section {
-    background: var(--main04);
-    padding: 200px 50px 100px 50px;
-    text-align: left;
-    width: calc(100% + 40px);
-    margin-left: -20px;
-    margin-right: -20px;
+  background: var(--main04);
+  text-align: left;
+  width: calc(100% + 40px);
+  margin: 0 -20px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 수직 중앙 */
+  align-items: center;     /* 수평 중앙 */
+  padding: 0 20px;
 }
 .main-title {
     font-size: 20px;
@@ -77,7 +81,7 @@ const goToNext = () => {
 /* FigureSection styles */
 .figure-image {
   display: block;
-  width: 300px; /* 너비 조절 */
+  width: 250px; /* 너비 조절 */
   height: auto; /* 비율 유지 */
   margin: 0 auto;
   padding-bottom: 50px;
