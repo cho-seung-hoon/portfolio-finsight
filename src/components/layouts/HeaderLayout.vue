@@ -181,8 +181,11 @@ watch(route, () => {
 }
 
 .content-container {
-  padding: 0px 20px;
-  min-height: 0;
+  flex: 1;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 20px;
 }
 
 .custom-scrollbar-thumb:active {
