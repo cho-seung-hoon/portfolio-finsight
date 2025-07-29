@@ -1,26 +1,30 @@
 <template>
-  <div
-    ref="dropdownRef"
-    :class="['drop-down-container', align === 'right' ? 'right' : 'left']">
-    <div class="drop-down-option-list">
-      <div
-        v-for="option in options"
-        :key="option"
-        :class="['drop-down-option', { selected: option === selected }]"
-        @click="selectOption(option)">
-        {{ option }}
+  <Transition name="drop-down-slide-fade">
+    <div
+      v-if="show"
+      ref="dropdownRef"
+      :class="['drop-down-container', align === 'right' ? 'right' : 'left']">
+      <div class="drop-down-option-list">
+        <div
+          v-for="option in options"
+          :key="option"
+          :class="['drop-down-option', { selected: option === selected }]"
+          @click="selectOption(option)">
+          {{ option }}
+        </div>
       </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-const { options, align, selected } = defineProps({
+const { options, align, selected, show } = defineProps({
   options: { type: Array, default: () => [] },
   align: { type: String, default: 'left' },
-  selected: { type: String, default: '' }
+  selected: { type: String, default: '' },
+  show: { type: Boolean, default: false }
 });
 
 const emit = defineEmits(['select', 'click-outside']);
@@ -82,5 +86,22 @@ onBeforeUnmount(() => {
 
 .drop-down-option.selected {
   font-weight: var(--font-weight-bold);
+}
+
+.drop-down-slide-fade-enter-active,
+.drop-down-slide-fade-leave-active {
+  transition: all 0.2s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+.drop-down-slide-fade-enter-from,
+.drop-down-slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+
+.drop-down-slide-fade-enter-to,
+.drop-down-slide-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
