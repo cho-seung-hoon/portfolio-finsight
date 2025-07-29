@@ -3,7 +3,9 @@
     <div class="minimy">
       <MiniMy />
     </div>
-    <div class="portfolio">
+    <div
+      class="portfolio"
+      @click="goToPortfolio">
       <div class="portfolio-title">내 성향에 맞는 포트폴리오 보기</div>
       <div class="portfolio-icon">+</div>
     </div>
@@ -18,12 +20,19 @@
 
 <script setup>
 import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import HoldingTotal from '@/components/holding/HoldingTotal.vue';
 import HoldingList from '@/components/holding/HoldingList.vue';
 import MiniMy from '@/components/home/MiniMy.vue';
 import { useLoadingStore } from '@/stores/loading';
 
+const router = useRouter();
 const loadingStore = useLoadingStore();
+
+// 포트폴리오 페이지로 이동
+const goToPortfolio = () => {
+  router.push('/holding/portfolio');
+};
 
 const data = [
   // 예금 데이터
@@ -137,5 +146,6 @@ onMounted(async () => {
   padding: 20px;
   padding: 10px 20px;
   border-radius: 8px;
+  cursor: pointer;
 }
 </style>
