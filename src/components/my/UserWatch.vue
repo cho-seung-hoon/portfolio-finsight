@@ -27,14 +27,18 @@
       <div class="subItem-title">{{ item.name }}</div>
 
       <div class="subItem-content">
-        <div class="amount-info">
-          <span class="amount-label">
-            {{ getAmountLabel(item.type) }}
-          </span>
+        <div
+          v-if="item.type == 'deposit'"
+          class="amount-info">
           <span
             class="amount-value"
             :class="getAmountClass(item.type)">
-            {{ formatAmount(item.amount) }}원
+            {{ formatAmount(item.joinDate) }}년
+          </span>
+          <span
+            class="amount-per"
+            :class="getAmountClass(item.type)">
+            {{ formatAmount(item.interestRate) }} %
           </span>
         </div>
 
@@ -42,9 +46,14 @@
         <div
           v-if="item.type !== 'deposit' && item.returnRate"
           class="return-rate">
-          <span :class="getReturnRateClass(item.returnRate)">
+          <div
+            class="amount-value-fundNEtf"
+            :class="getAmountClass(item.type)">
+            {{ formatAmount(item.amount) }} 원
+          </div>
+          <div :class="getReturnRateClass(item.returnRate)">
             {{ item.returnRate > 0 ? '+' : '' }}{{ item.returnRate.toFixed(2) }}%
-          </span>
+          </div>
         </div>
       </div>
     </div>
@@ -63,7 +72,7 @@ const mockWishlistData = [
     id: 1,
     type: 'deposit',
     name: 'SH 첫만남우대예금',
-    amount: 1000000, // 가입 금액
+    joinDate: '1',
     interestRate: 3.5,
     bank: 'SH수협은행'
   },
@@ -71,7 +80,7 @@ const mockWishlistData = [
     id: 2,
     type: 'deposit',
     name: '정기예금 특판',
-    amount: 5000000,
+    joinDate: '2',
     interestRate: 4.2,
     bank: '국민은행'
   },
@@ -278,18 +287,18 @@ onMounted(() => {
 }
 
 .product-type-deposit {
-  background-color: #dbeafe;
-  color: #1d4ed8;
+  background-color: var(--main04);
+  color: #757c8c;
 }
 
 .product-type-fund {
-  background-color: #fef3c7;
-  color: #d97706;
+  background-color: var(--main04);
+  color: #757c8c;
 }
 
 .product-type-etf {
-  background-color: #d1fae5;
-  color: #059669;
+  background-color: var(--main04);
+  color: #757c8c;
 }
 
 .wishlist-btn {
@@ -324,7 +333,6 @@ onMounted(() => {
   margin-bottom: 12px;
   line-height: 1.3;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -348,20 +356,20 @@ onMounted(() => {
 }
 
 .amount-value {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+.amount-per {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+.amount-value-fundNEtf {
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
 }
 
-.deposit-amount {
-  color: #1d4ed8;
-}
-
-.evaluation-amount {
-  color: #1f2937;
-}
-
 .return-rate {
-  text-align: right;
+  text-align: left;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
 }
