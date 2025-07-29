@@ -236,7 +236,7 @@ onBeforeUnmount(() => {
   right: 0px;
   padding: 8px 12px;
   border-radius: 6px;
-  background-color:  rgb(from var(--main01) r g b / 0.7);
+  background-color: rgb(from var(--main01) r g b / 0.7);
   color: var(--white);
   font-size: var(--font-size-sm);
   white-space: nowrap;
@@ -251,7 +251,6 @@ onBeforeUnmount(() => {
   border: 6px solid;
   border-color: transparent transparent var(--main02) transparent;
 }
-
 
 :deep(.chartBox svg g > circle) {
   transition: all 0.05s ease-out;

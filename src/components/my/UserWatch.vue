@@ -9,9 +9,9 @@
   </div>
   <div class="subBox">
     <div
-      class="subItem"
       v-for="(item, index) in wishlistData"
       :key="index"
+      class="subItem"
       @click="goToProductDetail(item)">
       <div class="subItem-header">
         <div

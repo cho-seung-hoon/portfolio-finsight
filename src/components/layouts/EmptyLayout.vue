@@ -153,5 +153,4 @@ watch(route, () => {
 .custom-scrollbar-thumb:active {
   cursor: grabbing;
 }
-
 </style>

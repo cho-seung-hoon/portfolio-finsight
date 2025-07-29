@@ -29,7 +29,5 @@
   </div>
 </template>
 <script setup>
-const term = defineProps({
-    
-})
+const term = defineProps({});
 </script>

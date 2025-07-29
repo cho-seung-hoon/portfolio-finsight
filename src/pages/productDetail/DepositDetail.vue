@@ -1,14 +1,12 @@
 <template>
   <div class="deposit-status">
-    <DetailProductHeader 
+    <DetailProductHeader
       title="내 예금 상품 현황"
-      @back="goBack" 
-    />
-    <DetailProductInfo 
+      @back="goBack" />
+    <DetailProductInfo
       title="SH 첫만남우대예금"
       bank="SH 수협은행"
-      name="SH 첫만남우대예금"
-    />
+      name="SH 첫만남우대예금" />
     <div class="account-details">
       <div class="detail-row">
         <span class="detail-label">예금 계결일</span>
@@ -24,13 +22,17 @@
       </div>
     </div>
     <div class="action-section">
-      <button class="cancel-button" @click="handleCancel">해지하기</button>
+      <button
+        class="cancel-button"
+        @click="handleCancel">
+        해지하기
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { defineComponent } from 'vue'
+import { defineComponent } from 'vue';
 
 // DetailProductHeader 컴포넌트
 const DetailProductHeader = defineComponent({
@@ -44,7 +46,7 @@ const DetailProductHeader = defineComponent({
       <span class="header-title">{{ title }}</span>
     </div>
   `
-})
+});
 
 // DetailProductInfo 컴포넌트
 const DetailProductInfo = defineComponent({
@@ -70,16 +72,16 @@ const DetailProductInfo = defineComponent({
       </div>
     </div>
   `
-})
+});
 
 function goBack() {
   // 뒤로가기 로직
-  console.log('뒤로가기')
+  console.log('뒤로가기');
 }
 
 function handleCancel() {
   // 해지하기 로직
-  console.log('해지하기')
+  console.log('해지하기');
 }
 </script>
 

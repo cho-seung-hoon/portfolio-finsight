@@ -134,7 +134,6 @@ watch(route, () => {
   flex-direction: column;
   height: 100dvh;
   position: relative;
-
 }
 
 .layout-container::-webkit-scrollbar {
