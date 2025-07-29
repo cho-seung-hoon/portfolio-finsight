@@ -20,9 +20,9 @@ const invtRoutes = [
     component: InvTypeTestStep1Page,
     meta: {
       layout: 'HeaderLayout',
-      header:{
-        titleParts:[{text:'투자성향분석', color:'var(--white)'}],
-        bColor:'var(--main01)'
+      header: {
+        titleParts: [{ text: '투자성향분석', color: 'var(--white)' }],
+        bColor: 'var(--main01)'
       }
     }
   },
@@ -32,9 +32,9 @@ const invtRoutes = [
     component: InvTypeNoticePage,
     meta: {
       layout: 'HeaderLayout',
-      header:{
-        titleParts:[{text:'금융소비자 구분 안내', color:'var(--white)'}],
-        bColor:'var(--main01)'
+      header: {
+        titleParts: [{ text: '금융소비자 구분 안내', color: 'var(--white)' }],
+        bColor: 'var(--main01)'
       }
     }
   },
@@ -44,9 +44,9 @@ const invtRoutes = [
     component: InvTypeTestStep2Page,
     meta: {
       layout: 'HeaderLayout',
-      header:{
-        titleParts:[{text:'투자성향분석', color:'var(--white)'}],
-        bColor:'var(--main01)'
+      header: {
+        titleParts: [{ text: '투자성향분석', color: 'var(--white)' }],
+        bColor: 'var(--main01)'
       }
     }
   },
@@ -56,9 +56,9 @@ const invtRoutes = [
     component: InvTypeResultsPage,
     meta: {
       layout: 'HeaderLayout',
-      header:{
-        titleParts:[{text:'투자성향분석 결과', color:'var(--white)'}],
-        bColor:'var(--main01)'
+      header: {
+        titleParts: [{ text: '투자성향분석 결과', color: 'var(--white)' }],
+        bColor: 'var(--main01)'
       }
     }
   },
@@ -68,9 +68,9 @@ const invtRoutes = [
     component: PortfolioPage,
     meta: {
       layout: 'HeaderLayout',
-      header:{
-        titleParts:[{text:'나의 포트폴리오', color:'var(--white)'}],
-        bColor:'var(--main01)'
+      header: {
+        titleParts: [{ text: '나의 포트폴리오', color: 'var(--white)' }],
+        bColor: 'var(--main01)'
       }
     }
   }
