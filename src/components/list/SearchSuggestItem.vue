@@ -33,7 +33,7 @@ function handleSuggestClick() {
   display: flex;
   width: 100%;
   border-bottom: 1px solid var(--main04);
-  padding: 16px;
+  padding: 16px 28px;
   cursor: pointer;
   align-items: center;
 }

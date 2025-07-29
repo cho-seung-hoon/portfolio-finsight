@@ -19,9 +19,9 @@ import DepositItem from '@/components/list/DepositItem.vue';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
 
-const filters = [{ key: 'sort', label: '정렬', options: ['가나다순', '수익률순'] }];
+const filters = [{ key: 'sort', label: '정렬', options: ['기본금리순', '최고금리순'] }];
 const selected = ref({
-  sort: '가나다순'
+  sort: '기본금리순'
 });
 
 const deposits = [
@@ -30,14 +30,18 @@ const deposits = [
     product_name: 'SH 첫만남우대예금',
     company_name: 'SH 수협은행',
     intr_rate: 1.2,
-    intr_rate2: 2.8
+    intr_rate2: 2.8,
+    userOwns: true,
+    isPopularInUserGroup: false
   },
   {
     product_code: 'deposit-002',
     product_name: 'KB Star 정기예금',
     company_name: 'KB 국민은행',
     intr_rate: 1.5,
-    intr_rate2: 3.0
+    intr_rate2: 3.0,
+    userOwns: false,
+    isPopularInUserGroup: true
   }
 ];
 

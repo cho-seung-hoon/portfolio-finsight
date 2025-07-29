@@ -22,7 +22,7 @@ import FundItem from '@/components/list/FundItem.vue';
 const filters = [
   { key: 'country', label: '국가', options: ['전체', '국내', '국외'] },
   { key: 'fund_type', label: '유형', options: ['전체', '주식형', '채권형', '혼합형'] },
-  { key: 'sort', label: '정렬', options: ['가나다순', '수익률순'] }
+  { key: 'sort', label: '정렬', options: ['수익률순', '펀드규모순', '조회수순'] }
 ];
 
 const selected = ref({
@@ -38,8 +38,15 @@ const funds = [
     fund_type: '주식형',
     product_name: '미래에셋자산배분TINA펀드',
     rate_of_return: 37.31,
+    scale: 2000,
     risk_grade: 1,
-    news_response: '긍정'
+    news_response: {
+      positive: 20,
+      neutral: 30,
+      negative: 50
+    },
+    userOwns: true,
+    isPopularInUserGroup: true
   },
   {
     product_code: 'fund-002',
@@ -47,8 +54,31 @@ const funds = [
     fund_type: '채권형',
     product_name: '삼성 한국형TDF 2045',
     rate_of_return: 12.1,
+    scale: 3000,
     risk_grade: 3,
-    news_response: '중립'
+    news_response: {
+      positive: 60,
+      neutral: 20,
+      negative: 20
+    },
+    userOwns: false,
+    isPopularInUserGroup: true
+  },
+  {
+    product_code: 'fund-003',
+    country: '해외',
+    fund_type: '채권형',
+    product_name: '삼성 한국형TDF 2045',
+    rate_of_return: 12.1,
+    scale: 3000,
+    risk_grade: 3,
+    news_response: {
+      positive: 30,
+      neutral: 50,
+      negative: 20
+    },
+    userOwns: true,
+    isPopularInUserGroup: false
   }
 ];
 

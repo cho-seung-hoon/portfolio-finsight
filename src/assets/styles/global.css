@@ -32,11 +32,15 @@
   --mint01: #10b9b2;
   --mint02: #b7eae8;
 
+  --newsPositive: #6c8fe8;
+  --newsNeutral: #b5da3b;
+  --newsNegative: #f97662;
+
   --font-size-sm: 12px;
   --font-size-ms: 14px;
   --font-size-md: 16px;
   --font-size-lg: 18px;
-  --font-size-xl: 20px; 
+  --font-size-xl: 20px;
   --font-size-xxl: 24px;
 
   --font-weight-light: 300;
