@@ -169,6 +169,7 @@ watch(route, () => {
   padding: 0px 20px;
   min-height: 0;
   padding-bottom: 80px;
+  flex: 1;
 }
 
 .footer {

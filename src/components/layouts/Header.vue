@@ -92,6 +92,8 @@ onUnmounted(() => {
 
 const emit = defineEmits(['open-time-modal']);
 
+const accessToken = ref('');
+
 const headerStore = useHeaderStore();
 
 const { titleParts, showBackButton, actions, showBorder, bColor, backHandler } =

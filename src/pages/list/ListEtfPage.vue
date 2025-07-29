@@ -22,13 +22,13 @@ import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
 const filters = [
   { key: 'country', label: '국가', options: ['전체', '국내', '국외'] },
   { key: 'etf_type', label: '유형', options: ['전체', '주식형', '채권형', '혼합형'] },
-  { key: 'sort', label: '정렬', options: ['가나다순', '기준가순'] }
+  { key: 'sort', label: '정렬', options: ['수익률순', '거래량순', '조회수순'] }
 ];
 
 const selected = ref({
   country: '전체',
   etf_type: '전체',
-  sort: '가나다순'
+  sort: '수익률순'
 });
 
 const etfs = [
@@ -41,7 +41,13 @@ const etfs = [
     volume: 3000,
     rate_of_return: '3.3% (1개월)',
     risk_grade: 3,
-    news_response: '긍정'
+    news_response: {
+      positive: 20,
+      neutral: 30,
+      negative: 50
+    },
+    userOwns: false,
+    isPopularInUserGroup: true
   },
   {
     product_code: 'etf-002',
@@ -52,7 +58,13 @@ const etfs = [
     volume: 45700,
     rate_of_return: '1.1% (1개월)',
     risk_grade: 2,
-    news_response: '중립'
+    news_response: {
+      positive: 30,
+      neutral: 60,
+      negative: 10
+    },
+    userOwns: true,
+    isPopularInUserGroup: false
   },
   {
     product_code: 'ETF003',
@@ -63,7 +75,13 @@ const etfs = [
     volume: 12800,
     rate_of_return: '-0.8% (1개월)',
     risk_grade: 4,
-    news_response: '부정'
+    news_response: {
+      positive: 62,
+      neutral: 25,
+      negative: 13
+    },
+    userOwns: true,
+    isPopularInUserGroup: false
   }
 ];
 

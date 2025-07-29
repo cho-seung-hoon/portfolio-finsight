@@ -1,21 +1,17 @@
 <!-- 
-작성자: JY
-작성일자: 2025-07-25
-페이지명: 투자성향분석-1단계-페이지
+    작성자: JY
+    작성일자: 2025-07-29
+    페이지명: 투자성향분석-Step-1-페이지
     [경로]
-    path: '/inv-type-test-step-1-page',
-    name: 'InvTypeTestStep1Page',
-    component: InvTypeTestStep1Page
+        path: '/inv-type-test-step-1-page',
+        name: 'InvTypeTestStep1Page',
+        component: InvTypeTestStep1Page,
 -->
-<template>
-  <!-- TitleSection start-->
-  <div class="main-section">
-    <h1 class="main-title">투자성향분석</h1>
-  </div>
-  <br />
-  <!-- TitleSection end-->
 
-  <!-- QuestionSection start-->
+<template>
+  <<<<<<< HEAD
+  <!-- Main Section start -->
+  <!-- Q1 Section -->
   <div class="question-box">
     <h2 class="question-title">고객님의 금융소비자 유형을 선택해주세요.</h2>
     <div class="check-button-group">
@@ -26,19 +22,42 @@
       </button>
       <button
         :class="['check-button', { active: consumerType === '전문' }]"
-        @click="consumerType = '전문'">
+        @click="selectProfessionalConsumer">
         전문금융소비자<br />(영업점가입대상)
       </button>
     </div>
 
-    <!-- GuideLink Section -->
+    <!-- Question Guide Section -->
     <div
       class="guide-link"
       @click="goToNotion">
       전문금융소비자 안내 &gt;
     </div>
+
+    <!-- Question Modal Section start-->
+    <div
+      v-if="isModalOpen"
+      class="modal-overlay">
+      <div class="modal-box">
+        <h3>전문금융소비자 안내</h3>
+        <br />
+        <p>
+          전문금융소비자에 해당하시는 고객님의 경우 영업점에 직접 방문하셔야만 가입이 가능합니다.
+          <br /><br />
+          ※ 따라서 본 서비스의 이용이 제한됩니다.
+        </p>
+        <br />
+        <button
+          class="modal-complete-button"
+          @click="closeModal">
+          확인하였습니다.
+        </button>
+      </div>
+      <!-- Question Modal Section end-->
+    </div>
   </div>
 
+  <!-- Q2 Section -->
   <div class="question-box">
     <h2 class="question-title">다음의 금융취약소비자에 해당하십니까?</h2>
     <ul class="list-section">
@@ -60,6 +79,7 @@
     </div>
   </div>
 
+  <!-- Q3 Section -->
   <div class="question-box">
     <h2 class="question-title">
       <span class="highlight-blue">최근 1개월 </span>이내 대출을 받았거나,
@@ -77,23 +97,25 @@
         예
       </button>
     </div>
+    <!-- Complete Button -->
+    <button
+      class="complete-button"
+      :disabled="isNextDisabled"
+      @click="goToNext">
+      다음 단계로
+    </button>
   </div>
-  <!-- MainSection end-->
-
-  <!-- CompleteButton -->
-  <button
-    class="main-section complete-button"
-    @click="goToNext">
-    다음 단계로
-  </button>
+  <!-- Main Section end-->
 </template>
 
 <script setup>
-// imports
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-
-// func.
 const router = useRouter();
+const consumerType = ref(null);
+const isVulnerable = ref(null);
+const hasLoan = ref(null);
+
 const goToNotion = () => {
   router.push('/inv-type-notice-page');
 };
@@ -101,63 +123,41 @@ const goToNext = () => {
   router.push('/inv-type-test-step-2-page');
 };
 
-// import { ref } from 'vue'
-// import axios from 'axios'
+// modal func.
+const isModalOpen = ref(false);
+const selectProfessionalConsumer = () => {
+  consumerType.value = '전문';
+  isModalOpen.value = true;
+};
 
-// const consumerType = ref('')
-
-// const InvType = async () => {
-//     try {
-//         await axios.post('/api/inv-type', {
-//             type: consumerType.value
-//         })
-//         alert('저장 완료!')
-//     } catch (error) {
-//         console.error('저장 실패:', error)
-//         alert('저장에 실패했어요 😢')
-//     }
-// }
+// 전문금융 소비자 안내 화면 -- 이후 비활성화 기능
+const isNextDisabled = ref(false);
+const closeModal = () => {
+  isModalOpen.value = false;
+  isNextDisabled.value = true; // "다음 단계로" 버튼 비활성화
+};
 </script>
 
 <style scoped>
-/* TitleSection styles */
-.main-section {
-  background: var(--main01);
-  padding: 32px 32px 24px 32px;
-  text-align: left;
-  width: calc(100% + 40px);
-  margin-left: -20px;
-  margin-right: -20px;
-}
-.main-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--main05);
-}
-
-/* QuestionSection styles */
+/* Question Section Styles */
 .question-box {
-  margin: 0px 32px 10px 32px;
+  margin-bottom: 10px;
   border: 1.5px solid var(--main04);
   border-radius: 5px;
   background-color: var(--main05);
-  height: auto;
 }
 .question-title {
-  margin: 20px 40px 20px 40px;
+  margin: 20px 40px;
   font-size: 15px;
 }
 
-/* MainSection styles */
-.sub-section {
-  margin-bottom: 30px;
-  border: 1.5px solid var(--main04);
-  border-radius: 5px;
-  background-color: var(--main05);
-  height: auto;
+/* Question - CheckBox Section Styles */
+.check-button-group {
+  display: flex;
+  justify-content: center;
+  gap: 0px;
+  margin: 34px;
 }
-
-/* CheckButton styles */
 .check-button {
   border: 2px solid var(--main03);
   border-radius: 10px;
@@ -171,25 +171,14 @@ const goToNext = () => {
   cursor: pointer;
   padding: 10px;
 }
-.check-button-group {
-  height: auto;
-  display: flex;
-  justify-content: center;
-  width: 250px;
-  overflow: hidden;
-  margin: 34px;
-  display: flex;
-  gap: 0px;
-}
-
 .check-button:hover,
 .check-button.active {
-  color: var(--sub01) !important;
-  border: 2px solid var(--sub01) !important;
-  background-color: var(--sub02) !important;
+  color: var(--sub01);
+  border: 2px solid var(--sub01);
+  background-color: var(--sub02);
 }
 
-/* GuideLink Section */
+/* Question - Guide Section Styles */
 .guide-link {
   margin: 0px 34px 5px 34px;
   text-align: right;
@@ -198,35 +187,79 @@ const goToNext = () => {
   cursor: pointer;
 }
 
-/* MainSection-List styles */
+/* Question - Modal Section Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.modal-box {
+  background-color: white;
+
+  padding: 24px;
+  width: 90%;
+  max-width: 320px;
+  text-align: left;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.modal-complete-button {
+  padding: 10px 10px;
+  background: var(--main01);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  width: calc(100%);
+}
+
+/* Question - List Section Styles */
+.list-section {
+  margin: 0px 40px 34px 40px;
+  border: 1px solid var(--main03);
+  border-radius: 5px;
+}
 .sub-section-list {
   margin-right: 60px;
   list-style-position: inside;
   padding: 2px 15px;
   font-size: 13px;
 }
-.list-section {
-  margin: 0px 40px 34px 40px;
-  border: 1px solid var(--main03);
-  border-radius: 5px;
-}
 
-/* NextButton styles */
+/* Button Styles */
 .complete-button {
-  padding: 16px 0;
-  background: var(--main01);
-  color: var(--white);
-  font-weight: 700;
-  font-size: 20px;
-  display: flex;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
+position: absolute;
+bottom: 0;
+left: 0;
+width: 100%;
+padding: 16px 0;
+background: var(--main01);
+color: var(--white);
+font-weight: 700;
+font-size: 20px;
+border: none;
+cursor: pointer;
+z-index: 700; /* 다른 요소보다 위에 오도록 */
+}
+.complete-button:disabled {
+background-color: #ccc;
+cursor: not-allowed;
+color: #666;
 }
 
-/* Highlight styles */
+/* Highlight Styles*/
 .highlight-blue {
   color: var(--text-blue);
   font-weight: bold;
 }
 </style>
+======= >>>>>>> develop

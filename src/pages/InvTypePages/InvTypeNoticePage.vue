@@ -1,21 +1,16 @@
 <!-- 
 작성자: JY
-작성일자: 2025-07-23
+작성일자: 2025-07-29
 페이지명: 투자성향분석-전문금융소비자 안내페이지
     [경로]
-    path: '/inv-type-notice-page',
-    name: 'InvTypeNoticePage',
-    component: InvTypeNoticePage
+        path: '/inv-type-notice-page',
+        name: 'InvTypeNoticePage',
+        component: InvTypeNoticePage
 -->
-<template>
-  <!-- TitleSection start-->
-  <div class="main-section">
-    <h1 class="main-title">금융소비자 구분 안내</h1>
-  </div>
-  <!-- TitleSection end-->
 
-  <!-- MainSection start-->
-  <div class="sub-section">
+<template>
+<!-- MainSection start-->
+<div class="main-section">
     <!-- SubSection_1 start -->
     <section class="sub-section-row">
       <h2 class="sub-title">전문소비자 개요</h2>
@@ -89,70 +84,42 @@
       </ul>
     </section>
     <!-- SubSection_3 end -->
-  </div>
-  <!-- MainSection end-->
 
-  <!-- CompleteButton -->
-  <button
-    class="main-section complete-button"
-    @click="backToPrevious">
-    위 안내사항을 확인하였습니다.
-  </button>
+    <!-- Button Section -->
+    <button
+        class="complete-button"
+        @click="backToPrevious"
+        >위 안내사항을 확인하였습니다.
+    </button> 
+</div>
+<!-- MainSection end-->
+
 </template>
 
-<script setup>
-// imports
-import { useRouter } from 'vue-router';
-
-// func.
-const router = useRouter();
-const backToPrevious = () => {
-  router.push('/inv-type-test-step-1-page');
-};
-</script>
 
 <style scoped>
-/* TitleSection styles */
+/* Main Section Styles */
 .main-section {
-  background: var(--main01);
-  padding: 32px 32px 24px 32px;
-  text-align: left;
-  width: calc(100% + 40px);
-  margin-left: -20px;
-  margin-right: -20px;
-}
-.main-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--main05);
+    padding: 32px 32px 32px 32px;
+    background: var(--main05);
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    margin-right: -20px;
+    margin-bottom: 0px;
 }
 
-/* SubSection styles */
-.sub-section {
-  padding: 32px 32px 32px 32px;
-  background: var(--main05);
-  width: calc(100% + 40px);
-  margin-left: -20px;
-  margin-right: -20px;
-  margin-bottom: 0px;
-}
+/* Sub Section Styles */
 .sub-section-row {
   margin-bottom: 24px;
 }
 .sub-title {
   font-size: 18px;
 }
-.sub-title2 {
-  font-size: 15px;
-}
 .sub-text {
   font-size: 13px;
 }
-
-.section-desc {
-  font-size: 16px;
-  color: var(--main02);
-  text-align: left;
+.sub-title2 {
+    font-size: 15px;
 }
 .notice-section {
   margin-top: 18px;
@@ -166,16 +133,30 @@ const backToPrevious = () => {
   display: block;
 }
 
-/* CompleteButton styles */
+/* Button Section Styles */
 .complete-button {
-  padding: 16px 0;
-  background: var(--main01);
-  color: var(--white);
-  font-weight: 700;
-  font-size: 20px;
-  display: flex;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%; 
+    padding: 16px 0;
+    background: var(--main01);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+    z-index: 1000; /* 다른 요소보다 위에 오도록 */
 }
 </style>
+
+<script setup>
+// imports
+import { useRouter } from 'vue-router'
+
+// func.
+const router = useRouter()
+const backToPrevious = () => {
+    router.push('/inv-type-test-step-1-page')
+}
+</script>

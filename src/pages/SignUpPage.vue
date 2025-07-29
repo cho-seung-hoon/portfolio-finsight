@@ -442,7 +442,7 @@ watch(
   height: 100%;
   /* padding: 2rem 1rem; */
   text-align: center;
-  font-family: 'Pretendard', sans-serif;
+  /* font-family: 'Pretendard', sans-serif; */
   position: relative; /* ✅ 모달 위치 기준점이 됨 */
 }
 .logo {
