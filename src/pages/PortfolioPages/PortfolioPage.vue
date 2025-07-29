@@ -1,67 +1,50 @@
 <!-- 
-작성자: JY
-작성일자: 2025-07-25
-페이지명: 포트폴리오-페이지
-    [경로]
-    path: '/portfolio-page',
-    name: 'PortfolioPage',
-    component: PortfolioPage
+    작성자: JY
+    작성일자: 2025-07-29
+    페이지명: 투자성향분석-포트폴리오-페이지
+        [경로]
+        path: '/portfolio-page',
+        name: 'PortfolioPage',
+        component: PortfolioPage,
 -->
 
 <template>
-<!-- TitleSection start-->
-<div class="main-section title-button-wrapper">
-    <h1 class="main-title">나의 포트폴리오</h1>
-    <button class="close-button " @click="goToMain">X</button>
-</div><br>
-<!-- TitleSection end-->
+<!-- GlobalHeader Section -->
+<br>
 
-<!-- ResultMainSection start -->
+<!-- Header Section start-->
 <section class="sub-title">
     <div class="result-section">
         <h2>
-            <span v-if="userType === 'stable'" class="highlight-stable">안정형</span>
-            <span v-if="userType === 'stableplus'" class="highlight-stableplus">안정추구형</span>
-            <span v-if="userType === 'neutral'" class="highlight-neutral">위험중립형</span>
-            <span v-if="userType === 'aggressive'" class="highlight-aggressive">적극투자형</span>
-            <span v-if="userType === 'veryaggressive'" class="highlight-veryaggressive">공격투자형</span>
-
+            <span :class="`highlight-${userType}`">
+                <template v-if="userType === 'stable'">안정형</template>
+                <template v-else-if="userType === 'stableplus'">안정추구형</template>
+                <template v-else-if="userType === 'neutral'">위험중립형</template>
+                <template v-else-if="userType === 'aggressive'">적극투자형</template>
+                <template v-else-if="userType === 'veryaggressive'">공격투자형</template>
+            </span>
             <span class="highlight-white">을 위한 포트폴리오</span>
         </h2>
     </div>
 </section>
-<!-- ResultMainSection end -->
+<!-- Header Section end -->
 
-<!-- GrapthSection start -->
-<section class="sub-section">
-    <div class="result-section">
-        <h2>{{name}}님의 투자유형은?</h2><br>
-        <!-- 투자유형에 따라 그래프 보기 -->
-        <img v-if="userType === 'stable'" src="/src/assets/styles/img/stableChart.PNG" alt="stableChart" class="chart-image">
-        <img v-if="userType === 'stableplus'" src="/src/assets/styles/img/stableplusChart.PNG" alt="stableplusChart" class="chart-image">
-        <img v-if="userType === 'neutral'" src="/src/assets/styles/img/neutralChart.PNG" alt="neutralChart" class="chart-image">
-        <img v-if="userType === 'aggressive'" src="/src/assets/styles/img/aggressiveChart.PNG" alt="aggressiveChart" class="chart-image">
-        <img v-else-if="userType === 'veryaggressive'" src="/src/assets/styles/img/veryaggressiveChart.PNG" alt="veryaggressiveChart" class="chart-image">
-    </div>
-</section>
-<!-- GrapthSection end -->
-
-
+<!-- Main Section start -->
 <section class="sub-section">
     <div class="result-section">
         <h2>Fin-sight 추천 자산비중</h2><br>
-        <!-- TableSection start -->
+
+        <!-- [01] Stable Type Table -->
         <table v-if="userType === 'stable'" class="table-main-style">
             <thead>
                 <tr>
-                    <th class="table-style" colspan="2">상품별 종목</th>
+                    <th class="table-style">상품별 종목</th>
                     <th class="table-style">위험등급</th>
                     <th class="table-highlight-stable">안정형</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="table-style" rowspan="5">국내상품</td>
                     <td class="table-style">국내 주식형 펀드/ETF</td>
                     <td class="table-style">2등급</td>
                     <td class="table-highlight-stable"></td>
@@ -87,7 +70,6 @@
                     <td class="table-highlight-stable">2%</td>
                 </tr>
                 <tr>
-                    <td class="table-style" rowspan="4">국내상품</td>
                     <td class="table-style">해외 주식형 펀드/ETF</td>
                     <td class="table-style">1등급</td>
                     <td class="table-highlight-stable"></td>
@@ -108,28 +90,29 @@
                     <td class="table-highlight-stable"></td>
                 </tr>
                 <tr>
-                    <td class="table-style" colspan="3">위험자산
+                    <td class="table-style" colspan="2">위험자산
                         <small class="notice">**</small> 비중
                     </td>
-                    <td class="table-highlight-stable">0%</td>
+                <td class="table-highlight-stable">0%</td>
                 </tr>
                 <tr>
-                    <td class="table-style" colspan="3">모델 포트폴리오 위험도</td>
+                    <td class="table-style" colspan="2">모델 포트폴리오 위험도</td>
                     <td class="table-highlight-stable">6.00</td>
                 </tr>
             </tbody>
         </table>
+
+        <!-- [02] StablePlus Type Table -->
         <table v-if="userType === 'stableplus'" class="table-main-style">
             <thead>
                 <tr>
-                    <th class="table-style" colspan="2">상품별 종목</th>
+                    <th class="table-style">상품별 종목</th>
                     <th class="table-style">위험등급</th>
                     <th class="table-highlight-stableplus">안정추구형</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="table-style" rowspan="5">국내상품</td>
                     <td class="table-style">국내 주식형 펀드/ETF</td>
                     <td class="table-style">2등급</td>
                     <td class="table-highlight-stableplus">7%</td>
@@ -155,7 +138,6 @@
                     <td class="table-highlight-stableplus">2%</td>
                 </tr>
                 <tr>
-                    <td class="table-style" rowspan="4">국내상품</td>
                     <td class="table-style">해외 주식형 펀드/ETF</td>
                     <td class="table-style">1등급</td>
                     <td class="table-highlight-stableplus"></td>
@@ -176,28 +158,29 @@
                     <td class="table-highlight-stableplus"></td>
                 </tr>
                 <tr>
-                    <td class="table-style" colspan="3">위험자산
+                    <td class="table-style" colspan="2">위험자산
                         <small class="notice">**</small> 비중
                     </td>
                     <td class="table-highlight-stableplus">22%</td>
                 </tr>
                 <tr>
-                    <td class="table-style" colspan="3">모델 포트폴리오 위험도</td>
+                    <td class="table-style" colspan="2">모델 포트폴리오 위험도</td>
                     <td class="table-highlight-stableplus">5.00</td>
                 </tr>
             </tbody>
         </table>
+
+        <!-- [03] Neutral Type Table -->
         <table v-if="userType === 'neutral'" class="table-main-style">
             <thead>
                 <tr>
-                    <th class="table-style" colspan="2">상품별 종목</th>
+                    <th class="table-style">상품별 종목</th>
                     <th class="table-style">위험등급</th>
                     <th class="table-highlight-neutral">위험중립형</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="table-style" rowspan="5">국내상품</td>
                     <td class="table-style">국내 주식형 펀드/ETF</td>
                     <td class="table-style">2등급</td>
                     <td class="table-highlight-neutral">8%</td>
@@ -223,7 +206,6 @@
                     <td class="table-highlight-neutral">2%</td>
                 </tr>
                 <tr>
-                    <td class="table-style" rowspan="4">국내상품</td>
                     <td class="table-style">해외 주식형 펀드/ETF</td>
                     <td class="table-style">1등급</td>
                     <td class="table-highlight-neutral"></td>
@@ -244,28 +226,29 @@
                     <td class="table-highlight-neutral"></td>
                 </tr>
                 <tr>
-                    <td class="table-style" colspan="3">위험자산
+                    <td class="table-style" colspan="2">위험자산
                         <small class="notice">**</small> 비중
                     </td>
                     <td class="table-highlight-neutral">48%</td>
                 </tr>
                 <tr>
-                    <td class="table-style" colspan="3">모델 포트폴리오 위험도</td>
+                    <td class="table-style" colspan="2">모델 포트폴리오 위험도</td>
                     <td class="table-highlight-neutral">4.04</td>
                 </tr>
             </tbody>
         </table>
+
+        <!-- [04] Aggressive Type Table -->
         <table v-if="userType === 'aggressive'" class="table-main-style">
             <thead>
                 <tr>
-                    <th class="table-style" colspan="2">상품별 종목</th>
+                    <th class="table-style">상품별 종목</th>
                     <th class="table-style">위험등급</th>
                     <th class="table-highlight-aggressive">적극투자형</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="table-style" rowspan="5">국내상품</td>
                     <td class="table-style">국내 주식형 펀드/ETF</td>
                     <td class="table-style">2등급</td>
                     <td class="table-highlight-aggressive">10%</td>
@@ -291,7 +274,6 @@
                     <td class="table-highlight-aggressive">2%</td>
                 </tr>
                 <tr>
-                    <td class="table-style" rowspan="4">국내상품</td>
                     <td class="table-style">해외 주식형 펀드/ETF</td>
                     <td class="table-style">1등급</td>
                     <td class="table-highlight-aggressive">4%</td>
@@ -312,28 +294,29 @@
                     <td class="table-highlight-aggressive">5%</td>
                 </tr>
                 <tr>
-                    <td class="table-style" colspan="3">위험자산
+                    <td class="table-style" colspan="2">위험자산
                         <small class="notice">**</small> 비중
                     </td>
                     <td class="table-highlight-aggressive">60%</td>
                 </tr>
                 <tr>
-                    <td class="table-style" colspan="3">모델 포트폴리오 위험도</td>
+                    <td class="table-style" colspan="2">모델 포트폴리오 위험도</td>
                     <td class="table-highlight-aggressive">3.50</td>
                 </tr>
             </tbody>
         </table>
+
+        <!-- [05] VeryAggressive Type Table -->
         <table v-else-if="userType === 'veryaggressive'" class="table-main-style">
             <thead>
                 <tr>
-                    <th class="table-style" colspan="2">상품별 종목</th>
+                    <th class="table-style">상품별 종목</th>
                     <th class="table-style">위험등급</th>
                     <th class="table-highlight-veryaggressive">공격투자형</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="table-style" rowspan="5">국내상품</td>
                     <td class="table-style">국내 주식형 펀드/ETF</td>
                     <td class="table-style">2등급</td>
                     <td class="table-highlight-veryaggressive">21%</td>
@@ -359,7 +342,6 @@
                     <td class="table-highlight-veryaggressive">2%</td>
                 </tr>
                 <tr>
-                    <td class="table-style" rowspan="4">국내상품</td>
                     <td class="table-style">해외 주식형 펀드/ETF</td>
                     <td class="table-style">1등급</td>
                     <td class="table-highlight-veryaggressive">8%</td>
@@ -374,68 +356,71 @@
                     <td class="table-style">3등급</td>
                     <td class="table-highlight-veryaggressive">22%</td>
                 </tr>
-
                 <tr>
                     <td class="table-style">해외 채권형 펀드/ETF</td>
                     <td class="table-style">4등급</td>
                     <td class="table-highlight-veryaggressive"></td>
                 </tr>
                 <tr>
-                    <td class="table-style" colspan="3">위험자산
+                    <td class="table-style" colspan="2">위험자산
                         <small class="notice">**</small> 비중
                     </td>
                     <td class="table-highlight-veryaggressive">91%</td>
                 </tr>
                 <tr>
-                    <td class="table-style" colspan="3">모델 포트폴리오 위험도</td>
+                    <td class="table-style" colspan="2">모델 포트폴리오 위험도</td>
                     <td class="table-highlight-veryaggressive">2.45</td>
                 </tr>
             </tbody>
-        </table>
-        <!-- TableSection end -->
-
-
-        <!-- NoticeSection start -->
+        </table><br>
+        
+        <!-- Notice Section start -->
         <small class="notice">
             * 모범규준을 기초로 모델포트폴리오 내 편입 예정인 개별 금융상품의 위험도를 고려하여, 편입비중으로 가중평균하여 산출합니다.<br>
             * 반드시 투자자유형에 맞는 모델포트폴리오(MP)를 권유하여야 하며 투자자유형보다 위험등급이 높은 MP는 가입이 불가합니다.<br>
             ** 위험자산군 = (매우높은위험+높은위험+다소높은위험)
         </small>
-        <!-- NoticeSection end -->
+        <!-- Notice Section start -->
     </div>
 </section>
-</template>
+<!-- Main Section end -->
 
+<!-- gotoMain Button start -->
+<button class="gotomain-button" @click="goToMain">홈 화면으로 가기</button>
+<!-- gotoMain Button end -->
+</template>
+    
 <script setup>
 // imports
-import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { ref, watch } from 'vue'
 
-// func.
+// Route Section
 const router = useRouter()
 const goToMain = () => {
     router.push('/')
 }
-const name = ref('이진욱')
-const userType = ref('neutral') // 예: 고객의 투자유형이 '안정형인 경우'
+
+// UserType Section
+const route = useRoute()
+const userType = ref('')
+
+watch(() => route.query.userType, (newUserType) => {
+    if (newUserType) {
+        userType.value = newUserType;
+    } else {
+        userType.value = 'stable';
+    }
+},
+{
+    immediate: true // 컴포넌트 초기 로드 시 즉시 실행
+});
+
 
 </script>
-
+    
 <style scoped>
-/* TitleSection styles */
-.main-section {
-    background: var(--main01);
-    padding: 32px 32px 24px 32px;
-    text-align: left;
-    width: calc(100% + 40px);
-    margin-left: -20px;
-    margin-right: -20px;
-}
-.main-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--main05);
-}
+/* Header Section styles*/
 .sub-title {
     background: var(--main01);
     padding: 10px 3px 5px 3px;
@@ -443,8 +428,11 @@ const userType = ref('neutral') // 예: 고객의 투자유형이 '안정형인 
     border-radius: 5px;
     font-size: 15px;
 }
+.result-section {
+    margin: 10px 10px 10px 10px;
+}
 
-/* MainSection styles */
+/* Main Section Styles */
 .sub-section {
     margin-bottom: 30px;
     border: 3px solid var(--main03);
@@ -452,35 +440,9 @@ const userType = ref('neutral') // 예: 고객의 투자유형이 '안정형인 
     background-color: var(--main05);
     height: auto;
 }
-.result-section {
-    margin: 10px 10px 10px 10px;
-}
 
-/* Button Styles */
-.close-button {
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-
-}
-.title-button-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* GraphSection style */
-.chart-image {
-    display: block;
-    margin: 0 auto;
-    width: 350px; /* 너비 조절 */
-    height: auto; /* 비율 유지 */
-}
-
-/* TableSection style */
-.table-main-style{
+/* Table Section style */
+.table-main-style {
     border-collapse: collapse;
     width: 100%;
 }
@@ -490,14 +452,7 @@ const userType = ref('neutral') // 예: 고객의 투자유형이 '안정형인 
     padding: 8px 10px;
 }
 
-.table-highlight-stable {
-    color: var(--mint01);
-    font-weight: bold;
-    background-color: var(--mint02);
-    border: 2px solid var(--mint01);
-    text-align: center;
-}
-
+/* Table Highlight Styles */
 .table-highlight-veryaggressive {
     color: var(--red01);
     font-weight: bold;
@@ -526,13 +481,15 @@ const userType = ref('neutral') // 예: 고객의 투자유형이 '안정형인 
     border: 2px solid var(--green01);
     text-align: center;
 }
-.highlight-stable {
+.table-highlight-stable {
     color: var(--mint01);
     font-weight: bold;
+    background-color: var(--mint02);
+    border: 2px solid var(--mint01);
+    text-align: center;
 }
 
-
-/* Highlight styles */
+/* Text Highlight Styles */
 .highlight-blue {
     color: var(--text-blue);
     font-weight: bold;
@@ -545,7 +502,6 @@ const userType = ref('neutral') // 예: 고객의 투자유형이 '안정형인 
     color: var(--main05);
     font-weight: bold;
 }
-
 .highlight-veryaggressive {
     color: var(--red01);
     font-weight: bold;
@@ -562,15 +518,31 @@ const userType = ref('neutral') // 예: 고객의 투자유형이 '안정형인 
     color: var(--green01);
     font-weight: bold;
 }
+.highlight-stable {
+    color: var(--mint01);
+    font-weight: bold;
+}
 
-
-
-
-
-/* NoticeSection style */
+/* NoticeSection Styles */
 .notice {
     margin-top: 18px;
     font-size: var(--font-size-sm);
     color: #8c8c8c;
+}
+
+/* Button Styles */
+.gotomain-button {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%; 
+    padding: 16px 0;
+    background: var(--main01);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+    z-index: 700;
 }
 </style>

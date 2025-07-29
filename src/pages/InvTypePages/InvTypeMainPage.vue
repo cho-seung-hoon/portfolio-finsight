@@ -1,25 +1,33 @@
 <!-- 
 작성자: JY
-작성일자: 2025-07-25
+작성일자: 2025-07-29
 페이지명: 투자성향분석-최초페이지
-    [경로]
+  [경로]
     path: '/inv-type-main-page',
     name: 'InvTypeMainPage',
     component: InvTypeMainPage
 -->
+
 <template>
+<!-- Main Section start -->
   <div class="main-section">
-    <!-- FigureSection -->
-    <img src="/src/assets/cha2.png" alt="stableChart" class="figure-image">
+
+    <!-- Figure Section -->
+    <img src="/src/assets/cha2.png" alt="MainChar" class="figure-image">
+
+    <!-- Text Section -->
     <p class="main-title">
       Fin-Sight가<br>
       투자성향별 맞춤<br>
       <span class="highlight-sub">자산배분안</span>을 알려드려요 !
     </p>
+
+    <!-- Button Section -->
     <button class="next-button" @click="goToNext">
       나의 투자성향 분석하기
     </button>
   </div>
+<!-- Main Section end -->
 </template>
 
 
@@ -36,7 +44,7 @@ const goToNext = () => {
 
 
 <style scoped>
-/* TitleSection styles */
+/* Main Section Styles */
 .main-section {
   background: var(--main04);
   text-align: left;
@@ -49,14 +57,25 @@ const goToNext = () => {
   align-items: center;     /* 수평 중앙 */
   padding: 0 20px;
 }
-.main-title {
-    font-size: 20px;
-    font-weight: bold;
-    color: black;
-    padding: 20px 50px 20px 50px;
+
+/* Main - Figure Section Styles */
+.figure-image {
+  display: block;
+  width: 250px; /* 너비 조절 */
+  height: auto; /* 비율 유지 */
+  margin: 0 auto;
+  padding-bottom: 50px;
 }
 
-/* NextButton styles */
+/* Main - Text Section Styles */
+.main-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+  padding: 20px 50px 20px 50px;
+}
+
+/* Button Section Styles */
 .next-button{
   padding: 16px 16px;
   background: var(--main01);
@@ -78,21 +97,10 @@ const goToNext = () => {
 .next-button:hover {
   transform: scale(1.02);
 }
-/* FigureSection styles */
-.figure-image {
-  display: block;
-  width: 250px; /* 너비 조절 */
-  height: auto; /* 비율 유지 */
-  margin: 0 auto;
-  padding-bottom: 50px;
-}
-/* Highlight styles */
+
+/* Highlight Styles */
 .highlight-sub {
   color: var(--sub01);
   font-weight: bold;
 }
-.highlight-font {
-  font-size: 34px;
-}
-
 </style>

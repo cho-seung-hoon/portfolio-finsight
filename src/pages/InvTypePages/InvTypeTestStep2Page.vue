@@ -1,22 +1,29 @@
+<!-- 
+    작성자: JY
+    작성일자: 2025-07-29
+    페이지명: 투자성향분석-Step-2-페이지
+    [경로]
+        path: '/inv-type-test-step-2-page',
+        name: 'InvTypeTestStep2Page',
+        component: InvTypeTestStep2Page,
+-->
+
 <template>
-<!-- MainSection start-->
-<div class="main-section">
-<br>
-<p class="sub-section-list">고객님께서 적합한 상품을 선택 하시는데 도움을 드리기 위해 <br>투자자정보를 제공하는 절차입니다.</p>
-<ul class="sub-section-list">
-    <li>다음 질문에 대해 가장 적절하다고 생각되시는 답을 선택해 주세요. 총 10문항입니다.</li>
-    <li>투자성향분석은 
-        <span class="highlight-blue">대면, 비대면</span>을 
-        <span class="highlight-blue">통합</span>하여
-        <span class="highlight-red">1일 1회</span>만 가능하니 신중하게 답해주세요.
-    </li>
-</ul><br>
+<div class="main-section"><br>
+    <!-- MainSection start-->
+    <p class="sub-section-list">고객님께서 적합한 상품을 선택 하시는데 도움을 드리기 위해 <br>투자자정보를 제공하는 절차입니다.</p>
+    <ul class="sub-section-list">
+        <li>다음 질문에 대해 가장 적절하다고 생각되시는 답을 선택해 주세요. 총 7문항입니다.</li>
+        <li>투자성향분석은 
+            <span class="highlight-blue">대면, 비대면</span>을 
+            <span class="highlight-blue">통합</span>하여
+            <span class="highlight-red">1일 1회</span>만 가능하니 신중하게 답해주세요.
+        </li>
+    </ul><br>
 <!-- MainSection end-->
 
-<!-- QuestionSection (01) ~ (10) start -->
-<!-- 
-투자성향 페이지 출처: https://invest_test.isweb.co.kr/main_new
--->
+<!-- QuestionSection (01) ~ (07) start -->
+<!-- 투자성향 페이지 출처: https://invest_test.isweb.co.kr/main_new -->
 
 <!-- QuestionSection (01) -->
 <section class="sub-section"> 
@@ -240,24 +247,26 @@
 <br><br>
 <!-- NoticeSection end -->
 
-<!-- CompleteButton -->
+<!-- Complete Button start -->
 <button class="complete-button" @click="goToNext">나의 투자성향 분석결과</button>
+<!-- Complete Button end -->
 </div>
-    <!-- 팝업(모달) -->
-    <div v-if="isModalOpen" class="modal-overlay">
-        <div class="modal-box">
-            <h3>투자성향분석 결과 안내</h3><br>
-            <p>고객님의 투자성향과 가입하고자 하는 금융투자상품의 위험 수준을 확인 후 신중하게 투자하여 주시기 바랍니다.</p>
-            <br>
-            <button class="modal-complete-button" @click="closeModal">확인하였습니다.</button>
-        </div>
-    </div>
 
+<!-- Modal Section start -->
+<div v-if="isModalOpen" class="modal-overlay">
+    <div class="modal-box">
+        <h3>투자성향분석 결과 안내</h3><br>
+        <p>고객님의 투자성향과 가입하고자 하는 금융투자상품의 위험 수준을 확인 후 신중하게 투자하여 주시기 바랍니다.</p>
+        <br>
+        <button class="modal-complete-button" @click="closeModal">확인하였습니다.</button>
+    </div>
+</div>
+<!-- Modal Section end -->
 </template>
 
 
 <style scoped>
-/* TitleSection styles */
+/* Main Section Styles */
 .main-section {
     background: var(--main04);
     text-align: left;
@@ -265,28 +274,17 @@
     margin: 0 -20px;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* 수직 중앙 */
-    align-items: center;     /* 수평 중앙 */
-
+    justify-content: center;
+    align-items: center;
     position: relative;
+}
+.sub-section-list {
+    list-style-position: inside;
+    padding: 2px 15px;
+    margin: 5px;
+}
 
-}
-.main-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--main05);
-}
-.sub-title {
-    font-size: 20px;
-    text-align: left;
-    font-weight: bold;
-}
-.sub-title2 {
-    font-size: 20px;
-    text-align: left;
-    font-weight: bold;
-}
-/* MainSection styles */
+/* Question Section Styles */
 .sub-section {
     margin-bottom: 10px;
     border: 1.5px solid var(--main04);
@@ -307,24 +305,22 @@
     border: 1px solid var(--main04);
     margin: 10px 5px 10px 5px;
 }
+
+/* Notice Section Styles */
+.sub-title {
+    font-size: 20px;
+    text-align: left;
+    font-weight: bold;
+}
+.notice_img {
+    width: 20px;
+    height: auto;
+}
 .bottom-wrapper {
     margin: 4px 34px 40px 34px;
 }
 
-/* MainSection-List styles */
-.sub-section-list {
-    list-style-position: inside;
-    padding: 2px 15px;
-    margin: 5px;
-}
-
-.list-section {
-    margin: 0px 40px 34px 40px;
-    border: 1px solid var(--main03);
-    border-radius: 5px;
-}
-
-  /* Next Button */
+/* Button Section Styles */
 .complete-button {
     position: absolute;
     bottom: 0;
@@ -337,22 +333,9 @@
     font-size: 20px;
     border: none;
     cursor: pointer;
-
 }
 
-
-/* Highlight styles */
-.highlight-blue {
-    color: var(--text-blue);
-    font-weight: bold;
-}
-.highlight-red {
-    color: var(--text-red);
-    font-weight: bold;
-}
-
-
-/* Modal styles */
+/* Modal Section Styles */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -374,7 +357,6 @@
     text-align: left;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
-
 .modal-complete-button {
     padding: 10px 10px;
     background: var(--main01);
@@ -388,18 +370,22 @@
     width: calc(100%);
 }
 
-/* Img Styles */
-.notice_img {
-    width: 20px;
-    height: auto;
+/* Highlight styles */
+.highlight-blue {
+    color: var(--text-blue);
+    font-weight: bold;
 }
-
+.highlight-red {
+    color: var(--text-red);
+    font-weight: bold;
+}
 </style>
 
 <script setup>
 // imports
 import { ref, reactive, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
 // func.
 const isModalOpen = ref(false)
 const router = useRouter()

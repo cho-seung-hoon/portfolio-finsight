@@ -56,7 +56,11 @@ const invtRoutes = [
     name: 'InvTypeResultsPage',
     component: InvTypeResultsPage,
     meta: {
-      layout: 'EmptyLayout'
+      layout: 'HeaderLayout',
+      header:{
+        titleParts:[{text:'투자성향분석 결과', color:'var(--white)'}],
+        bColor:'var(--main01)'
+      }
     }
   },
   {
@@ -64,7 +68,11 @@ const invtRoutes = [
     name: 'PortfolioPage',
     component: PortfolioPage,
     meta: {
-      layout: 'EmptyLayout'
+      layout: 'HeaderLayout',
+      header:{
+        titleParts:[{text:'나의 포트폴리오', color:'var(--white)'}],
+        bColor:'var(--main01)'
+      }
     }
   },
 ];
