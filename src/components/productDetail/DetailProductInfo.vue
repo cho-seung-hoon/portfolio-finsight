@@ -4,16 +4,26 @@
       <div class="bank-section">
         <div class="bank-icon"></div>
         <div class="bank-info">
-          <div v-if="bank" class="buy-product-bank">{{ bank }}</div>
+          <div
+            v-if="bank"
+            class="buy-product-bank">
+            {{ bank }}
+          </div>
           <div class="product-title">{{ title }}</div>
         </div>
       </div>
     </div>
-    
-    <div class="info-row" v-if="name">
+
+    <div
+      v-if="name"
+      class="info-row">
       <span class="info-name">{{ name }}</span>
       <span class="info-detail-page">
-        <button class="detail-button" @click="$emit('detail')">상세</button>
+        <button
+          class="detail-button"
+          @click="$emit('detail')">
+          상세
+        </button>
       </span>
     </div>
   </div>

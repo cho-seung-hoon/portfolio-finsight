@@ -25,8 +25,8 @@
       class="load-more-container">
       <button
         class="load-more-btn"
-        @click="loadMore"
-        :disabled="isLoading">
+        :disabled="isLoading"
+        @click="loadMore">
         <span v-if="!isLoading">더보기</span>
         <span
           v-else

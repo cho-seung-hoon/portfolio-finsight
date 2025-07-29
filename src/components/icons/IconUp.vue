@@ -1,0 +1,15 @@
+<template>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24">
+    <path
+      fill="currentColor"
+      fill-rule="evenodd"
+      d="m12 8l7 8H5z"
+      stroke-width="0.5"
+      stroke="currentColor" />
+  </svg>
+</template>
+
+<script setup></script>
+<style scoped></style>

@@ -33,9 +33,9 @@
     <div class="actions">
       <div v-if="actions.length > 0">
         <router-link
-          class="action-button"
           v-for="action in actions"
           :key="action.icon"
+          class="action-button"
           :to="action.to">
           <component :is="iconComponents[action.icon]" />
         </router-link>
@@ -57,7 +57,9 @@ import { useHeaderStore } from '@/stores/header';
 import IconSearch from '@/components/icons/IconSearch.vue';
 
 const emit = defineEmits(['open-time-modal']);
+
 const accessToken = ref('');
+
 
 const headerStore = useHeaderStore();
 
