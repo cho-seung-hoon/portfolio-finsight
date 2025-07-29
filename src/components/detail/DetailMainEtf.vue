@@ -3,63 +3,92 @@
     <div class="product-bank">{{ bank }}</div>
     <div class="product-title-row">
       <div class="product-title">{{ title }}</div>
-      <IconFullHeart
-        v-if="heartActive"
-        class="heart-icon"
-        @click="toggleHeart" />
-      <IconEmptyHeart
-        v-else
-        class="heart-icon"
-        @click="toggleHeart" />
+      <HeartToggle @toggle="handleHeartToggle" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">
-        <div class="rate-label">순자산 총액</div>
-        <div class="rate-value">{{ formattedNetAssets }}</div>
+        <div class="rate-label">수익률 ({{ yieldMonths }}개월)</div>
+        <div
+          :class="yieldChangeColor"
+          class="rate-value">
+          <template v-if="yieldValue > 0">▲</template>
+          <template v-else-if="yieldValue < 0">▼</template>
+          {{ formattedYield }}%
+        </div>
       </div>
       <div class="rate-divider"></div>
       <div class="rate-info right">
-        <div class="rate-label">위험 등급</div>
-        <div class="star-row">
-          <component
-            :is="n <= risk ? IconFillStar : IconEmptyStar"
-            v-for="n in 6"
-            :key="n"
-            class="star-icon" />
-        </div>
+        <div class="rate-label">현재 시세</div>
+        <div class="rate-value">{{ formattedCurrentPrice }}</div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-import IconEmptyHeart from '@/components/icons/IconEmptyHeart.vue';
-import IconFullHeart from '@/components/icons/IconFullHeart.vue';
-import IconFillStar from '@/components/icons/IconFillStar.vue';
-import IconEmptyStar from '@/components/icons/IconEmptyStar.vue';
+import { computed } from 'vue';
+import HeartToggle from '@/components/common/HeartToggle.vue';
 
 const props = defineProps({
   bank: String,
   title: String,
-  net_assets: String, // 순자산 총액 (단위 없는 숫자 문자열)
-  risk: Number // 위험 등급 (1~6)
+  mainYield: [String, Number, Object], // 수익률 (개월 수와 값)
+  currentPrice: String // 현재 시세
 });
 
-const formattedNetAssets = computed(() => {
-  // 이미 억원 단위(소수점 포함)로 들어온다고 가정
-  if (!props.net_assets) return '-';
-  // 숫자만 추출(소수점 포함)
-  const num = Number((props.net_assets + '').replace(/[^0-9.]/g, ''));
-  if (isNaN(num)) return '-';
-  // 소수점 두 자리까지, 천 단위 콤마
-  return num.toLocaleString(undefined, { maximumFractionDigits: 2 }) + '억원';
+const yieldMonths = computed(() => {
+  if (!props.mainYield) return 1;
+
+  if (
+    typeof props.mainYield === 'object' &&
+    props.mainYield.value !== undefined &&
+    props.mainYield.months !== undefined
+  ) {
+    return props.mainYield.months;
+  }
+  return 3; // 기본값
 });
 
-const heartActive = ref(false);
-function toggleHeart() {
-  heartActive.value = !heartActive.value;
-}
+const yieldValue = computed(() => {
+  if (!props.mainYield) return 0;
+
+  if (
+    typeof props.mainYield === 'object' &&
+    props.mainYield.value !== undefined &&
+    props.mainYield.months !== undefined
+  ) {
+    // 새로운 구조: { value: 2.5, months: 1 }
+    return props.mainYield.value;
+  } else if (typeof props.mainYield === 'string') {
+    // 기존 문자열 구조
+    return parseFloat(props.mainYield);
+  } else if (typeof props.mainYield === 'number') {
+    // 기존 숫자 구조
+    return props.mainYield;
+  } else {
+    return 0;
+  }
+});
+
+const formattedYield = computed(() => {
+  if (!props.mainYield) return '-';
+  return Math.abs(yieldValue.value);
+});
+
+const yieldChangeColor = computed(() => {
+  if (yieldValue.value > 0) return 'up';
+  if (yieldValue.value < 0) return 'down';
+  return '';
+});
+
+const formattedCurrentPrice = computed(() => {
+  if (!props.currentPrice) return '-';
+  return props.currentPrice + '원';
+});
+
+const handleHeartToggle = isActive => {
+  // 하트 상태 변경 처리 (필요시 추가 로직 구현)
+};
 </script>
 
 <style scoped>
@@ -82,13 +111,7 @@ function toggleHeart() {
   font-weight: 700;
   color: var(--main05);
 }
-.heart-icon {
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  user-select: none;
-  display: inline-block;
-}
+
 .product-bank {
   font-size: 18px;
   font-weight: 500;
@@ -125,14 +148,10 @@ function toggleHeart() {
   font-weight: 700;
   color: var(--main01);
 }
-.star-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 2px;
+.up {
+  color: var(--red01);
 }
-.star-icon {
-  width: 20px;
-  height: 20px;
+.down {
+  color: var(--text-blue);
 }
 </style>

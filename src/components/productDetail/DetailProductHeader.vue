@@ -1,9 +1,8 @@
 <template>
   <div class="sell-header">
-    <span 
-      class="chevron-left" 
-      @click="$emit('back')"
-    >
+    <span
+      class="chevron-left"
+      @click="$emit('back')">
       &#60;
     </span>
     <span class="header-title">{{ title }}</span>

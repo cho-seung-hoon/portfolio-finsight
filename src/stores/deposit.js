@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import Decimal from 'decimal.js';
 
 // API 모듈 임포트 (추후 생성 예정)
 // import { fetchDepositProduct } from '@/api/deposit';
@@ -13,11 +14,18 @@ export const useDepositStore = defineStore('deposit', () => {
   // 여러 목업 상품 데이터
   const mockProducts = {
     'deposit-001': {
-      bank: 'SH 수협은행',
-      title: 'SH 첫만남우대예금',
-      maxRate: '연 6.00%',
-      maxRateDesc: '(12개월 세전)',
-      baseRate: '연 3.69%',
+      productCode: 'deposit-001',
+      productName: 'SH 첫만남우대예금',
+      productCompanyName: 'SH 수협은행',
+      productRiskGrade: 1,
+      depositJoinMember: '실명의 개인(1인 1계좌)',
+      depositSpclCnd: '우대 조건: 신규가입 시 최고 연 0.30%p 추가',
+      depositMtrtInt: '연 3.69%',
+      depositMaxLimit: new Decimal(10000000), // 최대 예금 가능 금액: 1천만원
+      depositJoinWay: '인터넷뱅킹, 모바일뱅킹',
+      depositJoinDeny: '서민전용',
+      depositEtcNote: '상품 가입 전 반드시 상품설명서 및 약관을 확인하시기 바랍니다.',
+      depositOption: '자동 만기관리, 분할인출 가능',
       isHolding: false,
       info: [
         {
@@ -68,14 +76,49 @@ export const useDepositStore = defineStore('deposit', () => {
           title: '예금자 보호법',
           desc: '이 예금은 예금자보호법에 따라 원금과 소정의 이자를 합하여 1인당 "5천만원까지"(SH수협은행의 여타 보호 상품과 합산) 보호됩니다.'
         }
+      ],
+      news: [
+        {
+          type: 'news',
+          title: '예금 관련 뉴스',
+          keyword: '예금',
+          color: '#FF9500',
+          desc: [
+            {
+              title: 'SH 수협은행, 우대예금 금리 인상',
+              content_url: 'https://example.com/news13',
+              published_at: '2025.01.15',
+              labels: ['예금', '수협은행', '금리']
+            },
+            {
+              title: '디지털 뱅킹, 온라인 예금 가입 증가',
+              content_url: 'https://example.com/news14',
+              published_at: '2025.01.14',
+              labels: ['예금', '디지털뱅킹', '온라인']
+            },
+            {
+              title: '첫만남우대예금, 신규 고객 선호도 상승',
+              content_url: 'https://example.com/news15',
+              published_at: '2025.01.13',
+              labels: ['예금', '우대', '신규고객']
+            }
+          ]
+        }
       ]
     },
     'deposit-002': {
-      bank: 'KB 국민은행',
-      title: 'KB Star 정기예금',
-      maxRate: '연 5.50%',
-      maxRateDesc: '(6개월 세전)',
-      baseRate: '연 3.00%',
+      productCode: 'deposit-002',
+      productName: 'KB Star 정기예금',
+      productCompanyName: 'KB 국민은행',
+      productRiskGrade: 1,
+      depositJoinMember: '실명의 개인',
+      depositSpclCnd: '우대 조건 없음',
+      depositMtrtInt: '연 3.00%',
+      depositMaxLimit: new Decimal(5000000), // 최대 예금 가능 금액: 500만원
+      depositJoinWay: '인터넷뱅킹, 모바일뱅킹',
+      depositJoinDeny: '제한 없음',
+      depositEtcNote: '상품설명서를 꼭 확인하세요.',
+      depositOption: '기본 정기예금',
       isHolding: true,
       info: [
         { type: 'text', title: '상품특징', desc: 'KB 국민은행의 대표 정기예금 상품입니다.' },
@@ -85,7 +128,50 @@ export const useDepositStore = defineStore('deposit', () => {
         { type: 'text', title: '저축기간', desc: '6개월' },
         { type: 'text', title: '최고금리', desc: '연 5.50% (6개월 세전)' }
       ],
-      notice: [{ type: 'text', title: '유의사항', desc: '상품설명서를 꼭 확인하세요.' }]
+      notice: [{ type: 'text', title: '유의사항', desc: '상품설명서를 꼭 확인하세요.' }],
+      news: [
+        {
+          type: 'news',
+          title: 'KB 은행 관련 뉴스',
+          keyword: 'KB',
+          color: '#FF3B30',
+          desc: [
+            {
+              title: 'KB 국민은행, 정기예금 금리 조정',
+              content_url: 'https://example.com/news16',
+              published_at: '2025.01.15',
+              labels: ['KB', '국민은행', '정기예금']
+            },
+            {
+              title: 'KB Star 정기예금, 고객 만족도 상승',
+              content_url: 'https://example.com/news17',
+              published_at: '2025.01.14',
+              labels: ['KB', 'Star', '만족도']
+            },
+            {
+              title: 'KB 은행, 디지털 전환 가속화',
+              content_url: 'https://example.com/news18',
+              published_at: '2025.01.13',
+              labels: ['KB', '디지털', '전환']
+            }
+          ]
+        }
+      ]
+    }
+  };
+
+  // 보유 내역 더미 데이터
+  const mockHoldingData = {
+    'deposit-002': {
+      holdingsId: 'holding-deposit-002',
+      userId: 'user123',
+      productCode: 'deposit-002',
+      productCategory: 'deposit',
+      holdingsTotalPrice: new Decimal(5000000), // 예금액 500만원
+      holdingsTotalQuantity: 1, // 예금은 수량 개념이 없으므로 1
+      holdingsStatus: 'holding',
+      contractDate: '2025.01.15', // 예금 체결일
+      maturityDate: '2025.07.15' // 예금 만료일 (6개월)
     }
   };
 
@@ -116,12 +202,54 @@ export const useDepositStore = defineStore('deposit', () => {
   const productInfo = computed(() => product.value);
   const tabData = computed(() => {
     if (!product.value) return {};
-    return {
+
+    const baseTabData = {
       info: product.value.info,
       rate: product.value.rate,
-      notice: product.value.notice
+      notice: product.value.notice,
+      news: product.value.news
     };
+
+    return baseTabData;
   });
+
+  // 보유 내역 데이터 getter (기존 유지)
+  const holdingData = computed(() => {
+    if (!product.value) return null;
+    return mockHoldingData[product.value.productCode] || null;
+  });
+
+  // tabData에 holding 데이터를 추가하는 함수
+  const getTabDataWithHolding = productId => {
+    const baseTabData = {
+      info: product.value?.info || [],
+      rate: product.value?.rate || [],
+      notice: product.value?.notice || [],
+      news: product.value?.news || []
+    };
+
+    // 보유 중인 상품이면 holding 데이터 추가
+    if (
+      product.value?.isHolding &&
+      product.value?.productCode &&
+      mockHoldingData[product.value.productCode]
+    ) {
+      const holdingInfo = mockHoldingData[product.value.productCode];
+      baseTabData.holding = [
+        {
+          type: 'holdingsummarydeposit',
+          title: '보유 현황',
+          desc: {
+            contractDate: holdingInfo.contractDate,
+            maturityDate: holdingInfo.maturityDate,
+            holdingsTotalPrice: holdingInfo.holdingsTotalPrice
+          }
+        }
+      ];
+    }
+
+    return baseTabData;
+  };
 
   return {
     product,
@@ -129,6 +257,8 @@ export const useDepositStore = defineStore('deposit', () => {
     error,
     fetchProduct,
     productInfo,
-    tabData
+    tabData,
+    holdingData,
+    getTabDataWithHolding
   };
 });

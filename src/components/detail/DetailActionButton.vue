@@ -6,7 +6,7 @@
       type="button"
       class="asset-record-btn-fixed"
       @click="handleBuyClick">
-      <span class="asset-record-btn-text center">첫 매수하기</span>
+      <span class="asset-record-btn-text center">{{ getBuyButtonText() }}</span>
     </button>
 
     <!-- 보유 중인 상품일 때 -->
@@ -17,13 +17,14 @@
         type="button"
         class="asset-record-btn-fixed sell-btn"
         @click="handleSellClick">
-        <span class="asset-record-btn-text">매도하기</span>
+        <span class="asset-record-btn-text">{{ getSellButtonText() }}</span>
       </button>
       <button
+        v-if="category !== 'deposit'"
         type="button"
         class="asset-record-btn-fixed buy-btn"
         @click="handleBuyClick">
-        <span class="asset-record-btn-text">추가 매수하기</span>
+        <span class="asset-record-btn-text">{{ getAdditionalBuyButtonText() }}</span>
       </button>
     </div>
   </div>
@@ -31,7 +32,6 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 
 const props = defineProps({
   bank: String,
@@ -44,7 +44,7 @@ const props = defineProps({
   id: [String, Number]
 });
 
-const router = useRouter();
+const emit = defineEmits(['buy', 'sell']);
 
 const heartActive = ref(false);
 function toggleHeart() {
@@ -52,13 +52,43 @@ function toggleHeart() {
 }
 
 function handleBuyClick() {
-  // 첫 매수하기 또는 추가 매수하기 버튼 클릭 시 이동
-  router.push(`/${props.category}/buy/${props.id}`);
+  // 첫 매수하기 또는 추가 매수하기 버튼 클릭 시 이벤트 emit
+  emit('buy', {
+    category: props.category,
+    id: props.id
+  });
 }
 
 function handleSellClick() {
-  // 매도하기 버튼 클릭 시 이동
-  router.push(`/${props.category}/sell/${props.id}`);
+  // 매도하기/해지하기 버튼 클릭 시 이벤트 emit
+  emit('sell', {
+    category: props.category,
+    id: props.id
+  });
+}
+
+// 첫 매수/가입 버튼 텍스트 반환
+function getBuyButtonText() {
+  if (props.category === 'deposit') {
+    return '상품 가입하기';
+  }
+  return '주문하기';
+}
+
+// 매도/해지 버튼 텍스트 반환
+function getSellButtonText() {
+  if (props.category === 'deposit') {
+    return '해지하기';
+  }
+  return '매도하기';
+}
+
+// 추가 매수 버튼 텍스트 반환
+function getAdditionalBuyButtonText() {
+  if (props.category === 'deposit') {
+    return '추가 가입하기';
+  }
+  return '추가 매수하기';
 }
 </script>
 
@@ -70,7 +100,7 @@ function handleSellClick() {
   bottom: 30px;
   width: 100%;
   max-width: 408px;
-  z-index: 1000;
+  z-index: 900; /* 모달 배경 뒤에 위치하도록 수정 */
   display: flex;
   flex-direction: column;
   align-items: center;

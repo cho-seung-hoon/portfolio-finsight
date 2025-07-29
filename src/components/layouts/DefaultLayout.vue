@@ -25,10 +25,6 @@
         ref="thumbEl"
         class="custom-scrollbar-thumb"></div>
     </div>
-
-    <TimeModal
-      v-if="isModalVisible"
-      @close="closeModal" />
   </div>
 </template>
 

@@ -16,8 +16,8 @@
           <button
             type="button"
             class="btn-close"
-            @click="closeModal"
-            aria-label="Close"></button>
+            aria-label="Close"
+            @click="closeModal"></button>
         </div>
 
         <!-- 모달 바디 -->
@@ -48,10 +48,10 @@
                 class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-start-0 border-end-0">
                 <div class="form-check flex-grow-1">
                   <input
-                    class="form-check-input me-3"
-                    type="checkbox"
                     :id="`term-${term.id}`"
                     v-model="term.agreed"
+                    class="form-check-input me-3"
+                    type="checkbox"
                     @change="updateAgreementStatus" />
                   <label
                     class="form-check-label text-dark"
@@ -76,10 +76,10 @@
             <div class="mt-4 pt-3 border-top">
               <div class="form-check">
                 <input
-                  class="form-check-input me-3"
-                  type="checkbox"
                   id="allAgree"
                   v-model="allAgreed"
+                  class="form-check-input me-3"
+                  type="checkbox"
                   @change="toggleAllAgreement" />
                 <label
                   class="form-check-label fw-semibold text-dark"

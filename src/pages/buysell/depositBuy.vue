@@ -21,7 +21,6 @@
     <BuySellMessage
       :error="buyStore.error"
       :success="buyStore.buyResult?.message" />
-    
   </div>
 </template>
 
