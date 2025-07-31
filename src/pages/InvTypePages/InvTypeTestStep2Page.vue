@@ -11,7 +11,7 @@
 <template>
 <div class="main-section"><br>
     <!-- MainSection start-->
-    <p class="sub-section-list">고객님께서 적합한 상품을 선택 하시는데 도움을 드리기 위해 <br>투자자정보를 제공하는 절차입니다.</p>
+    <p class="sub-section-list">고객님께서 적합한 상품을 선택 하시는데 도움을 드리기 위해 투자자정보를 제공하는 절차입니다.</p>
     <ul class="sub-section-list">
         <li>다음 질문에 대해 가장 적절하다고 생각되시는 답을 선택해 주세요. 총 7문항입니다.</li>
         <li>투자성향분석은 
@@ -116,7 +116,7 @@
         <input type="checkbox" name="q3" :value="5" :id="'q3-5'" v-model="selectedAnswers.q3" />
         <label for="q3-5"> ELW, 선물옵션, 시장수익률 이상의 수익을 추구하는 주식형펀드 ,파생상품에 투자하는 펀드, 주식 신용거래 등</label>
     </div>
-  </section>
+</section>
 
   <!-- QuestionSection (02) -->
   <section class="sub-section">
@@ -235,7 +235,6 @@
 <h3 class="sub-title">
     <img class="notice_img" src="/src/assets/styles/img/notice.png" alt="경고"> 알려드립니다
 </h3>
-<hr class="answer-boundary">
 <div class="bottom-wrapper">
     <p class="highlight-blue">본인은 투자목적, 재산상황 및 투자경험 등의 정보를 정확히 등록하였으며 다음과 같은 사항을 확인합니다.</p>
     <ul class="sub-section-list">
@@ -261,6 +260,16 @@
     </div>
 </div>
 <!-- Modal Section end -->
+
+<!-- Alert Modal Section start -->
+<div v-if="isAlertModalOpen" class="modal-overlay">
+    <div class="modal-box">
+        <h3>안내</h3><br>
+        <p>모든 질문에 응답해 주세요.</p><br>
+        <button class="modal-complete-button" @click="isAlertModalOpen = false">확인</button>
+    </div>
+</div>
+<!-- Alert Modal Section end -->
 </template>
 
 <style scoped>
@@ -347,25 +356,24 @@
     z-index: 999;
 }
 .modal-box {
-  background-color: white;
-
-  padding: 24px;
-  width: 90%;
-  max-width: 320px;
-  text-align: left;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    padding: 24px;
+    width: 90%;
+    max-width: 320px;
+    text-align: left;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 .modal-complete-button {
-  padding: 10px 10px;
-  background: var(--main01);
-  color: var(--white);
-  font-weight: 700;
-  font-size: 18px;
-  display: flex;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
-  width: calc(100%);
+    padding: 10px 10px;
+    background: var(--main01);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    width: calc(100%);
 }
 
 /* Highlight styles */
@@ -380,42 +388,13 @@
 </style>
 
 <script setup>
-// imports
 import { ref, reactive, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
-// func.
-const isModalOpen = ref(false)
 const router = useRouter()
-const goToNext = () => {
-    isModalOpen.value = true
-}
-// BE 연동 전 closeModal() 코드
-// const closeModal = () => {
-//     isModalOpen.value = false;
-//     const score = totalScore.value;
-//     const type = getType(score);
-//     router.push({
-//         path: '/inv-type-results-page',
-//         query: { score: score, type: type } //  this.$route.query.score와 this.$route.query.type
-//     });
-// }
-const closeModal = async () => {
-    isModalOpen.value = false;
-    const score = totalScore.value;
-    const riskType = getRiskType(score);
 
-    // Step 3: submitRiskProfile()
-    formData.userId = localStorage.getItem('userId') || '';
-    await submitRiskProfile(); // BE로 저장을 요청함.
-
-    router.push({
-        path: '/inv-type-results-page',
-        query: { score: score, riskType: riskType } //  this.$route.query.score와 this.$route.query.riskType
-    });
-}
-
-// Step 1: 각 문항의 답변을 변수로 바인딩함.
+// === 1. 질문별 점수표
 const scoreTable = {
     q1: { 1: 12.5, 2: 12.5, 3: 9.3, 4: 6.2, 5: 3.1 },
     q2: { 1: 3.1, 2: 6.2, 3: 9.3, 4: 12.5, 5: 15.6 },
@@ -427,89 +406,114 @@ const scoreTable = {
 }
 
 const selectedAnswers = reactive({
-    q1: null,
-    q2: null,
-    q3: [],
-    q4: null,
-    q5: null,
-    q6: null,
-    q7: null
-});
+    q1: null, q2: null, q3: [], q4: null,
+    q5: null, q6: null, q7: null
+})
 
-// Step 2: 점수 계산기
+// === 2. 총 점수 계산
 const totalScore = computed(() => {
-    let score = 0;
-    for (const questionKey in selectedAnswers) {
-        if (Object.hasOwnProperty.call(selectedAnswers, questionKey)) {
-            const answerValue = selectedAnswers[questionKey];
-
-            if (questionKey === 'q3' && Array.isArray(answerValue)) {
-                // For Q3 (checkboxes), sum the scores for all selected options
-                answerValue.forEach(val => {
-                    score += scoreTable.q3[val] || 0;
-                });
-            } else if (answerValue !== null) {
-                // For radio buttons, get the score for the selected value
-                score += scoreTable[questionKey]?.[answerValue] || 0;
-            }
-        }
-    }
-    return score;
-});
-
-
-// Step 3: 유형 분류기
-const getRiskType = (score) => {
-    if (score <= 20) return 'stable' // 안정형
-    if (score <= 40) return 'stableplus' // 안정추구형
-    if (score <= 60) return 'neutral' // 위험중립형
-    if (score <= 80) return 'aggressive' // 적극투자형
-    return 'veryaggressive' // 공격투자형
-}
-
-watch(totalScore, (newScore) => {
-    console.log('현재 총 점수 (totalScore):', newScore.toFixed(2));
-    console.log('현재 투자 성향:', getRiskType(newScore));
-});
-
-// === BE와 연동하기 ================================================================
-// Step 1: formData, error Message
-const formData = reactive({
-    userId: 'user001',  // 로그인 정보로 부터 가져올 예정.
-    riskType: '' // 계산된 투자 성향
-});
-const errorMessage = ref('');
-
-// Step 2: submitRiskProfile()
-import axios from 'axios'
-
-const submitRiskProfile = async () => {
-    errorMessage.value = '';
-    formData.riskType = getRiskType(totalScore.value); // riskType 저장
-
-    try {
-        const accessToken = localStorage.getItem('accessToken');
-        await axios.put('/users/invt', {
-            userId: formData.userId,
-            riskType: formData.riskType
-        },{
-            headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-        });
-
-        console.log('[성공] 투자 성향 결과 저장 완료');
-    } catch (error) {
-        console.error(error);
-
-        if (error.response && error.response.status === 400) {
-            errorMessage.value = error.response.data?.error || '잘못된 요청입니다.';
+  let score = 0
+  for (const [key, val] of Object.entries(selectedAnswers)) {
+    if (key === 'q3') {
+        val.forEach(v => score += scoreTable.q3[v] || 0)
         } else {
-            errorMessage.value = '저장 실패. 다시 시도해주세요.';
+        score += scoreTable[key]?.[val] || 0
         }
+    }
+    return score
+})
+
+// === 3. 투자 성향 유형 계산
+const getInvestmentProfileType = (score) => {
+    if (score <= 20) return 'STABLE'
+    if (score <= 40) return 'STABLEPLUS'
+    if (score <= 60) return 'NEUTRAL'
+    if (score <= 80) return 'AGGRESSIVE'
+    return 'VERYAGGRESSIVE'
+}
+
+// === 4. 모달 관리
+const isAlertModalOpen = ref(false)
+const isModalOpen = ref(false)
+
+// === 5. 모든 문항 응답 여부 확인
+const isAllAnswered = computed(() => {
+    return selectedAnswers.q1 !== null &&
+            selectedAnswers.q2 !== null &&
+            selectedAnswers.q3.length > 0 &&
+            selectedAnswers.q4 !== null &&
+            selectedAnswers.q5 !== null &&
+            selectedAnswers.q6 !== null &&
+            selectedAnswers.q7 !== null
+})
+
+// === 6. 서버로 보낼 formData
+// 폼 -> 로직 계산 후 투자성향을 investmentProfileType 넣어야함
+const investmentProfileType = ref(''); // ref로 선언했으므로 .value로 접근함.
+
+// === 7. 투자 성향 저장 API 호출
+const submitInvestmentProfile = async () => {
+        const accessToken = localStorage.getItem('accessToken')
+
+        if (!accessToken) {
+            console.error('accessToken이 없습니다.')
+            return
+        }
+
+        console.log('🔐 accessToken:', accessToken)
+
+        try {
+            const response = await axios.put(
+            'http://localhost:8080/users/invt',
+            {
+                investmentProfileType: investmentProfileType.value
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                }
+            }
+        )
+        console.log('투자성향 저장 성공:', response.data)
+    } catch (error) {
+        console.error('투자성향 저장 실패:', error)
+        console.error('📄 응답 상태:', error.response?.status)
+        console.error('📄 응답 데이터:', error.response?.data)
+        console.error('📄 전체 에러:', error)
     }
 }
 
-// Step 4: 사용자 ID와 accessToken 저장 확인
-// localStorage.setItem('userid', response.data.data.userId);
+// === 8. 다음 버튼 클릭 시 실행
+const goToNext = async () => {
+    if (!isAllAnswered.value) {
+        isAlertModalOpen.value = true
+        return
+    }
+
+    // formData.investmentProfileType = getInvestmentProfileType(totalScore.value)
+    investmentProfileType.value = getInvestmentProfileType(totalScore.value)
+    console.log('>> 응답한 총 점수:', totalScore.value)
+    console.log('>> 계산된 투자성향:', investmentProfileType.value)
+
+    await submitInvestmentProfile()
+    isModalOpen.value = true
+}
+
+// === 9. 모달 닫기 후 결과 페이지로 이동
+const closeModal = () => {
+    router.push({
+        path: '/inv-type-results-page',
+        query: {
+            score: totalScore.value,
+            // investmentProfileType: formData.investmentProfileType
+            investmentProfileType: investmentProfileType.value
+        }
+    })
+}
+
+// === 10. 점수 변화 로그 출력
+watch(totalScore, (newScore) => {
+    console.log('현재 총 점수:', newScore.toFixed(2))
+    console.log('현재 투자 성향:', getInvestmentProfileType(newScore))
+})
 </script>
