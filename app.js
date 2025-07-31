@@ -1,13 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-require('dotenv').config(); // .env를 가장 먼저 로드
+const http = require('http');
+require('dotenv').config(); // .env 파일 로드
 
-// 환경 변수 로드
+// 환경 변수 구조분해할당
 const {
-  PORT = 3000,
-  WS_PORT = 3001,
-  NODE_ENV = 'development',
+  PORT = PORT,
+  WS_PORT = WS_PORT,
+  NODE_ENV = NODE_ENV,
   APP_NAME = 'FINSIGHT-TRADE',
   APP_VERSION = '1.0.0',
   ALLOWED_ORIGINS,
@@ -17,7 +18,11 @@ const {
 // 모듈 import
 const etfRestRoutes = require('./routes/etfRest');
 const fundRestRoutes = require('./routes/fundRest');
-const WebSocketServer = require('./websocket/etfSocket');
+const { startWebSocketServer, broadcastData } = require('./websocket/wsServer');
+
+// 스케줄러 불러오기
+require('./services/scheduler/etfScheduler');
+require('./services/scheduler/fundScheduler');
 
 const app = express();
 
@@ -37,24 +42,24 @@ app.use(express.static('public'));
 // JSON 파서
 app.use(express.json());
 
-// 기본 라우트
-app.get('/', (req, res) => {
+// REST 라우트 등록
+app.use('/', etfRestRoutes);
+app.use('/', fundRestRoutes);
+
+// API 정보 라우트
+app.get('/api', (req, res) => {
   res.json({
     message: APP_NAME,
     version: APP_VERSION,
     environment: NODE_ENV,
     endpoints: {
       etf: '/etf',
-      prices: '/prices',
-      websocket: `ws://localhost:${WS_PORT}`
+      fund: '/fund',
+      websocket: `ws://localhost:${PORT}`
     },
     timestamp: new Date().toISOString()
   });
 });
-
-// REST 라우트 등록
-app.use('/', etfRestRoutes);
-app.use('/', fundRestRoutes);
 
 // 404 핸들러
 app.use('/*', (req, res) => {
@@ -75,24 +80,28 @@ app.use((err, req, res, next) => {
   });
 });
 
-// HTTP 서버 시작
-app.listen(PORT, () => {
-  console.log(`${APP_NAME} HTTP 서버가 포트 ${PORT}에서 시작되었습니다.`);
-  console.log(`ETF API: http://localhost:${PORT}`);
-  console.log(`WebSocket: ws://localhost:${WS_PORT}`);
-  console.log(`환경: ${NODE_ENV}`);
-});
+// HTTP 서버 생성
+const server = http.createServer(app);
 
 // WebSocket 서버 시작
-const wsServer = new WebSocketServer(WS_PORT);
-wsServer.start();
+startWebSocketServer(server);
+
+// HTTP 서버 시작
+server.listen(PORT, () => {
+  console.log(`${APP_NAME} HTTP 서버가 포트 ${PORT}에서 시작되었습니다.`);
+  console.log(`ETF API: http://localhost:${PORT}`);
+  console.log(`WebSocket: ws://localhost:${PORT}`);
+  console.log(`환경: ${NODE_ENV}`);
+  console.log('스케줄러가 시작되었습니다.');
+});
 
 // 종료 처리
 function gracefulShutdown() {
   console.log('\n서버를 종료합니다...');
-  wsServer.stop();
   process.exit(0);
 }
 
 process.on('SIGINT', gracefulShutdown);
 process.on('SIGTERM', gracefulShutdown);
+// broadcastData 함수를 전역으로 export (스케줄러에서 사용)
+module.exports = { broadcastData };
