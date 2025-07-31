@@ -92,8 +92,8 @@
         >위 안내사항을 확인하였습니다.
     </button> 
 </div>
+<br><br>
 <!-- MainSection end-->
-
 </template>
 
 

@@ -16,12 +16,12 @@
 <section class="sub-title">
     <div class="result-section">
         <h2>
-            <span :class="`highlight-${userType}`">
-                <template v-if="userType === 'stable'">안정형</template>
-                <template v-else-if="userType === 'stableplus'">안정추구형</template>
-                <template v-else-if="userType === 'neutral'">위험중립형</template>
-                <template v-else-if="userType === 'aggressive'">적극투자형</template>
-                <template v-else-if="userType === 'veryaggressive'">공격투자형</template>
+            <span :class="`highlight-${RiskType}`">
+                <template v-if="RiskType === 'stable'">안정형</template>
+                <template v-else-if="RiskType === 'stableplus'">안정추구형</template>
+                <template v-else-if="RiskType === 'neutral'">위험중립형</template>
+                <template v-else-if="RiskType === 'aggressive'">적극투자형</template>
+                <template v-else-if="RiskType === 'veryaggressive'">공격투자형</template>
             </span>
             <span class="highlight-white">을 위한 포트폴리오</span>
         </h2>
@@ -35,7 +35,7 @@
         <h2>Fin-sight 추천 자산비중</h2><br>
 
         <!-- [01] Stable Type Table -->
-        <table v-if="userType === 'stable'" class="table-main-style">
+        <table v-if="RiskType === 'stable'" class="table-main-style">
             <thead>
                 <tr>
                     <th class="table-style">상품별 종목</th>
@@ -103,7 +103,7 @@
         </table>
 
         <!-- [02] StablePlus Type Table -->
-        <table v-if="userType === 'stableplus'" class="table-main-style">
+        <table v-if="RiskType === 'stableplus'" class="table-main-style">
             <thead>
                 <tr>
                     <th class="table-style">상품별 종목</th>
@@ -171,7 +171,7 @@
         </table>
 
         <!-- [03] Neutral Type Table -->
-        <table v-if="userType === 'neutral'" class="table-main-style">
+        <table v-if="RiskType === 'neutral'" class="table-main-style">
             <thead>
                 <tr>
                     <th class="table-style">상품별 종목</th>
@@ -239,7 +239,7 @@
         </table>
 
         <!-- [04] Aggressive Type Table -->
-        <table v-if="userType === 'aggressive'" class="table-main-style">
+        <table v-if="RiskType === 'aggressive'" class="table-main-style">
             <thead>
                 <tr>
                     <th class="table-style">상품별 종목</th>
@@ -307,7 +307,7 @@
         </table>
 
         <!-- [05] VeryAggressive Type Table -->
-        <table v-else-if="userType === 'veryaggressive'" class="table-main-style">
+        <table v-else-if="RiskType === 'veryaggressive'" class="table-main-style">
             <thead>
                 <tr>
                     <th class="table-style">상품별 종목</th>
@@ -382,7 +382,7 @@
         </small>
         <!-- Notice Section start -->
     </div>
-</section>
+</section><br><br><br>
 <!-- Main Section end -->
 
 <!-- gotoMain Button start -->
@@ -401,15 +401,15 @@ const goToMain = () => {
     router.push('/')
 }
 
-// UserType Section
+// RiskType Section
 const route = useRoute()
-const userType = ref('')
+const RiskType = ref('')
 
-watch(() => route.query.userType, (newUserType) => {
-    if (newUserType) {
-        userType.value = newUserType;
+watch(() => route.query.RiskType, (newRiskType) => {
+    if (newRiskType) {
+        RiskType.value = newRiskType;
     } else {
-        userType.value = 'stable';
+        RiskType.value = 'stable';
     }
 },
 {
