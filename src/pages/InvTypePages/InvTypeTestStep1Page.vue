@@ -17,7 +17,7 @@
     <div class="check-button-group">
       <button
         :class="['check-button', { active: consumerType === '일반' }]"
-        @click="consumerType = '일반'">
+        @click="selectGeneralConsumer">
         일반금융소비자
       </button>
       <button
@@ -100,29 +100,54 @@
   </div>
   <br><br><br>
   <!-- Complete Button -->
-  <button
-  class="complete-button"
-  :disabled="isNextDisabled"
-  @click="goToNext">
-  다음 단계로
-</button>
-  <!-- Main Section end-->
+  <button class="complete-button" @click="goToNext" :disabled="isNextDisabled" >다음 단계로</button>
+<!-- Main Section end-->
+
+<!-- Alert Modal Section start -->
+<div v-if="isAlertModalOpen" class="modal-overlay">
+  <div class="modal-box">
+    <h3>안내</h3>
+    <br>
+    <p>모든 질문에 응답해 주세요.</p>
+    <br>
+    <button class="modal-complete-button" @click="isAlertModalOpen = false">확인</button>
+  </div>
+</div>
+<!-- Alert Modal Section end -->
+
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 const router = useRouter();
 const consumerType = ref(null);
 const isVulnerable = ref(null);
 const hasLoan = ref(null);
 
+
+
+// ✅ 모든 설문 버튼이 클릭되어야만 “다음 단계로” 버튼이 활성화가 되는 기능
+const isAlertModalOpen = ref(false);
+const isAllAnswered = computed( () => {
+  return consumerType.value !== null && isVulnerable.value !== null && hasLoan.value !== null;
+})
+
 const goToNotion = () => {
   router.push('/inv-type-notice-page');
 };
 const goToNext = () => {
-  router.push('/inv-type-test-step-2-page');
+  if (isAllAnswered.value) {
+    router.push('/inv-type-test-step-2-page');
+  } else {
+    isAlertModalOpen.value = true;
+  }
 };
+const selectGeneralConsumer = () => {
+  consumerType.value = '일반';
+  isNextDisabled.value = false;
+}
+
 
 // modal func.
 const isModalOpen = ref(false);
@@ -263,4 +288,3 @@ color: #666;
   font-weight: bold;
 }
 </style>
-======= >>>>>>> develop

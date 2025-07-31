@@ -24,25 +24,22 @@
     <h2 class="results-title">나의 투자성향은?</h2><br>
     <div class="result-wrapper">
       <p class="result-text">
-        <strong>{{ name }}</strong>님의 투자 성향은
+        <span class="result-text" :class="`highlight-${userType}`">{{ invest_type }}</span>으로,
       </p>
       <p class="result-text">
-        <span class="result-text" :class="`highlight-${RiskType}`">{{ invest_type }}</span>이며,
+        <span class="result-text" :class="`highlight-${userType}`">{{ invest_type_description }}</span>에
       </p>
-      <p class="result-text">
-        <span class="result-text" :class="`highlight-${RiskType}`">{{ invest_type_description }}</span>
-      </p>
-      <p>에 가입할 수 있어요.</p>
+      <p>가입할 수 있습니다.</p>
     </div><br><br>
     <!-- Text Section end -->
 
     <!-- Graph Section start -->
     <div class="graph-wrapper">            
-      <img v-if="RiskType === 'stable'" src="/src/assets/styles/img/stableChart.PNG" alt="stableChart" class="graph-image">
-      <img v-if="RiskType === 'stableplus'" src="/src/assets/styles/img/stableplusChart.PNG" alt="stableplusChart" class="graph-image">
-      <img v-if="RiskType === 'neutral'" src="/src/assets/styles/img/neutralChart.PNG" alt="neutralChart" class="graph-image">
-      <img v-if="RiskType === 'aggressive'" src="/src/assets/styles/img/aggressiveChart.PNG" alt="aggressiveChart" class="graph-image">
-      <img v-else-if="RiskType === 'veryaggressive'" src="/src/assets/styles/img/veryaggressiveChart.PNG" alt="veryaggressiveChart" class="graph-image">
+      <img v-if="userType === 'stable'" src="/src/assets/styles/img/stableChart.PNG" alt="stableChart" class="graph-image">
+      <img v-if="userType === 'stableplus'" src="/src/assets/styles/img/stableplusChart.PNG" alt="stableplusChart" class="graph-image">
+      <img v-if="userType === 'neutral'" src="/src/assets/styles/img/neutralChart.PNG" alt="neutralChart" class="graph-image">
+      <img v-if="userType === 'aggressive'" src="/src/assets/styles/img/aggressiveChart.PNG" alt="aggressiveChart" class="graph-image">
+      <img v-else-if="userType === 'veryaggressive'" src="/src/assets/styles/img/veryaggressiveChart.PNG" alt="veryaggressiveChart" class="graph-image">
     </div>
     <!-- Graph Section end -->
   </div>
@@ -52,7 +49,7 @@
 <!-- Portfolio Section start -->
 <p class="result-text">
   <button class="portfolio-button" @click="goToPortfolio">적합상품 등급 안내</button>
-</p><br><br><br>br
+</p><br>
 <!-- Portfolio Section end -->
 
 <!-- Complete Button start -->
@@ -111,7 +108,6 @@
   border-radius: 5px;
   width: calc(100%);
   cursor: pointer;
-  border-color: var(--main03) !important;
 }
 .complete-button {
   position: absolute;
@@ -142,19 +138,19 @@
   font-weight: bold;
 }
 .highlight-stableplus {
-  color: var(--yellow01); /* 예시 색상, 실제 색상은 디자인에 맞게 조절 */
+  color: var(--green01);
   font-weight: bold;
 }
 .highlight-neutral {
-  color: var(--orange01); /* 예시 색상 */
+  color: var(--yellow01);
   font-weight: bold;
 }
 .highlight-aggressive {
-  color: var(--red01); /* 예시 색상 */
+  color: var(--orange01);
   font-weight: bold;
 }
 .highlight-veryaggressive {
-  color: var(--purple01); /* 예시 색상 */
+  color: var(--red01);
   font-weight: bold;
 }
 </style>
@@ -167,15 +163,14 @@ import { ref, watch } from 'vue'
 // 경로 기능
 const router = useRouter()
 const goToPortfolio = () => {
-  router.push({ path: '/portfolio-page', query: { RiskType: RiskType.value } });
+  router.push({ path: '/portfolio-page', query: { userType: userType.value } });
 }
 const goToMain = () => {
   router.push('/')
 }
 
 // 투자유형 정리
-const name = ref('이진욱')
-const RiskType = ref('')
+const userType = ref('')
 const invest_type = ref('')
 const invest_type_description = ref('')
 const route = useRoute()
@@ -214,13 +209,13 @@ watch(() => route.query, (newQuery) => {
   const typeFromQuery = newQuery.type;
 
   if (typeFromQuery) {
-    RiskType.value = typeFromQuery;
+    userType.value = typeFromQuery;
   } else if (!isNaN(score)) {
-    RiskType.value = getType(score);
+    userType.value = getType(score);
   } else {
-    RiskType.value = 'stable';
+    userType.value = 'stable';
   }
-  const details = getTypeDetails(RiskType.value);
+  const details = getTypeDetails(userType.value);
   invest_type.value = details.name;
   invest_type_description.value = details.description;
 },
