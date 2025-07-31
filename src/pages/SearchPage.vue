@@ -20,6 +20,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import SearchSuggestItem from '@/components/list/SearchSuggestItem.vue';
+import { useLoadingStore } from '@/stores/loading';
+
+const loadingStore = useLoadingStore();
 
 const search = ref('');
 
@@ -34,13 +37,25 @@ const allProducts = [
   '삼성화재'
 ];
 
-onMounted(() => {
+onMounted(async () => {
+  // 로딩 상태 초기화
+  loadingStore.resetLoading();
+
+  // 로딩 시작
+  loadingStore.startLoading('검색 데이터를 불러오는 중...');
+
+  // 0.5초 대기 (더미 데이터 로딩 시뮬레이션)
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   const stateQuery = window.history.state?.query;
 
   if (typeof stateQuery === 'string') {
     search.value = stateQuery;
     window.history.replaceState({}, '');
   }
+
+  // 로딩 종료
+  loadingStore.stopLoading();
 });
 </script>
 

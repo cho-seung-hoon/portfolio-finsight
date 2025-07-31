@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import Decimal from 'decimal.js';
+import { useLoadingStore } from './loading';
 
 // ETF 상품 관련 상태 및 로직을 관리하는 Pinia 스토어
 // 실제 API 연동 전까지 mock 데이터로 동작
@@ -9,6 +10,7 @@ export const useEtfStore = defineStore('etf', () => {
   const product = ref(null);
   const isLoading = ref(false);
   const error = ref(null);
+  const loadingStore = useLoadingStore();
 
   // 여러 목업 상품 데이터
   const mockProducts = {
@@ -284,14 +286,17 @@ export const useEtfStore = defineStore('etf', () => {
   // Actions
   async function fetchProduct(productId) {
     isLoading.value = true;
+    // 로딩 상태 초기화
+    loadingStore.resetLoading();
+    loadingStore.startLoading('ETF 정보를 불러오는 중...');
     error.value = null;
     try {
       // 실제 API 호출 시 아래 코드 사용
       // const response = await fetchEtfProduct(productId);
       // product.value = response.data;
 
-      // Mock API 호출 (0.2초 딜레이)
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // 0.5초 대기 (더미 데이터 로딩 시뮬레이션)
+      await new Promise(resolve => setTimeout(resolve, 500));
       if (mockProducts[productId]) {
         product.value = mockProducts[productId];
       } else {
@@ -302,6 +307,7 @@ export const useEtfStore = defineStore('etf', () => {
       console.error(e);
     } finally {
       isLoading.value = false;
+      loadingStore.stopLoading();
     }
   }
 

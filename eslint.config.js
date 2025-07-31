@@ -8,7 +8,7 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 export default [
   // 1. 전역으로 무시할 파일 및 폴더 설정
   {
-    ignores: ['dist', 'node_modules']
+    ignores: ['dist', 'node_modules', '**/*']
   },
 
   // 2. 전역 언어 옵션 및 환경 설정

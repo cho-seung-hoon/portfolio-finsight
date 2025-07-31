@@ -26,6 +26,12 @@ export default defineConfig({
         target: 'http://localhost:8080', // Spring 서버 주소
         changeOrigin: true,
         secure: false
+      },
+      // 투자성향분석 API 프록시 추가 (양지윤)
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
       }
     },
     host: true

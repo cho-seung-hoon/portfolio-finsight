@@ -9,9 +9,9 @@
 -->
 
 <template>
-  <<<<<<< HEAD
   <!-- Main Section start -->
   <!-- Q1 Section -->
+  <br>
   <div class="question-box">
     <h2 class="question-title">고객님의 금융소비자 유형을 선택해주세요.</h2>
     <div class="check-button-group">
@@ -97,14 +97,15 @@
         예
       </button>
     </div>
-    <!-- Complete Button -->
-    <button
-      class="complete-button"
-      :disabled="isNextDisabled"
-      @click="goToNext">
-      다음 단계로
-    </button>
   </div>
+  <br><br><br>
+  <!-- Complete Button -->
+  <button
+  class="complete-button"
+  :disabled="isNextDisabled"
+  @click="goToNext">
+  다음 단계로
+</button>
   <!-- Main Section end-->
 </template>
 

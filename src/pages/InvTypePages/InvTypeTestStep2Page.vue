@@ -25,10 +25,10 @@
 <!-- QuestionSection (01) ~ (07) start -->
 <!-- 투자성향 페이지 출처: https://invest_test.isweb.co.kr/main_new -->
 
-  <!-- QuestionSection (01) -->
-  <section class="sub-section">
+<!-- QuestionSection (01) -->
+<section class="sub-section">
     <p class="question-title">
-      <strong>Q1.</strong> 고객님의 <span class="highlight-blue">연령대</span>는 어떻게 되시나요?
+        <strong>Q1.</strong> 고객님의 <span class="highlight-blue">연령대</span>는 어떻게 되시나요?
     </p>
     <div class="answer-list">
         <input type="radio" name="q1" :value="1" :id="'q1-1'" v-model="selectedAnswers.q1" />
@@ -263,7 +263,6 @@
 <!-- Modal Section end -->
 </template>
 
-
 <style scoped>
 /* Main Section Styles */
 .main-section {
@@ -391,16 +390,30 @@ const router = useRouter()
 const goToNext = () => {
     isModalOpen.value = true
 }
-const closeModal = () => {
+// BE 연동 전 closeModal() 코드
+// const closeModal = () => {
+//     isModalOpen.value = false;
+//     const score = totalScore.value;
+//     const type = getType(score);
+//     router.push({
+//         path: '/inv-type-results-page',
+//         query: { score: score, type: type } //  this.$route.query.score와 this.$route.query.type
+//     });
+// }
+const closeModal = async () => {
     isModalOpen.value = false;
     const score = totalScore.value;
-    const type = getType(score);
+    const riskType = getRiskType(score);
+
+    // Step 3: submitRiskProfile()
+    formData.userId = localStorage.getItem('userId') || '';
+    await submitRiskProfile(); // BE로 저장을 요청함.
+
     router.push({
         path: '/inv-type-results-page',
-        query: { score: score, type: type } //  this.$route.query.score와 this.$route.query.type
+        query: { score: score, riskType: riskType } //  this.$route.query.score와 this.$route.query.riskType
     });
 }
-
 
 // Step 1: 각 문항의 답변을 변수로 바인딩함.
 const scoreTable = {
@@ -446,7 +459,7 @@ const totalScore = computed(() => {
 
 
 // Step 3: 유형 분류기
-const getType = (score) => {
+const getRiskType = (score) => {
     if (score <= 20) return 'stable' // 안정형
     if (score <= 40) return 'stableplus' // 안정추구형
     if (score <= 60) return 'neutral' // 위험중립형
@@ -456,6 +469,47 @@ const getType = (score) => {
 
 watch(totalScore, (newScore) => {
     console.log('현재 총 점수 (totalScore):', newScore.toFixed(2));
-    console.log('현재 투자 성향:', getType(newScore));
+    console.log('현재 투자 성향:', getRiskType(newScore));
 });
+
+// === BE와 연동하기 ================================================================
+// Step 1: formData, error Message
+const formData = reactive({
+    userId: 'user001',  // 로그인 정보로 부터 가져올 예정.
+    riskType: '' // 계산된 투자 성향
+});
+const errorMessage = ref('');
+
+// Step 2: submitRiskProfile()
+import axios from 'axios'
+
+const submitRiskProfile = async () => {
+    errorMessage.value = '';
+    formData.riskType = getRiskType(totalScore.value); // riskType 저장
+
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        await axios.put('/users/invt', {
+            userId: formData.userId,
+            riskType: formData.riskType
+        },{
+            headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+        });
+
+        console.log('[성공] 투자 성향 결과 저장 완료');
+    } catch (error) {
+        console.error(error);
+
+        if (error.response && error.response.status === 400) {
+            errorMessage.value = error.response.data?.error || '잘못된 요청입니다.';
+        } else {
+            errorMessage.value = '저장 실패. 다시 시도해주세요.';
+        }
+    }
+}
+
+// Step 4: 사용자 ID와 accessToken 저장 확인
+// localStorage.setItem('userid', response.data.data.userId);
 </script>
