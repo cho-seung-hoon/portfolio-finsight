@@ -116,8 +116,28 @@ const handleLogin = async () => {
     if (response.data.success) {
       const accessToken = response.data.data.accessToken;
       localStorage.setItem('accessToken', accessToken);
-      router.push('/');
+      // router.push('/');
+
+      // === goToInvTestMainPage start 양지윤 ====================================== //
+      // ✅ 토큰을 Authorization 헤더에 담아 사용자 정보 요청
+      console.log('accessToken 입니다. :', accessToken);
+      const userInfoResponse = await axios.get('http://localhost:8080/users/me', { // 경로를 보내야함. 예: 'http://localhost:8080/users/me'
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      });
+      const userRole = userInfoResponse.data.data.userRole;
+      localStorage.setItem('userRole', userRole);
+      console.log('userRole', userRole);
+
+      // ✅ 역할에 따라 라우팅
+      if (userRole === 'COMPLETE') {
+        router.push('/');
+      } else {
+        router.push('/inv-type-main-page');
+      }
     }
+    // === goToInvTestMainPage end 양지윤 ====================================== //
   } catch (error) {
     if (error.response && error.response.status === 400) {
       errorMessage.value = error.response.data?.error || '잘못된 요청입니다.';

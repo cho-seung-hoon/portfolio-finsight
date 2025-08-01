@@ -26,7 +26,7 @@
 
 <script setup>
 import IconQuestion from '@/components/icons/IconQuestion.vue';
-import { ref, onBeforeUnmount, watchEffect } from 'vue';
+import { ref, onBeforeUnmount, watchEffect, watch } from 'vue';
 import * as d3 from 'd3';
 
 const props = defineProps({
@@ -36,20 +36,69 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['keyword-click']);
+const emit = defineEmits(['keyword-click', 'initial-load']);
 
 const showTooltip = ref(false);
+const initialLoadDone = ref(false);
+
 
 function onBubbleClick(keyword) {
+  console.log('Clicked Bubble Data:', keyword);
   emit('keyword-click', {
     label: keyword.label,
-    color: keyword.color
+    color: keyword.color,
+    id: keyword.id
   });
 }
 
 const chartBox = ref(null);
 let svg, simulation, resizeObserver;
 
+function wrap(textSelection) {
+  textSelection.each(function(d) {
+    const text = d3.select(this);
+    const label = d.label;
+    const maxWidth = d.r * 1.7; // 텍스트가 들어갈 최대 너비 (원의 지름 85%)
+    const lineHeight = 1.2; // 줄 간격 (em 단위)
+    const y = text.attr("y") || 0;
+
+    // 폰트 스타일을 임시로 설정하여 실제 렌더링될 너비를 측정
+    text.style('font-size', '12px').style('font-weight', '600');
+    const textWidth = this.getComputedTextLength();
+
+    text.text(null); // 기존 텍스트 삭제
+
+    // 1. 텍스트가 최대 너비보다 짧으면 그냥 한 줄로 표시하고 종료
+    if (textWidth < maxWidth) {
+      text.append('tspan')
+        .attr('x', 0)
+        .attr('dy', '0.35em') // 한 줄일 때의 표준 세로 중앙 정렬
+        .text(label);
+      return;
+    }
+
+    // 2. 텍스트가 길면 중간 지점을 찾아 두 줄로 분리
+    const midPoint = Math.floor(label.length / 2);
+    const line1 = label.substring(0, midPoint);
+    const line2 = label.substring(midPoint);
+
+    // 3. 두 개의 tspan으로 각 줄을 추가
+    text.append('tspan')
+      .attr('x', 0)
+      .attr('y', y)
+      .text(line1);
+
+    text.append('tspan')
+      .attr('x', 0)
+      .attr('y', y)
+      .attr('dy', `${lineHeight}em`) // 두 번째 줄을 첫 줄 아래로
+      .text(line2);
+
+    // 4. 두 줄로 나뉜 텍스트 블록 전체를 위로 살짝 올려 세로 중앙 정렬
+    const verticalOffset = -(lineHeight / 2) * 6; // (줄간격 / 2) * (폰트크기 절반)
+    text.attr("transform", `translate(0, ${verticalOffset})`);
+  });
+}
 function colorScale(value, sentiment) {
   const sentimentColors = {
     positive: ['#fdd5d9', '#fca2b0', '#ec3a5a'],
@@ -116,18 +165,17 @@ function drawChart(data, width, height) {
 
   bubble
     .append('text')
-    .text(d => d.label)
     .attr('text-anchor', 'middle')
-    .attr('dy', '0.35em')
-    .style('font-size', '0px')
-    .style('opacity', 0)
+    .style('font-size', '12px') // 기본 폰트 크기 고정
     .style('font-weight', '600')
     .style('fill', d => d.textColor)
+    .style('opacity', 0)
+    .text(d => d.label) // 먼저 전체 텍스트를 넣고
+    .call(wrap) // wrap 함수를 호출하여 줄바꿈 적용
     .transition()
     .duration(800)
-    .ease(d3.easeBackOut)
-    .style('opacity', 1)
-    .style('font-size', d => Math.max(d.r / 3, 10) + 'px');
+    .style('opacity', 1);
+
 
   simulation = d3
     .forceSimulation(nodes)
@@ -152,22 +200,30 @@ function drawChart(data, width, height) {
     });
 }
 
-watchEffect(() => {
-  if (props.chartData && props.chartData.length > 0 && chartBox.value) {
+watch(() => props.chartData, (newData) => {
+  // chartData가 있고, DOM 요소가 준비되면 실행
+  if (newData && newData.length > 0 && chartBox.value) {
     const container = chartBox.value;
-
-    const maxNode = props.chartData.reduce((a, b) => (a.value > b.value ? a : b));
-    const { bgColor } = colorScale(maxNode.value, maxNode.sentiment);
-
-    emit('keyword-click', {
-      label: maxNode.label,
-      color: bgColor
-    });
 
     function resize() {
       const width = container.clientWidth;
       const height = width * 0.6;
-      drawChart(props.chartData, width, height);
+      drawChart(newData, width, height);
+    }
+
+    // [핵심 수정] 초기 로드가 아직 수행되지 않았을 때만 emit을 실행합니다.
+    if (!initialLoadDone.value) {
+      const maxNode = newData.reduce((a, b) => (a.value > b.value ? a : b));
+      const { bgColor } = colorScale(maxNode.value, maxNode.sentiment);
+
+      emit('initial-load', {
+        id: maxNode.id,
+        label: maxNode.label,
+        color: bgColor
+      });
+
+      // 플래그를 true로 설정하여 다시는 실행되지 않도록 합니다.
+      initialLoadDone.value = true;
     }
 
     resize();
@@ -176,6 +232,10 @@ watchEffect(() => {
     resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(container);
   }
+}, {
+  // 컴포넌트가 로드될 때 즉시 실행하지 않고, 데이터가 변경될 때만 실행
+  // onMounted 이후 chartData가 채워지면 최초 실행됩니다.
+  deep: true
 });
 
 onBeforeUnmount(() => {
@@ -205,7 +265,7 @@ onBeforeUnmount(() => {
 
 .subItem-left {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 5px;
 }
 
