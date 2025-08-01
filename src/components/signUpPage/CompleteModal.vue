@@ -34,7 +34,7 @@ const goToLogin = () => router.push('/login');
   justify-content: center;
   align-items: center;
   z-index: 999;
-  margin: 0 -20px;
+  margin: -20px;
 }
 
 .modal-content {

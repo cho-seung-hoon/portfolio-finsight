@@ -438,12 +438,14 @@ watch(
   /* margin: 0 auto; */
   /* margin-left: -20px; */
   /* margin-right: -20px; */
+  min-height: 100dvh;
   width: 100%;
   height: 100%;
   /* padding: 2rem 1rem; */
   text-align: center;
   /* font-family: 'Pretendard', sans-serif; */
   position: relative; /* ✅ 모달 위치 기준점이 됨 */
+  padding-bottom: 40px;
 }
 .logo {
   width: 60px;
