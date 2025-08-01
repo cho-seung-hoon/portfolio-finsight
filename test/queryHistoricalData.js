@@ -73,6 +73,19 @@ if (startDate >= endDate) {
   process.exit(1);
 }
 
+// 날짜 포맷팅 함수
+function formatDateTime(date) {
+  return date.toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+}
+
 // 측정값별 쿼리 함수
 async function queryMeasurement(measurementName, start, end) {
   const fluxQuery = `
@@ -83,7 +96,7 @@ async function queryMeasurement(measurementName, start, end) {
   `;
 
   console.log(`\n=== ${measurementName.toUpperCase()} 데이터 조회 ===`);
-  console.log(`조회 기간: ${start.toISOString()} ~ ${end.toISOString()}`);
+  console.log(`조회 기간: ${formatDateTime(start)} ~ ${formatDateTime(end)}`);
 
   const results = [];
   let count = 0;
@@ -96,11 +109,11 @@ async function queryMeasurement(measurementName, start, end) {
 
       // 진행률 표시 (100개마다)
       if (count % 100 === 0) {
-        process.stdout.write(`\r조회 중... ${count}개`);
+        process.stdout.write(`\r조회 중... ${count?.toLocaleString()}개`);
       }
     }
 
-    console.log(`\n총 ${count}개 레코드 조회 완료`);
+    console.log(`\n총 ${count?.toLocaleString()}개 레코드 조회 완료`);
 
     // 최근 10개 데이터 표시
     if (results.length > 0) {
@@ -108,12 +121,12 @@ async function queryMeasurement(measurementName, start, end) {
       const recentData = results.slice(-10);
 
       recentData.forEach((data, index) => {
-        const time = new Date(data._time).toLocaleString('ko-KR');
+        const time = formatDateTime(new Date(data._time));
         const value = data._value?.toLocaleString();
         const tag = data.product_code || data.fund_code || 'N/A';
 
         console.log(
-          `  ${index + 1}. 시간: ${time}, ${measurementName === 'etf_price' || measurementName === 'etf_volume' ? '상품코드' : '펀드코드'}: ${tag}, 값: ${value}`
+          `  ${index + 1}. ${time} | ${measurementName === 'etf_price' || measurementName === 'etf_volume' ? '상품코드' : '펀드코드'}: ${tag} | 값: ${value}`
         );
       });
     }
@@ -132,7 +145,7 @@ async function queryAllMeasurements(start, end) {
   let totalCount = 0;
 
   console.log('\n=== 모든 측정값 데이터 조회 ===');
-  console.log(`조회 기간: ${start.toISOString()} ~ ${end.toISOString()}`);
+  console.log(`조회 기간: ${formatDateTime(start)} ~ ${formatDateTime(end)}`);
 
   for (const measurementName of measurements) {
     const result = await queryMeasurement(measurementName, start, end);
@@ -141,10 +154,10 @@ async function queryAllMeasurements(start, end) {
   }
 
   console.log('\n=== 전체 통계 ===');
-  console.log(`총 조회된 레코드: ${totalCount}개`);
+  console.log(`총 조회된 레코드: ${totalCount?.toLocaleString()}개`);
 
   Object.entries(results).forEach(([name, data]) => {
-    console.log(`  ${name}: ${data.count}개`);
+    console.log(`  ${name}: ${data.count?.toLocaleString()}개`);
   });
 
   return results;
@@ -153,8 +166,8 @@ async function queryAllMeasurements(start, end) {
 // 메인 실행 함수
 async function main() {
   console.log('=== InfluxDB 데이터 조회 시작 ===');
-  console.log(`시작 날짜: ${startDate.toLocaleString('ko-KR')}`);
-  console.log(`종료 날짜: ${endDate.toLocaleString('ko-KR')}`);
+  console.log(`시작 날짜: ${formatDateTime(startDate)}`);
+  console.log(`종료 날짜: ${formatDateTime(endDate)}`);
   console.log(`조회 측정값: ${measurement}`);
 
   try {

@@ -39,6 +39,19 @@ const writeApi = client.getWriteApi(org, bucket);
 const startTime = new Date('1970-01-01T00:00:00Z'); // Unix epoch 시작
 const endTime = new Date('2100-01-01T00:00:00Z'); // 미래
 
+// 날짜 포맷팅 함수
+function formatDateTime(date) {
+  return date.toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+}
+
 // HTTP 요청 함수
 function makeHttpRequest(url, options) {
   return new Promise((resolve, reject) => {
@@ -102,17 +115,17 @@ async function deleteETFData() {
     // ETF 시세 데이터 삭제
     console.log('ETF 시세 데이터 삭제 중...');
     await deleteData(startTime.toISOString(), endTime.toISOString(), '_measurement="etf_price"');
-    console.log('✓ ETF 시세 데이터 삭제 완료');
+    console.log('ETF 시세 데이터 삭제 완료');
 
     // ETF 거래량 데이터 삭제
     console.log('ETF 거래량 데이터 삭제 중...');
     await deleteData(startTime.toISOString(), endTime.toISOString(), '_measurement="etf_volume"');
-    console.log('✓ ETF 거래량 데이터 삭제 완료');
+    console.log('ETF 거래량 데이터 삭제 완료');
 
     // ETF 기준가 데이터 삭제
     console.log('ETF 기준가 데이터 삭제 중...');
     await deleteData(startTime.toISOString(), endTime.toISOString(), '_measurement="etf_nav"');
-    console.log('✓ ETF 기준가 데이터 삭제 완료');
+    console.log('ETF 기준가 데이터 삭제 완료');
 
     console.log('=== ETF 데이터 삭제 완료 ===');
   } catch (error) {
@@ -129,12 +142,12 @@ async function deleteFundData() {
     // 펀드 기준가 데이터 삭제
     console.log('펀드 기준가 데이터 삭제 중...');
     await deleteData(startTime.toISOString(), endTime.toISOString(), '_measurement="fund_nav"');
-    console.log('✓ 펀드 기준가 데이터 삭제 완료');
+    console.log('펀드 기준가 데이터 삭제 완료');
 
     // 펀드 운용규모 데이터 삭제
     console.log('펀드 운용규모 데이터 삭제 중...');
     await deleteData(startTime.toISOString(), endTime.toISOString(), '_measurement="fund_aum"');
-    console.log('✓ 펀드 운용규모 데이터 삭제 완료');
+    console.log('펀드 운용규모 데이터 삭제 완료');
 
     console.log('=== 펀드 데이터 삭제 완료 ===');
   } catch (error) {
@@ -151,7 +164,7 @@ async function deleteAllData() {
     // 모든 측정값 삭제
     console.log('모든 측정값 데이터 삭제 중...');
     await deleteData(startTime.toISOString(), endTime.toISOString(), '');
-    console.log('✓ 모든 데이터 삭제 완료');
+    console.log('모든 데이터 삭제 완료');
 
     console.log('=== 모든 데이터 삭제 완료 ===');
   } catch (error) {
@@ -174,7 +187,7 @@ async function checkDataBeforeDelete() {
 
     for await (const { values, tableMeta } of queryApi.iterateRows(totalCountQuery)) {
       const o = tableMeta.toObject(values);
-      console.log(`총 데이터 개수: ${o._value}개`);
+      console.log(`총 데이터 개수: ${o._value?.toLocaleString()}개`);
     }
 
     // 측정값별 데이터 개수 확인
@@ -189,7 +202,7 @@ async function checkDataBeforeDelete() {
     console.log('\n측정값별 데이터 개수:');
     for await (const { values, tableMeta } of queryApi.iterateRows(measurementCountQuery)) {
       const o = tableMeta.toObject(values);
-      console.log(`  ${o._measurement}: ${o._value}개`);
+      console.log(`  ${o._measurement}: ${o._value?.toLocaleString()}개`);
     }
   } catch (error) {
     console.error('데이터 확인 중 오류:', error);
@@ -212,13 +225,13 @@ async function checkDataAfterDelete() {
     for await (const { values, tableMeta } of queryApi.iterateRows(totalCountQuery)) {
       const o = tableMeta.toObject(values);
       totalCount = parseInt(o._value);
-      console.log(`총 데이터 개수: ${totalCount}개`);
+      console.log(`총 데이터 개수: ${totalCount?.toLocaleString()}개`);
     }
 
     if (totalCount === 0) {
-      console.log('✓ 모든 데이터가 성공적으로 삭제되었습니다.');
+      console.log('모든 데이터가 성공적으로 삭제되었습니다.');
     } else {
-      console.log('⚠️ 일부 데이터가 남아있습니다.');
+      console.log('일부 데이터가 남아있습니다.');
     }
   } catch (error) {
     console.error('데이터 확인 중 오류:', error);
@@ -227,8 +240,8 @@ async function checkDataAfterDelete() {
 
 // 메인 실행 함수
 async function main() {
-  console.log('InfluxDB 데이터 삭제 시작...');
-  console.log(`삭제 시간 범위: ${startTime.toISOString()} ~ ${endTime.toISOString()}`);
+  console.log('=== InfluxDB 데이터 삭제 시작 ===');
+  console.log(`삭제 시간 범위: ${formatDateTime(startTime)} ~ ${formatDateTime(endTime)}`);
   console.log(`대상 버킷: ${bucket}`);
 
   try {

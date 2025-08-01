@@ -1,5 +1,9 @@
 const express = require('express');
-const { ETF_PRODUCT_ID, generateETFPriceData } = require('../data/etfGenerator');
+const {
+  ETF_PRODUCT_ID,
+  generateETFPriceData,
+  generateETFNavData
+} = require('../data/etfGenerator');
 
 const router = express.Router();
 
@@ -31,7 +35,46 @@ router.get('/etf/all', (req, res) => {
   });
 });
 
-// ETF 기준가 조회
+// ETF 기준가 조회 (GET - date 쿼리 파라미터)
+router.get('/etf/etf_nav', (req, res) => {
+  const { date } = req.query;
+
+  if (!date) {
+    return res.status(400).json({
+      error: 'date 쿼리 파라미터가 필요합니다. (?date=2025-07-31)',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  const targetDate = new Date(date);
+
+  if (isNaN(targetDate.getTime())) {
+    return res.status(400).json({
+      error: '올바른 date 형식이 아닙니다. (YYYY-MM-DD)',
+      received_date: date,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  const etfNavData = ETF_PRODUCT_ID.map(symbol => {
+    const etfNavData = generateETFNavData(symbol);
+    return {
+      product_code: symbol,
+      etf_nav: etfNavData.etf_nav,
+      date: targetDate.toISOString().split('T')[0],
+      timestamp: etfNavData.timestamp
+    };
+  });
+
+  res.json({
+    data: etfNavData,
+    count: etfNavData.length,
+    date: targetDate.toISOString().split('T')[0],
+    timestamp: new Date().toISOString()
+  });
+});
+
+// ETF 기준가 조회 (POST - 기존 방식 유지)
 router.post('/etf/etf_nav', (req, res) => {
   const { today_date } = req.body;
 
@@ -43,12 +86,12 @@ router.post('/etf/etf_nav', (req, res) => {
   }
 
   const etfNavData = ETF_PRODUCT_ID.map(symbol => {
-    const etfData = generateETFPriceData(symbol);
+    const etfNavData = generateETFNavData(symbol);
     return {
       product_code: symbol,
-      etf_nav: etfData.etf_price,
+      etf_nav: etfNavData.etf_nav,
       date: today_date,
-      timestamp: new Date().toISOString()
+      timestamp: etfNavData.timestamp
     };
   });
 
@@ -203,10 +246,10 @@ router.get('/etf/etf_nav/prev', (req, res) => {
   // 1일마다 데이터 생성
   for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
     ETF_PRODUCT_ID.forEach(symbol => {
-      const etfData = generateETFPriceData(symbol);
+      const etfNavData = generateETFNavData(symbol);
       yearData.push({
         product_code: symbol,
-        etf_nav: etfData.etf_price,
+        etf_nav: etfNavData.etf_nav,
         date: new Date(date).toISOString().split('T')[0],
         timestamp: new Date(date).toISOString()
       });

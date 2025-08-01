@@ -2,8 +2,16 @@
 require('dotenv').config();
 
 const { writeToInflux } = require('../services/influx/influxClient');
-const { generateAllETFPriceData, generateAllETFNavData } = require('../data/etfGenerator');
-const { generateAllFundNavData, generateAllFundAumData } = require('../data/fundGenerator');
+const {
+  generateAllETFPriceData,
+  generateAllETFNavData,
+  initializeETFDataFromHistory
+} = require('../data/etfGenerator');
+const {
+  generateAllFundNavData,
+  generateAllFundAumData,
+  initializeFundDataFromHistory
+} = require('../data/fundGenerator');
 
 // 데이터 생성기 초기화
 require('../data/etfGenerator');
@@ -58,6 +66,37 @@ try {
 const ETF_PRICE_INTERVAL = 1; // ETF 시세/거래량: 1초마다
 const ETF_NAV_INTERVAL = 60; // ETF 기준가: 1분마다
 const FUND_INTERVAL = 60; // 펀드: 1분마다
+
+// 날짜 포맷팅 함수
+function formatDateTime(date) {
+  return date.toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+}
+
+// 데이터 생성기 초기화 (과거 데이터 기반)
+async function initializeGenerators() {
+  console.log('=== 데이터 생성기 초기화 시작 ===');
+
+  try {
+    // ETF 데이터 생성기 초기화
+    await initializeETFDataFromHistory(startDate);
+
+    // 펀드 데이터 생성기 초기화
+    await initializeFundDataFromHistory(startDate);
+
+    console.log('=== 데이터 생성기 초기화 완료 ===');
+  } catch (error) {
+    console.error('데이터 생성기 초기화 실패:', error);
+    console.log('기본값으로 계속 진행합니다.');
+  }
+}
 
 // 특정 시간의 데이터 생성 함수
 async function generateDataAtTime(targetTime) {
@@ -129,7 +168,7 @@ async function generateDataAtTime(targetTime) {
       fundAum: targetTime.getSeconds() === 0 ? generateAllFundAumData().length : 0
     };
   } catch (error) {
-    console.error(`[${timestamp}] 데이터 생성 오류:`, error);
+    console.error(`[${formatDateTime(targetTime)}] 데이터 생성 오류:`, error);
     return null;
   }
 }
@@ -137,9 +176,12 @@ async function generateDataAtTime(targetTime) {
 // 메인 실행 함수
 async function main() {
   console.log('=== 과거 데이터 생성 시작 ===');
-  console.log(`시작 시간: ${startDate.toISOString()}`);
-  console.log(`종료 시간: ${endDate.toISOString()}`);
+  console.log(`시작 시간: ${formatDateTime(startDate)}`);
+  console.log(`종료 시간: ${formatDateTime(endDate)}`);
   console.log('');
+
+  // 데이터 생성기 초기화
+  await initializeGenerators();
 
   const currentTime = new Date(startDate);
   let totalRecords = 0;
@@ -162,7 +204,7 @@ async function main() {
       if (processedSeconds % 10 === 0) {
         const progress = (((currentTime - startDate) / (endDate - startDate)) * 100).toFixed(1);
         console.log(
-          `[${currentTime.toISOString()}] 진행률: ${progress}% - 총 ${totalRecords}개 레코드`
+          `[${formatDateTime(currentTime)}] 진행률: ${progress}% - 총 ${totalRecords?.toLocaleString()}개 레코드`
         );
       }
     }
@@ -177,9 +219,9 @@ async function main() {
   console.log('');
   console.log('=== 데이터 생성 완료 ===');
   console.log(`총 처리 시간: ${duration.toFixed(2)}초`);
-  console.log(`총 생성된 레코드: ${totalRecords.toLocaleString()}개`);
+  console.log(`총 생성된 레코드: ${totalRecords?.toLocaleString()}개`);
   console.log(`평균 처리 속도: ${(totalRecords / duration).toFixed(0)} 레코드/초`);
-  console.log(`처리된 시간 범위: ${startDate.toISOString()} ~ ${endDate.toISOString()}`);
+  console.log(`처리된 시간 범위: ${formatDateTime(startDate)} ~ ${formatDateTime(endDate)}`);
 }
 
 // 스크립트 실행

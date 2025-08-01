@@ -19,7 +19,81 @@ router.get('/fund', (req, res) => {
   });
 });
 
-// 오늘 펀드 운용규모
+// 펀드 운용규모 조회 (GET - date 쿼리 파라미터)
+router.get('/fund/fund_aum', (req, res) => {
+  const { date } = req.query;
+
+  if (!date) {
+    return res.status(400).json({
+      error: 'date 쿼리 파라미터가 필요합니다. (?date=2025-07-31)',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  const targetDate = new Date(date);
+
+  if (isNaN(targetDate.getTime())) {
+    return res.status(400).json({
+      error: '올바른 date 형식이 아닙니다. (YYYY-MM-DD)',
+      received_date: date,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  const fundAumData = fundGenerator.generateAllFundAumData().map(fund => ({
+    fund_code: fund.fund_code,
+    fund_name: `${fund.fund_code} 펀드`,
+    aum: fund.fund_aum,
+    date: targetDate.toISOString().split('T')[0],
+    timestamp: fund.timestamp
+  }));
+
+  res.json({
+    data: fundAumData,
+    count: fundAumData.length,
+    date: targetDate.toISOString().split('T')[0],
+    timestamp: new Date().toISOString()
+  });
+});
+
+// 펀드 기준가 조회 (GET - date 쿼리 파라미터)
+router.get('/fund/fund_nav', (req, res) => {
+  const { date } = req.query;
+
+  if (!date) {
+    return res.status(400).json({
+      error: 'date 쿼리 파라미터가 필요합니다. (?date=2025-07-31)',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  const targetDate = new Date(date);
+
+  if (isNaN(targetDate.getTime())) {
+    return res.status(400).json({
+      error: '올바른 date 형식이 아닙니다. (YYYY-MM-DD)',
+      received_date: date,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  const fundNavData = fundGenerator.generateAllFundNavData().map(fund => ({
+    fund_code: fund.fund_code,
+    fund_name: `${fund.fund_code} 펀드`,
+    nav: fund.fund_nav,
+    date: targetDate.toISOString().split('T')[0],
+    timestamp: fund.timestamp
+  }));
+
+  res.json({
+    data: fundNavData,
+    count: fundNavData.length,
+    date: targetDate.toISOString().split('T')[0],
+    timestamp: new Date().toISOString()
+  });
+});
+
+// 오늘 펀드 운용규모 (POST - 기존 방식 유지)
 router.post('/fund/fund_aum', (req, res) => {
   const { today_date } = req.body;
 
@@ -45,7 +119,7 @@ router.post('/fund/fund_aum', (req, res) => {
   });
 });
 
-// 오늘 펀드 기준가
+// 오늘 펀드 기준가 (POST - 기존 방식 유지)
 router.post('/fund/fund_nav', (req, res) => {
   const { today_date } = req.body;
 

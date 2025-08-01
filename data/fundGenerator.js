@@ -20,27 +20,88 @@ function initializeFundData() {
   });
 }
 
+// 과거 데이터를 기반으로 펀드 데이터 초기화
+async function initializeFundDataFromHistory(startTime) {
+  const { getLatestFundData } = require('../services/influx/influxClient');
+
+  try {
+    console.log(`[Fund] ${startTime.toISOString()} 기준 과거 데이터 조회 중...`);
+    const latestData = await getLatestFundData(startTime);
+
+    FUND_PRODUCT_ID.forEach(symbol => {
+      // 과거 데이터가 있으면 사용, 없으면 기본값 생성
+      if (latestData.nav[symbol]) {
+        fundBaseNavs[symbol] = latestData.nav[symbol];
+        console.log(`[Fund] ${symbol} 기준가 초기값 설정: ${latestData.nav[symbol]}`);
+      } else {
+        fundBaseNavs[symbol] = Math.random() * 7000 + 8000;
+        console.log(`[Fund] ${symbol} 기준가 기본값 생성: ${fundBaseNavs[symbol]}`);
+      }
+
+      if (latestData.aum[symbol]) {
+        fundBaseAums[symbol] = latestData.aum[symbol];
+        console.log(`[Fund] ${symbol} 운용규모 초기값 설정: ${latestData.aum[symbol]}`);
+      } else {
+        fundBaseAums[symbol] = Math.floor(Math.random() * 99000000000 + 1000000000);
+        console.log(`[Fund] ${symbol} 운용규모 기본값 생성: ${fundBaseAums[symbol]}`);
+      }
+    });
+
+    console.log(`[Fund] 초기값 설정 완료 - ${FUND_PRODUCT_ID.length}개 상품`);
+  } catch (error) {
+    console.error('[Fund] 과거 데이터 조회 실패, 기본값으로 초기화:', error);
+    initializeFundData();
+  }
+}
+
 // 랜덤 기준가 변동 생성 (펀드용)
 function generateNavChange(currentNav) {
+  // 안전장치: 현재 기준가가 유효하지 않으면 기본값 사용
+  if (!currentNav || isNaN(currentNav) || !isFinite(currentNav)) {
+    return Math.random() * 7000 + 8000;
+  }
+
   const maxChangePercent = 0.02; // 펀드 기준가는 변동폭이 작음
   const changePercent = (Math.random() - 0.5) * 2 * maxChangePercent;
   const navChange = currentNav * changePercent;
-  return Math.max(currentNav + navChange, currentNav * 0.98);
+  const newNav = Math.max(currentNav + navChange, currentNav * 0.98);
+
+  // 결과값 검증
+  if (isNaN(newNav) || !isFinite(newNav)) {
+    return currentNav;
+  }
+
+  return newNav;
 }
 
 // 랜덤 운용규모 변동 생성
 function generateAumChange(currentAum) {
+  // 안전장치: 현재 운용규모가 유효하지 않으면 기본값 사용
+  if (!currentAum || isNaN(currentAum) || !isFinite(currentAum)) {
+    return Math.floor(Math.random() * 99000000000 + 1000000000);
+  }
+
   // 운용규모 변동률을 -10%에서 +15% 사이로 제한
   const maxChangePercent = 0.125;
   const changePercent = (Math.random() - 0.4) * 2 * maxChangePercent;
   const aumChange = currentAum * changePercent;
+  const newAum = Math.max(currentAum + aumChange, 100000000);
 
-  // 새로운 운용규모가 최소 1억원 이상이 되도록 보장
-  return Math.max(currentAum + aumChange, 100000000);
+  // 결과값 검증
+  if (isNaN(newAum) || !isFinite(newAum)) {
+    return Math.max(currentAum, 100000000);
+  }
+
+  return newAum;
 }
 
 // 단일 펀드 기준가 데이터 생성
 function generateFundNavData(symbol) {
+  // 기본값이 없으면 초기화
+  if (!fundBaseNavs[symbol] || isNaN(fundBaseNavs[symbol])) {
+    fundBaseNavs[symbol] = Math.random() * 7000 + 8000;
+  }
+
   const currentNav = fundBaseNavs[symbol];
 
   const newNav = generateNavChange(currentNav);
@@ -57,6 +118,11 @@ function generateFundNavData(symbol) {
 
 // 단일 펀드 운용규모 데이터 생성
 function generateFundAumData(symbol) {
+  // 기본값이 없으면 초기화
+  if (!fundBaseAums[symbol] || isNaN(fundBaseAums[symbol])) {
+    fundBaseAums[symbol] = Math.floor(Math.random() * 99000000000 + 1000000000);
+  }
+
   const currentAum = fundBaseAums[symbol];
 
   const newAum = generateAumChange(currentAum);
@@ -81,8 +147,8 @@ function generateAllFundAumData() {
   return FUND_PRODUCT_ID.map(symbol => generateFundAumData(symbol));
 }
 
-// 초기화
-initializeFundData();
+// 초기화 (기본값) - 모듈 로드 시점에 호출하지 않음
+// initializeFundData();
 
 // 현재 기준가 및 운용규모 조회 함수
 function getCurrentNavs() {
@@ -138,6 +204,7 @@ module.exports = {
   generateFundAumData,
   generateAllFundNavData,
   generateAllFundAumData,
+  initializeFundDataFromHistory,
   getCurrentNavs,
   getCurrentAums,
   getFundProductIds,

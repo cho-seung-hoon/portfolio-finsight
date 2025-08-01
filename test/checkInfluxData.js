@@ -33,6 +33,19 @@ const queryApi = client.getQueryApi(org);
 const startTime = new Date(Date.now() - 60 * 60 * 1000); // 1시간 전
 const endTime = new Date();
 
+// 날짜 포맷팅 함수
+function formatDateTime(date) {
+  return date.toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+}
+
 // ETF 데이터 조회 함수
 async function checkETFData() {
   console.log('\n=== ETF 데이터 조회 ===');
@@ -51,7 +64,10 @@ async function checkETFData() {
     console.log('ETF 시세 데이터 (최근 10개):');
     for await (const { values, tableMeta } of queryApi.iterateRows(etfPriceQuery)) {
       const o = tableMeta.toObject(values);
-      console.log(`  시간: ${o._time}, 상품코드: ${o.product_code || 'N/A'}, 가격: ${o._value}`);
+      const time = formatDateTime(new Date(o._time));
+      console.log(
+        `  ${time} | 상품코드: ${o.product_code || 'N/A'} | 가격: ${o._value?.toLocaleString()}`
+      );
     }
 
     // ETF 거래량 데이터 조회
@@ -67,7 +83,10 @@ async function checkETFData() {
     console.log('\nETF 거래량 데이터 (최근 10개):');
     for await (const { values, tableMeta } of queryApi.iterateRows(etfVolumeQuery)) {
       const o = tableMeta.toObject(values);
-      console.log(`  시간: ${o._time}, 상품코드: ${o.product_code || 'N/A'}, 거래량: ${o._value}`);
+      const time = formatDateTime(new Date(o._time));
+      console.log(
+        `  ${time} | 상품코드: ${o.product_code || 'N/A'} | 거래량: ${o._value?.toLocaleString()}`
+      );
     }
 
     // ETF 기준가 데이터 조회
@@ -83,7 +102,10 @@ async function checkETFData() {
     console.log('\nETF 기준가 데이터 (최근 10개):');
     for await (const { values, tableMeta } of queryApi.iterateRows(etfNavQuery)) {
       const o = tableMeta.toObject(values);
-      console.log(`  시간: ${o._time}, 상품코드: ${o.product_code || 'N/A'}, 기준가: ${o._value}`);
+      const time = formatDateTime(new Date(o._time));
+      console.log(
+        `  ${time} | 상품코드: ${o.product_code || 'N/A'} | 기준가: ${o._value?.toLocaleString()}`
+      );
     }
   } catch (error) {
     console.error('ETF 데이터 조회 중 오류:', error);
@@ -108,7 +130,10 @@ async function checkFundData() {
     console.log('펀드 기준가 데이터 (최근 10개):');
     for await (const { values, tableMeta } of queryApi.iterateRows(fundNavQuery)) {
       const o = tableMeta.toObject(values);
-      console.log(`  시간: ${o._time}, 펀드코드: ${o.fund_code || 'N/A'}, 기준가: ${o._value}`);
+      const time = formatDateTime(new Date(o._time));
+      console.log(
+        `  ${time} | 펀드코드: ${o.fund_code || 'N/A'} | 기준가: ${o._value?.toLocaleString()}`
+      );
     }
 
     // 펀드 운용규모 데이터 조회
@@ -124,7 +149,10 @@ async function checkFundData() {
     console.log('\n펀드 운용규모 데이터 (최근 10개):');
     for await (const { values, tableMeta } of queryApi.iterateRows(fundAumQuery)) {
       const o = tableMeta.toObject(values);
-      console.log(`  시간: ${o._time}, 펀드코드: ${o.fund_code || 'N/A'}, 운용규모: ${o._value}`);
+      const time = formatDateTime(new Date(o._time));
+      console.log(
+        `  ${time} | 펀드코드: ${o.fund_code || 'N/A'} | 운용규모: ${o._value?.toLocaleString()}`
+      );
     }
   } catch (error) {
     console.error('펀드 데이터 조회 중 오류:', error);
@@ -146,7 +174,7 @@ async function checkDataStats() {
 
     for await (const { values, tableMeta } of queryApi.iterateRows(etfCountQuery)) {
       const o = tableMeta.toObject(values);
-      console.log(`ETF 데이터 총 개수: ${o._value}`);
+      console.log(`ETF 데이터 총 개수: ${o._value?.toLocaleString()}개`);
     }
 
     // 펀드 데이터 개수
@@ -159,7 +187,7 @@ async function checkDataStats() {
 
     for await (const { values, tableMeta } of queryApi.iterateRows(fundCountQuery)) {
       const o = tableMeta.toObject(values);
-      console.log(`펀드 데이터 총 개수: ${o._value}`);
+      console.log(`펀드 데이터 총 개수: ${o._value?.toLocaleString()}개`);
     }
 
     // 측정값별 데이터 개수
@@ -174,7 +202,7 @@ async function checkDataStats() {
     console.log('\n측정값별 데이터 개수:');
     for await (const { values, tableMeta } of queryApi.iterateRows(measurementCountQuery)) {
       const o = tableMeta.toObject(values);
-      console.log(`  ${o._measurement}: ${o._value}개`);
+      console.log(`  ${o._measurement}: ${o._value?.toLocaleString()}개`);
     }
   } catch (error) {
     console.error('데이터 통계 조회 중 오류:', error);
@@ -183,8 +211,9 @@ async function checkDataStats() {
 
 // 메인 실행 함수
 async function main() {
-  console.log('InfluxDB 데이터 확인 시작...');
-  console.log(`조회 시간 범위: ${startTime.toISOString()} ~ ${endTime.toISOString()}`);
+  console.log('=== InfluxDB 데이터 확인 시작 ===');
+  console.log(`조회 시간 범위: ${formatDateTime(startTime)} ~ ${formatDateTime(endTime)}`);
+  console.log(`대상 버킷: ${bucket}`);
 
   try {
     await checkETFData();

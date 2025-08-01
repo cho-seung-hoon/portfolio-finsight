@@ -20,9 +20,9 @@ const etfRestRoutes = require('./routes/etfRest');
 const fundRestRoutes = require('./routes/fundRest');
 const { startWebSocketServer, broadcastData } = require('./websocket/wsServer');
 
-// 스케줄러 불러오기
-require('./services/scheduler/etfScheduler');
-require('./services/scheduler/fundScheduler');
+// 스케줄러 클래스 불러오기
+const ETFScheduler = require('./services/scheduler/etfScheduler');
+const FundScheduler = require('./services/scheduler/fundScheduler');
 
 const app = express();
 
@@ -86,22 +86,40 @@ const server = http.createServer(app);
 // WebSocket 서버 시작
 startWebSocketServer(server);
 
+// 스케줄러 인스턴스 생성
+const etfScheduler = new ETFScheduler();
+const fundScheduler = new FundScheduler();
+
 // HTTP 서버 시작
 server.listen(PORT, () => {
   console.log(`${APP_NAME} HTTP 서버가 포트 ${PORT}에서 시작되었습니다.`);
   console.log(`ETF API: http://localhost:${PORT}`);
   console.log(`WebSocket: ws://localhost:${PORT}`);
   console.log(`환경: ${NODE_ENV}`);
-  console.log('스케줄러가 시작되었습니다.');
+
+  // 스케줄러 시작 (현재 시간 기준)
+  const startTime = new Date();
+  console.log(`스케줄러 시작 시간: ${startTime.toISOString()}`);
+
+  etfScheduler.start(startTime);
+  fundScheduler.start(startTime);
+
+  console.log('모든 스케줄러가 시작되었습니다.');
 });
 
 // 종료 처리
 function gracefulShutdown() {
   console.log('\n서버를 종료합니다...');
+
+  // 스케줄러 중지
+  etfScheduler.stop();
+  fundScheduler.stop();
+
   process.exit(0);
 }
 
 process.on('SIGINT', gracefulShutdown);
 process.on('SIGTERM', gracefulShutdown);
+
 // broadcastData 함수를 전역으로 export (스케줄러에서 사용)
 module.exports = { broadcastData };
