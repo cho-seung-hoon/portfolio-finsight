@@ -2,13 +2,50 @@
   <div class="subBox2">
     <div class="subItem-title">나의 투자 성향</div>
     <div class="subItem-content">
-      <div class="invt">안정형</div>
+      <!-- <div class="invt">안정형</div> -->
+      <div class="invt">{{ investmentProfileType }}</div>
       <button class="invtTest">투자 성향 분석</button>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+// 1. 투자성향 <template>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+
+const investmentProfileType = ref('');
+onMounted(() => {
+  fetchInvestmentProfile();
+});
+
+// 2. 투자 성향 API 호출 (백엔드에 GET 요청 보내기)
+const fetchInvestmentProfile = async () => {
+  const accessToken = localStorage.getItem('accessToken');
+
+  if (!accessToken) {
+    console.error('accessToken이 없습니다.');
+    return;
+  }
+
+  try {
+    const response = await axios.get('http://localhost:8080/users/invt', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    console.log('투자성향 조회 성공:', response.data);
+    investmentProfileType.value = response.data.investmentProfileType;
+  } catch (error) {
+    console.error('투자성향 조회 실패:', error);
+  }
+};
+
+
+
+</script>
+
 <style scoped>
 .subBox2 {
   margin: 30px 0;
@@ -40,9 +77,34 @@ button {
   border-radius: 6px;
 }
 
-.invt {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
+/* Highlight styles */
+.highlight-blue {
+  color: var(--text-blue);
+  font-weight: bold;
+}
+.highlight-red {
+  color: var(--text-red);
+  font-weight: bold;
+}
+
+.highlight-stable {
   color: var(--mint01);
+  font-weight: bold;
+}
+.highlight-stableplus {
+  color: var(--green01);
+  font-weight: bold;
+}
+.highlight-neutral {
+  color: var(--yellow01);
+  font-weight: bold;
+}
+.highlight-aggressive {
+  color: var(--orange01);
+  font-weight: bold;
+}
+.highlight-veryaggressive {
+  color: var(--red01);
+  font-weight: bold;
 }
 </style>
