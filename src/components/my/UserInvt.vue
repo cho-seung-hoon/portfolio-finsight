@@ -3,7 +3,9 @@
     <div class="subItem-title">나의 투자 성향</div>
     <div class="subItem-content">
       <!-- <div class="invt">안정형</div> -->
-      <div class="invt">{{ investmentProfileType }}</div>
+      <!-- <div class="invt">{{ investmentProfileType }}</div> -->
+      <div :class="['invt', profileClass]">{{ investmentProfileType }}</div>
+
       <button class="invtTest">투자 성향 분석</button>
     </div>
   </div>
@@ -36,13 +38,46 @@ const fetchInvestmentProfile = async () => {
     });
 
     console.log('투자성향 조회 성공:', response.data);
-    investmentProfileType.value = response.data.investmentProfileType;
+    // investmentProfileType.value = response.data.investmentProfileType;
+    const type = response.data.investmentProfileType;
+    investmentProfileType.value = translateProfileType(type);
+    profileClass.value = getProfileClass(type);
+
   } catch (error) {
     console.error('투자성향 조회 실패:', error);
   }
 };
 
+// 3. GET 받은 투자 성향을 변환하는 로직
+const profileClass = ref('');
 
+const translateProfileType = (type) => {
+  switch (type) {
+    case 'stable':
+      return '안정형';
+    case 'stableplus':
+      return '안정추구형';
+    case 'neutral':
+      return '위험중립형';
+    case 'aggressive':
+      return '적극투자형';
+    case 'veryaggressive':
+      return '공격투자형';
+    default:
+      return '알 수 없음';
+  }
+};
+
+const getProfileClass = (type) => {
+  switch (type) {
+    case 'stable': return 'highlight-stable';
+    case 'stableplus': return 'highlight-stableplus';
+    case 'neutral': return 'highlight-neutral';
+    case 'aggressive': return 'highlight-aggressive';
+    case 'veryaggressive': return 'highlight-veryaggressive';
+    default: return '';
+  }
+};
 
 </script>
 
@@ -65,6 +100,7 @@ const fetchInvestmentProfile = async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 24px;
 }
 
 button {
