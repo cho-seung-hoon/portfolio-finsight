@@ -14,7 +14,7 @@
       </div>
       <div class="bottom-row">
         <div class="value-left">
-          <span class="won">{{ item.deal_bas_r }}원</span>
+          <span class="won">{{ item.deal_bas_r }}</span>
         </div>
         <div class="value-right">
           <span
@@ -28,7 +28,7 @@
             v-if="item.percentage !== null"
             class="value"
             :class="getDiffClass(item.diff)"
-            >{{ item.diff }} ({{ item.percentage }}%)</span
+            >{{ Math.abs(item.diff) }} ({{ item.diff > 0 ? '+' : '' }}{{ item.percentage }}%)</span
           >
         </div>
       </div>
@@ -135,10 +135,8 @@ const fetchData = async () => {
       const yestRate = yestItem ? parseFloat(yestItem.deal_bas_r.replace(',', '')) : null;
 
       let diff = null;
-      // [수정] percentage 변수 추가
       let percentage = null;
 
-      // [수정] yestRate가 0이 아닐 때 비율 계산
       if (yestRate !== null && yestRate !== 0) {
         diff = (todayRate - yestRate).toFixed(2);
         percentage = (((todayRate - yestRate) / yestRate) * 100).toFixed(2);
@@ -147,7 +145,7 @@ const fetchData = async () => {
       return {
         ...todayItem,
         diff,
-        percentage // [수정] 결과 객체에 percentage 추가
+        percentage
       };
     });
 
@@ -173,15 +171,16 @@ onMounted(() => {
 }
 .subItem {
   flex-shrink: 0;
-  width: 175px;
-  margin-right: 10px;
+  width: 165px;
+  margin-right: 8px;
   background-color: var(--white);
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid var(--main04);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap:5px;
+
 }
 .top-row {
   display: flex;
@@ -203,13 +202,12 @@ onMounted(() => {
 .bottom-row {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 양쪽 끝으로 정렬 */
-  gap: 3px;
+  justify-content: space-between;
+  gap: 1px;
   font-size: var(--font-size-sm);
-  width: 100%; /* 너비 100% 설정 */
-  margin-top: auto; /* 아이템들을 하단에 정렬 */
-  padding-top: 4px;
+  width: 100%;
 }
+
 .diff {
   font-size: var(--font-size-xs);
 }
@@ -221,7 +219,6 @@ onMounted(() => {
 }
 .won {
   font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-ms);
 }
 .date {
   text-align: right;
@@ -236,11 +233,12 @@ onMounted(() => {
   justify-content: center;
 }
 .value-left {
-  /* 아이콘과 숫자 사이 간격 */
 }
 .value-right {
   display: flex;
-  /* [수정] 수직 정렬을 위해 align-items 추가 */
   align-items: center;
+}
+.value{
+
 }
 </style>

@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, computed } from 'vue';
+import { ref, computed } from 'vue';
 import HoldingListDeposit from '@/components/holding/HoldingListDeposit.vue';
 import HoldingListFundNEtf from '@/components/holding/HoldingListFund_N_ETF.vue';
 
