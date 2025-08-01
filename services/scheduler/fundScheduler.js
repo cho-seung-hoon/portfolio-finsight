@@ -39,16 +39,16 @@ class FundScheduler {
     }
   }
 
-  // 펀드 기준가 및 운용규모 스케줄러 (1분마다)
+  // 펀드 기준가 및 운용규모 스케줄러 (1일마다)
   startScheduler() {
     if (!this.isInitialized) {
       console.error('[Fund Scheduler] 초기화되지 않았습니다. initialize()를 먼저 호출하세요.');
       return;
     }
 
-    console.log('[Fund Scheduler] 기준가 및 운용규모 스케줄러 시작 (1분 간격)');
+    console.log('[Fund Scheduler] 기준가 및 운용규모 스케줄러 시작 (1일 간격)');
 
-    cron.schedule('* * * * *', async () => {
+    cron.schedule('0 0 * * *', async () => {
       try {
         // 펀드 기준가 데이터 생성
         const fundNavData = generateAllFundNavData();

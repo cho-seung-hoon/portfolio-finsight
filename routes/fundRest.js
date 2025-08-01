@@ -1,15 +1,66 @@
 const express = require('express');
 const router = express.Router();
 const fundGenerator = require('../data/fundGenerator');
+const { getFundHistoricalData } = require('../services/influx/influxClient');
 
-// 펀드 상품 목록 조회 (GET)
+// 공통 유틸리티 함수들
+const validateDate = (dateString, res) => {
+  if (!dateString) {
+    res.status(400).json({
+      error: 'date 쿼리 파라미터가 필요합니다. (?date=2025-07-31)',
+      timestamp: new Date().toISOString()
+    });
+    return null;
+  }
+
+  const parsedDate = new Date(dateString);
+  if (isNaN(parsedDate.getTime())) {
+    res.status(400).json({
+      error: '올바른 date 형식이 아닙니다. (YYYY-MM-DD)',
+      received_date: dateString,
+      timestamp: new Date().toISOString()
+    });
+    return null;
+  }
+
+  return parsedDate;
+};
+
+const createErrorResponse = (error, message, res) => {
+  console.error(message, error);
+  res.status(500).json({
+    error: '데이터 조회 중 오류가 발생했습니다.',
+    message: error.message,
+    timestamp: new Date().toISOString()
+  });
+};
+
+const createEmptyDataResponse = (inputDate, startDate, endDate, res) => {
+  return res.json({
+    data: [],
+    count: 0,
+    input_date: inputDate.toISOString().split('T')[0],
+    start_date: startDate.toISOString().split('T')[0],
+    end_date: endDate.toISOString().split('T')[0],
+    duration: '3개월',
+    message: '해당 기간의 데이터가 없습니다.',
+    timestamp: new Date().toISOString()
+  });
+};
+
+const calculateDateRange = targetDate => {
+  const endDate = new Date(targetDate);
+  const startDate = new Date(targetDate);
+  startDate.setMonth(startDate.getMonth() - 3);
+  return { startDate, endDate };
+};
+
+// 펀드 상품 목록 조회
 router.get('/fund', (req, res) => {
   const fundProductIds = fundGenerator.getFundProductIds();
 
   const fundList = fundProductIds.map(fundCode => ({
-    fund_code: fundCode,
-    fund_name: `${fundCode} 펀드`,
-    category: '펀드'
+    fund_code: fundCode
   }));
 
   res.json({
@@ -19,30 +70,13 @@ router.get('/fund', (req, res) => {
   });
 });
 
-// 펀드 운용규모 조회 (GET - date 쿼리 파라미터)
+// 펀드 운용규모 조회 (특정 날짜)
 router.get('/fund/fund_aum', (req, res) => {
-  const { date } = req.query;
-
-  if (!date) {
-    return res.status(400).json({
-      error: 'date 쿼리 파라미터가 필요합니다. (?date=2025-07-31)',
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  const targetDate = new Date(date);
-
-  if (isNaN(targetDate.getTime())) {
-    return res.status(400).json({
-      error: '올바른 date 형식이 아닙니다. (YYYY-MM-DD)',
-      received_date: date,
-      timestamp: new Date().toISOString()
-    });
-  }
+  const targetDate = validateDate(req.query.date, res);
+  if (!targetDate) return;
 
   const fundAumData = fundGenerator.generateAllFundAumData().map(fund => ({
     fund_code: fund.fund_code,
-    fund_name: `${fund.fund_code} 펀드`,
     aum: fund.fund_aum,
     date: targetDate.toISOString().split('T')[0],
     timestamp: fund.timestamp
@@ -56,30 +90,13 @@ router.get('/fund/fund_aum', (req, res) => {
   });
 });
 
-// 펀드 기준가 조회 (GET - date 쿼리 파라미터)
+// 펀드 기준가 조회 (특정 날짜)
 router.get('/fund/fund_nav', (req, res) => {
-  const { date } = req.query;
-
-  if (!date) {
-    return res.status(400).json({
-      error: 'date 쿼리 파라미터가 필요합니다. (?date=2025-07-31)',
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  const targetDate = new Date(date);
-
-  if (isNaN(targetDate.getTime())) {
-    return res.status(400).json({
-      error: '올바른 date 형식이 아닙니다. (YYYY-MM-DD)',
-      received_date: date,
-      timestamp: new Date().toISOString()
-    });
-  }
+  const targetDate = validateDate(req.query.date, res);
+  if (!targetDate) return;
 
   const fundNavData = fundGenerator.generateAllFundNavData().map(fund => ({
     fund_code: fund.fund_code,
-    fund_name: `${fund.fund_code} 펀드`,
     nav: fund.fund_nav,
     date: targetDate.toISOString().split('T')[0],
     timestamp: fund.timestamp
@@ -93,156 +110,80 @@ router.get('/fund/fund_nav', (req, res) => {
   });
 });
 
-// 오늘 펀드 운용규모 (POST - 기존 방식 유지)
-router.post('/fund/fund_aum', (req, res) => {
-  const { today_date } = req.body;
+// 펀드 운용규모 히스토리 조회 (3개월치)
+router.get('/fund/fund_aum/prev', async (req, res) => {
+  const targetDate = validateDate(req.query.date, res);
+  if (!targetDate) return;
 
-  if (!today_date) {
-    return res.status(400).json({
-      error: 'today_date가 필요합니다.',
-      timestamp: new Date().toISOString()
-    });
-  }
+  try {
+    const { startDate, endDate } = calculateDateRange(targetDate);
 
-  const fundAumData = fundGenerator.generateAllFundAumData().map(fund => ({
-    fund_code: fund.fund_code,
-    fund_name: `${fund.fund_code} 펀드`,
-    aum: fund.fund_aum,
-    date: today_date
-  }));
+    // InfluxDB에서 3개월치 데이터 조회
+    const historicalAumData = await getFundHistoricalData('fund_aum', startDate, endDate);
 
-  res.json({
-    data: fundAumData,
-    count: fundAumData.length,
-    date: today_date,
-    timestamp: new Date().toISOString()
-  });
-});
+    // 데이터가 없으면 빈 배열 반환
+    if (historicalAumData.length === 0) {
+      return createEmptyDataResponse(targetDate, startDate, endDate, res);
+    }
 
-// 오늘 펀드 기준가 (POST - 기존 방식 유지)
-router.post('/fund/fund_nav', (req, res) => {
-  const { today_date } = req.body;
-
-  if (!today_date) {
-    return res.status(400).json({
-      error: 'today_date가 필요합니다.',
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  const fundNavData = fundGenerator.generateAllFundNavData().map(fund => ({
-    fund_code: fund.fund_code,
-    fund_name: `${fund.fund_code} 펀드`,
-    nav: fund.fund_nav,
-    date: today_date
-  }));
-
-  res.json({
-    data: fundNavData,
-    count: fundNavData.length,
-    date: today_date,
-    timestamp: new Date().toISOString()
-  });
-});
-
-// 펀드 운용규모 조회 (1일 단위 - date 쿼리 파라미터, 해당 날짜 기준 1년치)
-router.get('/fund/fund_aum/prev', (req, res) => {
-  const { date } = req.query;
-
-  if (!date) {
-    return res.status(400).json({
-      error: 'date 쿼리 파라미터가 필요합니다. (?date=2025-07-31)',
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  const targetDate = new Date(date);
-
-  if (isNaN(targetDate.getTime())) {
-    return res.status(400).json({
-      error: '올바른 date 형식이 아닙니다. (YYYY-MM-DD)',
-      received_date: date,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  // 해당 날짜 기준 1년치 데이터 생성 (1일 단위)
-  const yearData = [];
-  const startDate = new Date(targetDate.getFullYear(), 0, 1); // 해당 연도 1월 1일
-  const endDate = new Date(targetDate.getFullYear(), 11, 31); // 해당 연도 12월 31일
-
-  // 1일마다 데이터 생성
-  for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-    const fundAumData = fundGenerator.generateAllFundAumData().map(fund => ({
-      fund_code: fund.fund_code,
-      fund_name: `${fund.fund_code} 펀드`,
-      aum: fund.fund_aum,
-      date: new Date(date).toISOString().split('T')[0],
-      timestamp: new Date(date).toISOString()
+    // 데이터 포맷팅
+    const formattedAumData = historicalAumData.map(item => ({
+      fund_code: item.fund_code,
+      aum: item.value,
+      date: new Date(item.timestamp).toISOString().split('T')[0],
+      timestamp: item.timestamp
     }));
-    yearData.push(...fundAumData);
-  }
 
-  res.json({
-    data: yearData,
-    count: yearData.length,
-    input_date: targetDate.toISOString().split('T')[0],
-    year: targetDate.getFullYear(),
-    start_date: startDate.toISOString().split('T')[0],
-    end_date: endDate.toISOString().split('T')[0],
-    interval: '1일',
-    timestamp: new Date().toISOString()
-  });
+    res.json({
+      data: formattedAumData,
+      count: formattedAumData.length,
+      input_date: targetDate.toISOString().split('T')[0],
+      start_date: startDate.toISOString().split('T')[0],
+      end_date: endDate.toISOString().split('T')[0],
+      duration: '3개월',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    createErrorResponse(error, '펀드 운용규모 과거 데이터 조회 오류:', res);
+  }
 });
 
-// 펀드 기준가 조회 (1일 단위 - date 쿼리 파라미터, 해당 날짜 기준 1년치)
-router.get('/fund/fund_nav/prev', (req, res) => {
-  const { date } = req.query;
+// 펀드 기준가 히스토리 조회 (3개월치)
+router.get('/fund/fund_nav/prev', async (req, res) => {
+  const targetDate = validateDate(req.query.date, res);
+  if (!targetDate) return;
 
-  if (!date) {
-    return res.status(400).json({
-      error: 'date 쿼리 파라미터가 필요합니다. (?date=2025-07-31)',
-      timestamp: new Date().toISOString()
-    });
-  }
+  try {
+    const { startDate, endDate } = calculateDateRange(targetDate);
 
-  const targetDate = new Date(date);
+    // InfluxDB에서 3개월치 데이터 조회
+    const historicalNavData = await getFundHistoricalData('fund_nav', startDate, endDate);
 
-  if (isNaN(targetDate.getTime())) {
-    return res.status(400).json({
-      error: '올바른 date 형식이 아닙니다. (YYYY-MM-DD)',
-      received_date: date,
-      timestamp: new Date().toISOString()
-    });
-  }
+    // 데이터가 없으면 빈 배열 반환
+    if (historicalNavData.length === 0) {
+      return createEmptyDataResponse(targetDate, startDate, endDate, res);
+    }
 
-  // 해당 날짜 기준 1년치 데이터 생성 (1일 단위)
-  const yearData = [];
-  const startDate = new Date(targetDate.getFullYear(), 0, 1); // 해당 연도 1월 1일
-  const endDate = new Date(targetDate.getFullYear(), 11, 31); // 해당 연도 12월 31일
-
-  // 1일마다 데이터 생성
-  for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-    const fundNavData = fundGenerator.generateAllFundNavData().map(fund => ({
-      fund_code: fund.fund_code,
-      fund_name: `${fund.fund_code} 펀드`,
-      nav: fund.fund_nav,
-      date: new Date(date).toISOString().split('T')[0],
-      timestamp: new Date(date).toISOString()
+    // 데이터 포맷팅
+    const formattedNavData = historicalNavData.map(item => ({
+      fund_code: item.fund_code,
+      nav: item.value,
+      date: new Date(item.timestamp).toISOString().split('T')[0],
+      timestamp: item.timestamp
     }));
-    yearData.push(...fundNavData);
-  }
 
-  res.json({
-    data: yearData,
-    count: yearData.length,
-    input_date: targetDate.toISOString().split('T')[0],
-    year: targetDate.getFullYear(),
-    start_date: startDate.toISOString().split('T')[0],
-    end_date: endDate.toISOString().split('T')[0],
-    interval: '1일',
-    timestamp: new Date().toISOString()
-  });
+    res.json({
+      data: formattedNavData,
+      count: formattedNavData.length,
+      input_date: targetDate.toISOString().split('T')[0],
+      start_date: startDate.toISOString().split('T')[0],
+      end_date: endDate.toISOString().split('T')[0],
+      duration: '3개월',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    createErrorResponse(error, '펀드 기준가 과거 데이터 조회 오류:', res);
+  }
 });
 
 module.exports = router;

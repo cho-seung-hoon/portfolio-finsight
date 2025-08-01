@@ -150,7 +150,7 @@ function generateETFPriceData(symbol) {
   return {
     product_code: symbol,
     etf_price: parseFloat(newPrice.toFixed(0)),
-    etf_volume: Math.floor(newVolume),
+    etf_volume: parseInt(newVolume),
     timestamp: new Date().toISOString()
   };
 }

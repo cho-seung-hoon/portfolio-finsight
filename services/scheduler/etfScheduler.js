@@ -88,16 +88,16 @@ class ETFScheduler {
     });
   }
 
-  // ETF 기준가 스케줄러 (1분마다)
+  // ETF 기준가 스케줄러 (1일마다)
   startNavScheduler() {
     if (!this.isInitialized) {
       console.error('[ETF Scheduler] 초기화되지 않았습니다. initialize()를 먼저 호출하세요.');
       return;
     }
 
-    console.log('[ETF Scheduler] 기준가 스케줄러 시작 (1분 간격)');
+    console.log('[ETF Scheduler] 기준가 스케줄러 시작 (1일 간격)');
 
-    cron.schedule('* * * * *', async () => {
+    cron.schedule('0 0 * * *', async () => {
       try {
         const etfNavData = generateAllETFNavData();
 

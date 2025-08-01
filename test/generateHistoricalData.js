@@ -64,8 +64,8 @@ try {
 
 // 시간 간격 설정 (초 단위)
 const ETF_PRICE_INTERVAL = 1; // ETF 시세/거래량: 1초마다
-const ETF_NAV_INTERVAL = 60; // ETF 기준가: 1분마다
-const FUND_INTERVAL = 60; // 펀드: 1분마다
+const ETF_NAV_INTERVAL = 86400; // ETF 기준가: 1일마다 (24시간 * 60분 * 60초)
+const FUND_INTERVAL = 86400; // 펀드: 1일마다 (24시간 * 60분 * 60초)
 
 // 날짜 포맷팅 함수
 function formatDateTime(date) {
@@ -123,8 +123,12 @@ async function generateDataAtTime(targetTime) {
       );
     }
 
-    // ETF 기준가 데이터 생성 (매분)
-    if (targetTime.getSeconds() === 0) {
+    // ETF 기준가 데이터 생성 (매일 자정)
+    if (
+      targetTime.getHours() === 0 &&
+      targetTime.getMinutes() === 0 &&
+      targetTime.getSeconds() === 0
+    ) {
       const etfNavData = generateAllETFNavData();
 
       for (const navData of etfNavData) {
@@ -137,8 +141,12 @@ async function generateDataAtTime(targetTime) {
       }
     }
 
-    // 펀드 데이터 생성 (매분)
-    if (targetTime.getSeconds() === 0) {
+    // 펀드 데이터 생성 (매일 자정)
+    if (
+      targetTime.getHours() === 0 &&
+      targetTime.getMinutes() === 0 &&
+      targetTime.getSeconds() === 0
+    ) {
       const fundNavData = generateAllFundNavData();
       const fundAumData = generateAllFundAumData();
 
@@ -163,9 +171,24 @@ async function generateDataAtTime(targetTime) {
 
     return {
       etfPrice: etfPriceData.length,
-      etfNav: targetTime.getSeconds() === 0 ? generateAllETFNavData().length : 0,
-      fundNav: targetTime.getSeconds() === 0 ? generateAllFundNavData().length : 0,
-      fundAum: targetTime.getSeconds() === 0 ? generateAllFundAumData().length : 0
+      etfNav:
+        targetTime.getHours() === 0 &&
+        targetTime.getMinutes() === 0 &&
+        targetTime.getSeconds() === 0
+          ? generateAllETFNavData().length
+          : 0,
+      fundNav:
+        targetTime.getHours() === 0 &&
+        targetTime.getMinutes() === 0 &&
+        targetTime.getSeconds() === 0
+          ? generateAllFundNavData().length
+          : 0,
+      fundAum:
+        targetTime.getHours() === 0 &&
+        targetTime.getMinutes() === 0 &&
+        targetTime.getSeconds() === 0
+          ? generateAllFundAumData().length
+          : 0
     };
   } catch (error) {
     console.error(`[${formatDateTime(targetTime)}] 데이터 생성 오류:`, error);

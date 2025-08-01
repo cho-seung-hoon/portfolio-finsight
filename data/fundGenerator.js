@@ -132,7 +132,7 @@ function generateFundAumData(symbol) {
 
   return {
     fund_code: symbol,
-    fund_aum: Math.floor(newAum),
+    fund_aum: parseFloat(newAum.toFixed(2)),
     timestamp: new Date().toISOString()
   };
 }

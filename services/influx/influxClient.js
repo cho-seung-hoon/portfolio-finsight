@@ -24,7 +24,7 @@ async function writeToInflux(measurement, fields, tags = {}, timestamp = null) {
     } else {
       console.warn(`[InfluxDB] NaN 또는 무한값 감지: ${measurement}.${key} = ${value}`);
       // 기본값으로 대체
-      const defaultValue = key.includes('volume') || key.includes('aum') ? 1000 : 10000;
+      const defaultValue = key.includes('volume') ? 1000 : 10000;
       point.floatField(key, defaultValue);
     }
   });
@@ -94,7 +94,7 @@ async function getLatestETFData(beforeTime = null) {
     for await (const { values, tableMeta } of queryApi.iterateRows(queries.volume)) {
       const o = tableMeta.toObject(values);
       if (o.product_code) {
-        results.volume[o.product_code] = o._value;
+        results.volume[o.product_code] = parseInt(o._value);
       }
     }
   } catch (error) {
@@ -106,7 +106,7 @@ async function getLatestETFData(beforeTime = null) {
     for await (const { values, tableMeta } of queryApi.iterateRows(queries.nav)) {
       const o = tableMeta.toObject(values);
       if (o.product_code) {
-        results.nav[o.product_code] = o._value;
+        results.nav[o.product_code] = parseFloat(o._value.toFixed(2));
       }
     }
   } catch (error) {
@@ -147,7 +147,7 @@ async function getLatestFundData(beforeTime = null) {
     for await (const { values, tableMeta } of queryApi.iterateRows(queries.nav)) {
       const o = tableMeta.toObject(values);
       if (o.fund_code) {
-        results.nav[o.fund_code] = o._value;
+        results.nav[o.fund_code] = parseFloat(o._value.toFixed(2));
       }
     }
   } catch (error) {
@@ -159,7 +159,7 @@ async function getLatestFundData(beforeTime = null) {
     for await (const { values, tableMeta } of queryApi.iterateRows(queries.aum)) {
       const o = tableMeta.toObject(values);
       if (o.fund_code) {
-        results.aum[o.fund_code] = o._value;
+        results.aum[o.fund_code] = parseFloat(o._value.toFixed(2));
       }
     }
   } catch (error) {
@@ -169,8 +169,80 @@ async function getLatestFundData(beforeTime = null) {
   return results;
 }
 
+// ETF 과거 데이터 조회 함수 (3개월치)
+async function getETFHistoricalData(measurement, startDate, endDate) {
+  const queryApi = client.getQueryApi(org);
+
+  const query = `
+    from(bucket: "${bucket}")
+      |> range(start: ${startDate.toISOString()}, stop: ${endDate.toISOString()})
+      |> filter(fn: (r) => r._measurement == "${measurement}")
+      |> filter(fn: (r) => r._field == "value")
+      |> sort(columns: ["_time"], desc: true)
+  `;
+
+  const results = [];
+
+  try {
+    for await (const { values, tableMeta } of queryApi.iterateRows(query)) {
+      const o = tableMeta.toObject(values);
+      results.push({
+        product_code: o.product_code,
+        value:
+          measurement === 'etf_volume'
+            ? parseInt(o._value)
+            : measurement === 'etf_nav'
+              ? parseFloat(o._value.toFixed(2))
+              : o._value,
+        timestamp: o._time
+      });
+    }
+  } catch (error) {
+    console.log(`${measurement} 과거 데이터 조회 중 오류:`, error.message);
+  }
+
+  return results;
+}
+
+// 펀드 과거 데이터 조회 함수 (3개월치)
+async function getFundHistoricalData(measurement, startDate, endDate) {
+  const queryApi = client.getQueryApi(org);
+
+  const query = `
+    from(bucket: "${bucket}")
+      |> range(start: ${startDate.toISOString()}, stop: ${endDate.toISOString()})
+      |> filter(fn: (r) => r._measurement == "${measurement}")
+      |> filter(fn: (r) => r._field == "value")
+      |> sort(columns: ["_time"], desc: true)
+  `;
+
+  const results = [];
+
+  try {
+    for await (const { values, tableMeta } of queryApi.iterateRows(query)) {
+      const o = tableMeta.toObject(values);
+      results.push({
+        fund_code: o.fund_code,
+        value:
+          measurement === 'fund_aum'
+            ? parseFloat(o._value.toFixed(2))
+            : measurement === 'fund_nav'
+              ? parseFloat(o._value.toFixed(2))
+              : o._value,
+        timestamp: o._time
+      });
+    }
+  } catch (error) {
+    console.log(`${measurement} 과거 데이터 조회 중 오류:`, error.message);
+  }
+
+  return results;
+}
+
 module.exports = {
   writeToInflux,
   getLatestETFData,
-  getLatestFundData
+  getLatestFundData,
+  getETFHistoricalData,
+  getFundHistoricalData
 };
