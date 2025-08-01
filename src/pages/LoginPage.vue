@@ -131,7 +131,7 @@ const handleLogin = async () => {
       console.log('userRole', userRole);
 
       // ✅ 역할에 따라 라우팅
-      if (userRole === 'complete') {
+      if (userRole === 'COMPLETE') {
         router.push('/');
       } else {
         router.push('/inv-type-main-page');
