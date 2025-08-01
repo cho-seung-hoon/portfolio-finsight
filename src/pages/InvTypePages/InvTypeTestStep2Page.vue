@@ -466,7 +466,7 @@ const submitInvestmentProfile = async () => {
             const response = await axios.put(
             'http://localhost:8080/users/invt',
             {
-                체ㅡ: investmentProfileType.value
+                investmentProfileType: investmentProfileType.value
             },
             {
                 headers: {
