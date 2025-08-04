@@ -51,7 +51,13 @@ const router = createRouter({
     ...etfRoutes,
     ...fundRoutes,
     ...startRoutes,
-    ...portfolioRoutes
+    ...portfolioRoutes,
+
+    // ✅ 사용자가 존재하지 않는 URL로 들어왔을 때
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/'
+    }
   ]
 });
 
