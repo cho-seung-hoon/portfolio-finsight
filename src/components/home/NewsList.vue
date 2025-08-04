@@ -17,7 +17,8 @@
         :title="news.newsTitle"
         :url="news.newsContentUrl"
         :sentiment="news.newsSentiment"
-        :date="news.newsPublishedAt" />
+        :date="news.newsPublishedAt"
+        :news-id="news.newsId" />
     </div>
 
     <!-- 더보기 버튼 -->
