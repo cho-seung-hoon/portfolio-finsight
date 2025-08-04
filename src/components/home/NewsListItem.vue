@@ -3,12 +3,15 @@
     class="news-item"
     :href="url"
     target="_blank"
-    rel="noopener noreferrer">
+    rel="noopener noreferrer"
+    @click="handleClick">
     <div class="news-title">{{ title }}</div>
 
     <div class="news-meta">
       <div class="news-date">{{ formattedDate }}</div>
-      <span v-if="sentimentText" :class="['sentiment-tag', sentiment]">
+      <span
+        v-if="sentimentText"
+        :class="['sentiment-tag', sentiment]">
         {{ sentimentText }}
       </span>
     </div>
@@ -17,14 +20,15 @@
 
 <script setup>
 import { computed } from 'vue';
+import { logNewsClick } from '@/api/newsApi';
 
 const props = defineProps({
   title: String,
   url: String,
   sentiment: String,
-  date: Array
+  date: Array,
+  newsId: String
 });
-
 
 const formattedDate = computed(() => {
   if (!props.date || !Array.isArray(props.date) || props.date.length < 5) {
@@ -51,6 +55,21 @@ const sentimentText = computed(() => {
   return sentimentMap[props.sentiment.toLowerCase()] || null;
 });
 
+const handleClick = async e => {
+  console.log('뉴스 클릭');
+  e.preventDefault();
+  try {
+    if (props.newsId) {
+      await logNewsClick(props.newsId);
+    } else {
+      console.warn('newsId가 없습니다.');
+    }
+    window.open(props.url, '_blank');
+  } catch (err) {
+    console.error('클릭 로그 실패:', err);
+    window.open(props.url, '_blank'); // 실패해도 링크는 열기
+  }
+};
 </script>
 <style scoped>
 .news-item {

@@ -31,3 +31,14 @@ export async function fetchNewsByProductCode(productCode) {
     return [];
   }
 }
+
+// 뉴스 클릭 로그 기록
+export async function logNewsClick(newsId) {
+  try {
+    await apiClient.post('/news/click', null, {
+      params: { newsId }
+    });
+  } catch (err) {
+    console.error('Error logging news click:', err);
+  }
+}

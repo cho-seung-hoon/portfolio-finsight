@@ -138,7 +138,6 @@ watch(route, () => {
 .content-container {
   padding: 0px 20px;
   min-height: 0;
-
 }
 
 .layout-container::-webkit-scrollbar {
