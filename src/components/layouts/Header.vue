@@ -63,6 +63,9 @@ import axios from 'axios';
 import { decodingJWT } from '@/utils/jwtUtil.js';
 
 const remainingTime = ref('00:00');
+const emit = defineEmits(['open-time-modal']);
+
+const hasShownExpireWarning = ref(false); // ✅ 토큰 만료 5분전 팝업 기능
 
 function updateRemainingTime() {
   const token = localStorage.getItem('accessToken');
@@ -73,10 +76,18 @@ function updateRemainingTime() {
   } else if (timeObj === '만료됨') {
     remainingTime.value = '만료됨';
   } else {
+    const totalSeconds = timeObj.minutes * 60 + timeObj.seconds; // ✅ 토큰 만료 5분전 팝업 기능
+
     // 분, 초를 2자리 문자열로 포맷팅
     const m = String(timeObj.minutes).padStart(2, '0');
     const s = String(timeObj.seconds).padStart(2, '0');
     remainingTime.value = `${m}:${s}`;
+
+    // ✅ 토큰 만료 5분전 팝업 기능
+    if (totalSeconds <= 300 && !hasShownExpireWarning.value){
+      emit('open-time-modal'); // Layout.vue에게 알림
+      hasShownExpireWarning.value = true;
+    }
   }
 }
 let intervalId = null;
@@ -90,12 +101,7 @@ onUnmounted(() => {
   clearInterval(intervalId);
 });
 
-const emit = defineEmits(['open-time-modal']);
-
-const accessToken = ref('');
-
 const headerStore = useHeaderStore();
-
 const { titleParts, showBackButton, actions, showBorder, bColor, backHandler } =
   storeToRefs(headerStore);
 
@@ -130,9 +136,6 @@ async function handleExtendSession() {
   }
 }
 
-// function handleTimeClick() {
-//   emit('open-time-modal'); // 여기서 이벤트를 발생시킵니다.
-// }
 </script>
 
 <style scoped>
