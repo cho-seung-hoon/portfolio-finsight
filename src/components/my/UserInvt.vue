@@ -7,16 +7,15 @@
       <div :class="['invt', profileClass]">{{ investmentProfileType }}</div>
 
       <button
-        class="invtTest"
-        :disabled="!canRetakeTest"
-        @click="handleRetakeClick">
-          투자 성향 분석
+      @click="handleRetakeClick">
+        투자 성향 분석
       </button>
     </div>
   </div>
   <div v-if="showModal" class="modal-backdrop">
     <div class="modal">
-      <p>투자성향분석은 대면/비대면을 포함하여 1일 1회만 가능합니다.</p>
+      <h2>투자성향분석 안내</h2><br>
+      <p>본 투자성향분석은 <strong class="highlight-blue">대면/비대면</strong>을 <br>포함하여 <strong class="highlight-red">1일 1회</strong>만 가능합니다.</p><br>
       <button @click="showModal = false">확인</button>
     </div>
   </div>
@@ -52,18 +51,21 @@ const fetchInvestmentProfile = async () => {
       const type = response.data.investmentProfileType;
       investmentProfileType.value = translateProfileType(type);
       profileClass.value = getProfileClass(type);
+      console.log('---------------')
+      console.log('투자성향결과:', type);
+
       const updatedAt = response.data.investmentProfileUpdatedAt;
+      console.log('갱신일자', updatedAt);
+
       canRetakeTest.value = isOver24Hours(updatedAt);
+      console.log('24시간이 지났는가?:', canRetakeTest.value);
     } catch (error) {
       console.error('투자성향 조회 실패:', error);
   }
-
-
 };
 
 // 3. GET 받은 투자 성향을 변환하는 로직
 const profileClass = ref('');
-
 const translateProfileType = (type) => {
   switch (type) {
     case 'stable':
@@ -80,7 +82,6 @@ const translateProfileType = (type) => {
       return '알 수 없음';
   }
 };
-
 const getProfileClass = (type) => {
   switch (type) {
     case 'stable': return 'highlight-stable';
@@ -94,7 +95,6 @@ const getProfileClass = (type) => {
 
 // 4. 날짜 비교 로직
 const canRetakeTest = ref(false); 
-
 const isOver24Hours = (updatedAtStr) => {
   const updatedDate = new Date(updatedAtStr);
   const now = new Date();
@@ -119,7 +119,6 @@ const handleRetakeClick = () => {
 
   router.push('/inv-type-main-page')
 };
-
 </script>
 
 <style scoped>
@@ -152,6 +151,7 @@ button {
   font-size: var(--font-size-ms);
   cursor: pointer;
   border-radius: 6px;
+  pointer-events: auto;
 }
 
 /* Highlight styles */
@@ -184,6 +184,14 @@ button {
   color: var(--red01);
   font-weight: bold;
 }
+.modal {
+  background-color: white;
+  padding: 24px 24px 10px 24px;
+  border-radius: 10px;
+  text-align: center;
+  max-width: 300px;
+  z-index: 1001;
+}
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -195,14 +203,5 @@ button {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-}
-
-.modal {
-  background-color: white;
-  padding: 24px;
-  border-radius: 10px;
-  text-align: center;
-  max-width: 300px;
-  z-index: 999999;
 }
 </style>
