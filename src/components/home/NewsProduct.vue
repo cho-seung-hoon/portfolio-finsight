@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, computed } from 'vue';
+import { ref, computed } from 'vue';
 import EtfItem from '../list/EtfItem.vue';
 import FundItem from '../list/FundItem.vue';
 const props = defineProps({

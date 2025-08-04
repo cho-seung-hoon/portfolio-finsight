@@ -14,9 +14,10 @@
       <NewsListItem
         v-for="(news, index) in displayedNews"
         :key="index"
-        :title="news.title"
-        :url="news.content_url"
-        :date="news.published_at" />
+        :title="news.newsTitle"
+        :url="news.newsContentUrl"
+        :sentiment="news.newsSentiment"
+        :date="news.newsPublishedAt" />
     </div>
 
     <!-- 더보기 버튼 -->
@@ -64,7 +65,7 @@
 </template>
 
 <script setup>
-import { defineProps, computed, watch, ref } from 'vue';
+import { computed, watch, ref } from 'vue';
 import NewsListItem from '@/components/home/NewsListItem.vue';
 
 const props = defineProps({
@@ -79,8 +80,7 @@ const isLoading = ref(false);
 
 // 필터링된 전체 뉴스 목록
 const filterNews = computed(() => {
-  if (!props.keyword || !props.newsList) return props.newsList || [];
-  return props.newsList.filter(item => item.labels && item.labels.includes(props.keyword));
+  return props.newsList || [];
 });
 
 // 현재 표시할 뉴스 목록 (페이지네이션 적용)
