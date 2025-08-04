@@ -59,7 +59,16 @@ router.beforeEach((to, from, next) => {
   const headerStore = useHeaderStore();
   const headerMeta = to.meta.header;
   const requiresAuth = to.meta.requiresAuth;
-  const isLoggedIn = !!localStorage.getItem('token');
+  const isLoggedIn = !!localStorage.getItem('accessToken');
+
+  // ✅ 로그인 토큰이 없으면 /start로 리다이렉트
+  const publicPaths = ['/start', '/login', '/signup']; // 인증 필요 없는 경로
+  const isPublic = publicPaths.includes(to.path);
+
+  if (!isLoggedIn && !isPublic) {
+    next({ path: '/start' });
+    return;
+  }
 
   if (requiresAuth && !isLoggedIn) {
     next({ name: 'login' });
@@ -88,5 +97,8 @@ router.beforeEach((to, from, next) => {
   }
   next();
 });
+
+
+
 
 export default router;
