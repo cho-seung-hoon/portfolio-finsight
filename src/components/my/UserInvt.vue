@@ -6,13 +6,24 @@
       <!-- <div class="invt">{{ investmentProfileType }}</div> -->
       <div :class="['invt', profileClass]">{{ investmentProfileType }}</div>
 
-      <button class="invtTest">투자 성향 분석</button>
+      <button
+        class="invtTest"
+        :disabled="!canRetakeTest"
+        @click="handleRetakeClick">
+          투자 성향 분석
+      </button>
+    </div>
+  </div>
+  <div v-if="showModal" class="modal-backdrop">
+    <div class="modal">
+      <p>투자성향분석은 대면/비대면을 포함하여 1일 1회만 가능합니다.</p>
+      <button @click="showModal = false">확인</button>
     </div>
   </div>
 </template>
 
 <script setup>
-// 1. 투자성향 <template>
+// 1. 투자성향 <template> 
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
@@ -31,21 +42,34 @@ const fetchInvestmentProfile = async () => {
   }
 
   try {
-    const response = await axios.get('http://localhost:8080/users/invt', {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-      },
-    });
+    const response = await axios.get(
+      'http://localhost:8080/users/invt',
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      const type = response.data.investmentProfileType;
+      investmentProfileType.value = translateProfileType(type);
+      profileClass.value = getProfileClass(type);
+      console.log('response 구경하기: ', response);
 
-    console.log('투자성향 조회 성공:', response.data);
-    // investmentProfileType.value = response.data.investmentProfileType;
-    const type = response.data.investmentProfileType;
-    investmentProfileType.value = translateProfileType(type);
-    profileClass.value = getProfileClass(type);
 
+
+      // 지금 response 에는 updatedAt이 없음.
+    const updatedAt = response.data.investmentProfileUpdatedAt;
+
+
+    canRetakeTest.value = isOver24Hours(updatedAt);
+
+    console.log('updatedAt:', updatedAt);
+    console.log('24시간 지났는가?', isOver24Hours(updatedAt));
+    console.log('canRetakeTest 최종값:', canRetakeTest.value);
   } catch (error) {
     console.error('투자성향 조회 실패:', error);
   }
+
+
 };
 
 // 3. GET 받은 투자 성향을 변환하는 로직
@@ -77,6 +101,34 @@ const getProfileClass = (type) => {
     case 'veryaggressive': return 'highlight-veryaggressive';
     default: return '';
   }
+};
+
+// 4. 날짜 비교 로직
+const canRetakeTest = ref(false); 
+
+const isOver24Hours = (updatedAtStr) => {
+  const updatedDate = new Date(updatedAtStr);
+  const now = new Date();
+  const diffInMs = now - updatedDate;
+  const diffInHours = diffInMs / (1000 * 60 * 60);
+  return diffInHours >= 24;
+};
+
+//5. 모달
+import { useRouter } from 'vue-router';
+const router = useRouter();
+const showModal = ref(false);
+
+const handleRetakeClick = () => {
+  console.log('버튼 클릭됨');
+  console.log('canRetakeTest:', canRetakeTest.value);
+
+  if (!canRetakeTest.value) {
+    showModal.value = true;
+    return;
+  }
+
+  router.push('/inv-type-main-page')
 };
 
 </script>
@@ -142,5 +194,26 @@ button {
 .highlight-veryaggressive {
   color: var(--red01);
   font-weight: bold;
+}
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  padding: 24px;
+  border-radius: 10px;
+  text-align: center;
+  max-width: 300px;
+  z-index: 999999;
 }
 </style>
