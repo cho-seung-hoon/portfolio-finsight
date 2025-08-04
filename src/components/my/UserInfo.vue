@@ -1,42 +1,78 @@
 <template>
   <div class="subBox2">
     <div class="subItem">
-      <div class="name">이진욱 님</div>
-      <div class="edit"></div>
-    </div>
-
-    <div class="subItem">
-      <img
-        src="@/assets/logo.svg"
-        alt="임시 이미지" />
-      <div class="info">닉네임</div>
-      <div class="infoValue">OOO</div>
-    </div>
+      <div class="name">{{ userInfo.userName }} 님</div>
+    </div><br>
     <div class="subItem">
       <img
         src="@/assets/logo.svg"
         alt="임시 이미지" />
       <div class="info">이메일</div>
-      <div class="infoValue">OOO@OOO.OOO</div>
+      <div class="infoValue">{{ userInfo.userEmail }}</div>
     </div>
     <div class="subItem">
       <img
         src="@/assets/logo.svg"
         alt="임시 이미지" />
       <div class="info">생년월일</div>
-      <div class="infoValue">OOOO.OO.OO</div>
+      <div class="infoValue">{{ formatArrayDateToYYYYMMDD(userInfo.userBirthday) }}</div>
     </div>
     <div class="subItem">
       <img
         src="@/assets/logo.svg"
         alt="임시 이미지" />
       <div class="info">가입일</div>
-      <div class="infoValue">OOOO.OO.OO</div>
+      <div class="infoValue">{{ formatArrayDateTimeToYYYYMMDD(userInfo.userCreatedAt) }}</div>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+// ✅ 마이페이지에 개인정보 GET 호출하기
+import { onMounted, ref } from 'vue';
+import axios from 'axios';
+
+const userInfo = ref({
+  userName: '',
+  userEmail: '',
+  userBirthday: '',
+  userCreatedAt: '',
+});
+const fetchUsersInfo = async () => {
+  const token = localStorage.getItem('accessToken');
+  try {
+    const response = await axios.get('http://localhost:8080/users/info', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    userInfo.value = response.data.data;
+  } catch (e) {
+    console.error('유저 정보 불러오기 실패:', e);
+  }
+};
+
+const formatArrayDateToYYYYMMDD = (dateArray) => {
+  const [year, month, day] = dateArray;
+  const formattedMonth = String(month).padStart(2, '0');
+  const formattedDay = String(day).padStart(2, '0');
+
+  return `${year}-${formattedMonth}-${formattedDay}`;
+};
+
+const formatArrayDateTimeToYYYYMMDD = (dateTimeArray) => {
+  // 배열의 첫 세 요소(년, 월, 일)만 사용
+  const [year, month, day] = dateTimeArray;
+
+  // 월과 일을 두 자리 숫자로 맞춤 (예: 8 -> 08, 4 -> 04)
+  const formattedMonth = String(month).padStart(2, '0');
+  const formattedDay = String(day).padStart(2, '0');
+
+  return `${year}-${formattedMonth}-${formattedDay}`;
+};
+
+onMounted(fetchUsersInfo);
+</script>
+
+
 <style scoped>
 .subBox2 {
   width: 100%;
@@ -51,7 +87,7 @@
 }
 
 .name {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-xxl);
   font-weight: var(--font-weight-semi-bold);
   color: var(--white);
 }

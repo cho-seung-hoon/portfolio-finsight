@@ -10,7 +10,7 @@
     <div class="subItem-info">
       <UserInfo />
     </div>
-    <div class="subItem-invt">
+    <div>
       <UserInvt />
     </div>
     <div class="subItem-watch">
