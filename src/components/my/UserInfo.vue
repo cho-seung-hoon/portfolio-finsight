@@ -1,7 +1,13 @@
 <template>
   <div class="subBox2">
-    <div class="subItem">
+    <div class="subItem subItemWrapper">
       <div class="name">{{ userInfo.userName }} 님</div>
+      <button @click="goToUserInfoEdit" class="btn">
+        <img 
+          src="@/assets/userinfo.png"
+          class="btn-userinfo"
+          alt="회원정보 수정 버튼" />
+      </button>
     </div><br>
     <div class="subItem">
       <img
@@ -70,6 +76,12 @@ const formatArrayDateTimeToYYYYMMDD = (dateTimeArray) => {
 };
 
 onMounted(fetchUsersInfo);
+
+import { useRouter } from 'vue-router';
+const router = useRouter();
+const goToUserInfoEdit = () => {
+  router.push('/user-info-edit');
+};
 </script>
 
 
@@ -115,5 +127,25 @@ img {
 .infoValue {
   padding-left: 15px;
   border-left: 2px solid var(--white);
+}
+
+.subItemWrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn {
+  background: none;
+  border: none;
+}
+.btn-userinfo {
+  border: 2px solid var(--sub01);
+  border-radius: 50%;
+  object-fit: cover;
+  background: none;
+  background-color: transparent;
+  padding: 0;
+  height: 45px;
+  width: auto;
 }
 </style>
