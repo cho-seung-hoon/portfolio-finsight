@@ -52,21 +52,10 @@ const fetchInvestmentProfile = async () => {
       const type = response.data.investmentProfileType;
       investmentProfileType.value = translateProfileType(type);
       profileClass.value = getProfileClass(type);
-      console.log('response 구경하기: ', response);
-
-
-
-      // 지금 response 에는 updatedAt이 없음.
-    const updatedAt = response.data.investmentProfileUpdatedAt;
-
-
-    canRetakeTest.value = isOver24Hours(updatedAt);
-
-    console.log('updatedAt:', updatedAt);
-    console.log('24시간 지났는가?', isOver24Hours(updatedAt));
-    console.log('canRetakeTest 최종값:', canRetakeTest.value);
-  } catch (error) {
-    console.error('투자성향 조회 실패:', error);
+      const updatedAt = response.data.investmentProfileUpdatedAt;
+      canRetakeTest.value = isOver24Hours(updatedAt);
+    } catch (error) {
+      console.error('투자성향 조회 실패:', error);
   }
 
 
