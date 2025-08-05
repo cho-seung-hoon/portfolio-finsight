@@ -272,15 +272,29 @@ const handleEdit = async () => {
 
 // ✅ 회원탈퇴 요청
 const handleDelete = async () => {
+    const token = localStorage.getItem('accessToken');
+
+    if (!token) {
+        alert('로그인 정보가 없습니다.');
+        return;
+    }
+
     try {
-        await axios.delete('/users');
+        await axios.delete('/users', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
         alert('회원 탈퇴가 완료되었습니다.');
         localStorage.removeItem('accessToken');
         window.location.href = '/start';
     } catch (error) {
+        console.error('회원 탈퇴 오류:', error);
         alert('회원 탈퇴 중 오류가 발생했습니다.');
     }
 };
+
 const showDeleteModal = ref(false);
 
 </script>
