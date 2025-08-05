@@ -6,7 +6,7 @@ const portfolioRoutes = [
     meta: {
       layout: 'HeaderLayout',
       header: {
-        titleParts: [{ text: '나만의 포트폴리오', color: 'var(--main01)' }]
+        titleParts: [{ text: '나의 모델 포트폴리오', color: 'var(--main01)' }]
       }
     }
   }
