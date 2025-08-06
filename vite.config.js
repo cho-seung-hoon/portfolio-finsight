@@ -35,21 +35,20 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      },
-      },
-      '/holdings': {
-        target: 'http://localhost:8080', // Spring 서버 주소
-        changeOrigin: true,
-        secure: false
-      },
-      '/ws': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-        ws: true // WebSocket 지원
+        rewrite: path => path.replace(/^\/api/, '')
       }
     },
-    host: true
-  }
+    '/holdings': {
+      target: 'http://localhost:8080', // Spring 서버 주소
+      changeOrigin: true,
+      secure: false
+    },
+    '/ws': {
+      target: 'http://localhost:8080',
+      changeOrigin: true,
+      secure: false,
+      ws: true // WebSocket 지원
+    }
+  },
+  host: true
 });
