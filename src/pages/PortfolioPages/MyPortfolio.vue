@@ -66,7 +66,7 @@
             <td class="table-cell">현금성(예금 등)</td>
             <td class="table-cell">6등급</td>
             <td class="table-cell" >
-              <span>{{ depositPrice }}</span>
+              <span>{{ depositPrice }} % </span>
               <span :class="['invt', profileClass]">/ {{ selectedRecom[4] }} %</span>
             </td>
           </tr>
@@ -211,11 +211,11 @@ onMounted (() => {
 
 // === ✅ 상품정보 데이터 ==============
 const pdt_tdl = [
-  {type: 'stable', recom: [ null, null, null, 98, 2, null, null, null, null, 0, 6.00 ]},
-  {type: 'stableplus', recom: [ 7, 12, 5, 59, 2, null, 10, 5, null, 22, 5.00 ]},
-  {type: 'neutral', recom: [ 8, 10, 6, 34, 2, null, 28, 12, null, 48, 4.04 ]},
-  {type: 'aggressive', recom: [ 10, null, 10, 23, 2, 4, 32, 14, 5, 60, 3.50 ]},
-  {type: 'veryaggressive', recom: [ 21, null, 5, 2, 2, 8, 40, 22, null, 91, 2.45 ]}
+  {type: 'stable', recom: [ 0, 0, 0, 98, 2, 0, 0, 0, 0, 0, 6.00 ]},
+  {type: 'stableplus', recom: [ 7, 12, 5, 59, 2, 0, 10, 5, 0, 22, 5.00 ]},
+  {type: 'neutral', recom: [ 8, 10, 6, 34, 2, 0, 28, 12, 0, 48, 4.04 ]},
+  {type: 'aggressive', recom: [ 10, 0, 10, 23, 2, 4, 32, 14, 5, 60, 3.50 ]},
+  {type: 'veryaggressive', recom: [ 21, 0, 5, 2, 2, 8, 40, 22, 0, 91, 2.45 ]}
 ];
 
 // (1) 데이터와 성향을 묶기
@@ -238,7 +238,7 @@ const getDepositPrice = async () => {
         }
     });
     depositPrice.value = response.data.depositPrice;
-    console.log('예금수량: ', depositPrice.value)
+    console.log('예금수량[%]: ', depositPrice.value)
 
   } catch (error) {
     console.error('예금 수량 가져오기 실패:', error);
