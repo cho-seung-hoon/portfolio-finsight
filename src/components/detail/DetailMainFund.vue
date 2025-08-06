@@ -39,46 +39,28 @@ import HeartToggle from '@/components/common/HeartToggle.vue';
 const props = defineProps({
   bank: String,
   title: String,
-  mainYield: [String, Number, Object], // 수익률 (개월 수와 값)
+  yield: [String, Number], // 수익률 (3개월 고정)
   priceArr: Array // [오늘 기준가, 전일 기준가]
 });
 
 const yieldMonths = computed(() => {
-  if (!props.mainYield) return 1;
-
-  if (
-    typeof props.mainYield === 'object' &&
-    props.mainYield.value !== undefined &&
-    props.mainYield.months !== undefined
-  ) {
-    return props.mainYield.months;
-  }
-  return 3; // 기본값
+  return 3; // 3개월로 고정
 });
 
 const yieldValue = computed(() => {
-  if (!props.mainYield) return 0;
+  if (!props.yield) return 0;
 
-  if (
-    typeof props.mainYield === 'object' &&
-    props.mainYield.value !== undefined &&
-    props.mainYield.months !== undefined
-  ) {
-    // 새로운 구조: { value: 2.5, months: 1 }
-    return props.mainYield.value;
-  } else if (typeof props.mainYield === 'string') {
-    // 기존 문자열 구조
-    return parseFloat(props.mainYield);
-  } else if (typeof props.mainYield === 'number') {
-    // 기존 숫자 구조
-    return props.mainYield;
+  if (typeof props.yield === 'string') {
+    return parseFloat(props.yield);
+  } else if (typeof props.yield === 'number') {
+    return props.yield;
   } else {
     return 0;
   }
 });
 
 const formattedYield = computed(() => {
-  if (!props.mainYield) return '-';
+  if (!props.yield) return '-';
   return Math.abs(yieldValue.value);
 });
 

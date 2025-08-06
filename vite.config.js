@@ -13,6 +13,9 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  define: {
+    global: 'window'
+  },
   server: {
     proxy: {
       '/exchange': {
@@ -26,6 +29,17 @@ export default defineConfig({
         target: 'http://localhost:8080', // Spring 서버 주소
         changeOrigin: true,
         secure: false
+      },
+      '/holdings': {
+        target: 'http://localhost:8080', // Spring 서버 주소
+        changeOrigin: true,
+        secure: false
+      },
+      '/ws': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+        ws: true // WebSocket 지원
       }
     },
     host: true

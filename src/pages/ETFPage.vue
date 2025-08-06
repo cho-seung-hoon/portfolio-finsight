@@ -8,10 +8,12 @@
       <DetailMainEtf
         :bank="productInfo.productCompanyName"
         :title="productInfo.productName"
-        :main-yield="productInfo.mainYield"
+        :yield="productInfo.yield"
         :current-price="productInfo.currentPrice"
         :net_assets="productInfo.etfNetAssets"
-        :risk="productInfo.productRiskGrade" />
+        :risk="productInfo.productRiskGrade"
+        :is-watched="isWatched"
+        @heart-toggle="handleHeartToggle" />
 
       <DetailTabs
         :tabs="tabs"
@@ -83,7 +85,7 @@ const route = useRoute();
 const etfStore = useEtfStore();
 const buyStore = useBuyStore();
 const sellStore = useSellStore();
-const { productInfo, isLoading, error } = storeToRefs(etfStore);
+const { productInfo, isLoading, error, isWatched } = storeToRefs(etfStore);
 const { isLoading: isBuyLoading } = storeToRefs(buyStore);
 const { isLoading: isSellLoading } = storeToRefs(sellStore);
 
@@ -163,9 +165,9 @@ watch(
   { immediate: true }
 );
 
-// tabData를 computed로 변경하여 productId를 전달
+// tabData를 computed로 변경하여 실제 API 데이터 사용
 const tabData = computed(() => {
-  return etfStore.getTabDataWithHolding(productInfo.value.productCode);
+  return etfStore.tabData;
 });
 
 // 매수 버튼 클릭 처리
@@ -234,6 +236,19 @@ const handleSellSubmit = async formData => {
   } catch (error) {
     showToast('ETF 매도에 실패했습니다. 다시 시도해주세요.', 'error');
     handleModalClose(); // 실패 시에도 모달 닫기
+  }
+};
+
+// 하트 토글 처리
+const handleHeartToggle = async isActive => {
+  try {
+    // TODO: API 호출하여 찜 상태 변경
+    // await etfStore.toggleWatch(productInfo.value.productCode, isActive);
+
+    const message = isActive ? '찜 목록에 추가되었습니다.' : '찜 목록에서 제거되었습니다.';
+    showToast(message, 'success');
+  } catch (error) {
+    showToast('찜 상태 변경에 실패했습니다. 다시 시도해주세요.', 'error');
   }
 };
 </script>

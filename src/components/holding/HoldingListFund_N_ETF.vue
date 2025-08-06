@@ -13,7 +13,7 @@
     <div class="product-name">{{ product.productName }}</div>
     <div class="product-in">
       <div class="product-title">현재 보유량</div>
-      <div class="product-value">{{ product.quantity }} 좌</div>
+      <div class="product-value">{{ product.quantity }} 주</div>
     </div>
     <div class="product-in">
       <div class="product-title">현재 평가액</div>

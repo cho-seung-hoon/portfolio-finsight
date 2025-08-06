@@ -78,34 +78,6 @@ export const useDepositStore = defineStore('deposit', () => {
           title: '예금자 보호법',
           desc: '이 예금은 예금자보호법에 따라 원금과 소정의 이자를 합하여 1인당 "5천만원까지"(SH수협은행의 여타 보호 상품과 합산) 보호됩니다.'
         }
-      ],
-      news: [
-        {
-          type: 'news',
-          title: '예금 관련 뉴스',
-          keyword: '예금',
-          color: '#FF9500',
-          desc: [
-            {
-              title: 'SH 수협은행, 우대예금 금리 인상',
-              content_url: 'https://example.com/news13',
-              published_at: '2025.01.15',
-              labels: ['예금', '수협은행', '금리']
-            },
-            {
-              title: '디지털 뱅킹, 온라인 예금 가입 증가',
-              content_url: 'https://example.com/news14',
-              published_at: '2025.01.14',
-              labels: ['예금', '디지털뱅킹', '온라인']
-            },
-            {
-              title: '첫만남우대예금, 신규 고객 선호도 상승',
-              content_url: 'https://example.com/news15',
-              published_at: '2025.01.13',
-              labels: ['예금', '우대', '신규고객']
-            }
-          ]
-        }
       ]
     },
     'deposit-002': {
@@ -130,35 +102,7 @@ export const useDepositStore = defineStore('deposit', () => {
         { type: 'text', title: '저축기간', desc: '6개월' },
         { type: 'text', title: '최고금리', desc: '연 5.50% (6개월 세전)' }
       ],
-      notice: [{ type: 'text', title: '유의사항', desc: '상품설명서를 꼭 확인하세요.' }],
-      news: [
-        {
-          type: 'news',
-          title: 'KB 은행 관련 뉴스',
-          keyword: 'KB',
-          color: '#FF3B30',
-          desc: [
-            {
-              title: 'KB 국민은행, 정기예금 금리 조정',
-              content_url: 'https://example.com/news16',
-              published_at: '2025.01.15',
-              labels: ['KB', '국민은행', '정기예금']
-            },
-            {
-              title: 'KB Star 정기예금, 고객 만족도 상승',
-              content_url: 'https://example.com/news17',
-              published_at: '2025.01.14',
-              labels: ['KB', 'Star', '만족도']
-            },
-            {
-              title: 'KB 은행, 디지털 전환 가속화',
-              content_url: 'https://example.com/news18',
-              published_at: '2025.01.13',
-              labels: ['KB', '디지털', '전환']
-            }
-          ]
-        }
-      ]
+      notice: [{ type: 'text', title: '유의사항', desc: '상품설명서를 꼭 확인하세요.' }]
     }
   };
 
@@ -212,8 +156,7 @@ export const useDepositStore = defineStore('deposit', () => {
     const baseTabData = {
       info: product.value.info,
       rate: product.value.rate,
-      notice: product.value.notice,
-      news: product.value.news
+      notice: product.value.notice
     };
 
     return baseTabData;
@@ -230,8 +173,7 @@ export const useDepositStore = defineStore('deposit', () => {
     const baseTabData = {
       info: product.value?.info || [],
       rate: product.value?.rate || [],
-      notice: product.value?.notice || [],
-      news: product.value?.news || []
+      notice: product.value?.notice || []
     };
 
     // 보유 중인 상품이면 holding 데이터 추가

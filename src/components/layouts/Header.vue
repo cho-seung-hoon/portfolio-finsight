@@ -47,7 +47,8 @@
       </div>
       <button
         @click="handleExtendSession"
-        class="generate-token">
+        class="generate-token"
+        :style="{ color: backButtonColor }">
         시간연장
       </button>
     </div>

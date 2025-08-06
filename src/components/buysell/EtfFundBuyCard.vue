@@ -10,7 +10,7 @@
         max="99"
         autocomplete="off"
         @input="onInputQuantity" />
-      <span style="margin-left: 4px">좌</span>
+      <span style="margin-left: 4px">주</span>
     </div>
     <div class="info-row">
       <span class="info-label">매수일</span>

@@ -153,15 +153,13 @@ const tabs = computed(() => {
       { key: 'holding', label: '보유기록' },
       { key: 'info', label: '상품안내' },
       { key: 'rate', label: '금리안내' },
-      { key: 'notice', label: '유의사항' },
-      { key: 'news', label: '뉴스' }
+      { key: 'notice', label: '유의사항' }
     ];
   }
   return [
     { key: 'info', label: '상품안내' },
     { key: 'rate', label: '금리안내' },
-    { key: 'notice', label: '유의사항' },
-    { key: 'news', label: '뉴스' }
+    { key: 'notice', label: '유의사항' }
   ];
 });
 
@@ -184,8 +182,7 @@ watch(
 const indicatorPosition = {
   info: '0px',
   rate: '147px',
-  notice: '294px',
-  news: '441px'
+  notice: '294px'
 };
 
 // tabData를 computed로 변경하여 productId를 전달

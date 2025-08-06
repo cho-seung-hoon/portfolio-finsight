@@ -3,7 +3,9 @@
     <div class="product-bank">{{ bank }}</div>
     <div class="product-title-row">
       <div class="product-title">{{ title }}</div>
-      <HeartToggle @toggle="handleHeartToggle" />
+      <HeartToggle
+        :is-active="isWatched"
+        @toggle="handleHeartToggle" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">
@@ -18,7 +20,7 @@
       </div>
       <div class="rate-divider"></div>
       <div class="rate-info right">
-        <div class="rate-label">현재 시세</div>
+        <div class="rate-label">현재 시세 (1주)</div>
         <div class="rate-value">{{ formattedCurrentPrice }}</div>
       </div>
     </div>
@@ -32,46 +34,34 @@ import HeartToggle from '@/components/common/HeartToggle.vue';
 const props = defineProps({
   bank: String,
   title: String,
-  mainYield: [String, Number, Object], // 수익률 (개월 수와 값)
-  currentPrice: String // 현재 시세
+  yield: [String, Number], // 수익률 (3개월 고정)
+  currentPrice: String, // 현재 시세
+  isWatched: {
+    type: Boolean,
+    default: false
+  }
 });
 
-const yieldMonths = computed(() => {
-  if (!props.mainYield) return 1;
+const emit = defineEmits(['heart-toggle']);
 
-  if (
-    typeof props.mainYield === 'object' &&
-    props.mainYield.value !== undefined &&
-    props.mainYield.months !== undefined
-  ) {
-    return props.mainYield.months;
-  }
-  return 3; // 기본값
+const yieldMonths = computed(() => {
+  return 3; // 3개월로 고정
 });
 
 const yieldValue = computed(() => {
-  if (!props.mainYield) return 0;
+  if (!props.yield) return 0;
 
-  if (
-    typeof props.mainYield === 'object' &&
-    props.mainYield.value !== undefined &&
-    props.mainYield.months !== undefined
-  ) {
-    // 새로운 구조: { value: 2.5, months: 1 }
-    return props.mainYield.value;
-  } else if (typeof props.mainYield === 'string') {
-    // 기존 문자열 구조
-    return parseFloat(props.mainYield);
-  } else if (typeof props.mainYield === 'number') {
-    // 기존 숫자 구조
-    return props.mainYield;
+  if (typeof props.yield === 'string') {
+    return parseFloat(props.yield);
+  } else if (typeof props.yield === 'number') {
+    return props.yield;
   } else {
     return 0;
   }
 });
 
 const formattedYield = computed(() => {
-  if (!props.mainYield) return '-';
+  if (!props.yield) return '-';
   return Math.abs(yieldValue.value);
 });
 
@@ -87,7 +77,7 @@ const formattedCurrentPrice = computed(() => {
 });
 
 const handleHeartToggle = isActive => {
-  // 하트 상태 변경 처리 (필요시 추가 로직 구현)
+  emit('heart-toggle', isActive);
 };
 </script>
 
