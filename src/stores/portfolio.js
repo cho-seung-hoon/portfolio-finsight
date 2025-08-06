@@ -1,10 +1,14 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { onMounted, ref, computed } from 'vue';
+import axios from 'axios';
 
-export const usePortfolioStore = defineStore('portfolio', () => {
+
+
+
+
   // State
-  const userName = ref('다음');
-  const userType = ref('aggressive'); // 'stable', 'stableplus', 'neutral', 'aggressive', 'veryaggressive'
+  // const userName = ref('다음');
+  // const userType = ref('aggressive'); // 'stable', 'stableplus', 'neutral', 'aggressive', 'veryaggressive'
 
   // 사용자 자산 비중 데이터
   const userAllocationData = [
@@ -25,9 +29,9 @@ export const usePortfolioStore = defineStore('portfolio', () => {
   });
 
   // Actions
-  const setUserName = name => {
-    userName.value = name;
-  };
+  // const setUserName = name => {
+  //   userName.value = name;
+  // };
 
   const setUserType = type => {
     userType.value = type;
@@ -42,15 +46,15 @@ export const usePortfolioStore = defineStore('portfolio', () => {
 
   return {
     // State
-    userName,
+    // userName,
     userType,
 
     // Getters
     getUserAllocationData,
 
     // Actions
-    setUserName,
+    // setUserName,
     setUserType,
     updateUserAllocation
   };
-});
+  }});

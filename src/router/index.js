@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-
 import HomePage from '@/pages/HomePage.vue';
 
 import holdingRoutes from './holdingRoutes';
@@ -13,8 +12,10 @@ import depositRoutes from './depositRoutes';
 import etfRoutes from './etfRoutes';
 import fundRoutes from './fundRoutes';
 import portfolioRoutes from './portfolioRoutes';
-import { useHeaderStore } from '@/stores/header.js';
 import startRoutes from './startRoutes';
+
+import { useHeaderStore } from '@/stores/header.js';
+import axios from 'axios'; // ✅ 추가됨
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,12 +25,7 @@ const router = createRouter({
       name: 'home',
       component: HomePage,
       meta: {
-        header: {
-          titleParts: [
-            { text: 'OOO', color: 'var(--sub01)' },
-            { text: '님, 반갑습니다.', color: 'var(--main01)' }
-          ]
-        }
+        header: true // ✅ 동적으로 세팅할 예정이라 true로만 표시
       }
     },
     {
@@ -51,41 +47,73 @@ const router = createRouter({
     ...etfRoutes,
     ...fundRoutes,
     ...startRoutes,
-    ...portfolioRoutes
+    ...portfolioRoutes,
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/'
+    }
   ]
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const headerStore = useHeaderStore();
   const headerMeta = to.meta.header;
   const requiresAuth = to.meta.requiresAuth;
-  const isLoggedIn = !!localStorage.getItem('token');
+  const isLoggedIn = !!localStorage.getItem('accessToken');
+
+  const publicPaths = ['/start', '/login', '/signup'];
+  const isPublic = publicPaths.includes(to.path);
+
+  if (!isLoggedIn && !isPublic) {
+    next({ path: '/start' });
+    return;
+  }
 
   if (requiresAuth && !isLoggedIn) {
     next({ name: 'login' });
     return;
   }
 
-  if (headerMeta && headerMeta !== 'none') {
+  // ✅ HOME 진입 시 userName을 API로 불러와서 헤더 설정
+  if (to.name === 'home' && isLoggedIn) {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      const response = await axios.get('http://localhost:8080/users/info', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const userName = response.data.data.userName;
+      console.log(userName);
+
+      headerStore.setHeader({
+        titleParts: [
+          { text: `${userName}`, color: 'var(--sub01)' },
+          { text: '님, 반갑습니다.', color: 'var(--main01)' }
+        ]
+      });
+    } catch (error) {
+      console.error('유저 이름 불러오기 실패:', error);
+      headerStore.resetHeader(); // 실패 시 기본 헤더로
+    }
+  }
+
+  // ✅ 그 외 일반적인 header 처리
+  else if (headerMeta && headerMeta !== 'none') {
     const options = typeof headerMeta === 'function' ? headerMeta(to) : { ...headerMeta };
 
-    // 커스텀 backHandler가 경로로 지정된 경우, 실제 함수로 변환
     if (options.backHandler && typeof options.backHandler !== 'function') {
       const backTarget = options.backHandler;
-      console.log('backTarget: ', backTarget);
       options.backHandler = () => router.push(backTarget);
     }
-    headerStore.setHeader(options);
 
-    // 3. meta 정보가 없으면 헤더 리셋
+    headerStore.setHeader(options);
   } else {
     headerStore.resetHeader();
   }
 
-  // 4. 어떤 경우든 backHandler가 없으면 기본값(router.back)으로 설정
   if (!headerStore.backHandler) {
-    headerStore.backHandler = () => router.back(); // 직접 할당
+    headerStore.backHandler = () => router.back();
   }
+
   next();
 });
 

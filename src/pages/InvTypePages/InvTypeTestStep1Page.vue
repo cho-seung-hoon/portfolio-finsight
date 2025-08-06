@@ -9,118 +9,156 @@
 -->
 
 <template>
-  <<<<<<< HEAD
   <!-- Main Section start -->
   <!-- Q1 Section -->
-  <div class="question-box">
-    <h2 class="question-title">고객님의 금융소비자 유형을 선택해주세요.</h2>
-    <div class="check-button-group">
-      <button
-        :class="['check-button', { active: consumerType === '일반' }]"
-        @click="consumerType = '일반'">
-        일반금융소비자
-      </button>
-      <button
-        :class="['check-button', { active: consumerType === '전문' }]"
-        @click="selectProfessionalConsumer">
-        전문금융소비자<br />(영업점가입대상)
-      </button>
-    </div>
-
-    <!-- Question Guide Section -->
-    <div
-      class="guide-link"
-      @click="goToNotion">
-      전문금융소비자 안내 &gt;
-    </div>
-
-    <!-- Question Modal Section start-->
-    <div
-      v-if="isModalOpen"
-      class="modal-overlay">
-      <div class="modal-box">
-        <h3>전문금융소비자 안내</h3>
-        <br />
-        <p>
-          전문금융소비자에 해당하시는 고객님의 경우 영업점에 직접 방문하셔야만 가입이 가능합니다.
-          <br /><br />
-          ※ 따라서 본 서비스의 이용이 제한됩니다.
-        </p>
-        <br />
+  <div class="main-section">
+    <div class="question-box">
+      <h2 class="question-title">고객님의 금융소비자 유형을 선택해주세요.</h2>
+      <div class="check-button-group">
         <button
-          class="modal-complete-button"
-          @click="closeModal">
-          확인하였습니다.
+          :class="['check-button', { active: consumerType === '일반' }]"
+          @click="selectGeneralConsumer">
+          일반금융소비자
+        </button>
+        <button
+          :class="['check-button', { active: consumerType === '전문' }]"
+          @click="selectProfessionalConsumer">
+          전문금융소비자<br />(영업점가입대상)
         </button>
       </div>
-      <!-- Question Modal Section end-->
-    </div>
-  </div>
 
-  <!-- Q2 Section -->
-  <div class="question-box">
-    <h2 class="question-title">다음의 금융취약소비자에 해당하십니까?</h2>
-    <ul class="list-section">
-      <li class="sub-section-list">고령자(만 65세 이상)</li>
-      <li class="sub-section-list">은퇴자 또는 주부</li>
-      <li class="sub-section-list">금융투자상품 가입시 유의사항 안내가 필요한 분</li>
-    </ul>
-    <div class="check-button-group">
-      <button
-        :class="['check-button', { active: isVulnerable === false }]"
-        @click="isVulnerable = false">
-        아니오
-      </button>
-      <button
-        :class="['check-button', { active: isVulnerable === true }]"
-        @click="isVulnerable = true">
-        예
-      </button>
-    </div>
-  </div>
+      <!-- Question Guide Section -->
+      <div
+        class="guide-link"
+        @click="goToNotion">
+        전문금융소비자 안내 &gt;
+      </div>
 
-  <!-- Q3 Section -->
-  <div class="question-box">
-    <h2 class="question-title">
-      <span class="highlight-blue">최근 1개월 </span>이내 대출을 받았거나,
-      <span class="highlight-blue">앞으로 1개월 이내</span> 대출을 받을 예정인가요?
-    </h2>
-    <div class="check-button-group">
-      <button
-        :class="['check-button', { active: hasLoan === false }]"
-        @click="hasLoan = false">
-        아니오
-      </button>
-      <button
-        :class="['check-button', { active: hasLoan === true }]"
-        @click="hasLoan = true">
-        예
-      </button>
+
     </div>
+
+    <!-- Q2 Section -->
+    <div class="question-box">
+      <h2 class="question-title">다음의 금융취약소비자에 해당하십니까?</h2>
+      <ul class="list-section">
+        <li class="sub-section-list">고령자(만 65세 이상)</li>
+        <li class="sub-section-list">은퇴자 또는 주부</li>
+        <li class="sub-section-list">금융투자상품 가입시 유의사항 안내가 필요한 분</li>
+      </ul>
+      <div class="check-button-group">
+        <button
+          :class="['check-button', { active: isVulnerable === false }]"
+          @click="isVulnerable = false">
+          아니오
+        </button>
+        <button
+          :class="['check-button', { active: isVulnerable === true }]"
+          @click="isVulnerable = true">
+          예
+        </button>
+      </div>
+    </div>
+
+    <!-- Q3 Section -->
+    <div class="question-box">
+      <h2 class="question-title">
+        <span class="highlight-blue">최근 1개월 </span>이내 대출을 받았거나,
+        <span class="highlight-blue">앞으로 1개월 이내</span> 대출을 받을 예정인가요?
+      </h2>
+      <div class="check-button-group">
+        <button
+          :class="['check-button', { active: hasLoan === false }]"
+          @click="hasLoan = false">
+          아니오
+        </button>
+        <button
+          :class="['check-button', { active: hasLoan === true }]"
+          @click="hasLoan = true">
+          예
+        </button>
+      </div>
+    </div>
+
     <!-- Complete Button -->
     <button
       class="complete-button"
-      :disabled="isNextDisabled"
-      @click="goToNext">
+      @click="goToNext"
+      :disabled="isNextDisabled">
       다음 단계로
     </button>
+    <!-- Main Section end-->
   </div>
-  <!-- Main Section end-->
+
+
+  <!-- Question Modal Section start-->
+  <div
+    v-if="isModalOpen"
+    class="modal-overlay">
+    <div class="modal-box">
+      <h3>전문금융소비자 안내</h3>
+      <br />
+      <p>
+        전문금융소비자에 해당하시는 고객님의 경우 영업점에 직접 방문하셔야만 가입이 가능합니다.
+        <br /><br />
+        ※ 따라서 본 서비스의 이용이 제한됩니다.
+      </p>
+      <br />
+      <button
+        class="modal-complete-button"
+        @click="closeModal">
+        확인하였습니다.
+      </button>
+    </div>
+    <!-- Question Modal Section end-->
+  </div>
+    <!-- Alert Modal Section start -->
+    <div
+      v-if="isAlertModalOpen"
+      class="modal-overlay">
+      <div class="modal-box">
+        <h3>안내</h3>
+        <br />
+        <p>모든 질문에 응답해 주세요.</p>
+        <br />
+        <button
+          class="modal-complete-button"
+          @click="isAlertModalOpen = false">
+          확인
+        </button>
+      </div>
+    </div>
+    <!-- Alert Modal Section end -->
+
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+
 const router = useRouter();
 const consumerType = ref(null);
 const isVulnerable = ref(null);
 const hasLoan = ref(null);
 
+// ✅ 모든 설문 버튼이 클릭되어야만 “다음 단계로” 버튼이 활성화가 되는 기능
+const isAlertModalOpen = ref(false);
+const isAllAnswered = computed(() => {
+  return consumerType.value !== null && isVulnerable.value !== null && hasLoan.value !== null;
+});
+
 const goToNotion = () => {
   router.push('/inv-type-notice-page');
 };
 const goToNext = () => {
-  router.push('/inv-type-test-step-2-page');
+  if (isAllAnswered.value) {
+    router.push('/inv-type-test-step-2-page');
+  } else {
+    isAlertModalOpen.value = true;
+  }
+};
+const selectGeneralConsumer = () => {
+  consumerType.value = '일반';
+  isNextDisabled.value = false;
 };
 
 // modal func.
@@ -139,15 +177,26 @@ const closeModal = () => {
 </script>
 
 <style scoped>
+.main-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 수평 중앙 */
+  min-height: calc(100dvh - 56px);
+}
+
 /* Question Section Styles */
 .question-box {
-  margin-bottom: 10px;
-  border: 1.5px solid var(--main04);
-  border-radius: 5px;
-  background-color: var(--main05);
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  border: 1px solid var(--main04);
+  border-radius: 8px;
+  background-color: var(--white);
+  padding: 15px 20px;
 }
+
 .question-title {
-  margin: 20px 40px;
+  margin: 5px;
   font-size: 15px;
 }
 
@@ -155,60 +204,69 @@ const closeModal = () => {
 .check-button-group {
   display: flex;
   justify-content: center;
-  gap: 0px;
-  margin: 34px;
+  gap: 0;
 }
+
 .check-button {
-  border: 2px solid var(--main03);
-  border-radius: 10px;
+  border: 1px solid var(--main03);
   width: 300px;
   font-family: sans-serif;
   font-weight: bold;
-  font-size: 11px;
+  font-size: var(--font-size-ms);
   color: #8c8c8c;
   background-color: var(--main05);
   justify-content: center;
   cursor: pointer;
   padding: 10px;
+  margin: 10px 0;
 }
+
+.check-button:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.check-button:nth-child(2) {
+  border-radius: 0 6px 6px 0;
+}
+
 .check-button:hover,
 .check-button.active {
   color: var(--sub01);
-  border: 2px solid var(--sub01);
+  border: 1px solid var(--sub01);
   background-color: var(--sub02);
 }
 
 /* Question - Guide Section Styles */
 .guide-link {
-  margin: 0px 34px 5px 34px;
   text-align: right;
-  font-size: 15px;
+  font-size: var(--font-size-ms);
   color: #8c8c8c;
   cursor: pointer;
 }
 
 /* Question - Modal Section Styles */
 .modal-overlay {
-  position: fixed;
-  top: 0;
+  position: absolute;
+  top: -56px;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100dvh;
   background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 999;
 }
+
 .modal-box {
   background-color: white;
-
   padding: 24px;
   width: 90%;
   max-width: 320px;
   text-align: left;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
+
 .modal-complete-button {
   padding: 10px 10px;
   background: var(--main01);
@@ -224,12 +282,13 @@ const closeModal = () => {
 
 /* Question - List Section Styles */
 .list-section {
-  margin: 0px 40px 34px 40px;
+  margin: 10px 0;
   border: 1px solid var(--main03);
-  border-radius: 5px;
+  border-radius: 6px;
+  padding: 8px 0;
 }
+
 .sub-section-list {
-  margin-right: 60px;
   list-style-position: inside;
   padding: 2px 15px;
   font-size: 13px;
@@ -237,23 +296,22 @@ const closeModal = () => {
 
 /* Button Styles */
 .complete-button {
-position: absolute;
-bottom: 0;
-left: 0;
-width: 100%;
-padding: 16px 0;
-background: var(--main01);
-color: var(--white);
-font-weight: 700;
-font-size: 20px;
-border: none;
-cursor: pointer;
-z-index: 700; /* 다른 요소보다 위에 오도록 */
+  width: 100%;
+  padding: 16px 0;
+  background: var(--main01);
+  color: var(--white);
+  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-md);
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: auto;
+  margin-bottom: 60px;
 }
+
 .complete-button:disabled {
-background-color: #ccc;
-cursor: not-allowed;
-color: #666;
+  background-color: #ccc;
+  cursor: not-allowed;
+  color: #666;
 }
 
 /* Highlight Styles*/
@@ -262,4 +320,3 @@ color: #666;
   font-weight: bold;
 }
 </style>
-======= >>>>>>> develop

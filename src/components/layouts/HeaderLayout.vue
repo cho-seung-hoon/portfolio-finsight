@@ -26,7 +26,16 @@
     <!-- 로딩 스피너 -->
     <LoadingSpinner
       v-if="loadingStore.isLoading"
-      :text="loadingStore.loadingText" />
+      :text="loadingStore.loadingText"
+    />
+    
+  <!-- ✅ 토큰 만료 5분전 팝업 기능 -->
+  <div v-if="isModalVisible" class="modal-overlay">
+    <div class="modal">
+      <p>세션이 곧 만료됩니다. 연장하시겠습니까?</p>
+        <button @click="extendSession" class="modal-btn">시간 연장</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -39,6 +48,8 @@ import { useRoute } from 'vue-router';
 import { useLoadingStore } from '@/stores/loading';
 
 const isModalVisible = ref(false);
+const hasShownExpireWarning = ref(false);
+
 const openModal = () => {
   isModalVisible.value = true;
 };
@@ -129,6 +140,28 @@ onBeforeUnmount(() => {
 watch(route, () => {
   scrollRef.value?.scrollTo({ top: 0, behavior: 'smooth' });
 });
+
+// ✅ 토큰 만료 5분전 팝업 기능
+import axios from 'axios';
+const extendSession = async () => {
+  const token = localStorage.getItem('accessToken');
+  try {
+    const response = await axios.post(
+      'http://localhost:8080/users/token',
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    const newToken = response.data.data;
+    localStorage.setItem('accessToken', newToken);
+    isModalVisible.value = false;
+    hasShownExpireWarning.value = false;  
+  } catch (e) {
+    console.error('연장 실패:', e);
+  }
+};
+
+
+
 </script>
 
 <style scoped>
@@ -191,4 +224,34 @@ watch(route, () => {
 .custom-scrollbar-thumb:active {
   cursor: grabbing;
 }
+
+/* ✅ 토큰 만료 5분전 팝업 기능 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.modal {
+  background-color: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.modal-btn {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
 </style>
