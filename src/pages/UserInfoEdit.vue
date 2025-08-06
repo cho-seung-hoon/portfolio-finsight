@@ -322,15 +322,15 @@ color: var(--main01);
 }
 /* Btn Styles */
 .submit-btn {
-width: 100%;
-margin-top: 20px;
-background-color: var(--sub01);
-color: var(--white);
-border: 1.5px solid var(--sub01);
-border-radius: 6px;
-padding: 10px;
-font-weight: bold;
-cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+    background-color: var(--sub01);
+    color: var(--white);
+    border: 1.5px solid var(--sub01);
+    border-radius: 6px;
+    padding: 10px;
+    font-weight: bold;
+    cursor: pointer;
 }
 .delete-btn {
 /* width: 100px; */
