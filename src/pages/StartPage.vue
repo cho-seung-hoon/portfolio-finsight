@@ -36,7 +36,7 @@ const goToLogin = () => {
 <style scoped>
 .intro-page {
   background-color: #0e1830;
-  height: 100vh;
+  height: 100dvh;
   color: white;
   text-align: center;
   display: flex;
@@ -48,36 +48,44 @@ const goToLogin = () => {
 }
 
 .intro-image {
-  width: 180px;
+  width: 140px;
   margin-bottom: 30px;
 }
 
 .title {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   margin-bottom: 16px;
 }
 
+
 .highlight {
   color: #ffffff;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.05em;
+  text-shadow:
+    0 0 1px #fff,
+    0 0 3px #FA8772,
+    0 0 5px #FA8772,
+    0 0 8px #FA8772,
+    0 0 10px #FF5733;
 }
 
 .description {
-  font-size: 14px;
+  font-size: var(--font-size-md);
   line-height: 1.6;
   white-space: pre-line;
   margin-bottom: 30px;
 }
 
 .start-button {
-  background-color: #ff8f7f;
+  background-color: var(--sub01);
   border: none;
   border-radius: 8px;
-  padding: 12px 48px;
-  font-size: 16px;
-  font-weight: bold;
-  color: white;
+  padding: 15px 60px;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--white);
   cursor: pointer;
 }
 .start-button:hover {

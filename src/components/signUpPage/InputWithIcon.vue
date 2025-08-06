@@ -65,8 +65,7 @@ const iconClass = props.icon || 'fa-user';
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* height: 54px; */
-  min-height: 54px; /* ✅ 고정 아님, 최소값으로 변경 */
+  min-height: 54px;
   padding: 0 12px;
   border-bottom: 1px solid #ddd;
   background-color: #fff;
@@ -94,8 +93,8 @@ const iconClass = props.icon || 'fa-user';
 
 .left {
   display: flex;
+  flex:1;
   align-items: center;
-  flex: 1;
   gap: 10px;
 }
 
@@ -120,7 +119,8 @@ const iconClass = props.icon || 'fa-user';
 }
 
 input {
-  flex: 1;
+  width:100%;
+  min-width: 0px;
   border: none;
   outline: none;
   font-size: 14px;

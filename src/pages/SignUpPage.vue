@@ -5,8 +5,6 @@
       class="logo"
       alt="Fin-Sight Logo" />
     <h1 class="title">Fin-Sight</h1>
-    <hr />
-
     <form
       class="form"
       @submit.prevent="handleSignUp">
@@ -231,16 +229,16 @@ const validateForm = () => {
   if (!validateBirth()) isValid = false;
   if (!validateEmail()) isValid = false;
   if (!emailStore.verified) {
-    errors.code = '● 이메일 인증을 완료해주세요.';
+    errors.code = '• 이메일 인증을 완료해주세요.';
     isValid = false;
   }
   return isValid;
 };
 
 const validateUserId = () => {
-  if (!form.userId) return ((errors.userId = '● 아이디를 입력해주세요.'), false);
+  if (!form.userId) return ((errors.userId = '• 아이디를 입력해주세요.'), false);
   if (!/^[a-z0-9]{5,20}$/.test(form.userId)) {
-    errors.userId = '● 5~20자의 영문 소문자, 숫자만 사용 가능합니다.';
+    errors.userId = '• 5~20자의 영문 소문자, 숫자만 사용 가능합니다.';
     return false;
   }
   return true;
@@ -249,19 +247,19 @@ const validatePassword = () => {
   const pw = form.password;
   const rules = [/[a-z]/, /[A-Z]/, /\d/, /[^a-zA-Z0-9]/];
   const ruleCount = rules.filter(r => r.test(pw)).length;
-  if (!pw) return ((errors.password = '● 비밀번호를 입력해주세요.'), false);
+  if (!pw) return ((errors.password = '• 비밀번호를 입력해주세요.'), false);
   if (pw.length < 10 || ruleCount < 2) {
     errors.password =
-      '● 영문 대/소문자, 숫자, 특수문자 중 2종 이상 조합으로\n10자 이상이어야 합니다.';
+      '• 영문 대/소문자, 숫자, 특수문자 중 2종 이상 조합으로\n10자 이상이어야 합니다.';
     return false;
   }
   return true;
 };
 const validateConfirmPassword = () => {
   if (!form.confirmPassword)
-    return ((errors.confirmPassword = '● 비밀번호 재확인을 입력해주세요.'), false);
+    return ((errors.confirmPassword = '• 비밀번호 재확인을 입력해주세요.'), false);
   if (form.password !== form.confirmPassword) {
-    errors.confirmPassword = '● 비밀번호가 일치하지 않습니다.';
+    errors.confirmPassword = '• 비밀번호가 일치하지 않습니다.';
     return false;
   }
   return true;
@@ -280,7 +278,7 @@ const validateConfirmPassword = () => {
 const validateName = () => {
   const name = form.name?.trim() || '';
   if (name === '') {
-    errors.name = '● 이름을 입력해주세요.';
+    errors.name = '• 이름을 입력해주세요.';
     return false;
   }
 
@@ -289,7 +287,7 @@ const validateName = () => {
 
   if (isKoreanOnly) {
     if (name.length < 2 || name.length > 5) {
-      errors.name = '● 한글 이름은 2~5자 사이로 입력해주세요.';
+      errors.name = '• 한글 이름은 2~5자 사이로 입력해주세요.';
       return false;
     }
     return true;
@@ -297,42 +295,42 @@ const validateName = () => {
 
   if (isEnglishOnly) {
     if (name.length < 2 || name.length > 20) {
-      errors.name = '● 영문 이름은 2~20자 사이로 입력해주세요.';
+      errors.name = '• 영문 이름은 2~20자 사이로 입력해주세요.';
       return false;
     }
     return true;
   }
 
-  errors.name = '● 올바른 이름을 입력해주세요.';
+  errors.name = '• 올바른 이름을 입력해주세요.';
   return false;
 };
 
 const validateNickname = () => {
   const nickname = form.nickname?.trim() || '';
-  if (nickname === '') return ((errors.nickname = '● 닉네임을 입력해주세요.'), false);
+  if (nickname === '') return ((errors.nickname = '• 닉네임을 입력해주세요.'), false);
   if (!/^[가-힣a-zA-Z0-9]{2,10}$/.test(nickname)) {
-    errors.nickname = '● 닉네임은 2~10자의 한글, 영문, 숫자만 입력 가능합니다.';
+    errors.nickname = '• 닉네임은 2~10자의 한글, 영문, 숫자만 입력 가능합니다.';
     return false;
   }
   return true;
 };
 
 const validateBirth = () => {
-  if (!form.birth) return ((errors.birth = '● 생년월일을 입력해주세요.'), false);
+  if (!form.birth) return ((errors.birth = '• 생년월일을 입력해주세요.'), false);
   if (!/^\d{8}$/.test(form.birth)) {
-    errors.birth = '● 생년월일은 8자리 숫자로 입력해 주세요.';
+    errors.birth = '• 생년월일은 8자리 숫자로 입력해 주세요.';
     return false;
   }
   return true;
 };
 const validateEmail = () => {
-  if (!form.email) return ((errors.email = '● 이메일을 입력해주세요.'), false);
+  if (!form.email) return ((errors.email = '• 이메일을 입력해주세요.'), false);
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!regex.test(form.email)) return ((errors.email = '● 올바른 이메일 형식이 아닙니다.'), false);
+  if (!regex.test(form.email)) return ((errors.email = '• 올바른 이메일 형식이 아닙니다.'), false);
   return true;
 };
 const validateCode = () => {
-  if (!form.code) return ((errors.code = '● 인증코드를 입력해주세요.'), false);
+  if (!form.code) return ((errors.code = '• 인증코드를 입력해주세요.'), false);
   return true;
 };
 
@@ -341,14 +339,14 @@ const checkUserId = async () => {
   try {
     const res = await axios.get('/users', { params: { userid: form.userId } });
     if (res.data === true) {
-      errors.userId = '● 이미 사용 중인 아이디입니다.';
+      errors.userId = '• 이미 사용 중인 아이디입니다.';
       status.userIdChecked = false;
     } else {
       errors.userId = '';
       status.userIdChecked = true;
     }
   } catch {
-    errors.userId = '● 아이디 중복 확인 실패';
+    errors.userId = '• 아이디 중복 확인 실패';
     status.userIdChecked = false;
   }
 };
@@ -383,7 +381,7 @@ const requestCode = async () => {
 
 const verifyCode = async () => {
   if (!form.email || !form.code) {
-    errors.code = '● 이메일과 인증코드를 모두 입력해주세요.';
+    errors.code = '• 이메일과 인증코드를 모두 입력해주세요.';
     return false;
   }
   emailStore.email = form.email;
@@ -391,7 +389,7 @@ const verifyCode = async () => {
   errors.code = '';
   await emailStore.verifyCode();
   if (!emailStore.verified) {
-    errors.code = emailStore.error || '● 인증코드가 일치하지 않습니다.';
+    errors.code = emailStore.error || '• 인증코드가 일치하지 않습니다.';
     status.codeVerified = false;
     openModal(errors.code);
     return false;
@@ -434,39 +432,41 @@ watch(
 
 <style scoped>
 .signup {
-  /* max-width: 460px; */
-  /* margin: 0 auto; */
-  /* margin-left: -20px; */
-  /* margin-right: -20px; */
   min-height: 100dvh;
   width: 100%;
   height: 100%;
-  /* padding: 2rem 1rem; */
   text-align: center;
-  /* font-family: 'Pretendard', sans-serif; */
-  position: relative; /* ✅ 모달 위치 기준점이 됨 */
-  padding-bottom: 40px;
+  position: relative;
+  padding: 20px 0 60px 0;
+  justify-items: center;
 }
+
 .logo {
   width: 60px;
   margin: 0 auto 8px;
 }
+
 .title {
   font-size: 24px;
   font-weight: bold;
   color: #151f3e;
+  margin-bottom: 20px;
 }
+
 hr {
   border: none;
   height: 2px;
   background: #f97b6d;
   margin: 16px 0 24px;
 }
+
 .form {
+  max-width:340px;
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
+
 .card {
   background: #fff;
   padding: 0;
@@ -476,6 +476,7 @@ hr {
   flex-direction: column;
   overflow: hidden;
 }
+
 .submit-button {
   height: 50px;
   background: #151f3e;
@@ -487,8 +488,8 @@ hr {
   margin-top: 10px;
   cursor: pointer;
 }
+
 .validation-block {
-  margin-top: 2px;
   text-align: left;
   padding-left: 12px;
 }

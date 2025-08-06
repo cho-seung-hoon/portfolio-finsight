@@ -44,55 +44,57 @@ const goToNext = () => {
 <style scoped>
 /* Main Section Styles */
 .main-section {
-  background: var(--main04);
   text-align: left;
-  width: calc(100% + 40px);
-  margin: 0 -20px;
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: center; /* 수직 중앙 */
   align-items: center;     /* 수평 중앙 */
-  padding: 0 20px;
+  padding: 20px 0 60px 0;
+  position: relative;
 }
 
 /* Main - Figure Section Styles */
 .figure-image {
   display: block;
-  width: 250px; /* 너비 조절 */
-  height: auto; /* 비율 유지 */
-  margin: 0 auto;
-  padding-bottom: 50px;
+  width: 160px; /* 너비 조절 */
+  /*height: auto;*/ /* 비율 유지 */
+  margin: 0 auto 10px;
 }
 
 /* Main - Text Section Styles */
 .main-title {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semi-bold);
   color: black;
-  padding: 20px 50px 20px 50px;
+  width:100%;
+  max-width: 340px;
+  padding: 20px;
+  line-height: 1.6;
 }
 
 /* Button Section Styles */
 .next-button{
+  position:absolute;
+  bottom:60px;
   padding: 16px 16px;
   background: var(--main01);
   color: var(--main05);
-  border-radius: 30px;
-  font-size: 20px;
-  font-weight: bold;
-  width: calc(80%);
+  border-radius: 8px;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  width:100%;
   cursor: pointer;
-  display: block;
-  margin: 0 auto;
-  transition:
+  /*display: block;
+  margin: 0 auto;*/
+  /*transition:
     transform 1s ease,
     box-shadow 0.1s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);*/
 }
 .next-button:active {
-  transform: scale(0.8);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transform: scale(0.9);
+  /*box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);*/
 }
 .next-button:hover {
   transform: scale(1.02);
@@ -101,6 +103,6 @@ const goToNext = () => {
 /* Highlight Styles */
 .highlight-sub {
   color: var(--sub01);
-  font-weight: bold;
+  font-weight: var(--font-weight-extra-bold);
 }
 </style>

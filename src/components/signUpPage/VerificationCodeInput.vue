@@ -113,7 +113,7 @@ const handleBlur = e => {
 }
 
 input {
-  flex: 1;
+  width: 100%;
   border: none;
   outline: none;
   font-size: 14px;
@@ -136,6 +136,7 @@ input {
   text-decoration: underline;
   cursor: pointer;
   padding: 0;
+
 }
 
 .action-btn {

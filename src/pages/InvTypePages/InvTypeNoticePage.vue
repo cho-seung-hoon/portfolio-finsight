@@ -9,8 +9,8 @@
 -->
 
 <template>
-<!-- MainSection start-->
-<div class="main-section">
+  <!-- MainSection start-->
+  <div class="main-section">
     <!-- SubSection_1 start -->
     <section class="sub-section-row">
       <h2 class="sub-title">전문소비자 개요</h2>
@@ -87,76 +87,81 @@
 
     <!-- Button Section -->
     <button
-        class="complete-button"
-        @click="backToPrevious"
-        >위 안내사항을 확인하였습니다.
-    </button> 
-</div>
-<br><br>
-<!-- MainSection end-->
+      class="complete-button"
+      @click="backToPrevious">
+      위 안내사항을 확인하였습니다.
+    </button>
+  </div>
+  <!-- MainSection end-->
 </template>
-
 
 <style scoped>
 /* Main Section Styles */
 .main-section {
-    padding: 32px 32px 32px 32px;
-    background: var(--main05);
-    width: calc(100% + 40px);
-    margin-left: -20px;
-    margin-right: -20px;
-    margin-bottom: 0px;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 56px);
 }
 
 /* Sub Section Styles */
 .sub-section-row {
-  margin-bottom: 24px;
+  margin: 10px 0;
+  width: 100%;
 }
+
+.sub-section-row:last-of-type {
+  margin-bottom: 40px;
+}
+
 .sub-title {
-  font-size: 18px;
+  font-size: var(--font-size-md);
+  margin-bottom: 5px;
 }
+
 .sub-text {
-  font-size: 13px;
+  font-size: var(--font-size-ms);
+  line-height:1.6;
+
 }
+
 .sub-title2 {
-    font-size: 15px;
+  font-size: var(--font-size-ms);
 }
+
 .notice-section {
   margin-top: 18px;
   font-size: var(--font-size-sm);
   color: #8c8c8c;
 }
+
 .sub-section-list {
   list-style-position: inside;
   padding: 2px 10px;
-  margin: auto;
   display: block;
 }
 
 /* Button Section Styles */
 .complete-button {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%; 
-    padding: 16px 0;
-    background: var(--main01);
-    color: var(--white);
-    font-weight: 700;
-    font-size: 20px;
-    border: none;
-    cursor: pointer;
-    z-index: 1000; /* 다른 요소보다 위에 오도록 */
+  margin-top: auto;
+  margin-bottom: 60px;
+  width: 100%;
+  padding: 16px 0;
+  background: var(--main01);
+  color: var(--white);
+  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-md);
+  cursor: pointer;
+  border-radius: 8px;
 }
 </style>
 
 <script setup>
 // imports
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 
 // func.
-const router = useRouter()
+const router = useRouter();
 const backToPrevious = () => {
-    router.push('/inv-type-test-step-1-page')
-}
+  router.push('/inv-type-test-step-1-page');
+};
 </script>
