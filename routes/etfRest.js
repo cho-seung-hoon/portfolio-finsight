@@ -126,63 +126,58 @@ router.get('/etf/etf_nav', (req, res) => {
   });
 });
 
-// ETF 시세 히스토리 조회 (1시간 단위)
-router.get('/etf/etf_price/prev', (req, res) => {
+// ETF 시세 히스토리 조회 (1시간 전 기록)
+router.get('/etf/etf_price/prev', async (req, res) => {
   const targetDateTime = validateTimestamp(req.query.timestamp, res);
   if (!targetDateTime) return;
 
-  // 해당 시간 기준 1시간치 데이터 생성 (1분 단위)
-  const hourlyPriceData = [];
-  const startTime = new Date(targetDateTime);
-  startTime.setMinutes(0, 0, 0); // 해당 시간의 0분으로 설정
-  const endTime = new Date(startTime);
-  endTime.setHours(endTime.getHours() + 1); // 1시간 후
+  try {
+    // 해당 시간 기준 1시간 전부터 해당 시간까지의 데이터 조회
+    const endDate = new Date(targetDateTime);
+    const startDate = new Date(targetDateTime);
+    startDate.setHours(startDate.getHours() - 1); // 1시간 전
 
-  // 1분마다 데이터 생성
-  for (
-    let currentTime = new Date(startTime);
-    currentTime < endTime;
-    currentTime.setMinutes(currentTime.getMinutes() + 1)
-  ) {
-    ETF_PRODUCT_ID.forEach(symbol => {
-      const etfData = generateETFPriceData(symbol);
-      hourlyPriceData.push({
-        product_code: symbol,
-        etf_price: etfData.etf_price,
-        timestamp: new Date(currentTime).toISOString()
-      });
+    // InfluxDB에서 1시간 전 기록 데이터 조회
+    const historicalPriceData = await getETFHistoricalData('etf_price', startDate, endDate);
+
+    // 데이터가 없으면 빈 배열 반환
+    if (historicalPriceData.length === 0) {
+      return createEmptyDataResponse(targetDateTime, startDate, endDate, res);
+    }
+
+    // 데이터 포맷팅
+    const formattedPriceData = historicalPriceData.map(item => ({
+      product_code: item.product_code,
+      etf_price: parseFloat(item.value),
+      timestamp: item.timestamp
+    }));
+
+    res.json({
+      data: formattedPriceData,
+      count: formattedPriceData.length,
+      input_timestamp: targetDateTime.toISOString(),
+      start_time: startDate.toISOString(),
+      end_time: endDate.toISOString(),
+      duration: '1시간 전 기록',
+      timestamp: new Date().toISOString()
     });
+  } catch (error) {
+    createErrorResponse(error, 'ETF 시세 과거 데이터 조회 오류:', res);
   }
-
-  res.json({
-    data: hourlyPriceData,
-    count: hourlyPriceData.length,
-    input_timestamp: targetDateTime.toISOString(),
-    target_hour:
-      targetDateTime.toISOString().split('T')[0] +
-      'T' +
-      targetDateTime.getHours().toString().padStart(2, '0') +
-      ':00:00',
-    start_time: startTime.toISOString(),
-    end_time: endTime.toISOString(),
-    interval: '1분',
-    duration: '1시간',
-    timestamp: new Date().toISOString()
-  });
 });
 
-// ETF 거래량 히스토리 조회 (3개월치)
+// ETF 거래량 히스토리 조회 (1시간 전 기록)
 router.get('/etf/etf_volume/prev', async (req, res) => {
   const targetDateTime = validateTimestamp(req.query.timestamp, res);
   if (!targetDateTime) return;
 
   try {
-    // 3개월 전 날짜 계산
+    // 해당 시간 기준 1시간 전부터 해당 시간까지의 데이터 조회
     const endDate = new Date(targetDateTime);
     const startDate = new Date(targetDateTime);
-    startDate.setMonth(startDate.getMonth() - 3);
+    startDate.setHours(startDate.getHours() - 1); // 1시간 전
 
-    // InfluxDB에서 3개월치 데이터 조회
+    // InfluxDB에서 1시간 전 기록 데이터 조회
     const historicalVolumeData = await getETFHistoricalData('etf_volume', startDate, endDate);
 
     // 데이터가 없으면 빈 배열 반환
@@ -201,9 +196,9 @@ router.get('/etf/etf_volume/prev', async (req, res) => {
       data: formattedVolumeData,
       count: formattedVolumeData.length,
       input_timestamp: targetDateTime.toISOString(),
-      start_date: startDate.toISOString().split('T')[0],
-      end_date: endDate.toISOString().split('T')[0],
-      duration: '3개월',
+      start_time: startDate.toISOString(),
+      end_time: endDate.toISOString(),
+      duration: '1시간 전 기록',
       timestamp: new Date().toISOString()
     });
   } catch (error) {

@@ -14,13 +14,16 @@ const etfBaseNavs = {}; // ETF 기준가 추가
 function initializeETFData() {
   ETF_PRODUCT_ID.forEach(symbol => {
     // ETF 시세 범위: 1,000원에서 50,000원 사이의 랜덤 초기 시세
-    etfBasePrices[symbol] = Math.random() * 49000 + 1000;
+    const initialPrice = Math.random() * 49000 + 1000;
+    etfBasePrices[symbol] = Math.max(initialPrice, 100); // 최소 100원 보장
 
     // ETF 거래량 범위: 1000주 ~ 100000주
-    etfBaseVolumes[symbol] = Math.floor(Math.random() * 99000 + 1000);
+    const initialVolume = Math.floor(Math.random() * 99000 + 1000);
+    etfBaseVolumes[symbol] = Math.max(initialVolume, 100); // 최소 100주 보장
 
     // ETF 기준가 범위: 8,000원에서 15,000원 사이의 랜덤 초기 기준가
-    etfBaseNavs[symbol] = Math.random() * 7000 + 8000;
+    const initialNav = Math.random() * 7000 + 8000;
+    etfBaseNavs[symbol] = Math.max(initialNav, 100); // 최소 100원 보장
   });
 }
 
@@ -69,71 +72,107 @@ async function initializeETFDataFromHistory(startTime) {
 // 랜덤 시세 변동 생성
 function generatePriceChange(currentPrice) {
   // 안전장치: 현재 가격이 유효하지 않으면 기본값 사용
-  if (!currentPrice || isNaN(currentPrice) || !isFinite(currentPrice)) {
+  if (!currentPrice || isNaN(currentPrice) || !isFinite(currentPrice) || currentPrice <= 0) {
     return Math.random() * 49000 + 1000;
+  }
+
+  // JavaScript Number.MAX_SAFE_INTEGER를 넘지 않도록 제한
+  const MAX_SAFE_PRICE = Number.MAX_SAFE_INTEGER;
+  if (currentPrice >= MAX_SAFE_PRICE) {
+    return MAX_SAFE_PRICE * 0.9; // 최대값의 90%로 조정
   }
 
   const maxChangePercent = 0.05;
   const changePercent = (Math.random() - 0.5) * 2 * maxChangePercent;
   const priceChange = currentPrice * changePercent;
-  const newPrice = Math.max(currentPrice + priceChange, currentPrice * 0.95);
+
+  // 최소값 보장 (0이 되지 않도록)
+  const minPrice = Math.max(currentPrice * 0.95, 100); // 최소 100원
+  const newPrice = Math.max(currentPrice + priceChange, minPrice);
+
+  // 최대값 제한
+  const finalPrice = Math.min(newPrice, MAX_SAFE_PRICE * 0.9);
 
   // 결과값 검증
-  if (isNaN(newPrice) || !isFinite(newPrice)) {
-    return currentPrice;
+  if (isNaN(finalPrice) || !isFinite(finalPrice) || finalPrice <= 0) {
+    return Math.max(currentPrice, 100);
   }
 
-  return newPrice;
+  return finalPrice;
 }
 
 // 랜덤 거래량 변동 생성
 function generateVolumeChange(currentVolume) {
   // 안전장치: 현재 거래량이 유효하지 않으면 기본값 사용
-  if (!currentVolume || isNaN(currentVolume) || !isFinite(currentVolume)) {
+  if (!currentVolume || isNaN(currentVolume) || !isFinite(currentVolume) || currentVolume <= 0) {
     return Math.floor(Math.random() * 99000 + 1000);
+  }
+
+  // JavaScript Number.MAX_SAFE_INTEGER를 넘지 않도록 제한
+  const MAX_SAFE_VOLUME = Number.MAX_SAFE_INTEGER;
+  if (currentVolume >= MAX_SAFE_VOLUME) {
+    return Math.floor(MAX_SAFE_VOLUME * 0.9); // 최대값의 90%로 조정
   }
 
   // 거래량 변동률을 -20%에서 +30% 사이로 제한
   const maxChangePercent = 0.25;
   const changePercent = (Math.random() - 0.4) * 2 * maxChangePercent;
   const volumeChange = currentVolume * changePercent;
-  const newVolume = Math.max(currentVolume + volumeChange, 100);
+
+  // 최소값 보장 (0이 되지 않도록)
+  const minVolume = Math.max(currentVolume * 0.8, 100); // 최소 100주
+  const newVolume = Math.max(currentVolume + volumeChange, minVolume);
+
+  // 최대값 제한
+  const finalVolume = Math.min(newVolume, MAX_SAFE_VOLUME * 0.9);
 
   // 결과값 검증
-  if (isNaN(newVolume) || !isFinite(newVolume)) {
+  if (isNaN(finalVolume) || !isFinite(finalVolume) || finalVolume <= 0) {
     return Math.max(currentVolume, 100);
   }
 
-  return newVolume;
+  return Math.floor(finalVolume);
 }
 
 // 랜덤 기준가 변동 생성 (ETF용)
 function generateNavChange(currentNav) {
   // 안전장치: 현재 기준가가 유효하지 않으면 기본값 사용
-  if (!currentNav || isNaN(currentNav) || !isFinite(currentNav)) {
+  if (!currentNav || isNaN(currentNav) || !isFinite(currentNav) || currentNav <= 0) {
     return Math.random() * 7000 + 8000;
+  }
+
+  // JavaScript Number.MAX_SAFE_INTEGER를 넘지 않도록 제한
+  const MAX_SAFE_NAV = Number.MAX_SAFE_INTEGER;
+  if (currentNav >= MAX_SAFE_NAV) {
+    return MAX_SAFE_NAV * 0.9; // 최대값의 90%로 조정
   }
 
   const maxChangePercent = 0.03; // 기준가는 시세보다 변동폭이 작음
   const changePercent = (Math.random() - 0.5) * 2 * maxChangePercent;
   const navChange = currentNav * changePercent;
-  const newNav = Math.max(currentNav + navChange, currentNav * 0.97);
+
+  // 최소값 보장 (0이 되지 않도록)
+  const minNav = Math.max(currentNav * 0.97, 100); // 최소 100원
+  const newNav = Math.max(currentNav + navChange, minNav);
+
+  // 최대값 제한
+  const finalNav = Math.min(newNav, MAX_SAFE_NAV * 0.9);
 
   // 결과값 검증
-  if (isNaN(newNav) || !isFinite(newNav)) {
-    return currentNav;
+  if (isNaN(finalNav) || !isFinite(finalNav) || finalNav <= 0) {
+    return Math.max(currentNav, 100);
   }
 
-  return newNav;
+  return finalNav;
 }
 
 // 단일 ETF 시세 및 거래량 데이터 생성
 function generateETFPriceData(symbol) {
   // 기본값이 없으면 초기화
-  if (!etfBasePrices[symbol] || isNaN(etfBasePrices[symbol])) {
+  if (!etfBasePrices[symbol] || isNaN(etfBasePrices[symbol]) || etfBasePrices[symbol] <= 0) {
     etfBasePrices[symbol] = Math.random() * 49000 + 1000;
   }
-  if (!etfBaseVolumes[symbol] || isNaN(etfBaseVolumes[symbol])) {
+  if (!etfBaseVolumes[symbol] || isNaN(etfBaseVolumes[symbol]) || etfBaseVolumes[symbol] <= 0) {
     etfBaseVolumes[symbol] = Math.floor(Math.random() * 99000 + 1000);
   }
 
@@ -143,14 +182,18 @@ function generateETFPriceData(symbol) {
   const newPrice = generatePriceChange(currentPrice);
   const newVolume = generateVolumeChange(currentVolume);
 
+  // 최종 검증 및 안전장치
+  const finalPrice = Math.max(newPrice, 100); // 최소 100원 보장
+  const finalVolume = Math.max(Math.floor(newVolume), 100); // 최소 100주 보장
+
   // 현재 시세와 거래량을 다음 계산을 위해 업데이트
-  etfBasePrices[symbol] = newPrice;
-  etfBaseVolumes[symbol] = newVolume;
+  etfBasePrices[symbol] = finalPrice;
+  etfBaseVolumes[symbol] = finalVolume;
 
   return {
     product_code: symbol,
-    etf_price: parseFloat(newPrice.toFixed(0)),
-    etf_volume: parseInt(newVolume),
+    etf_price: parseFloat(finalPrice.toFixed(0)),
+    etf_volume: parseInt(finalVolume),
     timestamp: new Date().toISOString()
   };
 }
@@ -158,7 +201,7 @@ function generateETFPriceData(symbol) {
 // 단일 ETF 기준가 데이터 생성
 function generateETFNavData(symbol) {
   // 기본값이 없으면 초기화
-  if (!etfBaseNavs[symbol] || isNaN(etfBaseNavs[symbol])) {
+  if (!etfBaseNavs[symbol] || isNaN(etfBaseNavs[symbol]) || etfBaseNavs[symbol] <= 0) {
     etfBaseNavs[symbol] = Math.random() * 7000 + 8000;
   }
 
@@ -166,12 +209,15 @@ function generateETFNavData(symbol) {
 
   const newNav = generateNavChange(currentNav);
 
+  // 최종 검증 및 안전장치
+  const finalNav = Math.max(newNav, 100); // 최소 100원 보장
+
   // 현재 기준가를 다음 계산을 위해 업데이트
-  etfBaseNavs[symbol] = newNav;
+  etfBaseNavs[symbol] = finalNav;
 
   return {
     product_code: symbol,
-    etf_nav: parseFloat(newNav.toFixed(2)),
+    etf_nav: parseFloat(finalNav.toFixed(2)),
     timestamp: new Date().toISOString()
   };
 }

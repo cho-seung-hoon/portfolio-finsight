@@ -3,16 +3,19 @@ const WebSocket = require('ws');
 let wss;
 
 function startWebSocketServer(server) {
-  wss = new WebSocket.Server({ server });
+  wss = new WebSocket.Server({
+    server,
+    path: '/ws/local/ws'
+  });
 
   wss.on('connection', ws => {
-    console.log('WebSocket connected');
+    console.log('WebSocket connected to /ws/local/ws');
 
     // 연결 메시지 전송
     ws.send(
       JSON.stringify({
         type: 'connection',
-        message: 'Connected to WebSocket',
+        message: 'Connected to WebSocket at /ws/local/ws',
         timestamp: new Date().toISOString()
       })
     );

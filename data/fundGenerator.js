@@ -13,10 +13,12 @@ const fundBaseAums = {};
 function initializeFundData() {
   FUND_PRODUCT_ID.forEach(symbol => {
     // 펀드 기준가 범위: 8,000원에서 15,000원 사이의 랜덤 초기 기준가
-    fundBaseNavs[symbol] = Math.random() * 7000 + 8000;
+    const initialNav = Math.random() * 7000 + 8000;
+    fundBaseNavs[symbol] = Math.max(initialNav, 100); // 최소 100원 보장
 
     // 펀드 운용규모 범위: 10억원 ~ 1000억원
-    fundBaseAums[symbol] = Math.floor(Math.random() * 99000000000 + 1000000000);
+    const initialAum = Math.floor(Math.random() * 99000000000 + 1000000000);
+    fundBaseAums[symbol] = Math.max(initialAum, 100000000); // 최소 1억원 보장
   });
 }
 
@@ -57,48 +59,72 @@ async function initializeFundDataFromHistory(startTime) {
 // 랜덤 기준가 변동 생성 (펀드용)
 function generateNavChange(currentNav) {
   // 안전장치: 현재 기준가가 유효하지 않으면 기본값 사용
-  if (!currentNav || isNaN(currentNav) || !isFinite(currentNav)) {
+  if (!currentNav || isNaN(currentNav) || !isFinite(currentNav) || currentNav <= 0) {
     return Math.random() * 7000 + 8000;
+  }
+
+  // JavaScript Number.MAX_SAFE_INTEGER를 넘지 않도록 제한
+  const MAX_SAFE_NAV = Number.MAX_SAFE_INTEGER;
+  if (currentNav >= MAX_SAFE_NAV) {
+    return MAX_SAFE_NAV * 0.9; // 최대값의 90%로 조정
   }
 
   const maxChangePercent = 0.02; // 펀드 기준가는 변동폭이 작음
   const changePercent = (Math.random() - 0.5) * 2 * maxChangePercent;
   const navChange = currentNav * changePercent;
-  const newNav = Math.max(currentNav + navChange, currentNav * 0.98);
+
+  // 최소값 보장 (0이 되지 않도록)
+  const minNav = Math.max(currentNav * 0.98, 100); // 최소 100원
+  const newNav = Math.max(currentNav + navChange, minNav);
+
+  // 최대값 제한
+  const finalNav = Math.min(newNav, MAX_SAFE_NAV * 0.9);
 
   // 결과값 검증
-  if (isNaN(newNav) || !isFinite(newNav)) {
-    return currentNav;
+  if (isNaN(finalNav) || !isFinite(finalNav) || finalNav <= 0) {
+    return Math.max(currentNav, 100);
   }
 
-  return newNav;
+  return finalNav;
 }
 
 // 랜덤 운용규모 변동 생성
 function generateAumChange(currentAum) {
   // 안전장치: 현재 운용규모가 유효하지 않으면 기본값 사용
-  if (!currentAum || isNaN(currentAum) || !isFinite(currentAum)) {
+  if (!currentAum || isNaN(currentAum) || !isFinite(currentAum) || currentAum <= 0) {
     return Math.floor(Math.random() * 99000000000 + 1000000000);
+  }
+
+  // JavaScript Number.MAX_SAFE_INTEGER를 넘지 않도록 제한
+  const MAX_SAFE_AUM = Number.MAX_SAFE_INTEGER;
+  if (currentAum >= MAX_SAFE_AUM) {
+    return Math.floor(MAX_SAFE_AUM * 0.9); // 최대값의 90%로 조정
   }
 
   // 운용규모 변동률을 -10%에서 +15% 사이로 제한
   const maxChangePercent = 0.125;
   const changePercent = (Math.random() - 0.4) * 2 * maxChangePercent;
   const aumChange = currentAum * changePercent;
-  const newAum = Math.max(currentAum + aumChange, 100000000);
+
+  // 최소값 보장 (0이 되지 않도록)
+  const minAum = Math.max(currentAum * 0.9, 100000000); // 최소 1억원
+  const newAum = Math.max(currentAum + aumChange, minAum);
+
+  // 최대값 제한
+  const finalAum = Math.min(newAum, MAX_SAFE_AUM * 0.9);
 
   // 결과값 검증
-  if (isNaN(newAum) || !isFinite(newAum)) {
+  if (isNaN(finalAum) || !isFinite(finalAum) || finalAum <= 0) {
     return Math.max(currentAum, 100000000);
   }
 
-  return newAum;
+  return Math.floor(finalAum);
 }
 
 // 단일 펀드 기준가 데이터 생성
 function generateFundNavData(symbol) {
   // 기본값이 없으면 초기화
-  if (!fundBaseNavs[symbol] || isNaN(fundBaseNavs[symbol])) {
+  if (!fundBaseNavs[symbol] || isNaN(fundBaseNavs[symbol]) || fundBaseNavs[symbol] <= 0) {
     fundBaseNavs[symbol] = Math.random() * 7000 + 8000;
   }
 
@@ -106,12 +132,15 @@ function generateFundNavData(symbol) {
 
   const newNav = generateNavChange(currentNav);
 
+  // 최종 검증 및 안전장치
+  const finalNav = Math.max(newNav, 100); // 최소 100원 보장
+
   // 현재 기준가를 다음 계산을 위해 업데이트
-  fundBaseNavs[symbol] = newNav;
+  fundBaseNavs[symbol] = finalNav;
 
   return {
     fund_code: symbol,
-    fund_nav: parseFloat(newNav.toFixed(2)),
+    fund_nav: parseFloat(finalNav.toFixed(2)),
     timestamp: new Date().toISOString()
   };
 }
@@ -119,7 +148,7 @@ function generateFundNavData(symbol) {
 // 단일 펀드 운용규모 데이터 생성
 function generateFundAumData(symbol) {
   // 기본값이 없으면 초기화
-  if (!fundBaseAums[symbol] || isNaN(fundBaseAums[symbol])) {
+  if (!fundBaseAums[symbol] || isNaN(fundBaseAums[symbol]) || fundBaseAums[symbol] <= 0) {
     fundBaseAums[symbol] = Math.floor(Math.random() * 99000000000 + 1000000000);
   }
 
@@ -127,12 +156,15 @@ function generateFundAumData(symbol) {
 
   const newAum = generateAumChange(currentAum);
 
+  // 최종 검증 및 안전장치
+  const finalAum = Math.max(Math.floor(newAum), 100000000); // 최소 1억원 보장
+
   // 현재 운용규모를 다음 계산을 위해 업데이트
-  fundBaseAums[symbol] = newAum;
+  fundBaseAums[symbol] = finalAum;
 
   return {
     fund_code: symbol,
-    fund_aum: parseFloat(newAum.toFixed(2)),
+    fund_aum: parseFloat(finalAum.toFixed(2)),
     timestamp: new Date().toISOString()
   };
 }
