@@ -76,10 +76,10 @@ function generatePriceChange(currentPrice) {
     return Math.random() * 49000 + 1000;
   }
 
-  // JavaScript Number.MAX_SAFE_INTEGER를 넘지 않도록 제한
-  const MAX_SAFE_PRICE = Number.MAX_SAFE_INTEGER;
-  if (currentPrice >= MAX_SAFE_PRICE) {
-    return MAX_SAFE_PRICE * 0.9; // 최대값의 90%로 조정
+  // ETF 시세 최대값 제한 (실제 주식 시세에 적합한 범위)
+  const MAX_ETF_PRICE = 1000000; // 100만원
+  if (currentPrice >= MAX_ETF_PRICE) {
+    return MAX_ETF_PRICE * 0.9; // 최대값의 90%로 조정
   }
 
   const maxChangePercent = 0.05;
@@ -91,7 +91,7 @@ function generatePriceChange(currentPrice) {
   const newPrice = Math.max(currentPrice + priceChange, minPrice);
 
   // 최대값 제한
-  const finalPrice = Math.min(newPrice, MAX_SAFE_PRICE * 0.9);
+  const finalPrice = Math.min(newPrice, MAX_ETF_PRICE * 0.9);
 
   // 결과값 검증
   if (isNaN(finalPrice) || !isFinite(finalPrice) || finalPrice <= 0) {
@@ -108,10 +108,10 @@ function generateVolumeChange(currentVolume) {
     return Math.floor(Math.random() * 99000 + 1000);
   }
 
-  // JavaScript Number.MAX_SAFE_INTEGER를 넘지 않도록 제한
-  const MAX_SAFE_VOLUME = Number.MAX_SAFE_INTEGER;
-  if (currentVolume >= MAX_SAFE_VOLUME) {
-    return Math.floor(MAX_SAFE_VOLUME * 0.9); // 최대값의 90%로 조정
+  // ETF 거래량 최대값 제한 (실제 거래량에 적합한 범위)
+  const MAX_ETF_VOLUME = 10000000; // 1000만주
+  if (currentVolume >= MAX_ETF_VOLUME) {
+    return Math.floor(MAX_ETF_VOLUME * 0.9); // 최대값의 90%로 조정
   }
 
   // 거래량 변동률을 -20%에서 +30% 사이로 제한
@@ -124,7 +124,7 @@ function generateVolumeChange(currentVolume) {
   const newVolume = Math.max(currentVolume + volumeChange, minVolume);
 
   // 최대값 제한
-  const finalVolume = Math.min(newVolume, MAX_SAFE_VOLUME * 0.9);
+  const finalVolume = Math.min(newVolume, MAX_ETF_VOLUME * 0.9);
 
   // 결과값 검증
   if (isNaN(finalVolume) || !isFinite(finalVolume) || finalVolume <= 0) {
@@ -141,10 +141,10 @@ function generateNavChange(currentNav) {
     return Math.random() * 7000 + 8000;
   }
 
-  // JavaScript Number.MAX_SAFE_INTEGER를 넘지 않도록 제한
-  const MAX_SAFE_NAV = Number.MAX_SAFE_INTEGER;
-  if (currentNav >= MAX_SAFE_NAV) {
-    return MAX_SAFE_NAV * 0.9; // 최대값의 90%로 조정
+  // ETF 기준가 최대값 제한 (실제 기준가에 적합한 범위)
+  const MAX_ETF_NAV = 500000; // 50만원
+  if (currentNav >= MAX_ETF_NAV) {
+    return MAX_ETF_NAV * 0.9; // 최대값의 90%로 조정
   }
 
   const maxChangePercent = 0.03; // 기준가는 시세보다 변동폭이 작음
@@ -156,7 +156,7 @@ function generateNavChange(currentNav) {
   const newNav = Math.max(currentNav + navChange, minNav);
 
   // 최대값 제한
-  const finalNav = Math.min(newNav, MAX_SAFE_NAV * 0.9);
+  const finalNav = Math.min(newNav, MAX_ETF_NAV * 0.9);
 
   // 결과값 검증
   if (isNaN(finalNav) || !isFinite(finalNav) || finalNav <= 0) {

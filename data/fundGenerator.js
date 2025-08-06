@@ -63,10 +63,10 @@ function generateNavChange(currentNav) {
     return Math.random() * 7000 + 8000;
   }
 
-  // JavaScript Number.MAX_SAFE_INTEGER를 넘지 않도록 제한
-  const MAX_SAFE_NAV = Number.MAX_SAFE_INTEGER;
-  if (currentNav >= MAX_SAFE_NAV) {
-    return MAX_SAFE_NAV * 0.9; // 최대값의 90%로 조정
+  // 펀드 기준가 최대값 제한 (실제 펀드 기준가에 적합한 범위)
+  const MAX_FUND_NAV = 100000; // 10만원
+  if (currentNav >= MAX_FUND_NAV) {
+    return MAX_FUND_NAV * 0.9; // 최대값의 90%로 조정
   }
 
   const maxChangePercent = 0.02; // 펀드 기준가는 변동폭이 작음
@@ -78,7 +78,7 @@ function generateNavChange(currentNav) {
   const newNav = Math.max(currentNav + navChange, minNav);
 
   // 최대값 제한
-  const finalNav = Math.min(newNav, MAX_SAFE_NAV * 0.9);
+  const finalNav = Math.min(newNav, MAX_FUND_NAV * 0.9);
 
   // 결과값 검증
   if (isNaN(finalNav) || !isFinite(finalNav) || finalNav <= 0) {
@@ -95,10 +95,10 @@ function generateAumChange(currentAum) {
     return Math.floor(Math.random() * 99000000000 + 1000000000);
   }
 
-  // JavaScript Number.MAX_SAFE_INTEGER를 넘지 않도록 제한
-  const MAX_SAFE_AUM = Number.MAX_SAFE_INTEGER;
-  if (currentAum >= MAX_SAFE_AUM) {
-    return Math.floor(MAX_SAFE_AUM * 0.9); // 최대값의 90%로 조정
+  // 펀드 운용규모 최대값 제한 (실제 펀드 운용규모에 적합한 범위)
+  const MAX_FUND_AUM = 10000000000000; // 10조원
+  if (currentAum >= MAX_FUND_AUM) {
+    return Math.floor(MAX_FUND_AUM * 0.9); // 최대값의 90%로 조정
   }
 
   // 운용규모 변동률을 -10%에서 +15% 사이로 제한
@@ -111,7 +111,7 @@ function generateAumChange(currentAum) {
   const newAum = Math.max(currentAum + aumChange, minAum);
 
   // 최대값 제한
-  const finalAum = Math.min(newAum, MAX_SAFE_AUM * 0.9);
+  const finalAum = Math.min(newAum, MAX_FUND_AUM * 0.9);
 
   // 결과값 검증
   if (isNaN(finalAum) || !isFinite(finalAum) || finalAum <= 0) {
