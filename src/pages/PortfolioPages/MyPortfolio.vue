@@ -66,7 +66,7 @@
             <td class="table-cell">현금성(예금 등)</td>
             <td class="table-cell">6등급</td>
             <td class="table-cell" >
-              <span></span>
+              <span>{{ depositPrice }}</span>
               <span :class="['invt', profileClass]">/ {{ selectedRecom[4] }} %</span>
             </td>
           </tr>
@@ -224,134 +224,34 @@ const selectedRecom = computed(() => {
   return match ? match.recom : [];
 });
 
+// === ✅ 사용자의 실제 데이터 (예금) ==============
 
+const depositPrice = ref(null);
 
+const getDepositPrice = async () => {
+  const token = localStorage.getItem('accessToken');
+  try {
+    const response = await axios.get(
+      'http://localhost:8080/holdings/deposit',
+      {
+        headers: { Authorization: `Bearer ${token}`,
+        }
+    });
+    depositPrice.value = response.data.depositPrice;
+    console.log('예금수량: ', depositPrice.value)
 
-
-
-
-
-const userRiskAssetRatio = computed(() => {
-  return riskAssetRatioData[userType.value]?.user || 0;
-});
-
-const recommendedRiskAssetRatio = computed(() => {
-  return riskAssetRatioData[userType.value]?.recommended || 0;
-});
-
-const userPortfolioRisk = computed(() => {
-  return portfolioRiskData[userType.value]?.user || 0;
-});
-
-const recommendedPortfolioRisk = computed(() => {
-  return portfolioRiskData[userType.value]?.recommended || 0;
-});
-
-// 투자유형별 권장 비중 데이터
-const rec_data = {
-  stable: {
-    domesticStock: 0,
-    domesticBondMixed: 0,
-    domesticBond1: 98,
-    domesticBond2: 98,
-    cash: 2,
-    overseasStock1: 0,
-    overseasStock2: 0,
-    overseasStock3: 0,
-    overseasBond: 0
-  },
-  stableplus: {
-    domesticStock: 7,
-    domesticBondMixed: 12,
-    domesticBond1: 5,
-    domesticBond2: 59,
-    cash: 2,
-    overseasStock1: 0,
-    overseasStock2: 10,
-    overseasStock3: 5,
-    overseasBond: 0
-  },
-  neutral: {
-    domesticStock: 8,
-    domesticBondMixed: 10,
-    domesticBond1: 6,
-    domesticBond2: 34,
-    cash: 2,
-    overseasStock1: 0,
-    overseasStock2: 28,
-    overseasStock3: 12,
-    overseasBond: 0
-  },
-  aggressive: {
-    domesticStock: 10,
-    domesticBondMixed: 0,
-    domesticBond1: 10,
-    domesticBond2: 23,
-    cash: 2,
-    overseasStock1: 4,
-    overseasStock2: 32,
-    overseasStock3: 14,
-    overseasBond: 5
-  },
-  veryaggressive: {
-    domesticStock: 21,
-    domesticBondMixed: 0,
-    domesticBond1: 5,
-    domesticBond2: 2,
-    cash: 2,
-    overseasStock1: 8,
-    overseasStock2: 40,
-    overseasStock3: 22,
-    overseasBond: 0
+  } catch (error) {
+    console.error('예금 수량 가져오기 실패:', error);
+    depositPrice.value = 0; // 에러 시 0으로 대체
   }
 };
 
-// 현재 투자유형의 권장 비중 가져오기
-const getRecommendedAllocation = productId => {
-  const currentType = userType.value;
-  const data = recommendedAllocationData[currentType];
+onMounted(() => {
+  getDepositPrice();
+});
 
-  if (!data) return 0;
 
-  const allocationMap = {
-    1: data.domesticStock,
-    2: data.domesticBondMixed,
-    3: data.domesticBond1,
-    4: data.domesticBond2,
-    5: data.cash,
-    6: data.overseasStock1,
-    7: data.overseasStock2,
-    8: data.overseasStock3,
-    9: data.overseasBond
-  };
 
-  return allocationMap[productId] || 0;
-};
-
-// methods
-const getTableHighlightClass = () => {
-  const classMap = {
-    stable: 'table-highlight-stable',
-    stableplus: 'table-highlight-stableplus',
-    neutral: 'table-highlight-neutral',
-    aggressive: 'table-highlight-aggressive',
-    veryaggressive: 'table-highlight-veryaggressive'
-  };
-  return classMap[userType.value] || 'table-highlight-neutral';
-};
-
-// 모바일 최적화를 위한 상품명 축약
-const getShortProductName = fullName => {
-  const shortNames = {
-    '국내 주식형 펀드/ETF': '국내 주식형 펀드/ETF',
-    '국내 채권 혼합형 펀드/ETF': '국내 채권 혼합형',
-    '국내 채권형 펀드/ETF': '국내 채권형 펀드/ETF',
-    '현금성(예금 등)': '현금성 (예금 등)',
-    '해외 주식형 펀드/ETF': '해외 주식형 펀드/ETF',
-    '해외 채권형 펀드/ETF': '해외 채권형펀드/ETF'
-  };
-  return shortNames[fullName] || fullName;
-};
 </script>
 
 <style scoped>
