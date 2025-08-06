@@ -6,7 +6,7 @@
     <button
       v-if="showBackButton"
       class="backButton"
-      :style="{ color: backButtonColor }"
+      :style="{ color: reverseColor }"
       @click="backHandler">
       <svg
         width="36"
@@ -42,12 +42,13 @@
       </div>
       <div
         class="time"
-        :style="{ color: backButtonColor }">
+        :style="{ color: reverseColor }">
         {{ remainingTime }}
       </div>
       <button
         @click="handleExtendSession"
-        class="generate-token">
+        class="generate-token"
+        :style="{ color: reverseColor }">
         시간연장
       </button>
     </div>
@@ -58,9 +59,12 @@
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHeaderStore } from '@/stores/header';
+import { useRouter } from 'vue-router';
 import IconSearch from '@/components/icons/IconSearch.vue';
 import axios from 'axios';
 import { decodingJWT } from '@/utils/jwtUtil.js';
+
+const router = useRouter();
 
 const remainingTime = ref('00:00');
 const emit = defineEmits(['open-time-modal']);
@@ -75,6 +79,9 @@ function updateRemainingTime() {
     remainingTime.value = '정보 없음';
   } else if (timeObj === '만료됨') {
     remainingTime.value = '만료됨';
+
+    localStorage.removeItem('accessToken');
+    router.push('/start');
   } else {
     const totalSeconds = timeObj.minutes * 60 + timeObj.seconds; // ✅ 토큰 만료 5분전 팝업 기능
 
@@ -105,7 +112,7 @@ const headerStore = useHeaderStore();
 const { titleParts, showBackButton, actions, showBorder, bColor, backHandler } =
   storeToRefs(headerStore);
 
-const backButtonColor = computed(() => {
+const reverseColor = computed(() => {
   return bColor.value === 'var(--white)' ? 'var(--black)' : 'var(--white)';
 });
 
@@ -201,10 +208,10 @@ async function handleExtendSession() {
   height: 2rem; /* 36px */
   padding: 0.1rem; /* py-2 px-4 */
 
-  font-size: -var(--font-size-sm); /* text-sm */
+  font-size: var(--font-size-sm); /* text-sm */
   font-weight: 500; /* font-medium */
 
-  background-color: var(--primary);
+  /*background-color: var(--primary);*/
   border-radius: 0.375rem; /* rounded-md */
 
   transition: background-color 0.2s ease;
@@ -213,7 +220,7 @@ async function handleExtendSession() {
 
 /* Hover state */
 .generate-token:hover {
-  background-color: rgba(var(--primary-rgb), 0.9); /* bg-primary/90 */
+  /*background-color: rgba(var(--primary-rgb), 0.9); *//* bg-primary/90 */
 }
 
 /* Disabled state */

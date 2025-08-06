@@ -202,7 +202,7 @@ onMounted(() => {
   --font-size-md: 14px;
   --font-size-lg: 16px;
   --font-weight-medium: 500;
-  --font-weight-semibold: 600;
+  --font-weight-semi-bold: 600;
   --font-weight-bold: 700;
 }
 .wishlist-container {
@@ -280,7 +280,7 @@ onMounted(() => {
 
 .product-type-badge {
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semi-bold);
   padding: 4px 8px;
   border-radius: 12px;
   text-transform: uppercase;
@@ -329,7 +329,7 @@ onMounted(() => {
 .subItem-title {
   font-size: var(--font-size-md);
   color: #1f2937;
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semi-bold);
   margin-bottom: 12px;
   line-height: 1.3;
   display: -webkit-box;
@@ -371,7 +371,7 @@ onMounted(() => {
 .return-rate {
   text-align: left;
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semi-bold);
 }
 
 .return-rate-positive {
