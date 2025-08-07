@@ -8,7 +8,7 @@
       <DetailMainFund
         :bank="productInfo.productCompanyName"
         :title="productInfo.productName"
-        :main-yield="productInfo.mainYield"
+        :yield="productInfo.yield"
         :price-arr="productInfo.priceArr" />
 
       <DetailTabs

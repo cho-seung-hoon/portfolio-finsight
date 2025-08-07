@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
+    "@stomp/stompjs": "^7.1.1",
     "apexcharts": "^5.3.1",
     "axios": "^1.10.0",
     "bootstrap": "^5.3.7",
@@ -19,6 +20,8 @@
     "jwt-decode": "^4.0.0",
     "lightweight-charts": "^5.0.8",
     "pinia": "^3.0.1",
+    "sockjs-client": "^1.6.1",
+    "stompjs": "^2.3.3",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
     "vue3-apexcharts": "^1.8.0"

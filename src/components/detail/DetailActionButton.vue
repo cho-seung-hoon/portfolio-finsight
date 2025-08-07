@@ -52,7 +52,7 @@ function toggleHeart() {
 }
 
 function handleBuyClick() {
-  // 첫 매수하기 또는 추가 매수하기 버튼 클릭 시 이벤트 emit
+  // 매수하기 버튼 클릭 시 이벤트 emit
   emit('buy', {
     category: props.category,
     id: props.id
@@ -70,9 +70,9 @@ function handleSellClick() {
 // 첫 매수/가입 버튼 텍스트 반환
 function getBuyButtonText() {
   if (props.category === 'deposit') {
-    return '상품 가입하기';
+    return '가입하기';
   }
-  return '주문하기';
+  return '매수수하기';
 }
 
 // 매도/해지 버튼 텍스트 반환
@@ -83,12 +83,12 @@ function getSellButtonText() {
   return '매도하기';
 }
 
-// 추가 매수 버튼 텍스트 반환
+// 매수 버튼 텍스트 반환
 function getAdditionalBuyButtonText() {
   if (props.category === 'deposit') {
-    return '추가 가입하기';
+    return '가입하기';
   }
-  return '추가 매수하기';
+  return '매수하기';
 }
 </script>
 

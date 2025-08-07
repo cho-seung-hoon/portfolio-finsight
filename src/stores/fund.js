@@ -38,7 +38,7 @@ export const useFundStore = defineStore('fund', () => {
         { 종목명: 'SK하이닉스', 비중: '3%' }
       ],
       fundEstablishedDate: '2020-01-01',
-      mainYield: { value: 25.97, months: 3 }, // 수익률 (개월 수와 값)
+      yield: 25.97, // 수익률 (3개월 고정)
       priceArr: [new Decimal(1414.27), new Decimal(1373.72)], // [오늘 기준가, 전일 기준가]
       price: new Decimal(1414.27), // 매수/매도용 가격
       isHolding: false,
@@ -119,7 +119,7 @@ export const useFundStore = defineStore('fund', () => {
         { 종목명: 'SK하이닉스', 비중: '4%' }
       ],
       fundEstablishedDate: '2020-06-01',
-      mainYield: { value: -3.21, months: 1 }, // 수익률 (개월 수와 값)
+      yield: -3.21, // 수익률 (3개월 고정)
       priceArr: [new Decimal(987.65), new Decimal(1000.0)], // [오늘 기준가, 전일 기준가]
       price: new Decimal(987.65), // 매수/매도용 가격
       isHolding: true,
@@ -199,7 +199,7 @@ export const useFundStore = defineStore('fund', () => {
           holdingsId: 'holding-fund-002',
           historyTradeType: 'buy',
           historyTradeDate: '2025.02.10',
-          historyQuantity: new Decimal(800), // 800좌 추가 매수
+          historyQuantity: new Decimal(800), // 800좌
           historyAmount: new Decimal(800000)
         }
       ]
