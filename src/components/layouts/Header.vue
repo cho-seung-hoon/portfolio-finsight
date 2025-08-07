@@ -70,7 +70,7 @@ const remainingTime = ref('00:00');
 const emit = defineEmits(['open-time-modal']);
 
 // ✅ 토큰 만료 5분전 팝업 기능
-const hasShownExpireWarning = ref(false); 
+const hasShownExpireWarning = ref(false);
 const props = defineProps(['onExpire']);
 
 function updateRemainingTime() {
@@ -93,8 +93,8 @@ function updateRemainingTime() {
     remainingTime.value = `${m}:${s}`;
 
     // ✅ 토큰 만료 5분전 팝업 기능
-    if (totalSeconds <= 3480  && !hasShownExpireWarning.value){
-      emit('open-time-modal');  // 부모에게 이벤트 전달
+    if (totalSeconds <= 3480 && !hasShownExpireWarning.value) {
+      emit('open-time-modal'); // 부모에게 이벤트 전달
       hasShownExpireWarning.value = true;
     }
   }
@@ -144,7 +144,6 @@ async function handleExtendSession() {
     console.error('로그인 연장 실패:', error);
   }
 }
-
 </script>
 
 <style scoped>
@@ -222,7 +221,7 @@ async function handleExtendSession() {
 
 /* Hover state */
 /* .generate-token:hover { */
-  /*background-color: rgba(var(--primary-rgb), 0.9); *//* bg-primary/90 */
+/*background-color: rgba(var(--primary-rgb), 0.9); */ /* bg-primary/90 */
 /* } */
 
 /* Disabled state */
