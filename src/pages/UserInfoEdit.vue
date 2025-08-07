@@ -1,40 +1,44 @@
 <template>
-<!-- Title Section start -->
-<br>
-<div class="user-edit-container">
+  <br />
+  <div class="user-edit-container">
     <h2 class="title">
-        <img src="@/assets/logo.svg" class="logo" alt="Fin-Sight Logo" />
-        <p>Fin-Sight</p>
-    </h2><br>
-    <!-- 회원이름 (변경 X) -->
-    <div class="subItem1">
-        <i class="fa fa-user"></i>
-        <span class="subItem2">나의 이름: </span>
-        <span class="subItem2">{{ UserInfoA.userName }}</span>
-    </div>
-    <br>
-    <div class="subItem1">
-        <i class="fa fa-user"></i>
-        <span class="subItem2">나의 아이디: </span>
-        <span class="subItem3">{{ UserInfoA.userId }}</span>
-    </div>
-    <hr class="subLine"/>
+      <img
+        src="@/assets/logo.svg"
+        class="logo"
+        alt="Fin-Sight Logo" />
+      <p>Fin-Sight</p>
+    </h2>
+    <br />
 
-    <!-- 비밀번호/이메일 PUT 요청 보내기 -->
+    <!-- 사용자 이름/아이디 -->
+    <div class="subItem1">
+      <i class="fa fa-user"></i>
+      <span class="subItem2">나의 이름: </span>
+      <span class="subItem2">{{ UserInfoA.userName }}</span>
+    </div>
+    <br />
+    <div class="subItem1">
+      <i class="fa fa-user"></i>
+      <span class="subItem2">나의 아이디: </span>
+      <span class="subItem3">{{ UserInfoA.userId }}</span>
+    </div>
+    <hr class="subLine" />
+
+    <!-- 수정 폼 -->
     <form
-        class="form"
-        @submit.prevent="handleEdit">
-    <InputWithIcon
+      class="form"
+      @submit.prevent="handleEdit">
+      <!-- 비밀번호 -->
+      <InputWithIcon
         v-model="form.password"
         icon="fa-lock"
         type="password"
         placeholder="새 비밀번호"
         :error="!!errors.password"
-        :valid="form.password?.length >= 8 && !errors.password"
+        :valid="form.password?.length >= 10 && !errors.password"
         @blur="validatePassword"
-        @focus="clearError('password')" 
-    />
-    <InputWithIcon
+        @focus="clearError('password')" />
+      <InputWithIcon
         v-model="form.confirmPassword"
         icon="fa-lock"
         type="password"
@@ -42,9 +46,10 @@
         :error="!!errors.confirmPassword"
         :valid="form.confirmPassword?.length > 0 && !errors.confirmPassword"
         @blur="validateConfirmPassword"
-        @focus="clearError('confirmPassword')" 
-    />
-    <InputWithIcon
+        @focus="clearError('confirmPassword')" />
+
+      <!-- 이메일 -->
+      <InputWithIcon
         v-model="form.email"
         icon="fa-envelope"
         placeholder="이메일"
@@ -55,270 +60,279 @@
         autocomplete="off"
         autocorrect="off"
         @button-click="requestCode"
-        @focus="clearError('email')"
-    /><br>
-    <!-- 인증코드 입력 -->
-    <div class="card">
+        @focus="clearError('email')" />
+      <br />
+
+      <!-- 인증코드 입력 -->
+      <div class="card">
         <VerificationCodeInput
-            v-model="form.code"
-            :error="!!errors.code"
-            :valid="emailStore.verified && !errors.code"
-            @verify="verifyCode"
-            @resend="resendCode"
-            @blur="validateCode"
-            @focus="clearError('code')" 
-        />
-    </div>
-    <!-- 에러 메시지 통합 표시 -->
-    <div class="validation-block">
+          v-model="form.code"
+          :error="!!errors.code"
+          :valid="emailStore.verified && !errors.code"
+          @verify="verifyCode"
+          @resend="resendCode"
+          @blur="validateCode"
+          @focus="clearError('code')" />
+      </div>
+
+      <!-- 에러 메시지 -->
+      <div class="validation-block">
         <ValidationMessage :message="errors.password" />
         <ValidationMessage :message="errors.confirmPassword" />
         <ValidationMessage :message="errors.email" />
         <ValidationMessage :message="errors.code" />
-    </div>
+      </div>
 
-
-    <!-- 버튼 -->
-    <button type="submit" class="submit-btn">수정 완료</button>
-
-
-
+      <!-- 버튼 -->
+      <button
+        type="submit"
+        class="submit-btn">
+        수정 완료
+      </button>
     </form>
     <div class="subBox2">
         <div class="action delete-btn" @click="showDeleteModal = true">회원탈퇴</div>
     </div>
 
-    <!-- 탈퇴 모달 -->
+    <!-- 탈퇴 -->
+    <button
+      type="button"
+      class="delete-btn"
+      @click="showDeleteModal = true">
+      회원 탈퇴
+    </button>
     <DeleteUserInfo
-        v-if="showDeleteModal"
-        @close="showDeleteModal = false"
-        @confirm="() => { showDeleteModal = false; handleDelete(); }"
-    />
-</div>
+      v-if="showDeleteModal"
+      @close="showDeleteModal = false"
+      @confirm="
+        () => {
+          showDeleteModal = false;
+          handleDelete();
+        }
+      " />
 
+    <!-- 모달 -->
+    <CompleteModal
+      v-if="showCompleteModal"
+      message="회원 정보 수정 완료!"
+      redirect="/my" />
 
-<!-- 완료/에러 모달 -->
-<CompleteModal v-if="showCompleteModal" />
-<AlertModal v-if="showModal" :message="modalMessage" @close="showModal = false" />
+    <AlertModal
+      v-if="showModal"
+      :message="modalMessage"
+      @close="showModal = false" />
+  </div>
 </template>
 
-
 <script setup>
-import { onMounted, ref, reactive } from 'vue';
-import { useEmailStore } from '@/stores/emailStore';
+import { ref, reactive, onMounted } from 'vue';
 import axios from 'axios';
+import { useEmailStore } from '@/stores/emailStore';
 
 import InputWithIcon from '@/components/signUpPage/InputWithIcon.vue';
+import VerificationCodeInput from '@/components/signUpPage/VerificationCodeInput.vue';
 import ValidationMessage from '@/components/signUpPage/ValidationMessage.vue';
 import DeleteUserInfo from '@/components/DeleteUserInfo.vue';
-import VerificationCodeInput from '@/components/signUpPage/VerificationCodeInput.vue';
 import CompleteModal from '@/components/signUpPage/CompleteModal.vue';
 import AlertModal from '@/components/signUpPage/AlertModal.vue';
 
-const UserInfoA = ref({ // ✅ 개인정보 GET 호출
-    userId: '', 
-    userName: ''
-});
-const getUserInfo = async () => { // ✅ 개인정보 GET 호출
-    const token = localStorage.getItem('accessToken');
-    try {
+// 사용자 정보 가져오기
+const UserInfoA = ref({ userId: '', userName: '' });
+const getUserInfo = async () => {
+  const token = localStorage.getItem('accessToken');
+  try {
     const response = await axios.get('http://localhost:8080/users/info', {
-        headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     });
     UserInfoA.value = response.data.data;
-    console.log(UserInfoA.value);
-    } catch (e) {
+  } catch (e) {
     console.error('유저 정보 불러오기 실패:', e);
-    }
+  }
 };
 onMounted(getUserInfo);
-const form = reactive({ // ✅ 개인정보 PUT 호출
-    password: '',
-    confirmPassword: '',
-    email: ''
+
+// 폼 & 에러 상태
+const form = reactive({
+  password: '',
+  confirmPassword: '',
+  email: '',
+  code: ''
 });
-const errors = reactive({ // ✅ 통합에러
-    userId: '', 
-    userName: '',
-    password: '',
-    confirmPassword: '',
-    email: ''
+const errors = reactive({
+  password: '',
+  confirmPassword: '',
+  email: '',
+  code: ''
 });
+
+// 이메일 인증 상태 관리
 const emailStore = useEmailStore();
-const validateForm = () => {
-    let isValid = true;
-    if (!validatePassword()) isValid = false;
-    if (!validateConfirmPassword()) isValid = false;
-    if (!validateEmail()) isValid = false;
-    if (!emailStore.verified) {
-        errors.code = '● 이메일 인증을 완료해주세요.';
-        isValid = false;
-    }
-    return isValid;
-};
+
+// 유효성 검사 함수
 const validatePassword = () => {
-    const pw = form.password;
-    const rules = [/[a-z]/, /[A-Z]/, /\d/, /[^a-zA-Z0-9]/];
-    const ruleCount = rules.filter(r => r.test(pw)).length;
-    if (!pw) return ((errors.password = '● 비밀번호를 입력해주세요.'), false);
-    if (pw.length < 10 || ruleCount < 2) {
-        errors.password =
-        '● 영문 대/소문자, 숫자, 특수문자 중 2종 이상 조합으로\n10자 이상이어야 합니다.';
-        return false;
-    }
-    return true;
+  const pw = form.password;
+  const rules = [/[a-z]/, /[A-Z]/, /\d/, /[^a-zA-Z0-9]/];
+  const ruleCount = rules.filter(r => r.test(pw)).length;
+  if (!pw) return ((errors.password = '● 비밀번호를 입력해주세요.'), false);
+  if (pw.length < 10 || ruleCount < 2) {
+    errors.password =
+      '● 영문 대/소문자, 숫자, 특수문자 중 2종 이상 조합으로 10자 이상이어야 합니다.';
+    return false;
+  }
+  return true;
 };
 const validateConfirmPassword = () => {
-    if (!form.confirmPassword)
-        return ((errors.confirmPassword = '● 비밀번호 재확인을 입력해주세요.'), false);
-    if (form.password !== form.confirmPassword) {
-        errors.confirmPassword = '● 비밀번호가 일치하지 않습니다.';
-        return false;
-    }
-    return true;
+  if (!form.confirmPassword)
+    return ((errors.confirmPassword = '● 비밀번호 재확인을 입력해주세요.'), false);
+  if (form.password !== form.confirmPassword) {
+    errors.confirmPassword = '● 비밀번호가 일치하지 않습니다.';
+    return false;
+  }
+  return true;
 };
 const validateEmail = () => {
-    if (!form.email) return ((errors.email = '● 이메일을 입력해주세요.'), false);
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!regex.test(form.email)) return ((errors.email = '● 올바른 이메일 형식이 아닙니다.'), false);
-    return true;
+  if (!form.email) return ((errors.email = '● 이메일을 입력해주세요.'), false);
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!regex.test(form.email)) return ((errors.email = '● 올바른 이메일 형식이 아닙니다.'), false);
+  return true;
 };
 const validateCode = () => {
-    if (!form.code) return ((errors.code = '● 인증코드를 입력해주세요.'), false);
-    return true;
+  if (!form.code) return ((errors.code = '● 인증코드를 입력해주세요.'), false);
+  return true;
 };
+
+// 인증코드 요청/확인/재요청
 const requestCode = async () => {
-    if (!validateEmail()) return;
-    emailStore.email = form.email;
-    try {
-        const msg = await emailStore.sendCode();
-        openModal(msg);
-    } catch {
-        openModal(emailStore.error || '인증코드 전송 실패');
-    }
+  if (!validateEmail()) return;
+  emailStore.email = form.email;
+  try {
+    const msg = await emailStore.sendCode();
+    openModal(msg);
+  } catch {
+    openModal(emailStore.error || '인증코드 전송 실패');
+  }
 };
 const verifyCode = async () => {
-    if (!form.email || !form.code) {
-        errors.code = '● 이메일과 인증코드를 모두 입력해주세요.';
-        return false;
-    }
-    emailStore.email = form.email;
-    emailStore.code = form.code;
-    errors.code = '';
-    await emailStore.verifyCode();
-    if (!emailStore.verified) {
-        errors.code = emailStore.error || '● 인증코드가 일치하지 않습니다.';
-        status.codeVerified = false;
-        openModal(errors.code);
-        return false;
-    }
-    status.codeVerified = true;
-    openModal('이메일 인증 성공!');
-    return true;
+  if (!form.email || !form.code) {
+    errors.code = '● 이메일과 인증코드를 모두 입력해주세요.';
+    return false;
+  }
+  emailStore.email = form.email;
+  emailStore.code = form.code;
+  errors.code = '';
+  await emailStore.verifyCode();
+  if (!emailStore.verified) {
+    errors.code = emailStore.error || '● 인증코드가 일치하지 않습니다.';
+    openModal(errors.code);
+    return false;
+  }
+  openModal('이메일 인증 성공!');
+  return true;
 };
 const resendCode = async () => {
-    if (!validateEmail()) return;
-    emailStore.email = form.email;
-
-    try {
-        const msg = await emailStore.sendCode();
-        openModal('인증코드가 다시 전송되었습니다.');
-    } catch {
-        openModal('인증코드 재전송 실패');
-    }
+  if (!validateEmail()) return;
+  emailStore.email = form.email;
+  try {
+    await emailStore.sendCode();
+    openModal('인증코드가 다시 전송되었습니다.');
+  } catch {
+    openModal('인증코드 재전송 실패');
+  }
 };
 
-const status = reactive({
-    userIdChecked: false,
-    nicknameChecked: false,
-    emailVerified: false,
-    codeVerified: false
-});
+// 수정 요청 (입력된 항목만 보냄)
+const handleEdit = async () => {
+  resetErrors();
+
+  let isValid = true;
+  const payload = {};
+  const token = localStorage.getItem('accessToken');
+
+  // 비밀번호 입력 시 유효성 검사
+  if (form.password || form.confirmPassword) {
+    if (!validatePassword()) isValid = false;
+    if (!validateConfirmPassword()) isValid = false;
+    payload.password = form.password;
+  }
+
+  // 이메일 입력 시 유효성 검사
+  if (form.email || form.code) {
+    if (!validateEmail()) isValid = false;
+    if (!emailStore.verified) {
+      errors.code = '● 이메일 인증을 완료해주세요.';
+      isValid = false;
+    } else {
+      payload.email = form.email;
+    }
+  }
+
+  if (!isValid) return;
+
+  try {
+    await axios.put('http://localhost:8080/users/info', payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    showCompleteModal.value = true;
+  } catch (error) {
+    openModal(
+      error.response?.status === 400
+        ? '수정 실패: 중복 항목이 있거나 인증이 완료되지 않았습니다.'
+        : '서버 오류가 발생했습니다.'
+    );
+  }
+};
+
+// 회원 탈퇴
+const handleDelete = async () => {
+  const token = localStorage.getItem('accessToken');
+  if (!token) return alert('로그인 정보가 없습니다.');
+  try {
+    await axios.delete('/users', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    alert('회원 탈퇴가 완료되었습니다.');
+    localStorage.removeItem('accessToken');
+    window.location.href = '/start';
+  } catch (error) {
+    console.error('회원 탈퇴 오류:', error);
+    alert('회원 탈퇴 중 오류가 발생했습니다.');
+  }
+};
+
+// 기타 상태/함수
+const showDeleteModal = ref(false);
 const showCompleteModal = ref(false);
 const showModal = ref(false);
 const modalMessage = ref('');
 const openModal = msg => {
-    modalMessage.value = msg;
-    showModal.value = true;
+  modalMessage.value = msg;
+  showModal.value = true;
 };
 const clearError = field => (errors[field] = '');
 const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''));
-
-// ✅ 회원정보 수정 요청
-const handleEdit = async () => {
-    resetErrors();
-    const valid = await validateForm();
-    if (!valid) return;
-
-    try {
-        const payload = {
-            password: form.password,
-            email: form.email
-        };
-        await axios.post('/users', payload);
-        showCompleteModal.value = true;
-        console.log('회원정보가 수정되었습니다.')
-    } catch (error) {
-        openModal(
-            error.response?.status === 400
-                ? '회원가입 실패: 중복 항목이 있거나 이메일 인증이 완료되지 않았습니다.'
-                : '서버 오류가 발생했습니다.'
-            );    
-        }
-
-    };
-
-
-// ✅ 회원탈퇴 요청
-const handleDelete = async () => {
-    const token = localStorage.getItem('accessToken');
-
-    if (!token) {
-        alert('로그인 정보가 없습니다.');
-        return;
-    }
-
-    try {
-        await axios.delete('/users', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-
-        alert('회원 탈퇴가 완료되었습니다.');
-        localStorage.removeItem('accessToken');
-        window.location.href = '/start';
-    } catch (error) {
-        console.error('회원 탈퇴 오류:', error);
-        alert('회원 탈퇴 중 오류가 발생했습니다.');
-    }
-};
-
-const showDeleteModal = ref(false);
-
 </script>
 
 <style scoped>
 /* Title Section Styles */
 .user-edit-container {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 24px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 .logo {
-    width: 60px;
-    margin: 0 auto 8px;
-    text-align: center;
+  width: 60px;
+  margin: 0 auto 8px;
+  text-align: center;
 }
 .title {
-text-align: center;
-margin-bottom: 24px;
-font-size: 20px;
-font-weight: bold;
-color: var(--main01);
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--main01);
 }
 /* Btn Styles */
 .submit-btn {
@@ -366,22 +380,22 @@ color: var(--main01);
 }
 
 .subItem1 {
-    padding: 0px 12px 0px 12px;
+  padding: 0px 12px 0px 12px;
 }
 .fa {
-    color: var(--main02);
+  color: var(--main02);
 }
 .subItem2 {
-    padding-left: 16px;
-    color: var(--main01);
-    font-family: 'Pretendard';
+  padding-left: 16px;
+  color: var(--main01);
+  font-family: 'Pretendard';
 }
-.subLine{
-    border-color: var(--main04);
-    margin: 10px;
+.subLine {
+  border-color: var(--main04);
+  margin: 10px;
 }
 .subItem3 {
-    margin-left: 5px;
+  margin-left: 5px;
 }
 .signup {
   /* max-width: 460px; */
