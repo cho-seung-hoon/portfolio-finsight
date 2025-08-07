@@ -49,6 +49,6 @@ export default defineConfig({
       secure: false,
       ws: true // WebSocket 지원
     }
-  },
-  host: true
+  }
+  // host: true
 });
