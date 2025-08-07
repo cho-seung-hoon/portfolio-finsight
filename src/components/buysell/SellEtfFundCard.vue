@@ -7,7 +7,7 @@
       <span class="info-value">{{ holdingQuantity ?? '-' }}</span>
     </div>
     <div class="info-row">
-      <span class="info-label">매도량</span>
+      <span class="info-label">판매량</span>
       <div style="display: flex; align-items: center; gap: 4px">
         <input
           class="info-value-input"
@@ -21,7 +21,7 @@
       </div>
     </div>
     <div class="info-row">
-      <span class="info-label">매도 일시</span>
+      <span class="info-label">판매 일시</span>
       <span class="info-value">
         <span>{{ saleDate }}</span
         ><br v-if="saleDateTime" />

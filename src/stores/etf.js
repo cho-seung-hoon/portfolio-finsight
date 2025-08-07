@@ -52,7 +52,7 @@ export const useEtfStore = defineStore('etf', () => {
       etfMinTradingUnit: 1,
       etfTaxType: '배당소득세',
       currentPrice: '15,000', // 현재 시세
-      price: new Decimal(15000), // 매수/매도용 가격
+      price: new Decimal(15000), // 구매/판매용 가격
       isHolding: false,
       holdingQuantity: 0, // 보유 수량
       info: [
@@ -201,7 +201,7 @@ export const useEtfStore = defineStore('etf', () => {
       etfMinTradingUnit: 1,
       etfTaxType: '배당소득세',
       currentPrice: '12,500', // 현재 시세
-      price: new Decimal(12500), // 매수/매도용 가격
+      price: new Decimal(12500), // 구매/판매용 가격
       isHolding: true,
       holdingQuantity: 150, // 보유 수량
       info: [

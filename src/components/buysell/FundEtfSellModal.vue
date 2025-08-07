@@ -7,7 +7,7 @@
       class="modal-content"
       @click.stop>
       <div class="modal-header">
-        <h2>{{ productType === 'ETF' ? 'ETF 매도' : '펀드 매도' }}</h2>
+        <h2>{{ productType === 'ETF' ? 'ETF 판매' : '펀드 판매' }}</h2>
         <button
           class="close-btn"
           @click="closeModal">
@@ -51,9 +51,9 @@
           </div>
         </div>
 
-        <!-- 매도량 입력 -->
+        <!-- 판매량 입력 -->
         <div class="form-group">
-          <label for="quantity">매도량</label>
+          <label for="quantity">판매량</label>
           <input
             id="quantity"
             v-model="formData.quantity"
@@ -61,7 +61,7 @@
             inputmode="numeric"
             pattern="[0-9,]*"
             class="form-control"
-            :placeholder="`매도할 주 수를 입력하세요`"
+            :placeholder="`판매할 주 수를 입력하세요`"
             required
             @input="handleQuantityInput" />
           <div class="korean-number-wrapper">
@@ -78,19 +78,19 @@
           </div>
           <div class="input-hint">
             최소 1주 이상, 최대
-            {{ formatQuantity(productInfo?.holdingQuantity || 0) }}까지 매도 가능 (최대 10억원까지)
+            {{ formatQuantity(productInfo?.holdingQuantity || 0) }}까지 판매 가능 (최대 10억원까지)
           </div>
         </div>
 
-        <!-- 매도일 -->
+        <!-- 판매일 -->
         <div class="form-group">
-          <label>매도일</label>
+          <label>판매일</label>
           <div class="form-control readonly">{{ currentDateTime }}</div>
         </div>
 
-        <!-- 예상 매도 금액 -->
+        <!-- 예상 판매 금액 -->
         <div class="info-row highlight">
-          <label>예상 매도 금액</label>
+          <label>예상 판매 금액</label>
           <div class="info-value-wrapper">
             <div class="info-value">{{ formatCurrency(totalAmount) }}</div>
             <div class="korean-number">{{ getKoreanNumber(totalAmount) }} 원</div>
@@ -108,7 +108,7 @@
           class="btn btn-primary"
           :disabled="!isFormValid || isLoading"
           @click="handleSubmit">
-          {{ isLoading ? '처리중...' : '매도하기' }}
+          {{ isLoading ? '처리중...' : '판매하기' }}
         </button>
       </div>
     </div>
@@ -160,7 +160,7 @@ const currentDateTime = computed(() => {
   return `${year}.${month}.${day}`;
 });
 
-// 총 매도 금액 계산
+// 총 판매 금액 계산
 const totalAmount = computed(() => {
   const price = props.productInfo?.price?.currentPrice || 0;
   const quantity = parseNumberFromComma(formData.value.quantity) || 0;

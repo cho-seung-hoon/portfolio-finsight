@@ -162,13 +162,13 @@ const tabData = computed(() => {
   return fundStore.getTabDataWithHolding(productInfo.value.productCode);
 });
 
-// 매수 버튼 클릭 처리
+// 구매 버튼 클릭 처리
 const handleBuyClick = async data => {
   isModalOpen.value = true;
   buyModalRef.value?.openModal();
 };
 
-// 매도 버튼 클릭 처리
+// 판매 버튼 클릭 처리
 const handleSellClick = async data => {
   isModalOpen.value = true;
   sellModalRef.value?.openModal();
@@ -192,7 +192,7 @@ const handleModalClose = () => {
   }, 100);
 };
 
-// 매수 제출 처리
+// 구매 제출 처리
 const handleBuySubmit = async formData => {
   try {
     await buyStore.buyProduct(formData);
@@ -205,13 +205,13 @@ const handleBuySubmit = async formData => {
       minute: '2-digit',
       second: '2-digit'
     });
-    showToast('펀드 매수가 완료되었습니다.', 'success', timestamp);
+    showToast('펀드 구매가 완료되었습니다.', 'success', timestamp);
   } catch (error) {
-    showToast('펀드 매수에 실패했습니다. 다시 시도해주세요.', 'error');
+    showToast('펀드 구매에 실패했습니다. 다시 시도해주세요.', 'error');
   }
 };
 
-// 매도 제출 처리
+// 판매 제출 처리
 const handleSellSubmit = async formData => {
   try {
     await sellStore.sellProduct(formData);
@@ -224,9 +224,9 @@ const handleSellSubmit = async formData => {
       minute: '2-digit',
       second: '2-digit'
     });
-    showToast('펀드 매도가 완료되었습니다.', 'success', timestamp);
+    showToast('펀드 판매가 완료되었습니다.', 'success', timestamp);
   } catch (error) {
-    showToast('펀드 매도에 실패했습니다. 다시 시도해주세요.', 'error');
+    showToast('펀드 판매에 실패했습니다. 다시 시도해주세요.', 'error');
     handleModalClose(); // 실패 시에도 모달 닫기
   }
 };

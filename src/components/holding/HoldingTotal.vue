@@ -15,7 +15,7 @@
       </div>
       <div class="total-info-detail">
         <div class="total-info-detail-item">
-          <div class="total-info-detail-item-1">정기 예금</div>
+          <div class="total-info-detail-item-1">정기예금</div>
           <div class="total-info-detail-item-1">5,000,000원</div>
         </div>
         <div class="total-info-detail-item">
