@@ -1,7 +1,7 @@
 <template>
   <div class="sell-info-card">
     <div class="info-row">
-      <span class="info-label">매수량</span>
+      <span class="info-label">구매량</span>
       <input
         class="info-value-input"
         type="number"
@@ -13,7 +13,7 @@
       <span style="margin-left: 4px">주</span>
     </div>
     <div class="info-row">
-      <span class="info-label">매수일</span>
+      <span class="info-label">구매일</span>
       <span class="info-value">{{ buyDate }}</span>
     </div>
   </div>

@@ -40,7 +40,7 @@ export const useFundStore = defineStore('fund', () => {
       fundEstablishedDate: '2020-01-01',
       yield: 25.97, // 수익률 (3개월 고정)
       priceArr: [new Decimal(1414.27), new Decimal(1373.72)], // [오늘 기준가, 전일 기준가]
-      price: new Decimal(1414.27), // 매수/매도용 가격
+      price: new Decimal(1414.27), // 구매/판매용 가격
       isHolding: false,
       holdingQuantity: 0, // 보유 수량
       info: [
@@ -121,7 +121,7 @@ export const useFundStore = defineStore('fund', () => {
       fundEstablishedDate: '2020-06-01',
       yield: -3.21, // 수익률 (3개월 고정)
       priceArr: [new Decimal(987.65), new Decimal(1000.0)], // [오늘 기준가, 전일 기준가]
-      price: new Decimal(987.65), // 매수/매도용 가격
+      price: new Decimal(987.65), // 구매/판매용 가격
       isHolding: true,
       holdingQuantity: 2000, // 보유 수량
       info: [
@@ -191,7 +191,7 @@ export const useFundStore = defineStore('fund', () => {
           holdingsId: 'holding-fund-002',
           historyTradeType: 'buy',
           historyTradeDate: '2025.01.05',
-          historyQuantity: new Decimal(1200), // 1200좌 매수
+          historyQuantity: new Decimal(1200), // 1200좌 구매
           historyAmount: new Decimal(1200000)
         },
         {

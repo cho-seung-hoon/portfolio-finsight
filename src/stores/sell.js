@@ -9,7 +9,7 @@ export const useSellStore = defineStore('sell', () => {
   const sellResult = ref(null);
 
   /**
-   * 매도 요청 (더미 데이터 반환)
+   * 판매 요청 (더미 데이터 반환)
    */
   async function sellProduct(payload) {
     isLoading.value = true;
@@ -20,7 +20,7 @@ export const useSellStore = defineStore('sell', () => {
       let dummy;
       if (payload.category === 'FUND' || payload.category === 'ETF') {
         dummy = {
-          message: '매도 성공',
+          message: '판매 성공',
           historyId: `history-${Date.now()}`,
           holdingsId: `holding-${payload.code}`,
           historyTradeType: 'sell',
@@ -31,7 +31,7 @@ export const useSellStore = defineStore('sell', () => {
         };
       } else if (payload.category === 'DEPOSIT') {
         dummy = {
-          message: '매도 성공',
+          message: '판매 성공',
           historyId: `history-${Date.now()}`,
           holdingsId: `holding-${payload.code}`,
           historyTradeType: 'deposit',

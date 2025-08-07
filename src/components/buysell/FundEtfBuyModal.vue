@@ -7,7 +7,7 @@
       class="modal-content"
       @click.stop>
       <div class="modal-header">
-        <h2>{{ productType === 'ETF' ? 'ETF 매수' : '펀드 매수' }}</h2>
+        <h2>{{ productType === 'ETF' ? 'ETF 구매' : '펀드 구매' }}</h2>
         <button
           class="close-btn"
           @click="closeModal">
@@ -38,9 +38,9 @@
           </div>
         </div>
 
-        <!-- 매수량 입력 -->
+        <!-- 구매량 입력 -->
         <div class="form-group">
-          <label for="quantity">매수량</label>
+          <label for="quantity">구매량</label>
           <input
             id="quantity"
             v-model="formData.quantity"
@@ -48,7 +48,7 @@
             inputmode="numeric"
             pattern="[0-9,]*"
             class="form-control"
-            :placeholder="`매수할 주 수를 입력하세요`"
+            :placeholder="`구매하실 주 수를 입력하세요`"
             required
             @input="handleQuantityInput" />
           <div class="korean-number-wrapper">
@@ -63,18 +63,18 @@
               입력 대기 중
             </div>
           </div>
-          <div class="input-hint">최소 1주 이상 입력해주세요. (최대 10억원까지 매수 가능)</div>
+          <div class="input-hint">최소 1주 이상 입력해주세요. (최대 10억원까지 구매 가능)</div>
         </div>
 
-        <!-- 매수일 -->
+        <!-- 구매일 -->
         <div class="form-group">
-          <label>매수일</label>
+          <label>구매일</label>
           <div class="form-control readonly">{{ todayDate }}</div>
         </div>
 
-        <!-- 예상 매수 금액 -->
+        <!-- 예상 구매 금액 -->
         <div class="info-row highlight">
-          <label>예상 매수 금액</label>
+          <label>예상 구매 금액</label>
           <div class="info-value-wrapper">
             <div class="info-value">{{ formatCurrency(totalAmount) }}</div>
             <div class="korean-number">{{ getKoreanNumber(totalAmount) }} 원</div>
@@ -92,7 +92,7 @@
           class="btn btn-primary"
           :disabled="!isFormValid || isLoading"
           @click="handleSubmit">
-          {{ isLoading ? '처리중...' : '매수하기' }}
+          {{ isLoading ? '처리중...' : '구매하기' }}
         </button>
       </div>
     </div>
@@ -144,7 +144,7 @@ const todayDate = computed(() => {
   return `${year}.${month}.${day}`;
 });
 
-// 총 매수 금액 계산
+// 총 구매 금액 계산
 const totalAmount = computed(() => {
   const price = props.productInfo?.price?.currentPrice || 0;
   const quantity = parseNumberFromComma(formData.value.quantity) || 0;
