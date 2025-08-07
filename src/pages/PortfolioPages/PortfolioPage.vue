@@ -1,419 +1,99 @@
-<!-- 
-    작성자: JY
-    작성일자: 2025-07-29
-    페이지명: 투자성향분석-포트폴리오-페이지
-        [경로]
-        path: '/portfolio-page',
-        name: 'PortfolioPage',
-        component: PortfolioPage,
--->
-
 <template>
-  <!-- GlobalHeader Section -->
-  <!-- Header Section start-->
-  <div class="main-section">
-    <section class="sub-title">
-      <div class="result-section">
-        <div class="title">
-          <span :class="`highlight-${RiskType}`">
-            <template v-if="RiskType === 'stable'">안정형</template>
-            <template v-else-if="RiskType === 'stableplus'">안정추구형</template>
-            <template v-else-if="RiskType === 'neutral'">위험중립형</template>
-            <template v-else-if="RiskType === 'aggressive'">적극투자형</template>
-            <template v-else-if="RiskType === 'veryaggressive'">공격투자형</template>
-          </span>
-          <span class="highlight-white">을 위한 포트폴리오</span>
-        </div>
+<div class="main-section">
+  <section class="main-title">
+        <span :class="['invt', profileClass]">{{ investmentProfileType }}</span>
+        <span>을 위한 자산 배분안</span>
+      </section>
+  <!-- Main Section start -->
+  <section class="sub-section">
+    <div class="result-section">
+      <div class="comment-wrapper">
+        <img class="comment-img" src="@/assets/cha2.png" alt="cha">
+        <span class="subItem1">Fin-Sight와 함께하는<br>성공적인 재테크 !!</span> 
       </div>
-    </section>
-    <!-- Header Section end -->
-
-    <!-- Main Section start -->
-    <section class="sub-section">
-      <div class="result-section">
-        <div class="title">Fin-sight 추천 자산비중</div>
-        <br />
-
-        <!-- [01] Stable Type Table -->
-        <table
-          v-if="RiskType === 'stable'"
-          class="table-main-style">
-          <thead>
-            <tr>
-              <th class="table-style">상품별 종목</th>
-              <th class="table-style">위험등급</th>
-              <th class="table-highlight-stable">안정형</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="table-style">국내 주식형 펀드/ETF</td>
-              <td class="table-style">2등급</td>
-              <td class="table-highlight-stable"></td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권 혼합형 펀드/ETF</td>
-              <td class="table-style">5등급</td>
-              <td class="table-highlight-stable"></td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권형 펀드/ETF</td>
-              <td class="table-style">5등급</td>
-              <td class="table-highlight-stable">98%</td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권형 펀드/ETF</td>
-              <td class="table-style">6등급</td>
-              <td class="table-highlight-stable">98%</td>
-            </tr>
-            <tr>
-              <td class="table-style">현금성(예금 등)</td>
-              <td class="table-style">6등급</td>
-              <td class="table-highlight-stable">2%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">1등급</td>
-              <td class="table-highlight-stable"></td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">2등급</td>
-              <td class="table-highlight-stable"></td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">3등급</td>
-              <td class="table-highlight-stable"></td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 채권형 펀드/ETF</td>
-              <td class="table-style">4등급</td>
-              <td class="table-highlight-stable"></td>
-            </tr>
-            <tr>
-              <td
-                class="table-style"
-                colspan="2">
-                위험자산 <small class="notice">**</small> 비중
-              </td>
-              <td class="table-highlight-stable">0%</td>
-            </tr>
-            <tr>
-              <td
-                class="table-style"
-                colspan="2">
-                모델 포트폴리오 위험도
-              </td>
-              <td class="table-highlight-stable">6.00</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- [02] StablePlus Type Table -->
-        <table
-          v-if="RiskType === 'stableplus'"
-          class="table-main-style">
-          <thead>
-            <tr>
-              <th class="table-style">상품별 종목</th>
-              <th class="table-style">위험등급</th>
-              <th class="table-highlight-stableplus">안정추구형</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="table-style">국내 주식형 펀드/ETF</td>
-              <td class="table-style">2등급</td>
-              <td class="table-highlight-stableplus">7%</td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권 혼합형 펀드/ETF</td>
-              <td class="table-style">5등급</td>
-              <td class="table-highlight-stableplus">12%</td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권형 펀드/ETF</td>
-              <td class="table-style">5등급</td>
-              <td class="table-highlight-stableplus">5%</td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권형 펀드/ETF</td>
-              <td class="table-style">6등급</td>
-              <td class="table-highlight-stableplus">59%</td>
-            </tr>
-            <tr>
-              <td class="table-style">현금성(예금 등)</td>
-              <td class="table-style">6등급</td>
-              <td class="table-highlight-stableplus">2%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">1등급</td>
-              <td class="table-highlight-stableplus"></td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">2등급</td>
-              <td class="table-highlight-stableplus">10%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">3등급</td>
-              <td class="table-highlight-stableplus">5%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 채권형 펀드/ETF</td>
-              <td class="table-style">4등급</td>
-              <td class="table-highlight-stableplus"></td>
-            </tr>
-            <tr>
-              <td
-                class="table-style"
-                colspan="2">
-                위험자산 <small class="notice">**</small> 비중
-              </td>
-              <td class="table-highlight-stableplus">22%</td>
-            </tr>
-            <tr>
-              <td
-                class="table-style"
-                colspan="2">
-                모델 포트폴리오 위험도
-              </td>
-              <td class="table-highlight-stableplus">5.00</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- [03] Neutral Type Table -->
-        <table
-          v-if="RiskType === 'neutral'"
-          class="table-main-style">
-          <thead>
-            <tr>
-              <th class="table-style">상품별 종목</th>
-              <th class="table-style">위험등급</th>
-              <th class="table-highlight-neutral">위험중립형</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="table-style">국내 주식형 펀드/ETF</td>
-              <td class="table-style">2등급</td>
-              <td class="table-highlight-neutral">8%</td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권 혼합형 펀드/ETF</td>
-              <td class="table-style">5등급</td>
-              <td class="table-highlight-neutral">10%</td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권형 펀드/ETF</td>
-              <td class="table-style">5등급</td>
-              <td class="table-highlight-neutral">6%</td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권형 펀드/ETF</td>
-              <td class="table-style">6등급</td>
-              <td class="table-highlight-neutral">34%</td>
-            </tr>
-            <tr>
-              <td class="table-style">현금성(예금 등)</td>
-              <td class="table-style">6등급</td>
-              <td class="table-highlight-neutral">2%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">1등급</td>
-              <td class="table-highlight-neutral"></td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">2등급</td>
-              <td class="table-highlight-neutral">28%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">3등급</td>
-              <td class="table-highlight-neutral">12%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 채권형 펀드/ETF</td>
-              <td class="table-style">4등급</td>
-              <td class="table-highlight-neutral"></td>
-            </tr>
-            <tr>
-              <td
-                class="table-style"
-                colspan="2">
-                위험자산 <small class="notice">**</small> 비중
-              </td>
-              <td class="table-highlight-neutral">48%</td>
-            </tr>
-            <tr>
-              <td
-                class="table-style"
-                colspan="2">
-                모델 포트폴리오 위험도
-              </td>
-              <td class="table-highlight-neutral">4.04</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- [04] Aggressive Type Table -->
-        <table
-          v-if="RiskType === 'aggressive'"
-          class="table-main-style">
-          <thead>
-            <tr>
-              <th class="table-style">상품별 종목</th>
-              <th class="table-style">위험등급</th>
-              <th class="table-highlight-aggressive">적극투자형</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="table-style">국내 주식형 펀드/ETF</td>
-              <td class="table-style">2등급</td>
-              <td class="table-highlight-aggressive">10%</td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권 혼합형 펀드/ETF</td>
-              <td class="table-style">5등급</td>
-              <td class="table-highlight-aggressive"></td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권형 펀드/ETF</td>
-              <td class="table-style">5등급</td>
-              <td class="table-highlight-aggressive">10%</td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권형 펀드/ETF</td>
-              <td class="table-style">6등급</td>
-              <td class="table-highlight-aggressive">23%</td>
-            </tr>
-            <tr>
-              <td class="table-style">현금성(예금 등)</td>
-              <td class="table-style">6등급</td>
-              <td class="table-highlight-aggressive">2%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">1등급</td>
-              <td class="table-highlight-aggressive">4%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">2등급</td>
-              <td class="table-highlight-aggressive">32%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">3등급</td>
-              <td class="table-highlight-aggressive">14%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 채권형 펀드/ETF</td>
-              <td class="table-style">4등급</td>
-              <td class="table-highlight-aggressive">5%</td>
-            </tr>
-            <tr>
-              <td
-                class="table-style"
-                colspan="2">
-                위험자산 <small class="notice">**</small> 비중
-              </td>
-              <td class="table-highlight-aggressive">60%</td>
-            </tr>
-            <tr>
-              <td
-                class="table-style"
-                colspan="2">
-                모델 포트폴리오 위험도
-              </td>
-              <td class="table-highlight-aggressive">3.50</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- [05] VeryAggressive Type Table -->
-        <table
-          v-else-if="RiskType === 'veryaggressive'"
-          class="table-main-style">
-          <thead>
-            <tr>
-              <th class="table-style">상품별 종목</th>
-              <th class="table-style">위험등급</th>
-              <th class="table-highlight-veryaggressive">공격투자형</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="table-style">국내 주식형 펀드/ETF</td>
-              <td class="table-style">2등급</td>
-              <td class="table-highlight-veryaggressive">21%</td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권 혼합형 펀드/ETF</td>
-              <td class="table-style">5등급</td>
-              <td class="table-highlight-veryaggressive"></td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권형 펀드/ETF</td>
-              <td class="table-style">5등급</td>
-              <td class="table-highlight-veryaggressive">5%</td>
-            </tr>
-            <tr>
-              <td class="table-style">국내 채권형 펀드/ETF</td>
-              <td class="table-style">6등급</td>
-              <td class="table-highlight-veryaggressive">2%</td>
-            </tr>
-            <tr>
-              <td class="table-style">현금성(예금 등)</td>
-              <td class="table-style">6등급</td>
-              <td class="table-highlight-veryaggressive">2%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">1등급</td>
-              <td class="table-highlight-veryaggressive">8%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">2등급</td>
-              <td class="table-highlight-veryaggressive">40%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 주식형 펀드/ETF</td>
-              <td class="table-style">3등급</td>
-              <td class="table-highlight-veryaggressive">22%</td>
-            </tr>
-            <tr>
-              <td class="table-style">해외 채권형 펀드/ETF</td>
-              <td class="table-style">4등급</td>
-              <td class="table-highlight-veryaggressive"></td>
-            </tr>
-            <tr>
-              <td
-                class="table-style"
-                colspan="2">
-                위험자산 <small class="notice">**</small> 비중
-              </td>
-              <td class="table-highlight-veryaggressive">91%</td>
-            </tr>
-            <tr>
-              <td
-                class="table-style"
-                colspan="2">
-                모델 포트폴리오 위험도
-              </td>
-              <td class="table-highlight-veryaggressive">2.45</td>
-            </tr>
-          </tbody>
-        </table>
-        <br />
+      <table class="table-main-style">
+        <thead>
+          <tr>
+            <th class="table-header">상품별 종목</th>
+            <th class="table-header">위험 등급</th>
+            <th class="table-header"><span :class="['invt', profileClass]">{{ investmentProfileType }}</span></th>
+          </tr>
+        </thead>
+        
+        <tbody>
+          <tr>
+            <td class="table-cell">국내 주식형 펀드/ETF</td>
+            <td class="table-cell">2등급</td>
+            <td class="table-cell" >
+              <span :class="['invt', profileClass]">{{ selectedRecom[0] }} %</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-cell">국내 채권혼합형 펀드/ETF</td>
+            <td class="table-cell">5등급</td>
+            <td class="table-cell" >
+              <span :class="['invt', profileClass]">{{ selectedRecom[1] }} %</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-cell">국내 채권형 펀드/ETF</td>
+            <td class="table-cell">5등급</td>
+            <td class="table-cell" >
+              <span :class="['invt', profileClass]">{{ selectedRecom[2] }} %</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-cell">국내 채권형 펀드/ETF</td>
+            <td class="table-cell">6등급</td>
+            <td class="table-cell" >
+              <span :class="['invt', profileClass]">{{ selectedRecom[3] }} %</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-cell">현금성(예금 등)</td>
+            <td class="table-cell">6등급</td>
+            <td class="table-cell" >
+              <span :class="['invt', profileClass]">{{ selectedRecom[4] }} %</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-cell">해외 주식형 펀드/ETF</td>
+            <td class="table-cell">1등급</td>
+            <td class="table-cell" >
+              <span :class="['invt', profileClass]">{{ selectedRecom[5] }} %</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-cell">해외 주식형 펀드/ETF</td>
+            <td class="table-cell">2등급</td>
+            <td class="table-cell" >
+              <span :class="['invt', profileClass]">{{ selectedRecom[6] }} %</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-cell">해외 주식형 펀드/ETF</td>
+            <td class="table-cell">3등급</td>
+            <td class="table-cell" >
+              <span :class="['invt', profileClass]">{{ selectedRecom[7] }} %</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="table-cell">해외 채권형 펀드/ETF</td>
+            <td class="table-cell">4등급</td>
+            <td class="table-cell" >
+              <span :class="['invt', profileClass]">{{ selectedRecom[8] }} %</span>
+            </td>          
+          </tr>
+          <tr>
+            <td class="table-cell summary-label"colspan="2">위험자산군** 비중</td>
+            <td class="table-cell" :class="['invt', profileClass]">{{ selectedRecom[9] }}</td>
+          </tr>
+          <tr>
+            <td class="table-cell summary-label"colspan="2">모델 포트폴리오 위험도</td>
+            <td class="table-cell" :class="['invt', profileClass]">{{ selectedRecom[10] }}</td>
+          </tr>
+        </tbody>
+      </table>
 
         <!-- Notice Section start -->
         <small class="notice">
@@ -426,7 +106,6 @@
         <!-- Notice Section start -->
       </div>
     </section>
-    <br /><br /><br />
     <!-- Main Section end -->
 
     <!-- gotoMain Button start -->
@@ -442,7 +121,8 @@
 <script setup>
 // imports
 import { useRouter, useRoute } from 'vue-router';
-import { ref, watch } from 'vue';
+import { onMounted, computed, ref } from 'vue';
+import axios from 'axios';
 
 // Route Section
 const router = useRouter();
@@ -454,19 +134,96 @@ const goToMain = () => {
 const route = useRoute();
 const RiskType = ref('');
 
-watch(
-  () => route.query.RiskType,
-  newRiskType => {
-    if (newRiskType) {
-      RiskType.value = newRiskType;
-    } else {
-      RiskType.value = 'stable';
+
+// === ✅ 개인정보 GET 호출 ===========================
+const UserInfoA = ref({
+    userId: '', 
+    userName: ''
+});
+const getUserInfo = async () => {
+    const token = localStorage.getItem('accessToken');
+    try {
+    const response = await axios.get('http://localhost:8080/users/info', {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    UserInfoA.value = response.data.data;
+    console.log(UserInfoA.value);
+    } catch (e) {
+    console.error('유저 정보 불러오기 실패:', e);
     }
-  },
-  {
-    immediate: true // 컴포넌트 초기 로드 시 즉시 실행
+};
+
+// === ✅ 투자성향 GET 호출 ===========================
+const profileClass = ref('');
+const translateProfileType = (type) => {
+  switch (type) {
+    case 'stable':
+      return '안정형';
+    case 'stableplus':
+      return '안정추구형';
+    case 'neutral':
+      return '위험중립형';
+    case 'aggressive':
+      return '적극투자형';
+    case 'veryaggressive':
+      return '공격투자형';
+    default:
+      return '알 수 없음';
   }
-);
+};
+const getProfileClass = (type) => {
+  switch (type) {
+    case 'stable': return 'highlight-stable';
+    case 'stableplus': return 'highlight-stableplus';
+    case 'neutral': return 'highlight-neutral';
+    case 'aggressive': return 'highlight-aggressive';
+    case 'veryaggressive': return 'highlight-veryaggressive';
+    default: return '';
+  }
+};
+const investmentProfileType = ref('');
+const rawProfileType = ref('');
+const getUserType = async () => {
+  const token = localStorage.getItem('accessToken');
+    try {
+    const response = await axios.get(
+      'http://localhost:8080/users/invt',
+      {
+        headers: { Authorization: `Bearer ${token}`,
+        },
+      });
+      const type = response.data.investmentProfileType;
+      investmentProfileType.value = translateProfileType(type);
+      rawProfileType.value = type;
+      profileClass.value = getProfileClass(type);
+      console.log('---------------')
+      console.log('투자성향결과:', type);
+  } catch (e) {
+    console.error('투자성향 불러오기 실패: ', e);
+  }
+}
+
+// === ✅ GET 호출된 데이터들 Mounted 하기 ==============
+onMounted (() => {
+  getUserInfo();
+  getUserType();
+})
+
+
+// === ✅ 상품정보 데이터 ==============
+const pdt_tdl = [
+  {type: 'stable', recom: [ 0, 0, 0, 98, 2, 0, 0, 0, 0, 0, 6.00 ]},
+  {type: 'stableplus', recom: [ 7, 12, 5, 59, 2, 0, 10, 5, 0, 22, 5.00 ]},
+  {type: 'neutral', recom: [ 8, 10, 6, 34, 2, 0, 28, 12, 0, 48, 4.04 ]},
+  {type: 'aggressive', recom: [ 10, 0, 10, 23, 2, 4, 32, 14, 5, 60, 3.50 ]},
+  {type: 'veryaggressive', recom: [ 21, 0, 5, 2, 2, 8, 40, 22, 0, 91, 2.45 ]}
+];
+
+// (1) 데이터와 성향을 묶기
+const selectedRecom = computed(() => {
+  const match = pdt_tdl.find(p => p.type === rawProfileType.value);
+  return match ? match.recom : [];
+});
 </script>
 
 <style scoped>
@@ -477,14 +234,25 @@ watch(
   position: relative;
   min-height: calc(100dvh - 56px);
 }
-
-/* Header Section styles*/
-.sub-title {
-  margin-top:15px;
-  background: var(--main01);
-  padding:5px 0;
-  border-radius: 8px 8px 0px 0px;
-  font-size: var(--font-size-sm);
+.comment-wrapper{
+  padding-left: 15px;
+  padding-right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.subItem1 {
+  margin: 15px;
+  display: flex;
+  justify-content: center;
+}
+.main-title {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  margin-left: 15px;
+  font-size: 23px;
+  color: var(--main01);
+  font-weight: bold;
 }
 
 .result-section {
@@ -498,7 +266,12 @@ watch(
   background-color: var(--white);
   height: auto;
 }
-
+.comment-img {
+  width: 200px;
+  height: 110px; /* ← 절대 높이 설정 */
+  object-fit: cover;
+  object-position: top;
+}
 .title{
   font-size:var(--font-size-md);
 }
@@ -599,7 +372,7 @@ watch(
 
 /* NoticeSection Styles */
 .notice {
-  margin-top: 18px;
+  margin-top: 180px;
   font-size: var(--font-size-sm);
   color: #8c8c8c;
 }
@@ -616,5 +389,30 @@ watch(
   border-radius: 8px;
   margin-top:auto;
   margin-bottom:60px;
+}
+/* TableSection style */
+.table-main-style {
+  border-collapse: collapse;
+  width: 100%;
+}
+.table-header {
+  background: var(--main01);
+  color: white;
+  font-weight: 600;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  text-align: center;
+  font-size: 15px;
+  border: none;
+  line-height: 1.2;
+  word-break: keep-all;
+}
+.table-cell {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--main04);
+  font-size: 12px;
+  word-break: keep-all;
 }
 </style>
