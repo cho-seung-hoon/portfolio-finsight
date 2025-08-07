@@ -4,16 +4,47 @@
     @click.self="$emit('cancel')">
     <div class="bottom-modal">
       <div class="bottom-modal-header">
-        <p class="bottom-modal-sub-title">다인님의 투자성향은 위험중립형</p>
+        <p class="bottom-modal-sub-title">
+          <span>{{ userInfo.userName }}</span>
+          <span>님의 투자성향은</span>
+          <span :class="['invt', profileClass]">{{ investmentProfileType }}</span>
+        </p>
         <div class="bottom-modal-title">
-          안정추구형에게 추천하는<br />
-          상품을 보여드릴게요!
+          <span :class="['invt', profileClass]">{{ investmentProfileType }}</span>
+          <span>에게 추천하는 상품을 보여드릴게요!</span>
         </div>
       </div>
-      <img
-        class="bottom-modal-img"
-        :src="RecommendImg"
-        alt="투자 성향 이미지" />
+
+      <!-- Graph Section start -->
+      <div>
+        <img
+          v-if="investmentProfileType === '안정형'"
+          src="@/assets/image/recommend_01_stable.png"
+          alt="stableChart"
+          class="bottom-modal-img" />
+        <img
+          v-if="investmentProfileType === '안정추구형'"
+          src="@/assets/image/recommend_02_stableplus.png"
+          alt="stableplusChart"
+          class="bottom-modal-img" />
+        <img
+          v-if="investmentProfileType === '위험중립형'"
+          src="@/assets/image/recommend_03_neutral.png"
+          alt="neutralChart"
+          class="bottom-modal-img" />
+        <img
+          v-if="investmentProfileType === '적극투자형'"
+          src="@/assets/image/recommend_04_aggressive.png"
+          alt="aggressiveChart"
+          class="bottom-modal-img" />
+        <img
+          v-else-if="investmentProfileType === '공격투자형'"
+          src="@/assets/image/recommend_05_veryaggresive.png"
+          alt="veryaggressiveChart"
+          class="bottom-modal-img" />
+      </div>
+      <!-- Graph Section end -->
+        
       <div class="bottom-modal-footer">
         <button
           class="bottom-modal-footer-btn"
@@ -21,7 +52,7 @@
           취소
         </button>
         <button
-          class="bottom-modal-footer-btn primary"
+          class="invt-bottom-modal-footer-btn"
           @click="$emit('confirm')">
           확인
         </button>
@@ -31,7 +62,81 @@
 </template>
 
 <script setup>
-import RecommendImg from '@/assets/image/recommend_02_stableplus.png';
+
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+
+const investmentProfileType = ref('');
+onMounted(() => {
+  fetchInvestmentProfile();
+  fetchUsersInfo();
+});
+
+const userInfo = ref({
+  userName: ''
+});
+const fetchUsersInfo = async () => {
+  const token = localStorage.getItem('accessToken');
+  try {
+    const response = await axios.get('http://localhost:8080/users/info', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    userInfo.value = response.data.data;
+  } catch (e) {
+    console.error('유저 정보 불러오기 실패:', e);
+  }
+};
+
+const fetchInvestmentProfile = async () => {
+  const accessToken = localStorage.getItem('accessToken');
+  if (!accessToken) {
+    console.error('accessToken이 없습니다.');
+    return;
+  }
+  try {
+    const response = await axios.get(
+      'http://localhost:8080/users/invt',
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      const type = response.data.investmentProfileType;
+      investmentProfileType.value = translateProfileType(type);
+      profileClass.value = getProfileClass(type);
+      console.log('투자성향결과:', type);
+
+    } catch (error) {
+      console.error('투자성향 조회 실패:', error);
+  }
+};
+const profileClass = ref('');
+const translateProfileType = (type) => {
+  switch (type) {
+    case 'stable':
+      return '안정형';
+    case 'stableplus':
+      return '안정추구형';
+    case 'neutral':
+      return '위험중립형';
+    case 'aggressive':
+      return '적극투자형';
+    case 'veryaggressive':
+      return '공격투자형';
+    default:
+      return '알 수 없음';
+  }
+};
+const getProfileClass = (type) => {
+  switch (type) {
+    case 'stable': return 'highlight-stable';
+    case 'stableplus': return 'highlight-stableplus';
+    case 'neutral': return 'highlight-neutral';
+    case 'aggressive': return 'highlight-aggressive';
+    case 'veryaggressive': return 'highlight-veryaggressive';
+    default: return '';
+  }
+};
 </script>
 
 <style scoped>
@@ -89,8 +194,9 @@ import RecommendImg from '@/assets/image/recommend_02_stableplus.png';
 
 .bottom-modal-img {
   display: block;
-  width: 90%;
+  width: 80%;
   margin: 50px auto;
+  margin-bottom: -20px;
 }
 
 .bottom-modal-footer {
@@ -110,12 +216,16 @@ import RecommendImg from '@/assets/image/recommend_02_stableplus.png';
   border-radius: 8px;
   cursor: pointer;
 }
-
-.bottom-modal-footer-btn.primary {
-  background: #28ca6e;
-  color: var(--white);
+.invt-bottom-modal-footer-btn {
+  background: var(--main01);
+  color: var(--main05);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
-
 .slide-up-enter-from .bottom-modal,
 .slide-up-leave-to .bottom-modal {
   transform: translateY(100%);
@@ -143,5 +253,36 @@ import RecommendImg from '@/assets/image/recommend_02_stableplus.png';
 .slide-up-enter-to.bottom-modal-overlay,
 .slide-up-leave-from.bottom-modal-overlay {
   background: rgba(20, 24, 44, 0.13);
+}
+
+/* Highlight styles */
+.highlight-blue {
+  color: var(--text-blue);
+  font-weight: bold;
+}
+.highlight-red {
+  color: var(--text-red);
+  font-weight: bold;
+}
+
+.highlight-stable {
+  color: var(--mint01);
+  font-weight: bold;
+}
+.highlight-stableplus {
+  color: var(--green01);
+  font-weight: bold;
+}
+.highlight-neutral {
+  color: var(--yellow01);
+  font-weight: bold;
+}
+.highlight-aggressive {
+  color: var(--orange01);
+  font-weight: bold;
+}
+.highlight-veryaggressive {
+  color: var(--red01);
+  font-weight: bold;
 }
 </style>
