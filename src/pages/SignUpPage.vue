@@ -126,7 +126,11 @@
     </form>
 
     <!-- 완료/에러 모달 -->
-    <CompleteModal v-if="showCompleteModal" />
+    <CompleteModal
+      v-if="showCompleteModal"
+      message="회원 가입 완료"
+      redirect="/login" />
+
     <AlertModal
       v-if="showModal"
       :message="modalMessage"
@@ -461,7 +465,7 @@ hr {
 }
 
 .form {
-  max-width:340px;
+  max-width: 340px;
   display: flex;
   flex-direction: column;
   gap: 18px;
