@@ -493,6 +493,7 @@
 /* Main Section Styles */
 .main-section {
   background: var(--off-white);
+  min-height: calc(100dvh - 56px);
   display: flex;
   flex-direction: column;
   position: relative;

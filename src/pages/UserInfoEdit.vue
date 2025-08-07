@@ -90,6 +90,9 @@
         수정 완료
       </button>
     </form>
+    <div class="subBox2">
+        <div class="action delete-btn" @click="showDeleteModal = true">회원탈퇴</div>
+    </div>
 
     <!-- 탈퇴 -->
     <button
@@ -333,26 +336,47 @@ const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''))
 }
 /* Btn Styles */
 .submit-btn {
-  width: 100%;
-  margin-top: 20px;
-  background-color: var(--sub01);
-  color: var(--white);
-  border: 1.5px solid var(--sub01);
-  border-radius: 6px;
-  padding: 10px;
-  font-weight: bold;
-  cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+    background-color: var(--sub01);
+    color: var(--white);
+    border: 1.5px solid var(--sub01);
+    border-radius: 6px;
+    padding: 10px;
+    font-weight: bold;
+    cursor: pointer;
 }
 .delete-btn {
-  width: 100%;
-  margin-top: 12px;
-  background-color: var(--main04);
-  color: var(--main01);
-  border: 1.5px solid var(--main01);
-  border-radius: 6px;
-  padding: 10px;
-  font-weight: bold;
-  cursor: pointer;
+/* width: 100px; */
+/* margin-top: 12px; */
+/* background-color: var(--main04); */
+/* color: var(--main01); */
+/* border: 1.5px solid var(--main01); */
+/* border-radius: 6px; */
+/* padding: 10px; */
+/* font-weight: bold; */
+/* cursor: pointer; */
+/* text-align: center; */
+    display: flex;
+    flex-direction: row;
+    /* align-items: center; */
+    justify-content: center; /* 중앙 정렬 */
+    gap: 16px; /* 요소 간 간격 */
+}
+
+.subBox2 {
+    padding-top: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center; /* 중앙 정렬 */
+    gap: 16px; /* 요소 간 간격 */
+}
+
+.action {
+    font-size: var(--font-size-sm);
+    color: var(--main02); /* 원하는 색상 */
+    cursor: pointer;
 }
 
 .subItem1 {
