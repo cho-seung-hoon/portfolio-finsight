@@ -16,10 +16,10 @@
       <div class="total-info-detail">
         <div class="total-info-detail-item">
           <div class="total-info-detail-item-1">정기예금</div>
-          <div class="total-info-detail-item-1">5,000,000원</div>
+          <div class="total-info-detail-item-1">{{ depositByUserId }}원</div>
         </div>
         <div class="total-info-detail-item">
-          <div class="total-info-detail-item-2">80%</div>
+          <div class="total-info-detail-item-2">{{ depTotal }} %</div>
         </div>
       </div>
     </div>
@@ -31,11 +31,11 @@
       </div>
       <div class="total-info-detail">
         <div class="total-info-detail-item">
-          <div class="total-info-detail-item-1">국내 투자상품</div>
-          <div class="total-info-detail-item-1">5,000,000원</div>
+          <div class="total-info-detail-item-1">국내 투자</div>
+          <div class="total-info-detail-item-1">{{ domesticByUserId }}원</div>
         </div>
         <div class="total-info-detail-item">
-          <div class="total-info-detail-item-2">80%</div>
+          <div class="total-info-detail-item-2">{{ domeTotal }} %</div>
         </div>
       </div>
     </div>
@@ -47,11 +47,11 @@
       </div>
       <div class="total-info-detail">
         <div class="total-info-detail-item">
-          <div class="total-info-detail-item-1">해외 투자상품</div>
-          <div class="total-info-detail-item-1">5,000,000원</div>
+          <div class="total-info-detail-item-1">해외 투자</div>
+          <div class="total-info-detail-item-1">{{ foreignByUserId }}원</div>
         </div>
         <div class="total-info-detail-item">
-          <div class="total-info-detail-item-2">80%</div>
+          <div class="total-info-detail-item-2">{{ foreiTotal }} %</div>
           <div class="total-info-detail-item-2">$500.00</div>
         </div>
       </div>
@@ -80,6 +80,53 @@ onMounted(() => {
     console.warn('⚠️ 일부 요소를 찾지 못했습니다.');
   }
 });
+
+//  === 양지윤 ==================
+import axios from 'axios';
+import { ref } from 'vue';
+
+const depositByUserId = ref(null);
+const domesticByUserId = ref(null);
+const foreignByUserId = ref(null);
+
+const total = depositByUserId + domesticByUserId + foreignByUserId;
+const depTotal = (depositByUserId / total) * 100;
+const domeTotal = (domesticByUserId / total) * 100;
+const foreiTotal = (foreignByUserId / total) * 100;
+
+
+
+const getAllPrice = async () => {
+  const token = localStorage.getItem('accessToken');
+  try {
+    const response = await axios.get(
+      'http://localhost:8080/holdings/',
+      {
+        headers: { Authorization: `Bearer ${token}`,
+        }
+    });
+    depositByUserId.value = response.data.depositByUserId;
+    domesticByUserId.value = response.data.domesticByUserId;
+    foreignByUserId.value = response.data.foreignByUserId;
+
+    console.log('정기예금: ', depositByUserId.value)
+    console.log('국내 투자상품: ', domesticByUserId.value)
+    console.log('해외 투자상품: ', foreignByUserId.value)
+    
+
+  } catch (error) {
+    console.error('투자모아보기 가져오기 실패:', error);
+    depositByUserId.value = 0; // 에러 시 0으로 대체
+    domesticByUserId.value = 0; // 에러 시 0으로 대체
+    foreignByUserId.value = 0; // 에러 시 0으로 대체
+  }
+};
+
+onMounted(() => {
+  getAllPrice();
+});
+
+
 </script>
 
 <style scoped>
