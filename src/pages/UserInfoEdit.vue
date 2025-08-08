@@ -98,7 +98,7 @@
       </div>
     </div>
 
-    <DeleteUserInfo
+    <!-- <DeleteUserInfo
       v-if="showDeleteModal"
       @close="showDeleteModal = false"
       @confirm="
@@ -106,18 +106,46 @@
           showDeleteModal = false;
           handleDelete();
         }
-      " />
+      " /> -->
+    <BaseModal
+      :visible="showDeleteModal"
+      :showCancel="true"
+      :confirmText="'탈퇴'"
+      :cancelText="'취소'"
+      :onClose="() => (showDeleteModal = false)"
+      :onConfirm="
+        () => {
+          showDeleteModal = false;
+          handleDelete();
+        }
+      ">
+      <template #default>
+        정말 탈퇴하시겠습니까?<br />
+        탈퇴 후 복구가 불가능합니다.
+      </template>
+    </BaseModal>
 
-    <!-- 모달 -->
-    <CompleteModal
-      v-if="showCompleteModal"
+    <!-- ✅ 회원정보 수정 완료 모달 -->
+    <BaseModal
+      :visible="showCompleteModal"
       message="회원 정보 수정 완료!"
-      redirect="/my" />
+      redirect="/my"
+      :onClose="() => (showCompleteModal = false)"
+      :showIcon="true" />
 
-    <AlertModal
-      v-if="showModal"
+    <!-- ✅ 일반 알림 모달 -->
+    <BaseModal
+      :visible="showModal"
       :message="modalMessage"
-      @close="showModal = false" />
+      :onClose="() => (showModal = false)" />
+
+    <!-- 탈퇴 성공 시 모달 -->
+    <BaseModal
+      :visible="showDeleteSuccessModal"
+      message="회원 탈퇴가 완료되었습니다."
+      redirect="/start"
+      :onClose="() => (showDeleteSuccessModal = false)"
+      :showIcon="true" />
   </div>
 </template>
 
@@ -129,9 +157,7 @@ import { useEmailStore } from '@/stores/emailStore';
 import InputWithIcon from '@/components/signUpPage/InputWithIcon.vue';
 import VerificationCodeInput from '@/components/signUpPage/VerificationCodeInput.vue';
 import ValidationMessage from '@/components/signUpPage/ValidationMessage.vue';
-import DeleteUserInfo from '@/components/DeleteUserInfo.vue';
-import CompleteModal from '@/components/signUpPage/CompleteModal.vue';
-import AlertModal from '@/components/signUpPage/AlertModal.vue';
+import BaseModal from '@/components/common/BaseModal.vue';
 
 // 사용자 정보 가져오기
 const UserInfoA = ref({ userId: '', userName: '' });
@@ -161,6 +187,8 @@ const errors = reactive({
   email: '',
   code: ''
 });
+
+const showDeleteSuccessModal = ref(false); // 모달 표시 상태 추가
 
 // 이메일 인증 상태 관리
 const emailStore = useEmailStore();
@@ -279,20 +307,26 @@ const handleEdit = async () => {
   }
 };
 
-// 회원 탈퇴
 const handleDelete = async () => {
   const token = localStorage.getItem('accessToken');
-  if (!token) return alert('로그인 정보가 없습니다.');
+  if (!token) {
+    modalMessage.value = '로그인 정보가 없습니다.';
+    showModal.value = true;
+    return;
+  }
+
   try {
     await axios.delete('/users', {
       headers: { Authorization: `Bearer ${token}` }
     });
-    alert('회원 탈퇴가 완료되었습니다.');
+
+    // ✅ 모달로 안내
     localStorage.removeItem('accessToken');
-    window.location.href = '/start';
+    showDeleteSuccessModal.value = true;
   } catch (error) {
+    modalMessage.value = '회원 탈퇴 중 오류가 발생했습니다.';
+    showModal.value = true;
     console.error('회원 탈퇴 오류:', error);
-    alert('회원 탈퇴 중 오류가 발생했습니다.');
   }
 };
 
