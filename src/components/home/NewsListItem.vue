@@ -8,7 +8,7 @@
     <div class="news-title">{{ title }}</div>
 
     <div class="news-meta">
-      <div class="news-date">{{ formattedDate }}</div>
+      <div class="news-date">{{ formattedDate }} - {{ publisher }}</div>
       <span
         v-if="sentimentText"
         :class="['sentiment-tag', sentiment]">
@@ -27,7 +27,8 @@ const props = defineProps({
   url: String,
   sentiment: String,
   date: Array,
-  newsId: String
+  newsId: String,
+  publisher: String
 });
 
 const formattedDate = computed(() => {
@@ -110,20 +111,21 @@ const handleClick = async e => {
 }
 
 /* 긍정 태그 스타일 */
-.sentiment-tag.positive {
-  background-color: #fdd5d9; /* 연한 빨강 */
-  color: #b30000; /* 진한 빨강 */
+.sentiment-tag.negative {
+  background-color: var(--newsNegative); /* 연한 빨강 */
+  color: #ffffff; /* 진한 빨강 */
 }
 
 /* 부정 태그 스타일 */
-.sentiment-tag.negative {
-  background-color: #d1f5f3; /* 연한 파랑 */
-  color: #007777; /* 진한 파랑 */
+.sentiment-tag.positive {
+  background-color: var(--newsPositive); /* 연한 파랑 */
+  color: #ffffff; /* 진한 파랑 */
 }
 
 /* 중립 태그 스타일 */
 .sentiment-tag.neutral {
-  background-color: #fff3d0; /* 연한 노랑 */
-  color: #996600; /* 진한 노랑 */
+  background-color: var(--newsNeutral); /* 연한 노랑 */
+  color: #ffffff; /* 진한 노랑 */
 }
+
 </style>

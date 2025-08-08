@@ -84,17 +84,24 @@ onMounted(async () => {
     const apiResponseData = await fetchKeywords();
     const bubbleChartData = apiResponseData.map(item => {
       const sentiments = {
-        positive: item.positiveCount,
-        negative: item.negativeCount,
+        positive: item.positiveCount * 5 , // 긍정 - 가중치
+        negative: item.negativeCount * 5, // 부정 - 가중치
         neutral: item.neutralCount
       };
-      const dominantSentiment = Object.keys(sentiments).reduce((a, b) =>
-        sentiments[a] > sentiments[b] ? a : b
-      );
+      let dominantSentiment;
+
+      if (sentiments.positive === sentiments.negative) {
+        dominantSentiment = 'neutral';
+      } else {
+        dominantSentiment = Object.keys(sentiments).reduce((a, b) =>
+          sentiments[a] > sentiments[b] ? a : b
+        );
+      }
+
       return {
         id: item.keywordId,
         label: item.keyword,
-        value: item.totalCount,
+        value: sentiments[dominantSentiment],
         sentiment: dominantSentiment
       };
     });

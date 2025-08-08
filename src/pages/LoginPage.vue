@@ -169,21 +169,21 @@ const handleKeyPress = event => {
 }
 
 .logo-icon {
-  width: 100px;
-  height: 100px;
-  margin: 0 auto 1rem;
+  width: 85px;
+  height: 85px;
+  margin: 0 auto;
   color: var(--sub01);
 }
 
 .logo-svg {
   width: 100%;
   height: 100%;
-  object-fit: contain;
 }
 
 .logo-text {
   font-size: 32px;
   font-weight: var(--font-weight-bold);
+  letter-spacing:-1px;
   color: var(--white);
 }
 
@@ -208,7 +208,7 @@ const handleKeyPress = event => {
 
 .custom-input {
   padding: 1rem;
-  border: 1.5px solid var(--main04);
+  border: 1.2px solid var(--main05);
   border-radius: 8px;
   background: transparent;
   color: var(--white);
