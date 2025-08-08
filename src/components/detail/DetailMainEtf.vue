@@ -1,15 +1,15 @@
 <template>
   <div class="main-section">
-    <div class="product-bank">{{ bank }}</div>
+    <div class="product-bank">{{ productInfo?.productCompanyName || bank }}</div>
     <div class="product-title-row">
-      <div class="product-title">{{ title }}</div>
+      <div class="product-title">{{ productInfo?.productName || title }}</div>
       <HeartToggle
-        :is-active="isWatched"
+        :is-active="productInfo?.isWatched || isWatched"
         @toggle="handleHeartToggle" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">
-        <div class="rate-label">수익률 ({{ yieldMonths }}개월)</div>
+        <div class="rate-label">전일대비 수익률</div>
         <div
           :class="yieldChangeColor"
           class="rate-value">
@@ -32,6 +32,8 @@ import { computed } from 'vue';
 import HeartToggle from '@/components/common/HeartToggle.vue';
 
 const props = defineProps({
+  productInfo: Object, // 새로운 구조: productInfo 객체
+  // 기존 개별 props (하위 호환성을 위해 유지)
   bank: String,
   title: String,
   yield: [String, Number], // 수익률 (3개월 고정)
@@ -44,25 +46,29 @@ const props = defineProps({
 
 const emit = defineEmits(['heart-toggle']);
 
-const yieldMonths = computed(() => {
-  return 3; // 3개월로 고정
-});
-
 const yieldValue = computed(() => {
-  if (!props.yield) return 0;
+  // productInfo가 있으면 productInfo에서 가져오고, 없으면 기존 props 사용
+  // 웹소켓의 change_rate1s를 우선적으로 사용
+  const yieldData =
+    props.productInfo?.change_rate1s ||
+    props.productInfo?.changeRate ||
+    props.productInfo?.percent_change_from_yesterday ||
+    props.yield;
 
-  if (typeof props.yield === 'string') {
-    return parseFloat(props.yield);
-  } else if (typeof props.yield === 'number') {
-    return props.yield;
+  if (!yieldData) return 0;
+
+  if (typeof yieldData === 'string') {
+    return parseFloat(yieldData);
+  } else if (typeof yieldData === 'number') {
+    return yieldData;
   } else {
     return 0;
   }
 });
 
 const formattedYield = computed(() => {
-  if (!props.yield) return '-';
-  return Math.abs(yieldValue.value);
+  if (!yieldValue.value) return '-';
+  return Math.abs(yieldValue.value).toFixed(2);
 });
 
 const yieldChangeColor = computed(() => {
@@ -72,8 +78,18 @@ const yieldChangeColor = computed(() => {
 });
 
 const formattedCurrentPrice = computed(() => {
-  if (!props.currentPrice) return '-';
-  return props.currentPrice + '원';
+  // productInfo가 있으면 productInfo에서 가져오고, 없으면 기존 props 사용
+  const price = props.productInfo?.currentPrice || props.currentPrice;
+
+  if (!price) return '-';
+
+  // 숫자인 경우 포맷팅
+  if (typeof price === 'number') {
+    return new Intl.NumberFormat('ko-KR').format(price) + '원';
+  }
+
+  // 문자열인 경우 그대로 사용
+  return price + '원';
 });
 
 const handleHeartToggle = isActive => {

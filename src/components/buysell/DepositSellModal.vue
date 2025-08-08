@@ -81,7 +81,8 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { convertToKoreanNumber } from '@/utils/numberUtils';
+import { convertToKoreanNumber, parseNumberFromComma } from '@/utils/numberUtils';
+import { sellProduct } from '@/api/tradeApi';
 import Decimal from 'decimal.js';
 
 const props = defineProps({
@@ -107,6 +108,15 @@ const holdingData = computed(() => {
   return props.productInfo?.holdingData || null;
 });
 
+// 현재 날짜 포맷팅
+const currentDateTime = computed(() => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}.${month}.${day}`;
+});
+
 // 남은 기간 계산
 const remainingPeriod = computed(() => {
   if (!holdingData.value?.maturityDate) return '-';
@@ -129,8 +139,24 @@ const remainingPeriod = computed(() => {
 });
 // 통화 포맷팅
 const formatCurrency = amount => {
-  const decimalAmount = new Decimal(amount);
-  return new Intl.NumberFormat('ko-KR').format(decimalAmount.toNumber()) + ' 원';
+  // 숫자가 아닌 값이나 빈 값 처리
+  if (!amount || amount === '') return '0 원';
+
+  // 이미 "원"이 포함된 문자열인 경우 숫자 부분만 추출
+  if (typeof amount === 'string' && amount.includes('원')) {
+    const numericPart = amount.replace(/[^0-9,]/g, '');
+    const cleanNumber = parseNumberFromComma(numericPart);
+    return new Intl.NumberFormat('ko-KR').format(cleanNumber.toNumber()) + ' 원';
+  }
+
+  // 일반적인 숫자 처리
+  try {
+    const decimalAmount = new Decimal(amount);
+    return new Intl.NumberFormat('ko-KR').format(decimalAmount.toNumber()) + ' 원';
+  } catch (error) {
+    console.warn('formatCurrency error:', error, 'amount:', amount);
+    return '0 원';
+  }
 };
 
 // 날짜 포맷팅
@@ -191,11 +217,31 @@ const handleBackdropClick = event => {
 };
 
 // 제출 처리
-const handleSubmit = () => {
-  emit('submit', {
-    code: props.productInfo?.productCode,
-    category: 'DEPOSIT'
-  });
+const handleSubmit = async () => {
+  const tradeData = {
+    productCode: props.productInfo?.productCode,
+    productCategory: 'deposit',
+    quantity: 1,
+    amount: holdingData.value?.holdingsTotalPrice || 0,
+    saleDate: currentDateTime.value
+  };
+
+  try {
+    const result = await sellProduct(tradeData);
+    if (result.success) {
+      console.log('예금 해지 성공:', result.data);
+      emit('submit', {
+        code: props.productInfo?.productCode,
+        category: 'DEPOSIT'
+      });
+      closeModal();
+    } else {
+      console.error('예금 해지 실패:', result.error);
+      // 에러
+    }
+  } catch (error) {
+    console.error('예금 해지 중 오류 발생:', error);
+  }
 };
 
 // 한글 숫자 변환 함수

@@ -1,161 +1,144 @@
 <template>
   <div class="news-list-container">
-    <div class="news-items">
-      <div
+    <div class="subItem-title">
+      <span
+        class="keyword"
+        :style="{ color: props.color }"
+        >{{ props.keyword }}</span
+      >
+      <span> 관련 뉴스</span>
+    </div>
+
+    <div class="news-list">
+      <NewsListItem
         v-for="(news, index) in displayedNews"
         :key="news.news_id"
-        class="news-item"
-        @click="openNewsLink(news.news_content_url)">
-        <div class="news-content">
-          <div class="news-text">{{ news.news_title }}</div>
-          <div class="news-meta">
-            <div class="news-time">{{ formatDate(news.news_published_at) }}</div>
-            <div class="news-score-container">
-              <div class="accuracy-stars">
-                <span
-                  v-for="star in 5"
-                  :key="star"
-                  class="star"
-                  :class="{ filled: star <= Math.round(news.news_score * 5) }">
-                  ★
-                </span>
-              </div>
-              <span class="accuracy-text">{{ (news.news_score * 100).toFixed(0) }}%</span>
-            </div>
-          </div>
-        </div>
-        <div
-          class="sentiment-badge"
-          :class="getSentimentClass(news.news_sentiment)">
-          {{ getSentimentText(news.news_sentiment) }}
-        </div>
-      </div>
+        :title="news.news_title"
+        :url="news.news_content_url"
+        :sentiment="news.news_sentiment"
+        :date="formatDateForNewsItem(news.news_published_at)"
+        :news-id="news.news_id" />
     </div>
 
-    <!-- 로딩 스피너 -->
+    <!-- 더보기 버튼 -->
     <div
-      v-if="isLoading"
-      class="loading-spinner">
-      <div class="spinner"></div>
-      <span>뉴스를 불러오는 중...</span>
-    </div>
-
-    <!-- 더 보기 버튼 -->
-    <div
-      v-if="hasMoreNews && !isLoading"
-      class="load-more">
+      v-if="hasMoreNews"
+      class="load-more-container">
       <button
-        @click="loadMoreNews"
-        class="load-more-btn">
-        더 보기
+        class="load-more-btn"
+        :disabled="isLoading"
+        @click="loadMore">
+        <span v-if="!isLoading">더보기</span>
+        <span
+          v-else
+          class="loading-text">
+          <span class="loading-spinner"></span>
+          로딩중...
+        </span>
+        <span
+          v-if="remainingCount < 99"
+          class="news-count"
+          >(+{{ remainingCount }})</span
+        >
+        <span
+          v-else
+          class="news-count"
+          >(+99)</span
+        >
       </button>
+    </div>
+
+    <!-- 모든 뉴스를 다 본 경우 -->
+    <div
+      v-else-if="filterNews.length > 0 && displayedNews.length > 0"
+      class="no-more-news">
+      모든 뉴스를 확인했습니다
+    </div>
+
+    <!-- 뉴스가 없는 경우 -->
+    <div
+      v-if="filterNews.length === 0"
+      class="no-news">
+      관련 뉴스가 없습니다
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { computed, watch, ref } from 'vue';
+import NewsListItem from '@/components/home/NewsListItem.vue';
 
 const props = defineProps({
-  newsList: {
-    type: Array,
-    default: () => []
-  }
+  keyword: String,
+  color: String,
+  newsList: Array // 뉴스 목록 데이터, 부모에서 전달
 });
 
-// 상태 관리
 const currentPage = ref(1);
 const itemsPerPage = 10;
 const isLoading = ref(false);
 
-// 표시할 뉴스 계산
+// 필터링된 전체 뉴스 목록
+const filterNews = computed(() => {
+  return props.newsList || [];
+});
+
+// 현재 표시할 뉴스 목록 (페이지네이션 적용)
 const displayedNews = computed(() => {
-  return props.newsList.slice(0, currentPage.value * itemsPerPage);
+  const endIndex = currentPage.value * itemsPerPage;
+  return filterNews.value.slice(0, endIndex);
 });
 
-// 더 많은 뉴스가 있는지 확인
+// 더 보여줄 뉴스가 있는지 확인
 const hasMoreNews = computed(() => {
-  return displayedNews.value.length < props.newsList.length;
+  return displayedNews.value.length < filterNews.value.length;
 });
 
-// 감성에 따른 클래스 반환
-const getSentimentClass = sentiment => {
-  switch (sentiment) {
-    case 'positive':
-      return 'sentiment-positive';
-    case 'negative':
-      return 'sentiment-negative';
-    case 'neutral':
-      return 'sentiment-neutral';
-    default:
-      return 'sentiment-neutral';
-  }
-};
+// 남은 뉴스 개수
+const remainingCount = computed(() => {
+  return filterNews.value.length - displayedNews.value.length;
+});
 
-// 감성 텍스트 반환
-const getSentimentText = sentiment => {
-  switch (sentiment) {
-    case 'positive':
-      return '긍정';
-    case 'negative':
-      return '부정';
-    case 'neutral':
-      return '중립';
-    default:
-      return '중립';
-  }
-};
-
-// 날짜 포맷팅 (yyyy/mm/dd 형태)
-const formatDate = publishedAt => {
-  const date = new Date(publishedAt);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}/${month}/${day}`;
-};
-
-// 뉴스 링크 열기
-const openNewsLink = url => {
-  if (url) {
-    window.open(url, '_blank');
-  }
-};
-
-// 더 많은 뉴스 로드
-const loadMoreNews = async () => {
+// 더보기 버튼 클릭 핸들러
+const loadMore = async () => {
   if (isLoading.value || !hasMoreNews.value) return;
 
   isLoading.value = true;
 
-  // 로딩 시뮬레이션 (실제 API 호출 시 제거)
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  // 로딩 효과를 위한 약간의 지연
+  await new Promise(resolve => setTimeout(resolve, 300));
 
   currentPage.value += 1;
   isLoading.value = false;
 };
 
-// 무한 스크롤 처리
-const handleScroll = () => {
-  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  const windowHeight = window.innerHeight;
-  const documentHeight = document.documentElement.scrollHeight;
-
-  // 스크롤이 하단에 가까워지면 자동으로 더 로드
-  if (scrollTop + windowHeight >= documentHeight - 100) {
-    loadMoreNews();
-  }
+// props가 변경될 때 페이지 초기화
+const resetPagination = () => {
+  currentPage.value = 1;
 };
 
-// 컴포넌트 마운트 시 스크롤 이벤트 리스너 추가
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-});
+// keyword나 newsList가 변경될 때 페이지네이션 초기화
+watch(
+  () => [props.keyword, props.newsList],
+  () => {
+    resetPagination();
+  },
+  { deep: true }
+);
 
-// 컴포넌트 언마운트 시 스크롤 이벤트 리스너 제거
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
+// ISO 문자열을 NewsListItem이 기대하는 배열 형식으로 변환
+const formatDateForNewsItem = isoString => {
+  if (!isoString) return [];
+
+  const date = new Date(isoString);
+  return [
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate(),
+    date.getHours(),
+    date.getMinutes()
+  ];
+};
 </script>
 
 <style scoped>
@@ -163,130 +146,64 @@ onUnmounted(() => {
   width: 100%;
 }
 
-.news-items {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.subItem-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semi-bold);
+  margin-bottom: 10px;
 }
 
-.news-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 16px;
-  background: var(--white);
-  border-radius: 8px;
-  border: 1px solid var(--main03);
+.keyword {
+  text-decoration: underline;
+}
+
+.news-list {
+  margin-top: 10px;
+}
+
+/* 새로 추가된 스타일 */
+.load-more-container {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.load-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background-color: var(--white);
+  border: 1px solid var(--main04);
+  border-radius: 6px;
+  color: var(--main01);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
   transition: all 0.2s ease;
-  position: relative;
 }
 
-.news-item:hover {
-  background: #f8f9fa;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.load-more-btn:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: var(--main02);
 }
 
-.news-content {
-  flex: 1;
-  margin-right: 12px;
+.load-more-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.news-text {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--black);
-  line-height: 1.4;
-  margin-bottom: 8px;
-  text-align: left;
-}
-
-.news-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  color: var(--main02);
-}
-
-.news-time {
-  text-align: left;
-}
-
-.news-score-container {
+.loading-text {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.accuracy-stars {
-  display: flex;
-  gap: 1px;
-}
-
-.star {
-  font-size: 12px;
-  color: #e0e0e0;
-  transition: color 0.2s ease;
-}
-
-.star.filled {
-  color: #ffc107;
-}
-
-.accuracy-text {
-  font-size: 11px;
-  font-weight: 600;
-  color: #6c757d;
-  background: #f8f9fa;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.sentiment-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-  min-width: 40px;
-  text-align: center;
-  align-self: flex-start;
-  margin-top: 0;
-}
-
-.sentiment-positive {
-  background: #e8f5e8;
-  color: #2e7d32;
-}
-
-.sentiment-negative {
-  background: #ffebee;
-  color: #d32f2f;
-}
-
-.sentiment-neutral {
-  background: #fff3e0;
-  color: #f57c00;
-}
-
 .loading-spinner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  color: var(--main02);
-}
-
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--main03);
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--main04);
   border-top: 2px solid var(--main01);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 8px;
 }
 
 @keyframes spin {
@@ -298,59 +215,25 @@ onUnmounted(() => {
   }
 }
 
-.load-more {
-  display: flex;
-  justify-content: center;
+.news-count {
+  font-size: var(--font-size-xs);
+  color: var(--main02);
+  font-weight: normal;
+}
+
+.no-more-news {
+  text-align: center;
   padding: 16px;
+  color: var(--main02);
+  font-size: var(--font-size-sm);
+  border-top: 1px solid var(--main04);
+  margin-top: 12px;
 }
 
-.load-more-btn {
-  padding: 8px 16px;
-  background: var(--main01);
-  color: var(--white);
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.load-more-btn:hover {
-  background: var(--main02);
-}
-
-/* 모바일 반응형 */
-@media (max-width: 768px) {
-  .news-item {
-    padding: 12px;
-  }
-
-  .news-text {
-    font-size: 13px;
-  }
-
-  .news-meta {
-    font-size: 11px;
-  }
-
-  .star {
-    font-size: 11px;
-  }
-
-  .accuracy-text {
-    font-size: 10px;
-    padding: 1px 4px;
-  }
-
-  .sentiment-badge {
-    padding: 3px 6px;
-    font-size: 10px;
-    min-width: 35px;
-  }
-
-  .load-more-btn {
-    padding: 6px 12px;
-    font-size: 13px;
-  }
+.no-news {
+  text-align: center;
+  padding: 20px;
+  color: var(--main02);
+  font-size: var(--font-size-sm);
 }
 </style>

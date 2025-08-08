@@ -6,10 +6,14 @@
     <div v-else-if="error">{{ error }}</div>
     <div v-else-if="productInfo">
       <DetailMainFund
+        :product-info="productInfo"
         :bank="productInfo.productCompanyName"
         :title="productInfo.productName"
         :yield="productInfo.yield"
-        :price-arr="productInfo.priceArr" />
+        :price-arr="productInfo.priceArr"
+        :current-price="productInfo.currentPrice"
+        :price-change="productInfo.priceChange"
+        :price-change-percent="productInfo.priceChangePercent" />
 
       <DetailTabs
         :tabs="tabs"
@@ -21,11 +25,12 @@
         :selected-tab="selectedTab" />
 
       <DetailActionButton
+        :product-info="productInfo"
         :id="productInfo.productCode"
         :active="productInfo.isHolding"
         :category="'fund'"
-        @buy="handleBuyClick"
-        @sell="handleSellClick" />
+        @buy-click="handleBuyClick"
+        @sell-click="handleSellClick" />
     </div>
 
     <!-- 모달 컴포넌트들 -->
@@ -57,11 +62,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { ref, onMounted, computed, watch, nextTick, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFundStore } from '@/stores/fund';
 import { useBuyStore } from '@/stores/buy';
 import { useSellStore } from '@/stores/sell';
+import { useProductSubscription } from '@/composables/useProductSubscription';
 import { storeToRefs } from 'pinia';
 
 import DetailMainFund from '@/components/detail/DetailMainFund.vue';
@@ -77,7 +83,8 @@ const route = useRoute();
 const fundStore = useFundStore();
 const buyStore = useBuyStore();
 const sellStore = useSellStore();
-const { productInfo, isLoading, error } = storeToRefs(fundStore);
+const { productInfo, isLoading, error, isYieldHistoryLoaded, isYieldHistoryLoading } =
+  storeToRefs(fundStore);
 const { isLoading: isBuyLoading } = storeToRefs(buyStore);
 const { isLoading: isSellLoading } = storeToRefs(sellStore);
 
@@ -102,6 +109,8 @@ onMounted(() => {
   const productId = route.params.id;
   if (productId) {
     fundStore.fetchProduct(productId);
+    // 페이지 새로고침 시 수익률 히스토리 초기화
+    fundStore.resetYieldHistory();
   } else {
     // 상품 ID가 URL에 없습니다.
   }
@@ -128,22 +137,40 @@ const tabs = computed(() => {
     return [
       { key: 'holding', label: '보유기록' },
       { key: 'info', label: '상품안내' },
-      { key: 'price', label: '기준가' },
+      { key: 'price', label: '수익률' },
       { key: 'composition', label: '구성종목' },
       { key: 'news', label: '뉴스' }
     ];
   }
   return [
     { key: 'info', label: '상품안내' },
-    { key: 'price', label: '기준가' },
+    { key: 'price', label: '수익률' },
     { key: 'composition', label: '구성종목' },
     { key: 'news', label: '뉴스' }
   ];
 });
 
 const selectedTab = ref('info');
-const selectTab = tab => {
+const selectTab = async tab => {
+  console.log('selectTab called with tab:', tab);
+  console.log('isYieldHistoryLoaded:', isYieldHistoryLoaded.value);
+  console.log('isYieldHistoryLoading:', isYieldHistoryLoading.value);
+
   selectedTab.value = tab;
+
+  // 수익률 탭을 처음 클릭할 때만 API 호출
+  if (tab === 'price' && !isYieldHistoryLoaded.value && !isYieldHistoryLoading.value) {
+    const productId = route.params.id;
+    console.log('Fetching yield history for productId:', productId);
+    if (productId) {
+      try {
+        await fundStore.fetchYieldHistory(productId);
+        console.log('Yield history fetched successfully');
+      } catch (error) {
+        console.error('Failed to fetch yield history:', error);
+      }
+    }
+  }
 };
 
 // productInfo가 변경될 때 보유기록 탭이 있으면 자동으로 첫 번째 탭 선택
@@ -159,7 +186,7 @@ watch(
 
 // tabData를 computed로 변경하여 productId를 전달
 const tabData = computed(() => {
-  return fundStore.getTabDataWithHolding(productInfo.value.productCode);
+  return fundStore.tabData;
 });
 
 // 매수 버튼 클릭 처리
