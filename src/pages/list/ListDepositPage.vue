@@ -7,7 +7,7 @@
     <section class="list-deposit-page-contents">
       <DepositItem
         v-for="item in deposits"
-        :key="item.product_code"
+        :key="item.productCode"
         :item="item" />
     </section>
   </div>
@@ -29,22 +29,24 @@ const selected = ref({
 
 const deposits = [
   {
-    product_code: 'deposit-001',
-    product_name: 'SH 첫만남우대예금',
-    company_name: 'SH 수협은행',
-    intr_rate: 1.2,
-    intr_rate2: 2.8,
+    productCode: 'deposit-001',
+    productName: 'SH 첫만남우대예금',
+    productCompanyName: 'SH 수협은행',
     userOwns: true,
-    isPopularInUserGroup: false
+    isPopularInUserGroup: false,
+    productRiskGrade: 6,
+    depositIntrRate: 1.2,
+    depositIntrRate2: 2.8
   },
   {
-    product_code: 'deposit-002',
-    product_name: 'KB Star 정기예금',
-    company_name: 'KB 국민은행',
-    intr_rate: 1.5,
-    intr_rate2: 3.0,
+    productCode: 'deposit-002',
+    productName: 'KB Star 정기예금',
+    productCompanyName: 'KB 국민은행',
     userOwns: false,
-    isPopularInUserGroup: true
+    isPopularInUserGroup: true,
+    productRiskGrade: 6,
+    depositIntrRate: 1.5,
+    depositIntrRate2: 3.0
   }
 ];
 

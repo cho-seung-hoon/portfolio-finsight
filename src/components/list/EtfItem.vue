@@ -3,10 +3,10 @@
     class="etf-item-container"
     @click="goToDetail">
     <section class="etf-item-header-section">
-      <div class="etf-item-sub-title">{{ item.country }} ・ {{ item.etf_type }}</div>
+      <div class="etf-item-sub-title">{{ item.productCountry }} ・ {{ item.productType }}</div>
       <header class="etf-item-header">
         <div class="etf-item-title-left">
-          {{ item.product_name }}
+          {{ item.productName }}
           <span
             v-if="item.userOwns"
             class="own-tag">
@@ -22,7 +22,7 @@
       </div>
     </section>
     <section class="etf-item-content-section">
-      <div class="info-row">
+      <!-- <div class="info-row">
         <span class="label">기준가</span>
         <span class="value">{{ item.nav.toLocaleString() }}</span>
       </div>
@@ -33,10 +33,10 @@
       <div class="info-row">
         <span class="label">수익률</span>
         <span class="value">{{ item.rate_of_return }}</span>
-      </div>
+      </div> -->
       <div class="info-row">
         <span class="label">위험등급</span>
-        <span class="value">{{ item.risk_grade }}등급</span>
+        <span class="value">{{ item.productRiskGrade }}등급</span>
       </div>
       <div class="news-response-box">
         <span class="news-label">뉴스반응</span>
@@ -71,7 +71,7 @@ const props = defineProps({
 const router = useRouter();
 
 function goToDetail() {
-  router.push(`/etf/${props.item.product_code}`);
+  router.push(`/etf/${props.item.productCode}`);
 }
 
 const colorMap = {
@@ -81,7 +81,7 @@ const colorMap = {
 };
 
 function getSegmentStyle(key) {
-  const values = props.item.news_response;
+  const values = props.item.newsSentiment;
   const total = Object.values(values).reduce((sum, v) => sum + v, 0);
   const maxKey = Object.keys(values).reduce((a, b) => (values[a] > values[b] ? a : b));
 

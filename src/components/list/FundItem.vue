@@ -3,10 +3,10 @@
     class="fund-item-container"
     @click="goToDetail">
     <section class="fund-item-header-section">
-      <div class="fund-item-sub-title">{{ item.country }} ・ {{ item.fund_type }}</div>
+      <div class="fund-item-sub-title">{{ item.productCountry }} ・ {{ item.fund_type }}</div>
       <header class="fund-item-header">
         <div class="fund-item-title-left">
-          {{ item.product_name }}
+          {{ item.productName }}
           <span
             v-if="item.userOwns"
             class="own-tag">
@@ -24,15 +24,15 @@
     <section class="fund-item-content-section">
       <div class="info-row">
         <span class="label">수익률</span>
-        <span class="value">{{ item.rate_of_return }} (3개월)</span>
+        <span class="value">{{ item.productRateOfReturn }} (3개월)</span>
       </div>
       <div class="info-row">
         <span class="label">펀드규모</span>
-        <span class="value">{{ item.scale }}</span>
+        <span class="value">{{ item.fundScale }}</span>
       </div>
       <div class="info-row">
         <span class="label">위험등급</span>
-        <span class="value">{{ item.risk_grade }}</span>
+        <span class="value">{{ item.productRiskGrade }}</span>
       </div>
       <div class="news-response-box">
         <span class="news-label">뉴스반응</span>
@@ -67,7 +67,7 @@ const props = defineProps({
 const router = useRouter();
 
 function goToDetail() {
-  router.push(`/fund/${props.item.product_code}`);
+  router.push(`/fund/${props.item.productCode}`);
 }
 
 const colorMap = {
@@ -77,7 +77,7 @@ const colorMap = {
 };
 
 function getSegmentStyle(key) {
-  const values = props.item.news_response;
+  const values = props.item.newsSentiment;
   const total = Object.values(values).reduce((sum, v) => sum + v, 0);
   const maxKey = Object.keys(values).reduce((a, b) => (values[a] > values[b] ? a : b));
 

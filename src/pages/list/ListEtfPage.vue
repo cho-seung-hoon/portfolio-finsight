@@ -7,7 +7,7 @@
     <section class="list-etf-page-contents">
       <EtfItem
         v-for="item in etfs"
-        :key="item.product_code"
+        :key="item.productCode"
         :item="item" />
     </section>
   </div>
@@ -36,54 +36,57 @@ const selected = ref({
 
 const etfs = [
   {
-    product_code: 'etf-001',
-    country: '국내',
-    etf_type: '주식형',
-    product_name: 'TIGER 미국S&P500',
-    nav: 2000,
-    volume: 3000,
-    rate_of_return: '3.3% (1개월)',
-    risk_grade: 3,
-    news_response: {
+    productCode: 'etf-001',
+    productCountry: 'domestic',
+    productType: 'equity',
+    productName: 'TIGER 미국S&P500',
+    productRiskGrade: 3,
+    // nav: 2000,
+    // volume: 3000,
+    // rate_of_return: '3.3% (1개월)',
+    newsSentiment: {
       positive: 20,
       neutral: 30,
       negative: 50
     },
-    userOwns: false,
+    userOwns: true,
+    userWatches: true,
     isPopularInUserGroup: true
   },
   {
-    product_code: 'etf-002',
-    country: '국내',
-    etf_type: '채권형',
-    product_name: 'KODEX 200',
-    nav: 10250,
-    volume: 45700,
-    rate_of_return: '1.1% (1개월)',
-    risk_grade: 2,
-    news_response: {
+    productCode: 'etf-002',
+    productCountry: 'domestic',
+    productType: 'mixed',
+    productName: 'KODEX 200',
+    productRiskGrade: 2,
+    // nav: 10250,
+    // volume: 45700,
+    // rate_of_return: '1.1% (1개월)',
+    newsSentiment: {
       positive: 30,
       neutral: 60,
       negative: 10
     },
     userOwns: true,
+    userWatches: true,
     isPopularInUserGroup: false
   },
   {
-    product_code: 'ETF003',
-    country: '국외',
-    etf_type: '혼합형',
-    product_name: 'ARIRANG 미국리츠',
-    nav: 8760,
-    volume: 12800,
-    rate_of_return: '-0.8% (1개월)',
-    risk_grade: 4,
-    news_response: {
+    productCode: 'ETF003',
+    productCountry: 'foreign',
+    productType: 'bond',
+    productName: 'ARIRANG 미국리츠',
+    productRiskGrade: 4,
+    // nav: 8760,
+    // volume: 12800,
+    // rate_of_return: '-0.8% (1개월)',
+    newsSentiment: {
       positive: 62,
       neutral: 25,
       negative: 13
     },
     userOwns: true,
+    userWatches: false,
     isPopularInUserGroup: false
   }
 ];
