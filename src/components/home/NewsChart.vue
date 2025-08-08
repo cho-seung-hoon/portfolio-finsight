@@ -315,7 +315,7 @@ function drawChart(data, width, height) {
 .tooltip-content {
   position: absolute;
   top: 30px;
-  right: 0px;
+  left: 78px;
   padding: 8px 12px;
   border-radius: 6px;
   background-color: rgb(from var(--main01) r g b / 0.7);
@@ -329,7 +329,7 @@ function drawChart(data, width, height) {
   content: '';
   position: absolute;
   bottom: 100%;
-  right: 10px;
+  left: 10px;
   border: 6px solid;
   border-color: transparent transparent var(--main02) transparent;
 }
