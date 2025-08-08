@@ -2,7 +2,8 @@
   <div class="list-search-page-container">
     <section class="list-search-page-header">
       <input
-        v-model="search"
+        :value="word"
+        @input="handleInput"
         type="text"
         placeholder="상품을 입력하세요"
         class="list-search-page-input" />
@@ -12,50 +13,50 @@
       <SearchSuggestItem
         v-for="(name, idx) in allProducts"
         :key="idx"
-        :product-name="name" />
+        :product-name="name"
+        :search-word="word" />
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import SearchSuggestItem from '@/components/list/SearchSuggestItem.vue';
-import { useLoadingStore } from '@/stores/loading';
+import { getSearchSuggestions } from '@/api/search';
 
-const loadingStore = useLoadingStore();
+const word = ref('');
+const allProducts = ref([]);
 
-const search = ref('');
+watch(word, async newValue => {
+  await fetchSuggestions(newValue);
+});
 
-const allProducts = [
-  '삼성전자',
-  '삼성전자우',
-  '삼성SDI',
-  '삼성전기',
-  '삼성바이오로직스',
-  '삼성물산',
-  '삼성생명',
-  '삼성화재'
-];
+function handleInput(event) {
+  word.value = event.target.value;
+}
 
-onMounted(async () => {
-  // 로딩 상태 초기화
-  loadingStore.resetLoading();
-
-  // 로딩 시작
-  loadingStore.startLoading('검색 데이터를 불러오는 중...');
-
-  // 0.5초 대기 (더미 데이터 로딩 시뮬레이션)
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  const stateQuery = window.history.state?.query;
-
-  if (typeof stateQuery === 'string') {
-    search.value = stateQuery;
-    window.history.replaceState({}, '');
+async function fetchSuggestions(value) {
+  if (!value.trim()) {
+    allProducts.value = [];
+    return;
   }
 
-  // 로딩 종료
-  loadingStore.stopLoading();
+  try {
+    const result = await getSearchSuggestions(value);
+    allProducts.value = result.map(item => item.productName);
+  } catch (err) {
+    console.error('검색어 추천 가져오기 실패:', err);
+    allProducts.value = [];
+  }
+}
+
+onMounted(async () => {
+  const stateQuery = window.history.state?.query;
+  if (typeof stateQuery === 'string') {
+    word.value = stateQuery;
+    await fetchSuggestions(stateQuery);
+    window.history.replaceState({}, '');
+  }
 });
 </script>
 

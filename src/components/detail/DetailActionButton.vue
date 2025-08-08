@@ -67,7 +67,7 @@ function toggleHeart() {
 }
 
 function handleBuyClick() {
-  // 매수하기 버튼 클릭 시 이벤트 emit
+  // 구매하기 버튼 클릭 시 이벤트 emit
   emit('buy-click', {
     category: category.value,
     id: productId.value,
@@ -76,36 +76,35 @@ function handleBuyClick() {
 }
 
 function handleSellClick() {
-  // 매도하기/해지하기 버튼 클릭 시 이벤트 emit
-  emit('sell-click', {
-    category: category.value,
-    id: productId.value,
-    productInfo: props.productInfo
+  // 판매하기/해지하기 버튼 클릭 시 이벤트 emit
+  emit('sell', {
+    category: props.category,
+    id: props.id
   });
 }
 
-// 첫 매수/가입 버튼 텍스트 반환
+// 첫 구매/가입 버튼 텍스트 반환
 function getBuyButtonText() {
   if (category.value === 'deposit') {
     return '가입하기';
   }
-  return '매수하기';
+  return '구매하기';
 }
 
-// 매도/해지 버튼 텍스트 반환
+// 구매/해지 버튼 텍스트 반환
 function getSellButtonText() {
   if (category.value === 'deposit') {
     return '해지하기';
   }
-  return '매도하기';
+  return '판매하기';
 }
 
-// 매수 버튼 텍스트 반환
+// 구매 버튼 텍스트 반환
 function getAdditionalBuyButtonText() {
   if (category.value === 'deposit') {
     return '가입하기';
   }
-  return '매수하기';
+  return '구매하기';
 }
 </script>
 

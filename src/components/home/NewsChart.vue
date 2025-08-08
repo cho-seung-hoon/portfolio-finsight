@@ -3,11 +3,8 @@
     <div class="subItem">
       <div class="subItem-left">
         <div class="subItem-title01">뉴스 키워드</div>
-        <div class="subItem-title02">지난 7일 집계</div>
-      </div>
-      <div class="subItem-right">
         <div
-          class="icon-wrapper"
+          class="icon-wrapper icon-question"
           @click="showTooltip = !showTooltip">
           <IconQuestion />
         </div>
@@ -15,6 +12,13 @@
           v-if="showTooltip"
           class="tooltip-content">
           각 키워드의 언급량과 긍/부정 감성을 나타냅니다.
+        </div>
+
+      </div>
+      <div class="subItem-right">
+        <div class="subItem-title02">지난 7일 집계</div>
+        <div class="icon-wrapper icon-refresh">
+          <IconRefresh/>
         </div>
       </div>
     </div>
@@ -25,9 +29,15 @@
 </template>
 
 <script setup>
-import IconQuestion from '@/components/icons/IconQuestion.vue';
-import { ref, onBeforeUnmount, watchEffect, watch } from 'vue';
+import { ref, onBeforeUnmount, watch } from 'vue';
 import * as d3 from 'd3';
+import IconQuestion from '@/components/icons/IconQuestion.vue';
+import IconRefresh from '@/components/icons/IconRefresh.vue';
+
+// ===================================================================
+// ✨ 1. 로직 영역 (Logic Area)
+// 컴포넌트의 상태, props, emit, 생명주기 등 핵심 로직을 모아둡니다.
+// ===================================================================
 
 const props = defineProps({
   chartData: {
@@ -35,86 +45,83 @@ const props = defineProps({
     required: true
   }
 });
-
 const emit = defineEmits(['keyword-click', 'initial-load']);
 
+const chartBox = ref(null);
 const showTooltip = ref(false);
 const initialLoadDone = ref(false);
+let svg, simulation, resizeObserver;
 
-
+// 이벤트 핸들러
 function onBubbleClick(keyword) {
-  console.log('Clicked Bubble Data:', keyword);
+  let colorToEmit;
+  if (keyword.value > 5) {
+    colorToEmit = keyword.color;
+  } else {
+    const textColorsForSentiment = sentimentTextColors[keyword.sentiment];
+    colorToEmit = textColorsForSentiment[1];
+  }
   emit('keyword-click', {
     label: keyword.label,
-    color: keyword.color,
+    color: colorToEmit,
     id: keyword.id
   });
 }
 
-const chartBox = ref(null);
-let svg, simulation, resizeObserver;
-
-function wrap(textSelection) {
-  textSelection.each(function(d) {
-    const text = d3.select(this);
-    const label = d.label;
-    const maxWidth = d.r * 1.7; // 텍스트가 들어갈 최대 너비 (원의 지름 85%)
-    const lineHeight = 1.2; // 줄 간격 (em 단위)
-    const y = text.attr("y") || 0;
-
-    // 폰트 스타일을 임시로 설정하여 실제 렌더링될 너비를 측정
-    text.style('font-size', '12px').style('font-weight', '600');
-    const textWidth = this.getComputedTextLength();
-
-    text.text(null); // 기존 텍스트 삭제
-
-    // 1. 텍스트가 최대 너비보다 짧으면 그냥 한 줄로 표시하고 종료
-    if (textWidth < maxWidth) {
-      text.append('tspan')
-        .attr('x', 0)
-        .attr('dy', '0.35em') // 한 줄일 때의 표준 세로 중앙 정렬
-        .text(label);
-      return;
+// 데이터 변경 감지 및 생명주기 훅
+watch(() => props.chartData, (newData) => {
+  if (newData && newData.length > 0 && chartBox.value) {
+    const container = chartBox.value;
+    function resize() {
+      const width = container.clientWidth;
+      const height = width * 0.6;
+      drawChart(newData, width, height);
     }
+    if (!initialLoadDone.value) {
+      const maxNode = newData.reduce((a, b) => (a.value > b.value ? a : b));
+      const { bgColor } = colorScale(maxNode.value, maxNode.sentiment);
+      emit('initial-load', {
+        id: maxNode.id,
+        label: maxNode.label,
+        color: bgColor
+      });
+      initialLoadDone.value = true;
+    }
+    resize();
+    if (resizeObserver) resizeObserver.disconnect();
+    resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(container);
+  }
+}, { deep: true });
 
-    // 2. 텍스트가 길면 중간 지점을 찾아 두 줄로 분리
-    const midPoint = Math.floor(label.length / 2);
-    const line1 = label.substring(0, midPoint);
-    const line2 = label.substring(midPoint);
+onBeforeUnmount(() => {
+  if (resizeObserver) resizeObserver.disconnect();
+  if (simulation) simulation.stop();
+});
 
-    // 3. 두 개의 tspan으로 각 줄을 추가
-    text.append('tspan')
-      .attr('x', 0)
-      .attr('y', y)
-      .text(line1);
 
-    text.append('tspan')
-      .attr('x', 0)
-      .attr('y', y)
-      .attr('dy', `${lineHeight}em`) // 두 번째 줄을 첫 줄 아래로
-      .text(line2);
+// ===================================================================
+// ✨ 2. 차트 설정 및 구현 영역 (Chart Settings & Implementation)
+// D3.js 차트 구현에 필요한 세부 함수와 색상 설정 등을 모아둡니다.
+// ===================================================================
 
-    // 4. 두 줄로 나뉜 텍스트 블록 전체를 위로 살짝 올려 세로 중앙 정렬
-    const verticalOffset = -(lineHeight / 2) * 6; // (줄간격 / 2) * (폰트크기 절반)
-    text.attr("transform", `translate(0, ${verticalOffset})`);
-  });
-}
+// --- 색상 설정 ---
+const sentimentColors = {
+  negative: ['#f4dcd6', '#FC8675', '#f97662'],
+  neutral: ['#edf4ce', '#d8f18c', '#bee136'],
+  positive: ['#ccddf8', '#6B96E0', '#6c8fe8']
+};
+const sentimentTextColors = {
+  negative: ['#5E2720', '#9c3428', '#FFFFFF'],
+  neutral: ['#4F592A', '#748c1a', '#FFFFFF'],
+  positive: ['#1D2C45', '#1a418e', '#FFFFFF']
+};
+
+// --- 헬퍼 함수 ---
 function colorScale(value, sentiment) {
-  const sentimentColors = {
-    positive: ['#fdd5d9', '#fca2b0', '#ec3a5a'],
-    neutral: ['#fff3d0', '#fcd978', '#fab809'],
-    negative: ['#d1f5f3', '#6ee5de', '#10b9b2']
-  };
-
-  const sentimentTextColors = {
-    positive: ['#800000', '#b30000', '#ffffff'],
-    neutral: ['#664400', '#996600', '#ffffff'],
-    negative: ['#004444', '#007777', '#ffffff']
-  };
-
-  let index = 0;
-  if (value > 3) index = 2;
-  else if (value > 1) index = 1;
+  let index;
+  if (value > 15) index = 2;
+  else if (value > 5) index = 1;
   else index = 0;
 
   return {
@@ -123,10 +130,55 @@ function colorScale(value, sentiment) {
   };
 }
 
+function wrap(textSelection) {
+  textSelection.each(function(d) {
+    const text = d3.select(this);
+    const label = d.label;
+    const maxWidth = d.r * 1.7;
+    const lineHeight = 1.2;
+    const y = text.attr("y") || 0;
+
+    text.style('font-size', '12px').style('font-weight', '600');
+    const textWidth = this.getComputedTextLength();
+
+    text.text(null);
+
+    if (textWidth < maxWidth) {
+      text.append('tspan')
+        .attr('x', 0)
+        .attr('dy', '0.35em')
+        .text(label);
+      return;
+    }
+
+
+    const midPoint = Math.floor(label.length / 2);
+    const line1 = label.substring(0, midPoint);
+    const line2 = label.substring(midPoint);
+
+    text.append('tspan')
+      .attr('x', 0)
+      .attr('y', y)
+      .text(line1);
+
+    text.append('tspan')
+      .attr('x', 0)
+      .attr('y', y)
+      .attr('dy', `${lineHeight}em`)
+      .text(line2);
+
+
+    const verticalOffset = -(lineHeight / 2) * 6;
+    text.attr("transform", `translate(0, ${verticalOffset})`);
+  });
+}
+
+// --- 차트 그리기 메인 함수 ---
 function drawChart(data, width, height) {
   if (!data || data.length === 0) return;
 
   d3.select(chartBox.value).selectAll('*').remove();
+
 
   svg = d3.select(chartBox.value).append('svg').attr('width', width).attr('height', height);
 
@@ -139,6 +191,7 @@ function drawChart(data, width, height) {
     const { bgColor, textColor } = colorScale(d.value, d.sentiment);
     return {
       ...d,
+      label: d.label.toUpperCase(),
       r: radiusScale(d.value),
       x: width / 2,
       y: height / 2,
@@ -199,49 +252,6 @@ function drawChart(data, width, height) {
       g.attr('transform', d => `translate(${d.x},${d.y})`);
     });
 }
-
-watch(() => props.chartData, (newData) => {
-  // chartData가 있고, DOM 요소가 준비되면 실행
-  if (newData && newData.length > 0 && chartBox.value) {
-    const container = chartBox.value;
-
-    function resize() {
-      const width = container.clientWidth;
-      const height = width * 0.6;
-      drawChart(newData, width, height);
-    }
-
-    // [핵심 수정] 초기 로드가 아직 수행되지 않았을 때만 emit을 실행합니다.
-    if (!initialLoadDone.value) {
-      const maxNode = newData.reduce((a, b) => (a.value > b.value ? a : b));
-      const { bgColor } = colorScale(maxNode.value, maxNode.sentiment);
-
-      emit('initial-load', {
-        id: maxNode.id,
-        label: maxNode.label,
-        color: bgColor
-      });
-
-      // 플래그를 true로 설정하여 다시는 실행되지 않도록 합니다.
-      initialLoadDone.value = true;
-    }
-
-    resize();
-
-    if (resizeObserver) resizeObserver.disconnect();
-    resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(container);
-  }
-}, {
-  // 컴포넌트가 로드될 때 즉시 실행하지 않고, 데이터가 변경될 때만 실행
-  // onMounted 이후 chartData가 채워지면 최초 실행됩니다.
-  deep: true
-});
-
-onBeforeUnmount(() => {
-  if (resizeObserver) resizeObserver.disconnect();
-  if (simulation) simulation.stop();
-});
 </script>
 
 <style scoped>
@@ -265,9 +275,16 @@ onBeforeUnmount(() => {
 
 .subItem-left {
   display: flex;
-  align-items: center;
+  align-items:center;
   gap: 5px;
 }
+
+.subItem-right {
+  display: flex;
+  align-items:center;
+  gap: 5px;
+}
+
 
 .subItem-title01 {
   font-size: var(--font-size-md);
@@ -280,20 +297,25 @@ onBeforeUnmount(() => {
   color: var(--main02);
 }
 
-.subItem-right {
-  display: flex;
-  justify-content: center;
-  width: 20px;
-}
 
 .icon-wrapper {
-  cursor: pointer; /* 클릭할 수 있다는 것을 알려줍니다 */
+  cursor: pointer;
+  width:20px;
+  height:20px;
 }
+
+.icon-question{
+  color:var(--main02);
+}
+
+.icon-refresh{
+}
+
 
 .tooltip-content {
   position: absolute;
   top: 30px;
-  right: 0px;
+  left: 78px;
   padding: 8px 12px;
   border-radius: 6px;
   background-color: rgb(from var(--main01) r g b / 0.7);
@@ -307,7 +329,7 @@ onBeforeUnmount(() => {
   content: '';
   position: absolute;
   bottom: 100%;
-  right: 10px;
+  left: 10px;
   border: 6px solid;
   border-color: transparent transparent var(--main02) transparent;
 }

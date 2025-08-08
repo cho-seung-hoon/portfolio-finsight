@@ -18,6 +18,7 @@
         :url="news.newsContentUrl"
         :sentiment="news.newsSentiment"
         :date="news.newsPublishedAt"
+        :publisher="news.newsPublisher"
         :news-id="news.newsId" />
     </div>
 

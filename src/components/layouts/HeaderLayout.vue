@@ -26,14 +26,19 @@
     <!-- 로딩 스피너 -->
     <LoadingSpinner
       v-if="loadingStore.isLoading"
-      :text="loadingStore.loadingText"
-    />
-    
-  <!-- ✅ 토큰 만료 5분전 팝업 기능 -->
-  <div v-if="isModalVisible" class="modal-overlay">
-    <div class="modal">
-      <p>세션이 곧 만료됩니다. 연장하시겠습니까?</p>
-        <button @click="extendSession" class="modal-btn">시간 연장</button>
+      :text="loadingStore.loadingText" />
+
+    <!-- ✅ 토큰 만료 5분전 팝업 기능 -->
+    <div
+      v-if="isModalVisible"
+      class="modal-overlay">
+      <div class="modal">
+        <p>세션이 곧 만료됩니다. 연장하시겠습니까?</p>
+        <button
+          @click="extendSession"
+          class="modal-btn">
+          시간 연장
+        </button>
       </div>
     </div>
   </div>
@@ -154,14 +159,11 @@ const extendSession = async () => {
     const newToken = response.data.data;
     localStorage.setItem('accessToken', newToken);
     isModalVisible.value = false;
-    hasShownExpireWarning.value = false;  
+    hasShownExpireWarning.value = false;
   } catch (e) {
     console.error('연장 실패:', e);
   }
 };
-
-
-
 </script>
 
 <style scoped>
@@ -215,7 +217,7 @@ const extendSession = async () => {
 
 .content-container {
   flex: 1;
-  position: relative;
+  /* position: relative; */
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 20px;
@@ -253,5 +255,4 @@ const extendSession = async () => {
   gap: 12px;
   justify-content: center;
 }
-
 </style>
