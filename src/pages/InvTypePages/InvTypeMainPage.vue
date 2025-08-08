@@ -13,15 +13,15 @@
   <div class="main-section">
 
     <!-- Figure Section -->
-    <img src="/src/assets/cha2.png" alt="MainChar" class="figure-image">
+    <img src="/src/assets/moving_bear.gif" alt="MainChar" class="figure-image">
 
     <!-- Text Section -->
-    <p class="main-title">
-      Fin-Sight가<br>
-      투자성향별 맞춤<br>
-      <span class="highlight-sub">자산배분안</span>을 알려드려요 !
-    </p>
-
+    <div class="middle">
+      <div class="main-title">
+        Fin-Sight에서 투자성향별<br>
+        <span class="highlight-sub">자산배분안</span>을 확인해보아요 !!
+      </div>
+    </div>
     <!-- Button Section -->
     <button class="next-button" @click="goToNext">
       나의 투자성향 분석하기
@@ -43,6 +43,10 @@ const goToNext = () => {
 
 <style scoped>
 /* Main Section Styles */
+.main-title.middle {
+  display: block;
+  align-items: center;
+}
 .main-section {
   text-align: left;
   height: 100dvh;
@@ -66,11 +70,11 @@ const goToNext = () => {
 .main-title {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semi-bold);
-  color: black;
-  width:100%;
+  color: var(--main01);
   max-width: 340px;
-  padding: 20px;
   line-height: 1.6;
+  /* display: flex; */
+  align-items: center;
 }
 
 /* Button Section Styles */

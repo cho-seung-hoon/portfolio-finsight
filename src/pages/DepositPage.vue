@@ -153,15 +153,13 @@ const tabs = computed(() => {
       { key: 'holding', label: '보유기록' },
       { key: 'info', label: '상품안내' },
       { key: 'rate', label: '금리안내' },
-      { key: 'notice', label: '유의사항' },
-      { key: 'news', label: '뉴스' }
+      { key: 'notice', label: '유의사항' }
     ];
   }
   return [
     { key: 'info', label: '상품안내' },
     { key: 'rate', label: '금리안내' },
-    { key: 'notice', label: '유의사항' },
-    { key: 'news', label: '뉴스' }
+    { key: 'notice', label: '유의사항' }
   ];
 });
 
@@ -184,8 +182,7 @@ watch(
 const indicatorPosition = {
   info: '0px',
   rate: '147px',
-  notice: '294px',
-  news: '441px'
+  notice: '294px'
 };
 
 // tabData를 computed로 변경하여 productId를 전달
@@ -193,7 +190,7 @@ const tabData = computed(() => {
   return depositStore.getTabDataWithHolding(productInfo.value.productCode);
 });
 
-// 매수 버튼 클릭 처리
+// 구매 버튼 클릭 처리
 const handleBuyClick = async data => {
   currentTransactionType.value = 'buy';
   isModalOpen.value = true;
@@ -201,7 +198,7 @@ const handleBuyClick = async data => {
   termsModalRef.value?.openModal();
 };
 
-// 매도 버튼 클릭 처리
+// 판매 버튼 클릭 처리
 const handleSellClick = async data => {
   currentTransactionType.value = 'sell';
   isModalOpen.value = true;
@@ -231,14 +228,14 @@ const handleModalClose = () => {
 // 약관 동의 확인 처리
 const handleTermsConfirm = async agreementData => {
   if (currentTransactionType.value === 'buy') {
-    // 매수인 경우 상품 가입 모달로 이어짐
+    // 구매인 경우 상품 가입 모달로 이어짐
     // 약관 동의 모달은 닫지만 전체 모달 상태는 유지
     // isModalOpen은 그대로 유지하여 검정색 배경 유지
     termsModalRef.value?.closeModalSilently();
     await nextTick();
     buyModalRef.value?.openModal();
   } else {
-    // 매도인 경우 바로 매도 처리
+    // 판매인 경우 바로 판매 처리
     try {
       await sellStore.sellProduct({
         code: productInfo.value?.productCode,
@@ -261,7 +258,7 @@ const handleTermsConfirm = async agreementData => {
   }
 };
 
-// 매수 제출 처리
+// 구매 제출 처리
 const handleBuySubmit = async formData => {
   try {
     await buyStore.buyProduct(formData);
@@ -280,7 +277,7 @@ const handleBuySubmit = async formData => {
   }
 };
 
-// 매도 제출 처리
+// 판매 제출 처리
 const handleSellSubmit = async formData => {
   try {
     await sellStore.sellProduct(formData);

@@ -17,7 +17,7 @@ export default {
       icon: IconHolding
     },
     {
-      name: '상품검색',
+      name: '상품탐색',
       path: '/list',
       icon: IconList
     },

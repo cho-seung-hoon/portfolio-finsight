@@ -7,7 +7,7 @@
       class="modal-content"
       @click.stop>
       <div class="modal-header">
-        <h2>{{ productType === 'ETF' ? 'ETF 매도' : '펀드 매도' }}</h2>
+        <h2>{{ productType === 'ETF' ? 'ETF 판매' : '펀드 판매' }}</h2>
         <button
           class="close-btn"
           @click="closeModal">
@@ -25,11 +25,15 @@
         <div class="info-row">
           <label>한 주당 가격</label>
           <div class="info-value-wrapper">
-            <div class="info-value">{{ formatCurrency(productInfo?.price || 0) }}</div>
+            <div class="info-value">
+              {{ formatCurrency(productInfo?.price?.currentPrice || 0) }}
+            </div>
             <div
-              v-if="productInfo?.price && getKoreanNumber(productInfo.price)"
+              v-if="
+                productInfo?.price?.currentPrice && getKoreanNumber(productInfo.price.currentPrice)
+              "
               class="korean-number">
-              {{ getKoreanNumber(productInfo.price) }} 원
+              {{ getKoreanNumber(productInfo.price.currentPrice) }} 원
             </div>
           </div>
         </div>
@@ -47,9 +51,9 @@
           </div>
         </div>
 
-        <!-- 매도량 입력 -->
+        <!-- 판매량 입력 -->
         <div class="form-group">
-          <label for="quantity">매도량</label>
+          <label for="quantity">판매량</label>
           <input
             id="quantity"
             v-model="formData.quantity"
@@ -57,7 +61,7 @@
             inputmode="numeric"
             pattern="[0-9,]*"
             class="form-control"
-            :placeholder="`매도할 주 수를 입력하세요`"
+            :placeholder="`판매할 주 수를 입력하세요`"
             required
             @input="handleQuantityInput" />
           <div class="korean-number-wrapper">
@@ -74,19 +78,19 @@
           </div>
           <div class="input-hint">
             최소 1주 이상, 최대
-            {{ formatQuantity(productInfo?.holdingQuantity || 0) }}까지 매도 가능 (최대 10억원까지)
+            {{ formatQuantity(productInfo?.holdingQuantity || 0) }}까지 판매 가능 (최대 10억원까지)
           </div>
         </div>
 
-        <!-- 매도일 -->
+        <!-- 판매일 -->
         <div class="form-group">
-          <label>매도일</label>
+          <label>판매일</label>
           <div class="form-control readonly">{{ currentDateTime }}</div>
         </div>
 
-        <!-- 예상 매도 금액 -->
+        <!-- 예상 판매 금액 -->
         <div class="info-row highlight">
-          <label>예상 매도 금액</label>
+          <label>예상 판매 금액</label>
           <div class="info-value-wrapper">
             <div class="info-value">{{ formatCurrency(totalAmount) }}</div>
             <div class="korean-number">{{ getKoreanNumber(totalAmount) }} 원</div>
@@ -104,7 +108,7 @@
           class="btn btn-primary"
           :disabled="!isFormValid || isLoading"
           @click="handleSubmit">
-          {{ isLoading ? '처리중...' : '매도하기' }}
+          {{ isLoading ? '처리중...' : '판매하기' }}
         </button>
       </div>
     </div>
@@ -156,9 +160,9 @@ const currentDateTime = computed(() => {
   return `${year}.${month}.${day}`;
 });
 
-// 총 매도 금액 계산
+// 총 판매 금액 계산
 const totalAmount = computed(() => {
-  const price = props.productInfo?.price || 0;
+  const price = props.productInfo?.price?.currentPrice || 0;
   const quantity = parseNumberFromComma(formData.value.quantity) || 0;
   const calculatedAmount = new Decimal(price).times(quantity);
 
@@ -171,7 +175,7 @@ const totalAmount = computed(() => {
 const isFormValid = computed(() => {
   const quantity = parseNumberFromComma(formData.value.quantity);
   const maxQuantity = props.productInfo?.holdingQuantity || 0;
-  const price = props.productInfo?.price || 0;
+  const price = props.productInfo?.price?.currentPrice || 0;
   const totalAmountValue = new Decimal(quantity).times(price);
 
   // 10억 제한 확인
@@ -184,7 +188,8 @@ const isFormValid = computed(() => {
 
 // 통화 포맷팅
 const formatCurrency = amount => {
-  const decimalAmount = new Decimal(amount);
+  // amount가 이미 Decimal 객체인지 확인
+  const decimalAmount = amount instanceof Decimal ? amount : new Decimal(amount || 0);
   return new Intl.NumberFormat('ko-KR').format(decimalAmount.toNumber()) + ' 원';
 };
 
@@ -243,7 +248,7 @@ const handleSubmit = () => {
 
   emit('submit', {
     quantity: new Decimal(parseNumberFromComma(formData.value.quantity)),
-    price: props.productInfo?.price,
+    price: props.productInfo?.price?.currentPrice,
     saleDate: currentDateTime.value,
     code: props.productInfo?.productCode,
     category: props.productType
@@ -260,7 +265,7 @@ const handleQuantityInput = event => {
 
   let numValue = parseNumberFromComma(value);
   const maxQuantity = props.productInfo?.holdingQuantity || 0;
-  const price = props.productInfo?.price || 0;
+  const price = props.productInfo?.price?.currentPrice || 0;
 
   // 보유 수량 제한
   if (numValue > maxQuantity) {
@@ -281,6 +286,14 @@ const handleQuantityInput = event => {
 
 // 한글 숫자 변환 함수
 const getKoreanNumber = value => {
+  // value가 null, undefined, 빈 문자열인 경우 빈 문자열 반환
+  if (!value) return '';
+
+  // Decimal 객체인 경우 toNumber() 사용
+  if (value instanceof Decimal) {
+    return convertToKoreanNumber(value.toNumber());
+  }
+
   return convertToKoreanNumber(value);
 };
 
