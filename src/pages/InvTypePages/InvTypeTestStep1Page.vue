@@ -33,8 +33,6 @@
         @click="goToNotion">
         전문금융소비자 안내 &gt;
       </div>
-
-
     </div>
 
     <!-- Q2 Section -->
@@ -89,7 +87,6 @@
     <!-- Main Section end-->
   </div>
 
-
   <!-- Question Modal Section start-->
   <div
     v-if="isModalOpen"
@@ -111,24 +108,23 @@
     </div>
     <!-- Question Modal Section end-->
   </div>
-    <!-- Alert Modal Section start -->
-    <div
-      v-if="isAlertModalOpen"
-      class="modal-overlay">
-      <div class="modal-box">
-        <h3>안내</h3>
-        <br />
-        <p>모든 질문에 응답해 주세요.</p>
-        <br />
-        <button
-          class="modal-complete-button"
-          @click="isAlertModalOpen = false">
-          확인
-        </button>
-      </div>
+  <!-- Alert Modal Section start -->
+  <div
+    v-if="isAlertModalOpen"
+    class="modal-overlay">
+    <div class="modal-box">
+      <h3>안내</h3>
+      <br />
+      <p>모든 질문에 응답해 주세요.</p>
+      <br />
+      <button
+        class="modal-complete-button"
+        @click="isAlertModalOpen = false">
+        확인
+      </button>
     </div>
-    <!-- Alert Modal Section end -->
-
+  </div>
+  <!-- Alert Modal Section end -->
 </template>
 
 <script setup>
@@ -247,7 +243,7 @@ const closeModal = () => {
 /* Question - Modal Section Styles */
 .modal-overlay {
   position: absolute;
-  top: -56px;
+  top: 0;
   left: 0;
   width: 100%;
   height: 100dvh;
