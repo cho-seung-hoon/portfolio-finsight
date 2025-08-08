@@ -167,10 +167,6 @@
 .result-wrapper {
   text-align: left;
 }
-
-.result-text {
-}
-
 /* Main - Graph Section Styles */
 .graph-wrapper {
   padding-bottom: 15px;

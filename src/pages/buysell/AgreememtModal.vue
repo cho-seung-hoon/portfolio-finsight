@@ -33,7 +33,7 @@
             </span>
             <h4 class="fw-bold text-dark mb-2">{{ productName }}</h4>
             <p class="text-muted mb-0 fs-5">
-              {{ transactionType === 'buy' ? '매수' : '매도' }}
+              {{ transactionType === 'buy' ? '구매' : '판매' }}
             </p>
           </div>
 
@@ -119,7 +119,7 @@
             class="btn btn-primary flex-fill ms-2"
             :disabled="!canProceed"
             @click="handleConfirm">
-            {{ transactionType === 'buy' ? '매수 진행' : '매도 진행' }}
+            {{ transactionType === 'buy' ? '구매 진행' : '판매 진행' }}
           </button>
         </div>
       </div>
@@ -303,7 +303,7 @@ const canProceed = computed(() => {
 // 메서드
 function getModalTitle() {
   const typeText = getProductTypeText();
-  const actionText = props.transactionType === 'buy' ? '매수' : '매도';
+  const actionText = props.transactionType === 'buy' ? '구매' : '판매';
   return `${typeText} ${actionText} 약관 동의`;
 }
 

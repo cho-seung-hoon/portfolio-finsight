@@ -7,7 +7,7 @@
       <span class="info-value">{{ holdingQuantity ?? '-' }}</span>
     </div>
     <div class="info-row">
-      <span class="info-label">매도량</span>
+      <span class="info-label">판매량</span>
       <div style="display: flex; align-items: center; gap: 4px">
         <input
           class="info-value-input"
@@ -17,11 +17,11 @@
           :value="quantity"
           :disabled="disabled"
           @input="$emit('update:quantity', $event.target.valueAsNumber)" />
-        <span style="font-size: 16px; color: #192440">좌</span>
+        <span style="font-size: 16px; color: #192440">주</span>
       </div>
     </div>
     <div class="info-row">
-      <span class="info-label">매도 일시</span>
+      <span class="info-label">판매 일시</span>
       <span class="info-value">
         <span>{{ saleDate }}</span
         ><br v-if="saleDateTime" />

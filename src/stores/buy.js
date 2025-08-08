@@ -9,7 +9,7 @@ export const useBuyStore = defineStore('buy', () => {
   const buyResult = ref(null);
 
   /**
-   * 매수 요청 (더미 데이터 반환)
+   * 구매 요청 (더미 데이터 반환)
    */
   async function buyProduct(payload) {
     isLoading.value = true;
@@ -18,7 +18,7 @@ export const useBuyStore = defineStore('buy', () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 200));
       const dummy = {
-        message: '매수 성공',
+        message: '구매 성공',
         historyId: `history-${Date.now()}`,
         holdingsId: `holding-${payload.code}`,
         historyTradeType: 'buy',
