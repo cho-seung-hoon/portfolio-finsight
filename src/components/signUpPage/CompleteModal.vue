@@ -2,14 +2,14 @@
   <div class="modal-overlay">
     <div class="modal-content">
       <div class="check-icon">✔</div>
-      <div class="message">회원 가입 완료</div>
+      <div class="message">{{ message }}</div>
 
       <!-- 회색 구분선 추가 -->
       <hr class="divider" />
 
       <button
         class="confirm-btn"
-        @click="goToLogin">
+        @click="goToNext">
         확인
       </button>
     </div>
@@ -18,8 +18,24 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { defineProps } from 'vue';
+
 const router = useRouter();
-const goToLogin = () => router.push('/login');
+
+const props = defineProps({
+  message: {
+    type: String,
+    default: '완료되었습니다.'
+  },
+  redirect: {
+    type: String,
+    default: '/login'
+  }
+});
+
+const goToNext = () => {
+  router.push(props.redirect);
+};
 </script>
 
 <style scoped>

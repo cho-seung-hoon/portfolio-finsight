@@ -69,7 +69,9 @@ const router = useRouter();
 const remainingTime = ref('00:00');
 const emit = defineEmits(['open-time-modal']);
 
-const hasShownExpireWarning = ref(false); // ✅ 토큰 만료 5분전 팝업 기능
+// ✅ 토큰 만료 5분전 팝업 기능
+const hasShownExpireWarning = ref(false);
+const props = defineProps(['onExpire']);
 
 function updateRemainingTime() {
   const token = localStorage.getItem('accessToken');
@@ -91,8 +93,8 @@ function updateRemainingTime() {
     remainingTime.value = `${m}:${s}`;
 
     // ✅ 토큰 만료 5분전 팝업 기능
-    if (totalSeconds <= 300 && !hasShownExpireWarning.value){
-      emit('open-time-modal'); // Layout.vue에게 알림
+    if (totalSeconds <= 3480 && !hasShownExpireWarning.value) {
+      emit('open-time-modal'); // 부모에게 이벤트 전달
       hasShownExpireWarning.value = true;
     }
   }
@@ -142,7 +144,6 @@ async function handleExtendSession() {
     console.error('로그인 연장 실패:', error);
   }
 }
-
 </script>
 
 <style scoped>
@@ -219,9 +220,9 @@ async function handleExtendSession() {
 }
 
 /* Hover state */
-.generate-token:hover {
-  /*background-color: rgba(var(--primary-rgb), 0.9); *//* bg-primary/90 */
-}
+/* .generate-token:hover { */
+/*background-color: rgba(var(--primary-rgb), 0.9); */ /* bg-primary/90 */
+/* } */
 
 /* Disabled state */
 .generate-token:disabled {

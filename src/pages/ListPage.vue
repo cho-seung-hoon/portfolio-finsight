@@ -14,7 +14,7 @@
   <div class="list-page-banner-wrapper">
     <div
       class="list-page-banner"
-      :class="{ matched: isMatched }"
+      :class="[{ matched: isMatched }, isMatched ? profileClass : '']"
       style="cursor: pointer"
       @click="openModal">
       <div
@@ -54,14 +54,17 @@ import ListFundPage from './list/ListFundPage.vue';
 import ListEtfPage from './list/ListEtfPage.vue';
 import IconCheck from '@/components/icons/IconCheck.vue';
 import BottomModal from '@/components/list/BottomModal.vue';
+import axios from 'axios';
 
 const route = useRoute();
 const category = computed(() => route.params.category);
 const isMatched = ref(false);
 const showModal = ref(false);
+const investmentProfileType = ref('');
 
 onMounted(() => {
   isMatched.value = getFinFilters().isMatched || false;
+  fetchInvestmentProfile();
 });
 
 function openModal() {
@@ -91,9 +94,81 @@ function updateIsMatchedInStorage(val) {
     isMatched: val
   });
 }
+
+const fetchInvestmentProfile = async () => {
+  const accessToken = localStorage.getItem('accessToken');
+  if (!accessToken) {
+    console.error('accessToken이 없습니다.');
+    return;
+  }
+  try {
+    const response = await axios.get(
+      'http://localhost:8080/users/invt',
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      const type = response.data.investmentProfileType;
+      investmentProfileType.value = translateProfileType(type);
+      profileClass.value = getProfileClass(type);
+      console.log('투자성향결과:', type);
+
+    } catch (error) {
+      console.error('투자성향 조회 실패:', error);
+  }
+};
+const profileClass = ref('');
+const translateProfileType = (type) => {
+  switch (type) {
+    case 'stable':
+      return '안정형';
+    case 'stableplus':
+      return '안정추구형';
+    case 'neutral':
+      return '위험중립형';
+    case 'aggressive':
+      return '적극투자형';
+    case 'veryaggressive':
+      return '공격투자형';
+    default:
+      return '알 수 없음';
+  }
+};
+const getProfileClass = (type) => {
+  switch (type) {
+    case 'stable': return 'highlight-stable';
+    case 'stableplus': return 'highlight-stableplus';
+    case 'neutral': return 'highlight-neutral';
+    case 'aggressive': return 'highlight-aggressive';
+    case 'veryaggressive': return 'highlight-veryaggressive';
+    default: return '';
+  }
+};
 </script>
 
 <style scoped>
+/* 성향별 배경색 정의 */
+.list-page-banner.matched.highlight-stable {
+  background: var(--mint01);
+  border: 1px solid var(--mint01);
+}
+.list-page-banner.matched.highlight-stableplus {
+  background: var(--green01);
+  border: 1px solid var(--green01);
+}
+.list-page-banner.matched.highlight-neutral {
+  background: var(--yellow01);
+  border: 1px solid var(--yellow01);
+}
+.list-page-banner.matched.highlight-aggressive {
+  background: var(--orange01);
+  border: 1px solid var(--orange01);
+}
+.list-page-banner.matched.highlight-veryaggressive {
+  background: var(--red01);
+  border: 1px solid var(--red01);
+}
 .page-content {
   width: 100%;
   padding: 12px 0px 50px;
@@ -146,7 +221,7 @@ function updateIsMatchedInStorage(val) {
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   color: var(--white);
-  border: 1px solid rgba(40, 202, 110, 0.5);
+  border: 1px solid var(--white);
 }
 
 .list-page-banner-comment {

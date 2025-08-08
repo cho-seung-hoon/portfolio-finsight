@@ -6,35 +6,36 @@
         :key="index"
         class="history-item">
         <div class="history-header">
-          <span class="date">{{ record.historyTradeDate }}</span>
+          <span class="date">{{ record.displayDate || record.historyTradeDate }}</span>
           <span
             class="quantity"
-            :class="{
-              positive: record.historyQuantity > 0,
-              negative: record.historyQuantity < 0
-            }">
-            {{ record.historyQuantity > 0 ? '+' : ''
-            }}{{ new Decimal(record.historyQuantity || 0).toNumber().toLocaleString() }}좌
+            :class="{ buy: record.isBuy, sell: record.isSell }">
+            {{
+              record.displayQuantity ||
+              (record.historyQuantity > 0 ? '+' : '') +
+                formatNumberWithComma(new Decimal(record.historyQuantity || 0).toNumber())
+            }}주
           </span>
         </div>
         <div class="history-details">
           <span class="price-per-unit"
-            >1좌당
+            >1주당
             {{
-              new Decimal(record.historyAmount || 0)
-                .dividedBy(record.historyQuantity || 1)
-                .toNumber()
-                .toLocaleString()
+              formatNumberWithComma(
+                new Decimal(record.historyAmount || 0)
+                  .dividedBy(record.historyQuantity || 1)
+                  .toNumber()
+              )
             }}원</span
           >
           <span
             class="total-amount"
-            :class="{
-              positive: record.historyAmount > 0,
-              negative: record.historyAmount < 0
-            }">
-            {{ record.historyAmount > 0 ? '+' : ''
-            }}{{ new Decimal(record.historyAmount || 0).toNumber().toLocaleString() }}원
+            :class="{ buy: record.isBuy, sell: record.isSell }">
+            {{
+              record.displayAmount ||
+              (record.historyAmount > 0 ? '+' : '') +
+                formatNumberWithComma(new Decimal(record.historyAmount || 0).toNumber())
+            }}원
           </span>
         </div>
       </div>
@@ -44,6 +45,7 @@
 
 <script setup>
 import Decimal from 'decimal.js';
+import { formatNumberWithComma } from '@/utils/numberUtils';
 
 const props = defineProps({
   data: {
@@ -95,7 +97,6 @@ const props = defineProps({
 }
 
 .quantity {
-  color: var(--black);
   font-size: 16px;
   font-weight: 500;
   text-align: right;
@@ -114,17 +115,19 @@ const props = defineProps({
 }
 
 .total-amount {
-  color: var(--main02);
   font-size: 14px;
   font-weight: 400;
   text-align: right;
 }
 
-.positive {
-  color: var(--black);
+/* Buy/Sell 색상 스타일 */
+.quantity.buy,
+.total-amount.buy {
+  color: #007aff; /* 파란색 */
 }
 
-.negative {
-  color: var(--main02);
+.quantity.sell,
+.total-amount.sell {
+  color: #ff3b30; /* 빨간색 */
 }
 </style>

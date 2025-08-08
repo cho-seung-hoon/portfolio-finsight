@@ -98,6 +98,7 @@
 <style scoped>
 /* Main Section Styles */
 .main-section {
+  margin-top: 15px;
   display: flex;
   flex-direction: column;
   min-height: calc(100dvh - 56px);
