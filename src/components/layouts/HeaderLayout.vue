@@ -217,6 +217,7 @@ const extendSession = async () => {
 
 .content-container {
   flex: 1;
+  /* position: relative; */
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 20px;

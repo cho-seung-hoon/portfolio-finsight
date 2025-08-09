@@ -54,20 +54,16 @@ async function loadNewsAndProductsByKeyword(keywordId) {
     const responseData = await fetchNewsByKeyword(keywordId);
 
     console.log('API 응답 데이터 (responseData):', responseData);
-    // [수정] responseData가 null이 아닌지 확인하는 로직 추가
+
     if (responseData) {
       newsListForKeyword.value = responseData.newsList || [];
       productListForKeyword.value = responseData.productList || [];
-
-      console.log("ProductList : " + productListForKeyword.value);
     } else {
-      // API 호출이 실패하면 목록을 비웁니다.
       newsListForKeyword.value = [];
       productListForKeyword.value = [];
     }
 
   } catch (error) {
-    // 이 catch는 거의 실행되지 않지만, 만약을 위해 유지합니다.
     console.error('Error loading news data by keyword:', error);
     newsListForKeyword.value = [];
     productListForKeyword.value = [];
@@ -84,17 +80,24 @@ onMounted(async () => {
     const apiResponseData = await fetchKeywords();
     const bubbleChartData = apiResponseData.map(item => {
       const sentiments = {
-        positive: item.positiveCount,
-        negative: item.negativeCount,
+        positive: item.positiveCount * 5 , // 긍정 - 가중치
+        negative: item.negativeCount * 5, // 부정 - 가중치
         neutral: item.neutralCount
       };
-      const dominantSentiment = Object.keys(sentiments).reduce((a, b) =>
-        sentiments[a] > sentiments[b] ? a : b
-      );
+      let dominantSentiment;
+
+      if (sentiments.positive === sentiments.negative) {
+        dominantSentiment = 'neutral';
+      } else {
+        dominantSentiment = Object.keys(sentiments).reduce((a, b) =>
+          sentiments[a] > sentiments[b] ? a : b
+        );
+      }
+
       return {
         id: item.keywordId,
         label: item.keyword,
-        value: item.totalCount,
+        value: sentiments[dominantSentiment],
         sentiment: dominantSentiment
       };
     });

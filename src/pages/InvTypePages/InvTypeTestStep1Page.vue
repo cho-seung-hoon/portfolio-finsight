@@ -263,7 +263,7 @@ const closeModal = () => {
 /* Question - Modal Section Styles */
 /* .modal-overlay {
   position: absolute;
-  top: -56px;
+  top: 0;
   left: 0;
   width: 100%;
   height: 100dvh;

@@ -13,15 +13,20 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const props = defineProps({
-  productName: String
+  productName: String,
+  searchWord: String
 });
 
 const router = useRouter();
 
-// TODO: 사용자 입력에 따라 바꿔주기
-const highlightedName = computed(() =>
-  props.productName.replace(/삼/g, '<span class="highlight">삼</span>')
-);
+const highlightedName = computed(() => {
+  if (!props.searchWord) return props.productName;
+
+  const escaped = props.searchWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escaped})`, 'gi');
+
+  return props.productName.replace(regex, '<span class="highlight">$1</span>');
+});
 
 function handleSuggestClick() {
   router.push({ path: '/search/result', query: { query: props.productName } });
@@ -44,7 +49,7 @@ function handleSuggestClick() {
   font-weight: var(--font-weight-medium);
 }
 
-::v-deep(.highlight) {
+:deep(.highlight) {
   color: var(--sub01);
   font-weight: bold;
 }
