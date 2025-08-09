@@ -125,31 +125,39 @@
       </button>
     </form>
 
-    <!-- 완료/에러 모달 -->
-    <CompleteModal
-      v-if="showCompleteModal"
+    <BaseModal
       message="회원 가입 완료"
-      redirect="/login" />
+      :visible="showCompleteModal"
+      redirect="/login"
+      :onClose="() => (showCompleteModal = false)"
+      :showIcon="true" />
 
-    <AlertModal
-      v-if="showModal"
+    <BaseModal
       :message="modalMessage"
-      @close="showModal = false" />
+      :visible="showModal"
+      :onClose="() => (showModal = false)" />
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, watch } from 'vue';
+import { reactive, ref, watch, onMounted } from 'vue';
 import axios from 'axios';
 import { useEmailStore } from '@/stores/emailStore';
 
 import InputWithIcon from '@/components/signUpPage/InputWithIcon.vue';
 import VerificationCodeInput from '@/components/signUpPage/VerificationCodeInput.vue';
 import ValidationMessage from '@/components/signUpPage/ValidationMessage.vue';
-import CompleteModal from '@/components/signUpPage/CompleteModal.vue';
-import AlertModal from '@/components/signUpPage/AlertModal.vue'; // ✅ 추가
+import BaseModal from '@/components/common/BaseModal.vue';
 
 const emailStore = useEmailStore();
+
+onMounted(() => {
+  form.email = '';
+  form.code = '';
+  emailStore.email = '';
+  emailStore.code = '';
+  emailStore.verified = false;
+});
 
 const form = reactive({
   userId: '',
@@ -440,7 +448,7 @@ watch(
   width: 100%;
   height: 100%;
   text-align: center;
-  position: relative;
+  /* position: relative; */
   padding: 20px 0 60px 0;
   justify-items: center;
 }
