@@ -327,14 +327,52 @@ const validateNickname = () => {
   return true;
 };
 
+// const validateBirth = () => {
+//   if (!form.birth) return ((errors.birth = '• 생년월일을 입력해주세요.'), false);
+//   if (!/^\d{8}$/.test(form.birth)) {
+//     errors.birth = '• 생년월일은 8자리 숫자로 입력해 주세요.';
+//     return false;
+//   }
+//   return true;
+// };
+
 const validateBirth = () => {
-  if (!form.birth) return ((errors.birth = '• 생년월일을 입력해주세요.'), false);
+  const today = new Date();
+
+  // 1. 입력 여부 체크
+  if (!form.birth) {
+    errors.birth = '• 생년월일을 입력해주세요.';
+    return false;
+  }
+
+  // 2. 형식 체크 (8자리 숫자)
   if (!/^\d{8}$/.test(form.birth)) {
     errors.birth = '• 생년월일은 8자리 숫자로 입력해 주세요.';
     return false;
   }
+
+  // 3. 날짜 유효성 체크
+  const year = parseInt(form.birth.substring(0, 4), 10);
+  const month = parseInt(form.birth.substring(4, 6), 10);
+  const day = parseInt(form.birth.substring(6, 8), 10);
+  const date = new Date(year, month - 1, day);
+
+  if (date.getFullYear() !== year || date.getMonth() + 1 !== month || date.getDate() !== day) {
+    errors.birth = '• 존재하지 않는 날짜입니다.';
+    return false;
+  }
+
+  // 4. 미래 날짜 방지
+  if (date > today) {
+    errors.birth = '• 미래 날짜는 입력할 수 없습니다.';
+    return false;
+  }
+
+  // 통과
+  errors.birth = '';
   return true;
 };
+
 const validateEmail = () => {
   if (!form.email) return ((errors.email = '• 이메일을 입력해주세요.'), false);
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
