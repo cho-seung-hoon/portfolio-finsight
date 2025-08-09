@@ -99,6 +99,9 @@ const props = defineProps({
 });
 
 const handleConfirm = () => {
+  // 1) onConfirm 실행 (예: 탈퇴 처리)
+  props.onConfirm?.();
+
   // 1) 우선 닫기 시도 (확인 시 모달 닫힘이 기본 UX)
   props.onClose?.();
 
