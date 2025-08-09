@@ -136,7 +136,6 @@ input {
   text-decoration: underline;
   cursor: pointer;
   padding: 0;
-
 }
 
 .action-btn {

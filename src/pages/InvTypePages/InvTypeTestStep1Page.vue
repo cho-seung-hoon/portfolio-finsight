@@ -87,8 +87,7 @@
     <!-- Main Section end-->
   </div>
 
-  <!-- Question Modal Section start-->
-  <div
+  <!-- <div
     v-if="isModalOpen"
     class="modal-overlay">
     <div class="modal-box">
@@ -106,30 +105,51 @@
         확인하였습니다.
       </button>
     </div>
-    <!-- Question Modal Section end-->
+
   </div>
-  <!-- Alert Modal Section start -->
-  <div
-    v-if="isAlertModalOpen"
-    class="modal-overlay">
-    <div class="modal-box">
-      <h3>안내</h3>
+
+    <div
+      v-if="isAlertModalOpen"
+      class="modal-overlay">
+      <div class="modal-box">
+        <h3>안내</h3>
+        <br />
+        <p>모든 질문에 응답해 주세요.</p>
+        <br />
+        <button
+          class="modal-complete-button"
+          @click="isAlertModalOpen = false">
+          확인
+        </button>
+      </div>
+    </div> -->
+  <!-- 전문금융소비자 안내 모달 -->
+  <BaseModal
+    :visible="isModalOpen"
+    :onClose="closeModal"
+    class="align-left">
+    <template #title> 전문금융소비자 안내 </template>
+    <template #default>
       <br />
-      <p>모든 질문에 응답해 주세요.</p>
+      전문금융소비자에 해당하시는 고객님의 경우 영업점에 직접 방문하셔야만 가입이 가능합니다.
       <br />
-      <button
-        class="modal-complete-button"
-        @click="isAlertModalOpen = false">
-        확인
-      </button>
-    </div>
-  </div>
-  <!-- Alert Modal Section end -->
+      ※ 따라서 본 서비스의 이용이 제한됩니다.
+    </template>
+  </BaseModal>
+
+  <!-- 모든 질문 응답 알림 모달 -->
+  <BaseModal
+    :visible="isAlertModalOpen"
+    :onClose="() => (isAlertModalOpen = false)">
+    <template #title> 안내 </template>
+    <template #default> 모든 질문에 응답해 주세요. </template>
+  </BaseModal>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import BaseModal from '@/components/common/BaseModal.vue';
 
 const router = useRouter();
 const consumerType = ref(null);
@@ -241,7 +261,7 @@ const closeModal = () => {
 }
 
 /* Question - Modal Section Styles */
-.modal-overlay {
+/* .modal-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -274,7 +294,7 @@ const closeModal = () => {
   border: none;
   cursor: pointer;
   width: calc(100%);
-}
+} */
 
 /* Question - List Section Styles */
 .list-section {

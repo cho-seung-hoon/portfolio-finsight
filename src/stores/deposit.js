@@ -2,10 +2,9 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import Decimal from 'decimal.js';
 import { useLoadingStore } from './loading';
+import { formatNumberWithComma } from '@/utils/numberUtils';
 
-// API 모듈 임포트 (추후 생성 예정)
-// import { fetchDepositProduct } from '@/api/deposit';
-
+// 예금 상품 관련 상태 및 로직을 관리하는 Pinia 스토어
 export const useDepositStore = defineStore('deposit', () => {
   // State
   const product = ref(null);
@@ -13,134 +12,87 @@ export const useDepositStore = defineStore('deposit', () => {
   const error = ref(null);
   const loadingStore = useLoadingStore();
 
-  // 여러 목업 상품 데이터
-  const mockProducts = {
-    'deposit-001': {
-      productCode: 'deposit-001',
-      productName: 'SH 첫만남우대예금',
-      productCompanyName: 'SH 수협은행',
-      productRiskGrade: 1,
-      depositJoinMember: '실명의 개인(1인 1계좌)',
-      depositSpclCnd: '우대 조건: 신규가입 시 최고 연 0.30%p 추가',
-      depositMtrtInt: '연 3.69%',
-      depositMaxLimit: new Decimal(10000000), // 최대 예금 가능 금액: 1천만원
-      depositJoinWay: '인터넷뱅킹, 모바일뱅킹',
-      depositJoinDeny: '서민전용',
-      depositEtcNote: '상품 가입 전 반드시 상품설명서 및 약관을 확인하시기 바랍니다.',
-      depositOption: '자동 만기관리, 분할인출 가능',
-      isHolding: false,
-      info: [
-        {
-          type: 'longtext',
-          title: '상품특징',
-          desc: '자동 만기관리부터 분할인출까지 가능한 편리한 Digital KB 대표 온라인 전용 정기예금'
-        },
-        { type: 'text', title: '가입 대상', desc: '실명의 개인(1인 1계좌)' },
-        { type: 'text', title: '가입 금액', desc: '100만원이상 1,000만원이하' },
-        { type: 'text', title: '기본 금리', desc: '연 3.69%' },
-        { type: 'text', title: '가입 제한 여부', desc: '서민전용' },
-        { type: 'text', title: '가입금액(한도)', desc: '2천만 원' },
-        { type: 'text', title: '가입 방법', desc: '인터넷뱅킹, 모바일뱅킹' }
-      ],
-      rate: [
-        {
-          type: 'text',
-          title: '저축기간',
-          desc: '자동 만기관리부터 분할인출까지 가능한 편리한 Digital KB 대표 온라인 전용 정기예금'
-        },
-        { type: 'text', title: '최고금리', desc: '연 6.00% (12개월 세전)' },
-        { type: 'text', title: '기본금리', desc: '연 3.69%' },
-        {
-          type: 'longtext',
-          title: '최고 우대 금리',
-          desc: '자동 만기관리부터 분할인출까지 가능한 편리한 Digital KB 대표 온라인 전용 정기예금'
-        },
-        {
-          type: 'longtext',
-          title: '우대금리 조건',
-          desc: '최고 연 0.30%p (기본금리 + 우대금리)\n신규가입일 당시 영업점 및 인터넷 홈페이지 등에 고시한 조건별 우대이율 적용(중복적용불가)\n적용조건 : 1의 조건을 충족여부에 따라 최고 연 0.10%p 적용\n2의 조건을 충족여부에 따라 최고 연 0.30%p 적용\n가입기간 12개월 이상이면서 계약금액 10억 이상 : 창구 약정이율 + 0.10%p\n제공조건을 충족하는 만기해지 계좌에 가입일로부터 만기일 전날까지 적용\n⑴ 가입대상 : 만19세이상 실명의 개인 (1인 1계좌)\n⑵ 가입기간 : 12개월\n⑶ 가입금액 : 최대 2,000만원 한도 가족중 가입 당시 만 12세 이하 고객 수에 따라 다르게 적용\n⑷ 가족*중 가입 당시 만 12세 이하 고객 수에 따라 다르게 적용(2명: 연0.1%p, 3명: 연0.2%p, 4명이상: 연0.3%p) 만기해지 시점에 등록되어 있는 가족 기준'
-        },
-        { type: 'text', title: '유형', desc: '고정 금리' }
-      ],
-      notice: [
-        {
-          type: 'longtext',
-          title: '이자지급',
-          desc: '만기일시지급식 : 만기(후) 또는 중도해지 요청시 이자를 지급월이자지급식 : 만기이자를 매월 지급하며 중도해지 요청 시 중도해지금리로 계산하여 지급하고 매월 지급한 이자는 환입※ 만기전 해지할 경우 약정 금리보다 낮은 중도해지금리가 적용됩니다.'
-        },
-        {
-          type: 'longtext',
-          title: '유의사항',
-          desc: '상품 가입 전 반드시 상품설명서 및 약관을 확인하시기 바랍니다.'
-        },
-        {
-          type: 'longtext',
-          title: '예금자 보호법',
-          desc: '이 예금은 예금자보호법에 따라 원금과 소정의 이자를 합하여 1인당 "5천만원까지"(SH수협은행의 여타 보호 상품과 합산) 보호됩니다.'
+  // Mock 데이터 (API 호출 실패 시 사용)
+  const mockProductData = {
+    productCode: 'deposit-001',
+    productName: 'SH 첫만남우대예금',
+    productCompanyName: 'SH 수협은행',
+    productRiskGrade: 1,
+    depositJoinMember: '실명의 개인(1인 1계좌)',
+    depositSpclCnd: '우대 조건: 신규가입 시 최고 연 0.30%p 추가',
+    depositMtrtInt: '연 3.69%',
+    depositMaxLimit: new Decimal(10000000), // 최대 예금 가능 금액: 1천만원
+    depositJoinWay: '인터넷뱅킹, 모바일뱅킹',
+    depositJoinDeny: '서민전용',
+    depositEtcNote: '상품 가입 전 반드시 상품설명서 및 약관을 확인하시기 바랍니다.',
+    depositOption: '자동 만기관리, 분할인출 가능',
+    doption: [
+      {
+        doptionId: 1,
+        doptionSaveTrm: '12',
+        doptionIntrRate: 3.69,
+        doptionFinCoNo: '0010001',
+        doptionDclsMonth: '202501',
+        doptionIntrRateType: 'S',
+        doptionIntrRateTypeNm: '단리',
+        doptionIntrRate2: 3.69
+      }
+    ],
+    // Mock 보유 내역 데이터 (보유하지 않은 경우 null)
+    holdings: null
+  };
+
+  // API 호출 함수
+  const fetchProductDetail = async (productId, category, token) => {
+    try {
+      const response = await fetch(`http://localhost:8080/products/${category}/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      ]
-    },
-    'deposit-002': {
-      productCode: 'deposit-002',
-      productName: 'KB Star 정기예금',
-      productCompanyName: 'KB 국민은행',
-      productRiskGrade: 1,
-      depositJoinMember: '실명의 개인',
-      depositSpclCnd: '우대 조건 없음',
-      depositMtrtInt: '연 3.00%',
-      depositMaxLimit: new Decimal(5000000), // 최대 예금 가능 금액: 500만원
-      depositJoinWay: '인터넷뱅킹, 모바일뱅킹',
-      depositJoinDeny: '제한 없음',
-      depositEtcNote: '상품설명서를 꼭 확인하세요.',
-      depositOption: '기본 정기예금',
-      isHolding: true,
-      info: [
-        { type: 'text', title: '상품특징', desc: 'KB 국민은행의 대표 정기예금 상품입니다.' },
-        { type: 'text', title: '가입 대상', desc: '실명의 개인' }
-      ],
-      rate: [
-        { type: 'text', title: '저축기간', desc: '6개월' },
-        { type: 'text', title: '최고금리', desc: '연 5.50% (6개월 세전)' }
-      ],
-      notice: [{ type: 'text', title: '유의사항', desc: '상품설명서를 꼭 확인하세요.' }]
+      });
+
+      if (!response.ok) {
+        throw new Error('상품 상세 정보를 불러오는데 실패했습니다.');
+      }
+
+      const data = await response.json();
+      console.log('Product API Response:', data);
+      return data;
+    } catch (error) {
+      console.error('Product API Error:', error);
+      console.log('Using mock data due to API failure');
+
+      // API 호출 실패 시 Mock 데이터 반환
+      return {
+        ...mockProductData,
+        productCode: productId,
+        // 보유 내역은 실제 API에서만 받아오므로 Mock에서는 null
+        holdings: null
+      };
     }
   };
 
-  // 보유 내역 더미 데이터
-  const mockHoldingData = {
-    'deposit-002': {
-      holdingsId: 'holding-deposit-002',
-      userId: 'user123',
-      productCode: 'deposit-002',
-      productCategory: 'deposit',
-      holdingsTotalPrice: new Decimal(5000000), // 예금액 500만원
-      holdingsTotalQuantity: 1, // 예금은 수량 개념이 없으므로 1
-      holdingsStatus: 'holding',
-      contractDate: '2025.01.15', // 예금 체결일
-      maturityDate: '2025.07.15' // 예금 만료일 (6개월)
-    }
-  };
-
-  // Actions
-  async function fetchProduct(productId) {
+  // Actions - fetchProduct 함수 수정
+  async function fetchProduct(productId, category = 'deposit', token) {
     isLoading.value = true;
-    // 로딩 상태 초기화
     loadingStore.resetLoading();
     loadingStore.startLoading('예금 정보를 불러오는 중...');
     error.value = null;
-    try {
-      // const response = await fetchDepositProduct(productId); // 실제 API 호출
-      // product.value = response.data;
 
-      // 0.5초 대기 (더미 데이터 로딩 시뮬레이션)
-      await new Promise(resolve => setTimeout(resolve, 500));
-      if (mockProducts[productId]) {
-        product.value = mockProducts[productId];
-      } else {
-        throw new Error('상품을 찾을 수 없습니다.');
-      }
+    // 토큰이 전달되지 않았으면 localStorage에서 가져오기
+    const authToken = token || localStorage.getItem('accessToken');
+
+    console.log('Using token:', authToken ? 'Token exists' : 'No token');
+
+    try {
+      // 하나의 API로 모든 정보 가져오기
+      const productDetail = await fetchProductDetail(productId, category, authToken);
+
+      // 데이터 가공
+      product.value = processDepositData(productDetail, productId);
     } catch (e) {
-      error.value = `상품 정보를 불러오는 데 실패했습니다: ${e.message}`;
+      error.value = `예금 상품 정보를 불러오는 데 실패했습니다: ${e.message}`;
       console.error(e);
     } finally {
       isLoading.value = false;
@@ -148,8 +100,267 @@ export const useDepositStore = defineStore('deposit', () => {
     }
   }
 
-  // Getters
-  const productInfo = computed(() => product.value);
+  // 예금 데이터 가공 함수 수정
+  const processDepositData = (productDetail, originalProductId) => {
+    console.log('processDepositData - productDetail:', productDetail);
+
+    // 실제 전달된 productId 사용
+    const productId = originalProductId;
+
+    // 금리 옵션 중 12개월 우선, 없으면 가장 긴 기간 선택
+    const options = Array.isArray(productDetail.doption) ? productDetail.doption : [];
+    const option12 = options.find(o => String(o.doptionSaveTrm) === '12');
+    const selectedOption =
+      option12 || options.sort((a, b) => Number(b.doptionSaveTrm) - Number(a.doptionSaveTrm))[0];
+    const baseRateStr = selectedOption ? `연 ${selectedOption.doptionIntrRate}%` : '-';
+    const maxRateStr = selectedOption ? `연 ${selectedOption.doptionIntrRate2}%` : '-';
+
+    const result = {
+      // 기본 상품 정보 (API 응답)
+      ...productDetail,
+
+      // UI용 데이터 가공
+      info: generateInfoTab(productDetail),
+      rate: generateRateTab(productDetail),
+      notice: generateNoticeTab(productDetail),
+
+      // 보유 내역 데이터 가공 (API 응답에서)
+      holding: generateHoldingTab(productDetail.holdings, productDetail),
+
+      // 보유 여부 판단
+      isHolding: !!productDetail.holdings,
+      holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
+
+      // 찜 여부 판단
+      isWatched: productDetail.holdings?.is_watched || false,
+
+      // DetailMainDeposit 컴포넌트용 데이터
+      productCompanyName: productDetail.productCompanyName || 'SH 수협은행',
+      productName: productDetail.productName || 'SH 첫만남우대예금',
+      productCode: productDetail.productCode || productId,
+      productRiskGrade: productDetail.productRiskGrade || 1,
+      // 원본 최대 한도는 숫자 또는 Decimal로 유지
+      depositMaxLimit: productDetail.depositMaxLimit ?? new Decimal(10000000),
+      // 금리 표시 (12개월 우선)
+      baseRate: baseRateStr,
+      maxRate: maxRateStr
+    };
+
+    console.log('Final processed deposit data:', result);
+    return result;
+  };
+
+  // 정보 탭 생성 함수 (실제 API 응답 구조에 맞춰 수정)
+  const generateInfoTab = productDetail => {
+    return [
+      {
+        type: 'text',
+        title: '상품명',
+        desc: productDetail.productName || 'SH 첫만남우대예금'
+      },
+      { type: 'text', title: '은행명', desc: productDetail.productCompanyName || 'SH 수협은행' },
+      {
+        type: 'text',
+        title: '가입 대상',
+        desc: productDetail.depositJoinMember || '실명의 개인(1인 1계좌)'
+      },
+      {
+        type: 'text',
+        title: '특별 조건',
+        desc: productDetail.depositSpclCnd || '우대 조건: 신규가입 시 최고 연 0.30%p 추가'
+      },
+      {
+        type: 'longtext',
+        title: '만기 후 이자율',
+        desc: productDetail.depositMtrtInt || '연 3.69%'
+      },
+      {
+        type: 'text',
+        title: '최대 가입 한도',
+        desc: (() => {
+          const val = productDetail.depositMaxLimit;
+          if (val instanceof Decimal) return `${(val.toNumber() / 1e4).toFixed(0)}만원`;
+          if (typeof val === 'number') return `${(val / 1e4).toFixed(0)}만원`;
+          return '1,000만원';
+        })()
+      },
+      {
+        type: 'text',
+        title: '가입 방법',
+        desc: productDetail.depositJoinWay || '인터넷뱅킹, 모바일뱅킹'
+      },
+      { type: 'text', title: '가입 제한', desc: productDetail.depositJoinDeny || '서민전용' },
+      {
+        type: 'longtext',
+        title: '기타 참고사항',
+        desc:
+          productDetail.depositEtcNote ||
+          '상품 가입 전 반드시 상품설명서 및 약관을 확인하시기 바랍니다.'
+      }
+    ];
+  };
+
+  // 금리 탭 생성 함수 (실제 API 응답 구조에 맞춰 수정)
+  const generateRateTab = productDetail => {
+    const doption = productDetail.doption;
+    if (!doption || !doption.length) return [];
+
+    // 12개월 우선, 없으면 가장 긴 기간 선택
+    const option12 = doption.find(o => String(o.doptionSaveTrm) === '12');
+    const selected =
+      option12 ||
+      [...doption].sort((a, b) => Number(b.doptionSaveTrm) - Number(a.doptionSaveTrm))[0];
+
+    return [
+      {
+        type: 'text',
+        title: '저축기간',
+        desc: `${selected.doptionSaveTrm}개월`
+      },
+      {
+        type: 'text',
+        title: '최고금리',
+        desc: `연 ${selected.doptionIntrRate2}% (${selected.doptionSaveTrm}개월 세전)`
+      },
+      {
+        type: 'text',
+        title: '기본금리',
+        desc: `연 ${selected.doptionIntrRate}%`
+      },
+      {
+        type: 'longtext',
+        title: '우대금리 조건',
+        desc: productDetail.depositSpclCnd || '우대 조건: 신규가입 시 최고 연 0.30%p 추가'
+      },
+      {
+        type: 'text',
+        title: '이자 계산 방식',
+        desc: selected.doptionIntrRateTypeNm || '단리'
+      }
+    ];
+  };
+
+  // 유의사항 탭 생성 함수 (실제 API 응답 구조에 맞춰 수정)
+  const generateNoticeTab = productDetail => {
+    return [
+      {
+        type: 'longtext',
+        title: '이자지급',
+        desc: '만기일시지급식 : 만기(후) 또는 중도해지 요청시 이자를 지급월이자지급식 : 만기이자를 매월 지급하며 중도해지 요청 시 중도해지금리로 계산하여 지급하고 매월 지급한 이자는 환입※ 만기전 해지할 경우 약정 금리보다 낮은 중도해지금리가 적용됩니다.'
+      },
+      {
+        type: 'longtext',
+        title: '유의사항',
+        desc:
+          productDetail.depositEtcNote ||
+          '상품 가입 전 반드시 상품설명서 및 약관을 확인하시기 바랍니다.'
+      },
+      {
+        type: 'longtext',
+        title: '예금자 보호법',
+        desc: '이 예금은 예금자보호법에 따라 원금과 소정의 이자를 합하여 1인당 "5천만원까지"(은행의 여타 보호 상품과 합산) 보호됩니다.'
+      }
+    ];
+  };
+
+  // 보유 내역 탭 생성 함수 수정 (실제 API 응답 구조에 맞춰 수정)
+  const generateHoldingTab = (holdingData, productDetail) => {
+    console.log('generateHoldingTab - holdingData:', holdingData);
+
+    if (!holdingData) {
+      console.log('No holding data available');
+      return [];
+    }
+
+    // 예금은 수량 개념이 없으므로 1로 고정
+    const holdingsTotalQuantity = new Decimal(holdingData.holdings_total_quantity || 1);
+    const holdingsTotalPrice = new Decimal(holdingData.holdings_total_price || 0);
+
+    const result = [
+      {
+        type: 'holdingsummarydeposit',
+        title: '보유 현황',
+        desc: {
+          holdingsTotalPrice: holdingsTotalPrice.toNumber(),
+          holdingsTotalQuantity: holdingsTotalQuantity.toNumber(),
+          contractDate: new Date(
+            holdingData.history?.[0]?.historyTradeDate || new Date()
+          ).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          }),
+          maturityDate: new Date(
+            holdingData.history?.[0]?.historyTradeDate || new Date()
+          ).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          })
+        }
+      }
+    ];
+
+    // 예금 기록이 있을 때만 투자 기록 추가
+    if (holdingData.history && holdingData.history.length > 0) {
+      result.push({
+        type: 'holdinghistory',
+        title: '투자 기록',
+        desc: holdingData.history.map(item => {
+          // 거래 타입에 따른 표시 형식 설정
+          const isDeposit = item.historyTradeType === 'deposit';
+          const isWithdrawal = item.historyTradeType === 'withdrawal';
+
+          // 거래 수량에 부호 추가 (콤마 포함)
+          const quantity = new Decimal(item.historyQuantity || 0);
+          const displayQuantity = isWithdrawal
+            ? `-${formatNumberWithComma(quantity.toNumber())}`
+            : `+${formatNumberWithComma(quantity.toNumber())}`;
+
+          // 거래 금액에 부호 추가 (콤마 포함)
+          const amount = new Decimal(item.historyAmount || 0);
+          const displayAmount = isWithdrawal
+            ? `-${formatNumberWithComma(amount.toNumber())}`
+            : `+${formatNumberWithComma(amount.toNumber())}`;
+
+          // 날짜 형식 수정 (yyyy/mm/dd 오전 hh:mm:ss)
+          const tradeDate = new Date(item.historyTradeDate);
+          const year = tradeDate.getFullYear();
+          const month = String(tradeDate.getMonth() + 1).padStart(2, '0');
+          const day = String(tradeDate.getDate()).padStart(2, '0');
+          const hours = tradeDate.getHours();
+          const minutes = String(tradeDate.getMinutes()).padStart(2, '0');
+          const seconds = String(tradeDate.getSeconds()).padStart(2, '0');
+          const ampm = hours < 12 ? '오전' : '오후';
+          const displayHours = String(hours < 12 ? hours : hours - 12).padStart(2, '0');
+          const displayDate = `${year}/${month}/${day} ${ampm} ${displayHours}:${minutes}:${seconds}`;
+
+          return {
+            ...item,
+            // 원본 데이터 유지
+            historyQuantity: item.historyQuantity,
+            historyAmount: item.historyAmount,
+            historyTradeDate: item.historyTradeDate,
+            // 표시용 데이터 추가
+            displayQuantity,
+            displayAmount,
+            displayDate,
+            // 스타일링을 위한 플래그
+            isDeposit,
+            isWithdrawal,
+            // 색상 정보
+            quantityColor: isWithdrawal ? '#FF3B30' : '#007AFF',
+            amountColor: isWithdrawal ? '#FF3B30' : '#007AFF'
+          };
+        })
+      });
+    }
+
+    console.log('Generated holding tab data:', result);
+    return result;
+  };
+
+  // tabData computed 수정
   const tabData = computed(() => {
     if (!product.value) return {};
 
@@ -159,45 +370,23 @@ export const useDepositStore = defineStore('deposit', () => {
       notice: product.value.notice
     };
 
-    return baseTabData;
-  });
-
-  // 보유 내역 데이터 getter (기존 유지)
-  const holdingData = computed(() => {
-    if (!product.value) return null;
-    return mockHoldingData[product.value.productCode] || null;
-  });
-
-  // tabData에 holding 데이터를 추가하는 함수
-  const getTabDataWithHolding = productId => {
-    const baseTabData = {
-      info: product.value?.info || [],
-      rate: product.value?.rate || [],
-      notice: product.value?.notice || []
-    };
-
     // 보유 중인 상품이면 holding 데이터 추가
-    if (
-      product.value?.isHolding &&
-      product.value?.productCode &&
-      mockHoldingData[product.value.productCode]
-    ) {
-      const holdingInfo = mockHoldingData[product.value.productCode];
-      baseTabData.holding = [
-        {
-          type: 'holdingsummarydeposit',
-          title: '보유 현황',
-          desc: {
-            contractDate: holdingInfo.contractDate,
-            maturityDate: holdingInfo.maturityDate,
-            holdingsTotalPrice: holdingInfo.holdingsTotalPrice
-          }
-        }
-      ];
+    if (product.value.isHolding && product.value.holding) {
+      baseTabData.holding = product.value.holding;
     }
 
     return baseTabData;
-  };
+  });
+
+  // Getters
+  const productInfo = computed(() => product.value);
+
+  // 찜 여부 getter 추가
+  const isWatched = computed(() => {
+    const watched = product.value?.isWatched || false;
+    console.log('isWatched computed - value:', watched);
+    return watched;
+  });
 
   return {
     product,
@@ -206,7 +395,6 @@ export const useDepositStore = defineStore('deposit', () => {
     fetchProduct,
     productInfo,
     tabData,
-    holdingData,
-    getTabDataWithHolding
+    isWatched
   };
 });

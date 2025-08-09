@@ -40,7 +40,10 @@ const props = defineProps({
   bank: String,
   title: String,
   yield: [String, Number], // 수익률 (3개월 고정)
-  priceArr: Array // [오늘 기준가, 전일 기준가]
+  priceArr: Array, // [오늘 기준가, 전일 기준가]
+  currentPrice: [Number, String], // 현재가
+  priceChange: [Number, String], // 전일대비 변동금액
+  priceChangePercent: [Number, String] // 전일대비 변동률
 });
 
 const yieldMonths = computed(() => {
@@ -61,7 +64,7 @@ const yieldValue = computed(() => {
 
 const formattedYield = computed(() => {
   if (!props.yield) return '-';
-  return Math.abs(yieldValue.value);
+  return Math.abs(yieldValue.value).toFixed(2);
 });
 
 const yieldChangeColor = computed(() => {
@@ -70,22 +73,58 @@ const yieldChangeColor = computed(() => {
   return '';
 });
 
-const todayPrice = computed(() =>
-  props.priceArr && props.priceArr.length > 0 ? props.priceArr[0] : null
-);
-const prevPrice = computed(() =>
-  props.priceArr && props.priceArr.length > 1 ? props.priceArr[1] : null
-);
-const priceValue = computed(() =>
-  todayPrice.value !== null ? todayPrice.value.toLocaleString() + '원' : '-'
-);
-const priceChange = computed(() => {
-  if (todayPrice.value === null || prevPrice.value === null) return 0;
-  return +(todayPrice.value - prevPrice.value).toFixed(2);
+const todayPrice = computed(() => {
+  if (!props.priceArr || props.priceArr.length === 0) return null;
+  const price = props.priceArr[0];
+  // Decimal 객체인 경우 toNumber() 사용, 아니면 그대로 사용
+  return price && typeof price === 'object' && price.toNumber ? price.toNumber() : price;
 });
+
+const prevPrice = computed(() => {
+  if (!props.priceArr || props.priceArr.length < 2) return null;
+  const price = props.priceArr[1];
+  // Decimal 객체인 경우 toNumber() 사용, 아니면 그대로 사용
+  return price && typeof price === 'object' && price.toNumber ? price.toNumber() : price;
+});
+
+const priceValue = computed(() => {
+  // 새로운 props가 있으면 사용, 없으면 기존 방식 사용
+  if (props.currentPrice !== undefined && props.currentPrice !== null) {
+    const price =
+      typeof props.currentPrice === 'string' ? parseFloat(props.currentPrice) : props.currentPrice;
+    return price.toLocaleString() + '원';
+  }
+
+  if (todayPrice.value === null) return '-';
+  return todayPrice.value.toLocaleString() + '원';
+});
+
+const priceChange = computed(() => {
+  // 새로운 props가 있으면 사용, 없으면 기존 방식 사용
+  if (props.priceChange !== undefined && props.priceChange !== null) {
+    const change =
+      typeof props.priceChange === 'string' ? parseFloat(props.priceChange) : props.priceChange;
+    return isNaN(change) ? 0 : +change.toFixed(2);
+  }
+
+  if (todayPrice.value === null || prevPrice.value === null) return 0;
+  const change = todayPrice.value - prevPrice.value;
+  return isNaN(change) ? 0 : +change.toFixed(2);
+});
+
 const priceChangeRate = computed(() => {
+  // 새로운 props가 있으면 사용, 없으면 기존 방식 사용
+  if (props.priceChangePercent !== undefined && props.priceChangePercent !== null) {
+    const rate =
+      typeof props.priceChangePercent === 'string'
+        ? parseFloat(props.priceChangePercent)
+        : props.priceChangePercent;
+    return isNaN(rate) ? '' : rate.toFixed(2) + '%';
+  }
+
   if (todayPrice.value === null || prevPrice.value === null || prevPrice.value === 0) return '';
-  return ((priceChange.value / prevPrice.value) * 100).toFixed(2) + '%';
+  const rate = (priceChange.value / prevPrice.value) * 100;
+  return isNaN(rate) ? '' : rate.toFixed(2) + '%';
 });
 const priceChangeColor = computed(() => {
   if (priceChange.value > 0) return 'up';

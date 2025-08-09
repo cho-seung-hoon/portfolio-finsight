@@ -1,14 +1,26 @@
 <template>
   <div class="subBox2">
-    <div class="action" @click="logout">로그아웃</div>
+    <div
+      class="action"
+      @click="logout">
+      로그아웃
+    </div>
 
     <!-- ✅ 로그아웃 성공 모달 -->
-    <div v-if="showModal" class="modal-overlay">
+    <!-- <div v-if="showModal" class="modal-overlay">
       <div class="modal">
         <p>로그아웃 되었습니다. 이용해주셔서 감사합니다.</p>
         <button @click="closeModal">확인</button>
       </div>
-    </div>
+    </div> -->
+    <BaseModal
+      :visible="showModal"
+      :onClose="closeModal">
+      <template #default>
+        로그아웃 되었습니다.<br />
+        이용해주셔서 감사합니다.
+      </template>
+    </BaseModal>
   </div>
 </template>
 
@@ -16,6 +28,8 @@
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import BaseModal from '../common/BaseModal.vue';
+
 const showModal = ref(false);
 
 const router = useRouter();
@@ -30,8 +44,8 @@ const logout = async () => {
       { refreshToken },
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+          Authorization: `Bearer ${accessToken}`
+        }
       }
     );
 
@@ -39,7 +53,6 @@ const logout = async () => {
     localStorage.removeItem('refreshToken');
 
     showModal.value = true;
-
   } catch (error) {
     console.error('로그아웃 실패:', error);
     alert('로그아웃 중 오류가 발생했습니다.');
