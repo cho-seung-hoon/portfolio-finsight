@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import FundItem from '@/components/list/FundItem.vue';
@@ -56,13 +56,18 @@ onMounted(async () => {
       : opt.options[0];
   });
   await fetchFunds();
+  window.addEventListener('isMatchedChanged', fetchFunds);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('isMatchedChanged', fetchFunds);
 });
 
 async function fetchFunds() {
   const sort = sortMap[selected.value.sort];
   const country = countryMap[selected.value.country];
   const type = typeMap[selected.value.fund_type];
-  const isMatched = true; // 필요 시 실제 값으로 교체
+  const isMatched = getFinFilters().isMatched || false;
 
   funds.value = await getFunds(sort, country, type, isMatched);
 }

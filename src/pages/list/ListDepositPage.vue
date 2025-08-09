@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import DepositItem from '@/components/list/DepositItem.vue';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import { getDeposits } from '@/api/productApi';
@@ -38,13 +38,18 @@ onMounted(async () => {
       ? savedFilters[opt.key]
       : opt.options[0];
   });
-
   await fetchDeposits();
+  window.addEventListener('isMatchedChanged', fetchDeposits);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('isMatchedChanged', fetchDeposits);
 });
 
 async function fetchDeposits() {
   const sortParam = sortMap[selected.value.sort];
-  const isMatched = true;
+  const isMatched = getFinFilters().isMatched || false;
+
   deposits.value = await getDeposits(sortParam, isMatched);
 }
 
