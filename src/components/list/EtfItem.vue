@@ -3,7 +3,11 @@
     class="etf-item-container"
     @click="goToDetail">
     <section class="etf-item-header-section">
-      <div class="etf-item-sub-title">{{ item.productCountry }} ・ {{ item.productType }}</div>
+      <div class="etf-item-sub-title">
+        {{ countryLabelMap[item.productCountry] ?? item.productCountry }}
+        ・
+        {{ typeLabelMap[item.productType] ?? item.productType }}
+      </div>
       <header class="etf-item-header">
         <div class="etf-item-title-left">
           {{ item.productName }}
@@ -21,24 +25,16 @@
         안정추구형 HOT
       </div>
     </section>
+
     <section class="etf-item-content-section">
-      <!-- <div class="info-row">
-        <span class="label">기준가</span>
-        <span class="value">{{ item.nav.toLocaleString() }}</span>
-      </div>
-      <div class="info-row">
-        <span class="label">거래량</span>
-        <span class="value">{{ item.volume.toLocaleString() }}</span>
-      </div>
-      <div class="info-row">
-        <span class="label">수익률</span>
-        <span class="value">{{ item.rate_of_return }}</span>
-      </div> -->
       <div class="info-row">
         <span class="label">위험등급</span>
         <span class="value">{{ item.productRiskGrade }}등급</span>
       </div>
-      <div class="news-response-box">
+
+      <div
+        v-if="item.newsSentiment"
+        class="news-response-box">
         <span class="news-label">뉴스반응</span>
         <div class="news-bar-wrapper">
           <div
@@ -67,22 +63,29 @@ const props = defineProps({
     required: true
   }
 });
-
+const countryLabelMap = {
+  domestic: '국내',
+  foreign: '해외'
+};
+const typeLabelMap = {
+  equity: '주식형',
+  bond: '채권형',
+  mixed: '혼합형'
+};
+const colorMap = {
+  positive: 'var(--newsPositive)',
+  neutral: 'var(--newsNeutral)',
+  negative: 'var(--newsNegative)'
+};
 const router = useRouter();
 
 function goToDetail() {
   router.push(`/etf/${props.item.productCode}`);
 }
 
-const colorMap = {
-  positive: 'var(--newsPositive)',
-  neutral: 'var(--newsNeutral)',
-  negative: 'var(--newsNegative)'
-};
-
 function getSegmentStyle(key) {
-  const values = props.item.newsSentiment;
-  const total = Object.values(values).reduce((sum, v) => sum + v, 0);
+  const values = props.item.newsSentiment || { positive: 0, neutral: 0, negative: 0 };
+  const total = Object.values(values).reduce((sum, v) => sum + v, 0) || 1;
   const maxKey = Object.keys(values).reduce((a, b) => (values[a] > values[b] ? a : b));
 
   return {
@@ -120,7 +123,6 @@ function getSegmentStyle(key) {
   animation: fadeSlideIn 0.6s ease;
   transition: transform 0.2s ease;
 }
-
 .etf-item-container:active {
   transform: scale(0.98);
   background-color: var(--main04);
@@ -138,6 +140,12 @@ function getSegmentStyle(key) {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semi-bold);
   color: var(--main01);
+}
+.etf-item-header svg {
+  transition: transform 0.2s ease;
+}
+.etf-item-header svg:hover {
+  transform: scale(1.2);
 }
 
 .etf-item-title-left {
@@ -188,7 +196,6 @@ function getSegmentStyle(key) {
   color: var(--main01);
   flex-shrink: 0;
 }
-
 .value {
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
@@ -207,7 +214,6 @@ function getSegmentStyle(key) {
   justify-content: space-between;
   margin-left: auto;
 }
-
 .news-label {
   font-size: var(--font-size-sm);
   color: var(--main02);
@@ -222,21 +228,17 @@ function getSegmentStyle(key) {
   overflow: hidden;
   margin-left: 8px;
 }
-
 .news-bar-segment {
   transition: background-color 0.3s ease-in-out;
 }
-
 .news-bar-segment.left {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
-
 .news-bar-segment.right {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
-
 .news-bar-segment.center {
   border-radius: 0;
 }

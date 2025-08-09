@@ -3,7 +3,11 @@
     class="fund-item-container"
     @click="goToDetail">
     <section class="fund-item-header-section">
-      <div class="fund-item-sub-title">{{ item.productCountry }} ・ {{ item.fund_type }}</div>
+      <div class="fund-item-sub-title">
+        {{ countryLabelMap[item.productCountry] ?? item.productCountry }}
+        ・
+        {{ typeLabelMap[item.productType] ?? item.productType }}
+      </div>
       <header class="fund-item-header">
         <div class="fund-item-title-left">
           {{ item.productName }}
@@ -34,7 +38,9 @@
         <span class="label">위험등급</span>
         <span class="value">{{ item.productRiskGrade }}</span>
       </div>
-      <div class="news-response-box">
+      <div
+        v-if="item.newsSentiment"
+        class="news-response-box">
         <span class="news-label">뉴스반응</span>
         <div class="news-bar-wrapper">
           <div
@@ -63,6 +69,20 @@ const props = defineProps({
     required: true
   }
 });
+const countryLabelMap = {
+  domestic: '국내',
+  foreign: '해외'
+};
+const typeLabelMap = {
+  equity: '주식형',
+  bond: '채권형',
+  mixed: '혼합형'
+};
+const colorMap = {
+  positive: 'var(--newsPositive)',
+  neutral: 'var(--newsNeutral)',
+  negative: 'var(--newsNegative)'
+};
 
 const router = useRouter();
 
@@ -70,15 +90,9 @@ function goToDetail() {
   router.push(`/fund/${props.item.productCode}`);
 }
 
-const colorMap = {
-  positive: 'var(--newsPositive)',
-  neutral: 'var(--newsNeutral)',
-  negative: 'var(--newsNegative)'
-};
-
 function getSegmentStyle(key) {
-  const values = props.item.newsSentiment;
-  const total = Object.values(values).reduce((sum, v) => sum + v, 0);
+  const values = props.item.newsSentiment || { positive: 0, neutral: 0, negative: 0 };
+  const total = Object.values(values).reduce((sum, v) => sum + v, 0) || 1; // 0 나눗셈 방지
   const maxKey = Object.keys(values).reduce((a, b) => (values[a] > values[b] ? a : b));
 
   return {
