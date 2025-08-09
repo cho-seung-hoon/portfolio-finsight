@@ -99,7 +99,10 @@ const props = defineProps({
 });
 
 const handleConfirm = () => {
-  props.onConfirm?.();
+  // 1) 우선 닫기 시도 (확인 시 모달 닫힘이 기본 UX)
+  props.onClose?.();
+
+  // 2) redirect가 있으면 라우팅
   if (props.redirect) {
     router.push(props.redirect);
   }
