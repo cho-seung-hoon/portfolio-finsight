@@ -11,29 +11,29 @@
 
     <div class="filter">
       <button
-        :class="{ active: selectCategory === '펀드' }"
-        @click="selectFilter('펀드')">
+        :class="{ active: selectCategory === 'fund' }"
+        @click="selectFilter('fund')">
         펀드
       </button>
       <button
-        :class="{ active: selectCategory === 'ETF' }"
-        @click="selectFilter('ETF')">
+        :class="{ active: selectCategory === 'etf' }"
+        @click="selectFilter('etf')">
         ETF
       </button>
     </div>
     <div
       v-if="filterProduct.length > 0"
       class="product-list">
-      <div v-if="selectCategory === 'ETF'">
-        <EtfItem
+      <div v-if="selectCategory === 'etf'">
+        <TempEtfItem
           v-for="item in filterProduct"
           :key="item.product_code"
           :item="item" />
       </div>
       <div v-else>
-        <FundItem
+        <TempFundItem
           v-for="fund in filterProduct"
-          :key="fund.fund_code"
+          :key="fund.product_code"
           :item="fund" />
       </div>
     </div>
@@ -47,23 +47,25 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import EtfItem from '../list/EtfItem.vue';
-import FundItem from '../list/FundItem.vue';
+import TempEtfItem from '@/components/home/TempEtfItem.vue';
+import TempFundItem from '@/components/home/TempFundItem.vue';
+
 const props = defineProps({
   keyword: String,
   color: String,
   productList: Array // 투자 상품 데이터, 부모에서 전달
 });
 
-const selectCategory = ref('펀드'); // 기본값
+const selectCategory = ref('fund'); // 기본값
 
 function selectFilter(category) {
   selectCategory.value = category;
 }
 
 const filterProduct = computed(() => {
-  return props.productList.filter(product => product.category === selectCategory.value);
+  return props.productList.filter(product => product.productCategory === selectCategory.value);
 });
+
 </script>
 <style scoped>
 .subBox {
