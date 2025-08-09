@@ -6,8 +6,8 @@
       <div class="bottom-modal-header">
         <p class="bottom-modal-sub-title">
           <span>{{ userInfo.userName }}</span>
-          <span>님의 투자성향은</span>
-          <span :class="['invt', profileClass]">{{ investmentProfileType }}</span>
+          <span>님의 투자성향은 {{ investmentProfileType }}</span>
+          <!-- <span :class="['invt', profileClass]">{{ investmentProfileType }}</span> -->
         </p>
         <div class="bottom-modal-title">
           <span :class="['invt', profileClass]">{{ investmentProfileType }}</span>
@@ -39,12 +39,12 @@
           class="bottom-modal-img" />
         <img
           v-else-if="investmentProfileType === '공격투자형'"
-          src="@/assets/image/recommend_05_veryaggresive.png"
+          src="@/assets/image/recommend_05_veryaggressive.png"
           alt="veryaggressiveChart"
           class="bottom-modal-img" />
       </div>
       <!-- Graph Section end -->
-        
+
       <div class="bottom-modal-footer">
         <button
           class="bottom-modal-footer-btn"
@@ -62,7 +62,6 @@
 </template>
 
 <script setup>
-
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
@@ -79,7 +78,7 @@ const fetchUsersInfo = async () => {
   const token = localStorage.getItem('accessToken');
   try {
     const response = await axios.get('http://localhost:8080/users/info', {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     });
     userInfo.value = response.data.data;
   } catch (e) {
@@ -94,24 +93,21 @@ const fetchInvestmentProfile = async () => {
     return;
   }
   try {
-    const response = await axios.get(
-      'http://localhost:8080/users/invt',
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
-      });
-      const type = response.data.investmentProfileType;
-      investmentProfileType.value = translateProfileType(type);
-      profileClass.value = getProfileClass(type);
-      console.log('투자성향결과:', type);
-
-    } catch (error) {
-      console.error('투자성향 조회 실패:', error);
+    const response = await axios.get('http://localhost:8080/users/invt', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+    const type = response.data.investmentProfileType;
+    investmentProfileType.value = translateProfileType(type);
+    profileClass.value = getProfileClass(type);
+    console.log('투자성향결과:', type);
+  } catch (error) {
+    console.error('투자성향 조회 실패:', error);
   }
 };
 const profileClass = ref('');
-const translateProfileType = (type) => {
+const translateProfileType = type => {
   switch (type) {
     case 'stable':
       return '안정형';
@@ -127,14 +123,20 @@ const translateProfileType = (type) => {
       return '알 수 없음';
   }
 };
-const getProfileClass = (type) => {
+const getProfileClass = type => {
   switch (type) {
-    case 'stable': return 'highlight-stable';
-    case 'stableplus': return 'highlight-stableplus';
-    case 'neutral': return 'highlight-neutral';
-    case 'aggressive': return 'highlight-aggressive';
-    case 'veryaggressive': return 'highlight-veryaggressive';
-    default: return '';
+    case 'stable':
+      return 'highlight-stable';
+    case 'stableplus':
+      return 'highlight-stableplus';
+    case 'neutral':
+      return 'highlight-neutral';
+    case 'aggressive':
+      return 'highlight-aggressive';
+    case 'veryaggressive':
+      return 'highlight-veryaggressive';
+    default:
+      return '';
   }
 };
 </script>
@@ -175,7 +177,7 @@ const getProfileClass = (type) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
 }
 
 .bottom-modal-sub-title {

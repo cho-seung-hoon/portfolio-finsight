@@ -102,24 +102,21 @@ const fetchInvestmentProfile = async () => {
     return;
   }
   try {
-    const response = await axios.get(
-      'http://localhost:8080/users/invt',
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
-      });
-      const type = response.data.investmentProfileType;
-      investmentProfileType.value = translateProfileType(type);
-      profileClass.value = getProfileClass(type);
-      console.log('투자성향결과:', type);
-
-    } catch (error) {
-      console.error('투자성향 조회 실패:', error);
+    const response = await axios.get('http://localhost:8080/users/invt', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+    const type = response.data.investmentProfileType;
+    investmentProfileType.value = translateProfileType(type);
+    profileClass.value = getProfileClass(type);
+    console.log('투자성향결과:', type);
+  } catch (error) {
+    console.error('투자성향 조회 실패:', error);
   }
 };
 const profileClass = ref('');
-const translateProfileType = (type) => {
+const translateProfileType = type => {
   switch (type) {
     case 'stable':
       return '안정형';
@@ -135,14 +132,20 @@ const translateProfileType = (type) => {
       return '알 수 없음';
   }
 };
-const getProfileClass = (type) => {
+const getProfileClass = type => {
   switch (type) {
-    case 'stable': return 'highlight-stable';
-    case 'stableplus': return 'highlight-stableplus';
-    case 'neutral': return 'highlight-neutral';
-    case 'aggressive': return 'highlight-aggressive';
-    case 'veryaggressive': return 'highlight-veryaggressive';
-    default: return '';
+    case 'stable':
+      return 'highlight-stable';
+    case 'stableplus':
+      return 'highlight-stableplus';
+    case 'neutral':
+      return 'highlight-neutral';
+    case 'aggressive':
+      return 'highlight-aggressive';
+    case 'veryaggressive':
+      return 'highlight-veryaggressive';
+    default:
+      return '';
   }
 };
 </script>
@@ -217,7 +220,6 @@ const getProfileClass = (type) => {
 }
 
 .list-page-banner.matched {
-  background: rgba(40, 202, 110, 0.9);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   color: var(--white);

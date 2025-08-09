@@ -7,7 +7,7 @@
     <section class="list-fund-page-contents">
       <FundItem
         v-for="fund in funds"
-        :key="fund.fund_code"
+        :key="fund.productCode"
         :item="fund" />
     </section>
   </div>
@@ -18,100 +18,62 @@ import { ref, onMounted } from 'vue';
 import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import FundItem from '@/components/list/FundItem.vue';
-import { useLoadingStore } from '@/stores/loading';
-
-const loadingStore = useLoadingStore();
+import { getFunds } from '@/api/productApi';
 
 const filters = [
-  { key: 'country', label: '국가', options: ['전체', '국내', '국외'] },
+  { key: 'country', label: '국가', options: ['전체', '국내', '해외'] },
   { key: 'fund_type', label: '유형', options: ['전체', '주식형', '채권형', '혼합형'] },
   { key: 'sort', label: '정렬', options: ['수익률순', '펀드규모순', '조회수순'] }
 ];
-
 const selected = ref({
   country: '전체',
   fund_type: '전체',
-  sort: '가나다순'
+  sort: '수익률순'
 });
+const funds = ref([]);
+const sortMap = {
+  수익률순: 'rate_of_return',
+  펀드규모순: 'fund_scale',
+  조회수순: 'view_count'
+};
+const countryMap = {
+  전체: undefined,
+  국내: 'domestic',
+  해외: 'foreign'
+};
+const typeMap = {
+  전체: undefined,
+  주식형: 'equity',
+  채권형: 'bond',
+  혼합형: 'mixed'
+};
 
-const funds = [
-  {
-    product_code: 'fund-001',
-    country: '국내',
-    fund_type: '주식형',
-    product_name: '미래에셋자산배분TINA펀드',
-    rate_of_return: 37.31,
-    scale: 2000,
-    risk_grade: 1,
-    news_response: {
-      positive: 20,
-      neutral: 30,
-      negative: 50
-    },
-    userOwns: true,
-    isPopularInUserGroup: true
-  },
-  {
-    product_code: 'fund-002',
-    country: '해외',
-    fund_type: '채권형',
-    product_name: '삼성 한국형TDF 2045',
-    rate_of_return: 12.1,
-    scale: 3000,
-    risk_grade: 3,
-    news_response: {
-      positive: 60,
-      neutral: 20,
-      negative: 20
-    },
-    userOwns: false,
-    isPopularInUserGroup: true
-  },
-  {
-    product_code: 'fund-003',
-    country: '해외',
-    fund_type: '채권형',
-    product_name: '삼성 한국형TDF 2045',
-    rate_of_return: 12.1,
-    scale: 3000,
-    risk_grade: 3,
-    news_response: {
-      positive: 30,
-      neutral: 50,
-      negative: 20
-    },
-    userOwns: true,
-    isPopularInUserGroup: false
-  }
-];
-
-// 마운트 시 로컬스토리지 반영 (없으면 default)
 onMounted(async () => {
-  // 로딩 상태 초기화
-  loadingStore.resetLoading();
-
-  // 로딩 시작
-  loadingStore.startLoading('펀드 목록을 불러오는 중...');
-
-  // 0.5초 대기 (더미 데이터 로딩 시뮬레이션)
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  const fund = getFinFilters().fund || {};
+  const saved = getFinFilters().fund || {};
   filters.forEach(opt => {
-    selected.value[opt.key] = opt.options.includes(fund[opt.key]) ? fund[opt.key] : opt.options[0];
+    selected.value[opt.key] = opt.options.includes(saved[opt.key])
+      ? saved[opt.key]
+      : opt.options[0];
   });
-
-  // 로딩 종료
-  loadingStore.stopLoading();
+  await fetchFunds();
 });
 
-// 값 변경 시 로컬스토리지 반영
+async function fetchFunds() {
+  const sort = sortMap[selected.value.sort];
+  const country = countryMap[selected.value.country];
+  const type = typeMap[selected.value.fund_type];
+  const isMatched = true; // 필요 시 실제 값으로 교체
+
+  funds.value = await getFunds(sort, country, type, isMatched);
+}
+
 function onChange(key, value) {
   selected.value[key] = value;
   setFinFilters({
     ...getFinFilters(),
     fund: { ...selected.value }
   });
+  fetchFunds();
 }
 </script>
 

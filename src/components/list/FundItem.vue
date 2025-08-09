@@ -3,38 +3,48 @@
     class="fund-item-container"
     @click="goToDetail">
     <section class="fund-item-header-section">
-      <div class="fund-item-sub-title">{{ item.country }} ・ {{ item.fund_type }}</div>
+      <div class="fund-item-sub-title">
+        {{ countryLabelMap[item.productCountry] ?? item.productCountry }}
+        ・
+        {{ typeLabelMap[item.productType] ?? item.productType }}
+      </div>
+
       <header class="fund-item-header">
         <div class="fund-item-title-left">
-          {{ item.product_name }}
+          <span class="product-name">{{ item.productName }}</span>
           <span
             v-if="item.userOwns"
             class="own-tag">
             보유중
           </span>
         </div>
-        <IconHeartStroke />
+        <IconHeartStroke class="heart-icon" />
       </header>
+
       <div
         v-if="item.isPopularInUserGroup"
         class="user-group-popular-badge">
         안정추구형 HOT
       </div>
     </section>
+
     <section class="fund-item-content-section">
       <div class="info-row">
         <span class="label">수익률</span>
-        <span class="value">{{ item.rate_of_return }} (3개월)</span>
+        <span class="value">{{ item.productRateOfReturn }} (3개월)</span>
       </div>
       <div class="info-row">
         <span class="label">펀드규모</span>
-        <span class="value">{{ item.scale }}</span>
+        <span class="value">{{ item.fundScale }}</span>
       </div>
       <div class="info-row">
         <span class="label">위험등급</span>
-        <span class="value">{{ item.risk_grade }}</span>
+        <span class="value">{{ item.productRiskGrade }}</span>
       </div>
-      <div class="news-response-box">
+
+      <div
+        v-if="item.newsSentiment"
+        class="news-response-box">
         <span class="news-label">뉴스반응</span>
         <div class="news-bar-wrapper">
           <div
@@ -64,21 +74,30 @@ const props = defineProps({
   }
 });
 
-const router = useRouter();
-
-function goToDetail() {
-  router.push(`/fund/${props.item.product_code}`);
-}
-
+const countryLabelMap = {
+  domestic: '국내',
+  foreign: '해외'
+};
+const typeLabelMap = {
+  equity: '주식형',
+  bond: '채권형',
+  mixed: '혼합형'
+};
 const colorMap = {
   positive: 'var(--newsPositive)',
   neutral: 'var(--newsNeutral)',
   negative: 'var(--newsNegative)'
 };
 
+const router = useRouter();
+
+function goToDetail() {
+  router.push(`/fund/${props.item.productCode}`);
+}
+
 function getSegmentStyle(key) {
-  const values = props.item.news_response;
-  const total = Object.values(values).reduce((sum, v) => sum + v, 0);
+  const values = props.item.newsSentiment || { positive: 0, neutral: 0, negative: 0 };
+  const total = Object.values(values).reduce((sum, v) => sum + v, 0) || 1;
   const maxKey = Object.keys(values).reduce((a, b) => (values[a] > values[b] ? a : b));
 
   return {
@@ -136,18 +155,31 @@ function getSegmentStyle(key) {
   color: var(--main01);
 }
 
-.fund-item-header svg {
-  transition: transform 0.2s ease;
-}
-
-.fund-item-header svg:hover {
-  transform: scale(1.2);
-}
-
 .fund-item-title-left {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.product-name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  max-width: 100%;
+}
+
+.heart-icon {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.fund-item-header svg:hover {
+  transform: none;
 }
 
 .own-tag {

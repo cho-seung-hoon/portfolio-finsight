@@ -22,7 +22,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import SearchSuggestItem from '@/components/list/SearchSuggestItem.vue';
-import { getSearchSuggestions } from '@/api/search';
+import { getSearchSuggestions } from '@/api/searchApi';
 
 const word = ref('');
 const allProducts = ref([]);

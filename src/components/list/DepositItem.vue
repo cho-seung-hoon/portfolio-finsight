@@ -3,28 +3,33 @@
     class="deposit-item-container"
     @click="goToDetail">
     <section class="deposit-item-header-section">
-      <div class="deposit-item-sub-title">{{ item.company_name }}</div>
+      <div class="deposit-item-sub-title">{{ item.productCompanyName }}</div>
+
       <header class="deposit-item-header">
         <div class="deposit-item-title-left">
-          {{ item.product_name }}
+          <span class="product-name">{{ item.productName }}</span>
           <span
             v-if="item.userOwns"
             class="own-tag">
             보유중
           </span>
         </div>
-        <IconHeartStroke />
+        <IconHeartStroke class="heart-icon" />
       </header>
+
       <div
         v-if="item.isPopularInUserGroup"
         class="user-group-popular-badge">
         안정추구형 HOT
       </div>
     </section>
+
     <section class="deposit-item-content-section">
       <div class="info-row">
         <span class="label">금리(1년)</span>
-        <span class="value"> 최고 {{ item.intr_rate2 }}% | 기본 {{ item.intr_rate }}% </span>
+        <span class="value">
+          최고 {{ item.depositIntrRate2 }}% | 기본 {{ item.depositIntrRate }}%
+        </span>
       </div>
     </section>
   </section>
@@ -44,7 +49,7 @@ const props = defineProps({
 const router = useRouter();
 
 function goToDetail() {
-  router.push(`/deposit/${props.item.product_code}`);
+  router.push(`/deposit/${props.item.productCode}`);
 }
 </script>
 
@@ -98,6 +103,23 @@ function goToDetail() {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.product-name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  max-width: 100%;
+}
+
+.heart-icon {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
 }
 
 .own-tag {

@@ -7,7 +7,7 @@
     <section class="list-etf-page-contents">
       <EtfItem
         v-for="item in etfs"
-        :key="item.product_code"
+        :key="item.productCode"
         :item="item" />
     </section>
   </div>
@@ -18,12 +18,10 @@ import { ref, onMounted } from 'vue';
 import EtfItem from '@/components/list/EtfItem.vue';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
-import { useLoadingStore } from '@/stores/loading';
-
-const loadingStore = useLoadingStore();
+import { getEtfs } from '@/api/productApi';
 
 const filters = [
-  { key: 'country', label: '국가', options: ['전체', '국내', '국외'] },
+  { key: 'country', label: '국가', options: ['전체', '국내', '해외'] },
   { key: 'etf_type', label: '유형', options: ['전체', '주식형', '채권형', '혼합형'] },
   { key: 'sort', label: '정렬', options: ['수익률순', '거래량순', '조회수순'] }
 ];
@@ -34,87 +32,51 @@ const selected = ref({
   sort: '수익률순'
 });
 
-const etfs = [
-  {
-    product_code: 'etf-001',
-    country: '국내',
-    etf_type: '주식형',
-    product_name: 'TIGER 미국S&P500',
-    nav: 2000,
-    volume: 3000,
-    rate_of_return: '3.3% (1개월)',
-    risk_grade: 3,
-    news_response: {
-      positive: 20,
-      neutral: 30,
-      negative: 50
-    },
-    userOwns: false,
-    isPopularInUserGroup: true
-  },
-  {
-    product_code: 'etf-002',
-    country: '국내',
-    etf_type: '채권형',
-    product_name: 'KODEX 200',
-    nav: 10250,
-    volume: 45700,
-    rate_of_return: '1.1% (1개월)',
-    risk_grade: 2,
-    news_response: {
-      positive: 30,
-      neutral: 60,
-      negative: 10
-    },
-    userOwns: true,
-    isPopularInUserGroup: false
-  },
-  {
-    product_code: 'ETF003',
-    country: '국외',
-    etf_type: '혼합형',
-    product_name: 'ARIRANG 미국리츠',
-    nav: 8760,
-    volume: 12800,
-    rate_of_return: '-0.8% (1개월)',
-    risk_grade: 4,
-    news_response: {
-      positive: 62,
-      neutral: 25,
-      negative: 13
-    },
-    userOwns: true,
-    isPopularInUserGroup: false
-  }
-];
+const etfs = ref([]);
 
-// 마운트 시 로컬스토리지 반영 (없으면 default)
+const sortMap = {
+  수익률순: 'rate_of_return',
+  거래량순: 'volume',
+  조회수순: 'view_count'
+};
+const countryMap = {
+  전체: undefined,
+  국내: 'domestic',
+  해외: 'foreign'
+};
+const typeMap = {
+  전체: undefined,
+  주식형: 'equity',
+  채권형: 'bond',
+  혼합형: 'mixed'
+};
+
 onMounted(async () => {
-  // 로딩 상태 초기화
-  loadingStore.resetLoading();
-
-  // 로딩 시작
-  loadingStore.startLoading('ETF 목록을 불러오는 중...');
-
-  // 0.5초 대기 (더미 데이터 로딩 시뮬레이션)
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  const etf = getFinFilters().etf || {};
+  const saved = getFinFilters().etf || {};
   filters.forEach(opt => {
-    selected.value[opt.key] = opt.options.includes(etf[opt.key]) ? etf[opt.key] : opt.options[0];
+    selected.value[opt.key] = opt.options.includes(saved[opt.key])
+      ? saved[opt.key]
+      : opt.options[0];
   });
-
-  // 로딩 종료
-  loadingStore.stopLoading();
+  await fetchEtfs();
 });
 
-// 값 변경 시 로컬스토리지 반영
+async function fetchEtfs() {
+  const sort = sortMap[selected.value.sort];
+  const country = countryMap[selected.value.country];
+  const type = typeMap[selected.value.etf_type];
+  const isMatched = true;
+
+  etfs.value = await getEtfs(sort, country, type, isMatched);
+}
+
 function onChange(key, value) {
   selected.value[key] = value;
   setFinFilters({
     ...getFinFilters(),
     etf: { ...selected.value }
   });
+  fetchEtfs();
 }
 </script>
 
