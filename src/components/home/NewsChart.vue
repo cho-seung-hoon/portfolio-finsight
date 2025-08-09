@@ -3,15 +3,42 @@
     <div class="subItem">
       <div class="subItem-left">
         <div class="subItem-title01">뉴스 키워드</div>
+
         <div
           class="icon-wrapper icon-question"
           @click="showTooltip = !showTooltip">
           <IconQuestion />
-        </div>
-        <div
-          v-if="showTooltip"
-          class="tooltip-content">
-          각 키워드의 언급량과 긍/부정 감성을 나타냅니다.
+
+          <Transition name="tooltip">
+            <div
+              v-if="showTooltip"
+              class="tooltip-content">
+              최근 7일 뉴스레터의 감성분석 결과입니다.
+              <br/><br/>
+              <div class="tooltip-content-sentiment">
+                <div class="sentiment">
+                  <div class="icon-wrapper icon-positive">
+                    <IconSquare/>
+                  </div>
+                  긍정
+                </div>
+                <div class="sentiment">
+                  <div class="icon-wrapper icon-neutral">
+                    <IconSquare/>
+                  </div>
+                  중립
+                </div>
+                <div class="sentiment">
+                  <div class="icon-wrapper icon-negative">
+                    <IconSquare/>
+                  </div>
+                  부정
+                </div>
+              </div>
+              <br/>
+              ※ 투자 시 참고 자료로만 활용해 주세요.
+            </div>
+          </Transition>
         </div>
 
       </div>
@@ -33,10 +60,10 @@ import { ref, onBeforeUnmount, watch } from 'vue';
 import * as d3 from 'd3';
 import IconQuestion from '@/components/icons/IconQuestion.vue';
 import IconRefresh from '@/components/icons/IconRefresh.vue';
+import IconSquare from '@/components/icons/IconSquare.vue';
 
 // ===================================================================
 // ✨ 1. 로직 영역 (Logic Area)
-// 컴포넌트의 상태, props, emit, 생명주기 등 핵심 로직을 모아둡니다.
 // ===================================================================
 
 const props = defineProps({
@@ -69,51 +96,55 @@ function onBubbleClick(keyword) {
 }
 
 // 데이터 변경 감지 및 생명주기 훅
-watch(() => props.chartData, (newData) => {
-  if (newData && newData.length > 0 && chartBox.value) {
-    const container = chartBox.value;
-    function resize() {
-      const width = container.clientWidth;
-      const height = width * 0.6;
-      drawChart(newData, width, height);
+watch(
+  () => props.chartData,
+  newData => {
+    if (newData && newData.length > 0 && chartBox.value) {
+      const container = chartBox.value;
+
+      function resize() {
+        const width = container.clientWidth;
+        const height = width * 0.6;
+        drawChart(newData, width, height);
+      }
+
+      if (!initialLoadDone.value) {
+        const maxNode = newData.reduce((a, b) => (a.value > b.value ? a : b));
+        const { bgColor } = colorScale(maxNode.value, maxNode.sentiment);
+        emit('initial-load', {
+          id: maxNode.id,
+          label: maxNode.label,
+          color: bgColor
+        });
+        initialLoadDone.value = true;
+      }
+      resize();
+      if (resizeObserver) resizeObserver.disconnect();
+      resizeObserver = new ResizeObserver(resize);
+      resizeObserver.observe(container);
     }
-    if (!initialLoadDone.value) {
-      const maxNode = newData.reduce((a, b) => (a.value > b.value ? a : b));
-      const { bgColor } = colorScale(maxNode.value, maxNode.sentiment);
-      emit('initial-load', {
-        id: maxNode.id,
-        label: maxNode.label,
-        color: bgColor
-      });
-      initialLoadDone.value = true;
-    }
-    resize();
-    if (resizeObserver) resizeObserver.disconnect();
-    resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(container);
-  }
-}, { deep: true });
+  },
+  { deep: true }
+);
 
 onBeforeUnmount(() => {
   if (resizeObserver) resizeObserver.disconnect();
   if (simulation) simulation.stop();
 });
 
-
 // ===================================================================
 // ✨ 2. 차트 설정 및 구현 영역 (Chart Settings & Implementation)
-// D3.js 차트 구현에 필요한 세부 함수와 색상 설정 등을 모아둡니다.
 // ===================================================================
 
 // --- 색상 설정 ---
 const sentimentColors = {
   negative: ['#f4dcd6', '#FC8675', '#f97662'],
-  neutral: ['#edf4ce', '#d8f18c', '#bee136'],
+  neutral: ['#e2e4d8', '#e2e4d8', '#e2e4d8'],
   positive: ['#ccddf8', '#6B96E0', '#6c8fe8']
 };
 const sentimentTextColors = {
   negative: ['#5E2720', '#9c3428', '#FFFFFF'],
-  neutral: ['#4F592A', '#748c1a', '#FFFFFF'],
+  neutral: ['#7c7c77', '#7c7c77', '#7c7c77'],
   positive: ['#1D2C45', '#1a418e', '#FFFFFF']
 };
 
@@ -130,55 +161,11 @@ function colorScale(value, sentiment) {
   };
 }
 
-function wrap(textSelection) {
-  textSelection.each(function(d) {
-    const text = d3.select(this);
-    const label = d.label;
-    const maxWidth = d.r * 1.7;
-    const lineHeight = 1.2;
-    const y = text.attr("y") || 0;
-
-    text.style('font-size', '12px').style('font-weight', '600');
-    const textWidth = this.getComputedTextLength();
-
-    text.text(null);
-
-    if (textWidth < maxWidth) {
-      text.append('tspan')
-        .attr('x', 0)
-        .attr('dy', '0.35em')
-        .text(label);
-      return;
-    }
-
-
-    const midPoint = Math.floor(label.length / 2);
-    const line1 = label.substring(0, midPoint);
-    const line2 = label.substring(midPoint);
-
-    text.append('tspan')
-      .attr('x', 0)
-      .attr('y', y)
-      .text(line1);
-
-    text.append('tspan')
-      .attr('x', 0)
-      .attr('y', y)
-      .attr('dy', `${lineHeight}em`)
-      .text(line2);
-
-
-    const verticalOffset = -(lineHeight / 2) * 6;
-    text.attr("transform", `translate(0, ${verticalOffset})`);
-  });
-}
-
 // --- 차트 그리기 메인 함수 ---
 function drawChart(data, width, height) {
   if (!data || data.length === 0) return;
 
   d3.select(chartBox.value).selectAll('*').remove();
-
 
   svg = d3.select(chartBox.value).append('svg').attr('width', width).attr('height', height);
 
@@ -186,6 +173,39 @@ function drawChart(data, width, height) {
     .scaleSqrt()
     .domain([d3.min(data, d => d.value), d3.max(data, d => d.value)])
     .range([25, 40]); // 버블 크기 조절
+
+  const fontSizeScale = d3.scaleLinear().domain(radiusScale.range()).range([11, 15]).clamp(true);
+
+  function wrap(textSelection) {
+    textSelection.each(function (d) {
+      const text = d3.select(this);
+      const label = d.label;
+      const maxWidth = d.r * 1.7;
+      const lineHeight = 1.2;
+      const y = text.attr('y') || 0;
+      const currentFontSize = fontSizeScale(d.r);
+
+      text.text(label);
+      const textWidth = this.getComputedTextLength();
+
+      if (textWidth < maxWidth) {
+        text.text(null).append('tspan').attr('x', 0).attr('dy', '0.35em').text(label);
+        return;
+      }
+
+      text.text(null);
+      const midPoint = Math.floor(label.length / 2);
+      const line1 = label.substring(0, midPoint);
+      const line2 = label.substring(midPoint);
+
+      text.append('tspan').attr('x', 0).attr('y', y).text(line1);
+
+      text.append('tspan').attr('x', 0).attr('y', y).attr('dy', `${lineHeight}em`).text(line2);
+
+      const verticalOffset = -(lineHeight / 2) * (currentFontSize * 0.5);
+      text.attr('transform', `translate(0, ${verticalOffset})`);
+    });
+  }
 
   const nodes = data.map(d => {
     const { bgColor, textColor } = colorScale(d.value, d.sentiment);
@@ -219,16 +239,14 @@ function drawChart(data, width, height) {
   bubble
     .append('text')
     .attr('text-anchor', 'middle')
-    .style('font-size', '12px') // 기본 폰트 크기 고정
+    .style('font-size', d => `${fontSizeScale(d.r)}px`)
     .style('font-weight', '600')
     .style('fill', d => d.textColor)
     .style('opacity', 0)
-    .text(d => d.label) // 먼저 전체 텍스트를 넣고
-    .call(wrap) // wrap 함수를 호출하여 줄바꿈 적용
+    .call(wrap)
     .transition()
     .duration(800)
     .style('opacity', 1);
-
 
   simulation = d3
     .forceSimulation(nodes)
@@ -237,18 +255,16 @@ function drawChart(data, width, height) {
       'collision',
       d3
         .forceCollide()
-        .radius(d => d.r + 2) // 버블 간 간격 조절
+        .radius(d => d.r + 2)
         .iterations(2)
     )
     .force('x', d3.forceX(width / 2).strength(0.1))
     .force('y', d3.forceY(height * 0.5).strength(0.2))
     .on('tick', () => {
-      // 버블이 경계를 넘어가지 않도록 위치 제한
       nodes.forEach(d => {
         d.x = Math.max(d.r, Math.min(width - d.r, d.x));
         d.y = Math.max(d.r, Math.min(height - d.r, d.y));
       });
-
       g.attr('transform', d => `translate(${d.x},${d.y})`);
     });
 }
@@ -258,11 +274,12 @@ function drawChart(data, width, height) {
 .subBox {
   position: relative;
 }
+
 .chartBox {
   background-color: var(--white);
   border: 1px solid var(--main04);
   border-radius: 8px;
-  min-height: 200px; /* 차트 영역의 최소 높이 설정 */
+  min-height: 200px;
   padding: 5px;
 }
 
@@ -275,16 +292,15 @@ function drawChart(data, width, height) {
 
 .subItem-left {
   display: flex;
-  align-items:center;
+  align-items: center;
   gap: 5px;
 }
 
 .subItem-right {
   display: flex;
-  align-items:center;
+  align-items: center;
   gap: 5px;
 }
-
 
 .subItem-title01 {
   font-size: var(--font-size-md);
@@ -297,41 +313,83 @@ function drawChart(data, width, height) {
   color: var(--main02);
 }
 
-
 .icon-wrapper {
   cursor: pointer;
-  width:20px;
-  height:20px;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-question {
+  color: var(--main02);
 }
 
-.icon-question{
-  color:var(--main02);
+.icon-refresh {
 }
 
-.icon-refresh{
+.icon-neutral {
+  color: var(--newsNeutral);
 }
 
+.icon-negative {
+  color: var(--newsNegative);
+}
+
+.icon-positive {
+  color: var(--newsPositive);
+
+}
 
 .tooltip-content {
   position: absolute;
-  top: 30px;
-  left: 78px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  background-color: rgb(from var(--main01) r g b / 0.7);
+  top: -100%;
+  left: calc(100% + 10px);
+  transform: translateY(-50%);
+  width: max-content;
+  max-width: 250px;
+  padding: 10px 15px;
+  white-space: normal;
+  word-break: keep-all;
+  border-radius: 8px;
+  background-color: rgb(from var(--main01) r g b / 0.85);
   color: var(--white);
   font-size: var(--font-size-sm);
-  white-space: nowrap;
-  z-index: 10;
+  z-index: 1;
+  justify-items: center;
 }
 
 .tooltip-content::after {
   content: '';
   position: absolute;
-  bottom: 100%;
-  left: 10px;
-  border: 6px solid;
-  border-color: transparent transparent var(--main02) transparent;
+  top: 83%;
+  right: 100%;
+  transform: translateY(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent rgb(from var(--main01) r g b / 0.85) transparent transparent;
+}
+
+.tooltip-content-sentiment{
+  display:flex;
+  align-items: center;
+  gap:10px;
+}
+
+.sentiment{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.tooltip-enter-active,
+.tooltip-leave-active {
+  transition: opacity 0.2s ease-out;
+}
+
+.tooltip-enter-from,
+.tooltip-leave-to {
+  opacity: 0;
 }
 
 :deep(.chartBox svg g > circle) {
