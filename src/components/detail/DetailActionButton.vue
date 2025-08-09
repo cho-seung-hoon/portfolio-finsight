@@ -77,7 +77,7 @@ function handleBuyClick() {
 
 function handleSellClick() {
   // 판매하기/해지하기 버튼 클릭 시 이벤트 emit
-  emit('sell', {
+  emit('sell-click', {
     category: props.category,
     id: props.id
   });
