@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import EtfItem from '@/components/list/EtfItem.vue';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
@@ -59,13 +59,18 @@ onMounted(async () => {
       : opt.options[0];
   });
   await fetchEtfs();
+  window.addEventListener('isMatchedChanged', fetchEtfs);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('isMatchedChanged', fetchEtfs);
 });
 
 async function fetchEtfs() {
   const sort = sortMap[selected.value.sort];
   const country = countryMap[selected.value.country];
   const type = typeMap[selected.value.etf_type];
-  const isMatched = true;
+  const isMatched = getFinFilters().isMatched || false;
 
   etfs.value = await getEtfs(sort, country, type, isMatched);
 }
