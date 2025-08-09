@@ -8,23 +8,26 @@
         ・
         {{ typeLabelMap[item.productType] ?? item.productType }}
       </div>
+
       <header class="fund-item-header">
         <div class="fund-item-title-left">
-          {{ item.productName }}
+          <span class="product-name">{{ item.productName }}</span>
           <span
             v-if="item.userOwns"
             class="own-tag">
             보유중
           </span>
         </div>
-        <IconHeartStroke />
+        <IconHeartStroke class="heart-icon" />
       </header>
+
       <div
         v-if="item.isPopularInUserGroup"
         class="user-group-popular-badge">
         안정추구형 HOT
       </div>
     </section>
+
     <section class="fund-item-content-section">
       <div class="info-row">
         <span class="label">수익률</span>
@@ -38,6 +41,7 @@
         <span class="label">위험등급</span>
         <span class="value">{{ item.productRiskGrade }}</span>
       </div>
+
       <div
         v-if="item.newsSentiment"
         class="news-response-box">
@@ -69,6 +73,7 @@ const props = defineProps({
     required: true
   }
 });
+
 const countryLabelMap = {
   domestic: '국내',
   foreign: '해외'
@@ -92,7 +97,7 @@ function goToDetail() {
 
 function getSegmentStyle(key) {
   const values = props.item.newsSentiment || { positive: 0, neutral: 0, negative: 0 };
-  const total = Object.values(values).reduce((sum, v) => sum + v, 0) || 1; // 0 나눗셈 방지
+  const total = Object.values(values).reduce((sum, v) => sum + v, 0) || 1;
   const maxKey = Object.keys(values).reduce((a, b) => (values[a] > values[b] ? a : b));
 
   return {
@@ -150,18 +155,31 @@ function getSegmentStyle(key) {
   color: var(--main01);
 }
 
-.fund-item-header svg {
-  transition: transform 0.2s ease;
-}
-
-.fund-item-header svg:hover {
-  transform: scale(1.2);
-}
-
 .fund-item-title-left {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.product-name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  max-width: 100%;
+}
+
+.heart-icon {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.fund-item-header svg:hover {
+  transform: none;
 }
 
 .own-tag {

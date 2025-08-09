@@ -8,17 +8,19 @@
         ・
         {{ typeLabelMap[item.productType] ?? item.productType }}
       </div>
+
       <header class="etf-item-header">
         <div class="etf-item-title-left">
-          {{ item.productName }}
+          <span class="product-name">{{ item.productName }}</span>
           <span
             v-if="item.userOwns"
             class="own-tag">
             보유중
           </span>
         </div>
-        <IconHeartStroke />
+        <IconHeartStroke class="heart-icon" />
       </header>
+
       <div
         v-if="item.isPopularInUserGroup"
         class="user-group-popular-badge">
@@ -63,6 +65,7 @@ const props = defineProps({
     required: true
   }
 });
+
 const countryLabelMap = {
   domestic: '국내',
   foreign: '해외'
@@ -77,6 +80,7 @@ const colorMap = {
   neutral: 'var(--newsNeutral)',
   negative: 'var(--newsNegative)'
 };
+
 const router = useRouter();
 
 function goToDetail() {
@@ -123,6 +127,7 @@ function getSegmentStyle(key) {
   animation: fadeSlideIn 0.6s ease;
   transition: transform 0.2s ease;
 }
+
 .etf-item-container:active {
   transform: scale(0.98);
   background-color: var(--main04);
@@ -141,17 +146,28 @@ function getSegmentStyle(key) {
   font-weight: var(--font-weight-semi-bold);
   color: var(--main01);
 }
-.etf-item-header svg {
-  transition: transform 0.2s ease;
-}
-.etf-item-header svg:hover {
-  transform: scale(1.2);
-}
 
 .etf-item-title-left {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.product-name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  max-width: 100%;
+}
+
+.heart-icon {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
 }
 
 .own-tag {
@@ -196,6 +212,7 @@ function getSegmentStyle(key) {
   color: var(--main01);
   flex-shrink: 0;
 }
+
 .value {
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
@@ -214,6 +231,7 @@ function getSegmentStyle(key) {
   justify-content: space-between;
   margin-left: auto;
 }
+
 .news-label {
   font-size: var(--font-size-sm);
   color: var(--main02);
@@ -228,17 +246,21 @@ function getSegmentStyle(key) {
   overflow: hidden;
   margin-left: 8px;
 }
+
 .news-bar-segment {
   transition: background-color 0.3s ease-in-out;
 }
+
 .news-bar-segment.left {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
+
 .news-bar-segment.right {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
+
 .news-bar-segment.center {
   border-radius: 0;
 }
