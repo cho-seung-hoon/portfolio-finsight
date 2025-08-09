@@ -118,17 +118,9 @@ watch(isConnected, connected => {
 watch(
   productInfo,
   async newProductInfo => {
-    // 보유기록이 있는 경우에만 웹소켓 구독
-    if (
-      newProductInfo &&
-      newProductInfo.productCode &&
-      newProductInfo.isHolding &&
-      !isSubscribed.value
-    ) {
-      console.log('[ETF DETAIL] 보유기록이 있는 ETF - 웹소켓 구독 시작');
+    if (newProductInfo?.productCode && !isSubscribed.value) {
+      console.log('[ETF DETAIL] 웹소켓 구독 시작');
       await startWebSocketSubscription(newProductInfo.productCode);
-    } else if (newProductInfo && newProductInfo.productCode && !newProductInfo.isHolding) {
-      console.log('[ETF DETAIL] 보유기록이 없는 ETF - 웹소켓 구독하지 않음');
     }
   },
   { immediate: true }
