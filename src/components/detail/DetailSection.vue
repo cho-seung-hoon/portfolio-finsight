@@ -41,7 +41,7 @@
           <DetailTable :desc="item.desc" />
         </template>
         <template v-else-if="item.type === 'news' && Array.isArray(item.desc)">
-          <NewsList
+          <DetailNewsList
             class="news-list-in-detail"
             :news-list="item.desc"
             :keyword="item.keyword || ''"
@@ -70,7 +70,7 @@ import DetailAreaChart from './DetailAreaChart.vue';
 import DetailHoldingSummary from './section/DetailHoldingSummary.vue';
 import DetailHoldingSummaryDeposit from './section/DetailHoldingSummaryDeposit.vue';
 import DetailHoldingHistory from './section/DetailHoldingHistory.vue';
-import NewsList from '@/components/home/NewsList.vue';
+import DetailNewsList from './section/DetailNewsList.vue';
 
 const props = defineProps({
   tabData: Object,

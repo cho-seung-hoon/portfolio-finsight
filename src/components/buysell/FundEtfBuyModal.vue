@@ -26,14 +26,12 @@
           <label>한 주당 가격</label>
           <div class="info-value-wrapper">
             <div class="info-value">
-              {{ formatCurrency(productInfo?.price?.currentPrice || 0) }}
+              {{ formatCurrency(getCurrentPrice()) }}
             </div>
             <div
-              v-if="
-                productInfo?.price?.currentPrice && getKoreanNumber(productInfo.price.currentPrice)
-              "
+              v-if="getCurrentPrice() && getKoreanNumber(getCurrentPrice())"
               class="korean-number">
-              {{ getKoreanNumber(productInfo.price.currentPrice) }} 원
+              {{ getKoreanNumber(getCurrentPrice()) }} 원
             </div>
           </div>
         </div>
@@ -106,6 +104,7 @@ import {
   parseNumberFromComma,
   convertToKoreanNumber
 } from '@/utils/numberUtils';
+import { purchaseProduct } from '@/api/tradeApi';
 import Decimal from 'decimal.js';
 
 const props = defineProps({
@@ -146,7 +145,7 @@ const todayDate = computed(() => {
 
 // 총 구매 금액 계산
 const totalAmount = computed(() => {
-  const price = props.productInfo?.price?.currentPrice || 0;
+  const price = getCurrentPrice() || 0;
   const quantity = parseNumberFromComma(formData.value.quantity) || 0;
   const calculatedAmount = new Decimal(price).times(quantity);
 
@@ -158,7 +157,7 @@ const totalAmount = computed(() => {
 // 폼 유효성 검사
 const isFormValid = computed(() => {
   const quantity = parseNumberFromComma(formData.value.quantity);
-  const price = props.productInfo?.price?.currentPrice || 0;
+  const price = getCurrentPrice() || 0;
   const totalAmountValue = new Decimal(quantity).times(price);
 
   // 10억 제한 확인
@@ -171,9 +170,24 @@ const isFormValid = computed(() => {
 
 // 통화 포맷팅
 const formatCurrency = amount => {
-  // amount가 이미 Decimal 객체인지 확인
-  const decimalAmount = amount instanceof Decimal ? amount : new Decimal(amount || 0);
-  return new Intl.NumberFormat('ko-KR').format(decimalAmount.toNumber()) + ' 원';
+  // 숫자가 아닌 값이나 빈 값 처리
+  if (!amount || amount === '') return '0 원';
+
+  // 이미 "원"이 포함된 문자열인 경우 숫자 부분만 추출
+  if (typeof amount === 'string' && amount.includes('원')) {
+    const numericPart = amount.replace(/[^0-9,]/g, '');
+    const cleanNumber = parseNumberFromComma(numericPart);
+    return new Intl.NumberFormat('ko-KR').format(cleanNumber.toNumber()) + ' 원';
+  }
+
+  // 일반적인 숫자 처리
+  try {
+    const decimalAmount = amount instanceof Decimal ? amount : new Decimal(amount || 0);
+    return new Intl.NumberFormat('ko-KR').format(decimalAmount.toNumber()) + ' 원';
+  } catch (error) {
+    console.warn('formatCurrency error:', error, 'amount:', amount);
+    return '0 원';
+  }
 };
 
 // 폼 초기화 함수
@@ -219,16 +233,37 @@ const handleBackdropClick = event => {
 };
 
 // 제출 처리
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (!isFormValid.value) return;
 
-  emit('submit', {
-    quantity: new Decimal(parseNumberFromComma(formData.value.quantity)),
-    price: props.productInfo?.price?.currentPrice,
-    buyDate: todayDate.value,
-    code: props.productInfo?.productCode,
-    category: props.productType
-  });
+  const tradeData = {
+    productCode: props.productInfo?.productCode,
+    productCategory: props.productType.toLowerCase(),
+    quantity: new Decimal(parseNumberFromComma(formData.value.quantity)).toNumber(),
+    amount: totalAmount.value.toNumber(),
+    price: getCurrentPrice(),
+    buyDate: todayDate.value
+  };
+
+  try {
+    const result = await purchaseProduct(tradeData);
+    if (result.success) {
+      console.log('매수 성공:', result.data);
+      emit('submit', {
+        quantity: new Decimal(parseNumberFromComma(formData.value.quantity)),
+        price: getCurrentPrice(),
+        buyDate: todayDate.value,
+        code: props.productInfo?.productCode,
+        category: props.productType
+      });
+      closeModal();
+    } else {
+      console.error('매수 실패:', result.error);
+      // 에러 처리 로직 추가 가능
+    }
+  } catch (error) {
+    console.error('매수 중 오류 발생:', error);
+  }
 };
 
 // 입력값 처리 함수
@@ -240,7 +275,7 @@ const handleQuantityInput = event => {
   value = value.replace(/[^0-9,]/g, '');
 
   let numValue = parseNumberFromComma(value);
-  const price = props.productInfo?.price?.currentPrice || 0;
+  const price = getCurrentPrice() || 0;
 
   // 10억 제한 확인
   const maxQuantityFor10Billion = new Decimal(1000000000).dividedBy(price).floor();
@@ -264,6 +299,33 @@ const getKoreanNumber = value => {
   }
 
   return convertToKoreanNumber(value);
+};
+
+// 현재 가격 가져오기
+const getCurrentPrice = () => {
+  // productInfo에서 현재 가격을 가져오는 우선순위
+  // 1. currentPrice (웹소켓 실시간 데이터)
+  // 2. fundPriceSummaryDto.current_nav (Fund API)
+  // 3. etfPriceSummaryDto.current_price (ETF API)
+  // 4. price.currentPrice (기존 구조)
+
+  if (props.productInfo?.currentPrice) {
+    return props.productInfo.currentPrice;
+  }
+
+  if (props.productInfo?.fundPriceSummaryDto?.current_nav) {
+    return props.productInfo.fundPriceSummaryDto.current_nav;
+  }
+
+  if (props.productInfo?.etfPriceSummaryDto?.current_price) {
+    return props.productInfo.etfPriceSummaryDto.current_price;
+  }
+
+  if (props.productInfo?.price?.currentPrice) {
+    return props.productInfo.price.currentPrice;
+  }
+
+  return 0;
 };
 
 // 외부에서 모달 열기 메서드 노출

@@ -8,11 +8,11 @@
     <div v-else-if="error">{{ error }}</div>
     <div v-else-if="productInfo">
       <DetailMainDeposit
-        :bank="productInfo.productCompanyName"
-        :title="productInfo.productName"
-        :max-rate="productInfo.depositMtrtInt"
+        :bank="productInfo?.productCompanyName"
+        :title="productInfo?.productName"
+        :max-rate="productInfo?.maxRate"
         :max-rate-desc="'(12개월 세전)'"
-        :base-rate="productInfo.depositMtrtInt" />
+        :base-rate="productInfo?.baseRate" />
 
       <DetailTabs
         :tabs="tabs"
@@ -25,8 +25,8 @@
         :selected-tab="selectedTab" />
 
       <DetailActionButton
-        :id="productInfo.productCode"
-        :active="productInfo.isHolding"
+        :id="productInfo?.productCode"
+        :active="productInfo?.isHolding || false"
         :category="'deposit'"
         @buy="handleBuyClick"
         @sell="handleSellClick" />
@@ -44,15 +44,15 @@
     <DepositBuyModal
       ref="buyModalRef"
       :product-info="productInfo"
-      :min-amount="new Decimal(1000000)"
-      :max-amount="productInfo?.depositMaxLimit || new Decimal(0)"
+      :min-amount="1000000"
+      :max-amount="maxAmountNumber"
       :is-loading="isBuyLoading"
       @close="handleModalClose"
       @submit="handleBuySubmit" />
 
     <DepositSellModal
       ref="sellModalRef"
-      :product-info="{ ...productInfo, holdingData: depositStore.holdingData }"
+      :product-info="{ ...productInfo, holdingData: productInfo?.holding || null }"
       :is-loading="isSellLoading"
       @close="handleModalClose"
       @submit="handleSellSubmit" />
@@ -66,11 +66,6 @@
       :timestamp="toastConfig.timestamp"
       :duration="3000" />
   </div>
-
-  <!-- 모달 컴포넌트 -->
-  <AgreememtModal
-    v-if="showModal"
-    @close="showModal = false" />
 </template>
 
 <script setup>
@@ -96,7 +91,7 @@ const route = useRoute();
 const depositStore = useDepositStore();
 const buyStore = useBuyStore();
 const sellStore = useSellStore();
-const { productInfo, isLoading, error } = storeToRefs(depositStore);
+const { productInfo, isLoading, error, isWatched } = storeToRefs(depositStore);
 const { isLoading: isBuyLoading } = storeToRefs(buyStore);
 const { isLoading: isSellLoading } = storeToRefs(sellStore);
 
@@ -121,10 +116,24 @@ const toastConfig = ref({
   type: 'success'
 });
 
+// 숫자형 최대 금액 계산 (Decimal, 문자열("만원") 모두 대응)
+const maxAmountNumber = computed(() => {
+  const val = productInfo.value?.depositMaxLimit;
+  if (val instanceof Decimal) return val.toNumber();
+  if (typeof val === 'string') {
+    const hasManwon = /만원$/.test(val.trim());
+    const digits = val.replace(/[^0-9]/g, '');
+    if (!digits) return 0;
+    const num = parseInt(digits, 10);
+    return hasManwon ? num * 10000 : num;
+  }
+  return Number(val || 0);
+});
+
 onMounted(() => {
   const productId = route.params.id;
   if (productId) {
-    depositStore.fetchProduct(productId);
+    depositStore.fetchProduct(productId, 'deposit');
   } else {
     // 상품 ID가 URL에 없습니다.
   }
@@ -148,7 +157,7 @@ const showToast = (message, type = 'success', timestamp = null) => {
 
 // 탭 관련 데이터
 const tabs = computed(() => {
-  if (productInfo.value?.isHolding) {
+  if (productInfo.value?.isHolding && productInfo.value?.holding) {
     return [
       { key: 'holding', label: '보유기록' },
       { key: 'info', label: '상품안내' },
@@ -172,7 +181,7 @@ const selectTab = tab => {
 watch(
   productInfo,
   newProductInfo => {
-    if (newProductInfo?.isHolding) {
+    if (newProductInfo?.isHolding && newProductInfo?.holding) {
       selectedTab.value = 'holding';
     }
   },
@@ -185,9 +194,9 @@ const indicatorPosition = {
   notice: '294px'
 };
 
-// tabData를 computed로 변경하여 productId를 전달
+// tabData를 computed로 변경하여 실제 API 데이터 사용
 const tabData = computed(() => {
-  return depositStore.getTabDataWithHolding(productInfo.value.productCode);
+  return depositStore.tabData;
 });
 
 // 구매 버튼 클릭 처리

@@ -15,6 +15,7 @@ import portfolioRoutes from './portfolioRoutes';
 import startRoutes from './startRoutes';
 
 import { useHeaderStore } from '@/stores/header.js';
+import { useWebSocketStore } from '@/stores/websocket.js';
 import axios from 'axios'; // ✅ 추가됨
 
 const router = createRouter({
@@ -49,6 +50,16 @@ const router = createRouter({
     ...startRoutes,
     ...portfolioRoutes,
     {
+      path: '/example/etf-list-websocket',
+      name: 'etf-list-websocket',
+      component: () => import('@/pages/example/EtfListWithWebSocket.vue'),
+      meta: {
+        header: {
+          titleParts: [{ text: 'ETF 리스트 (웹소켓)', color: 'var(--main01)' }]
+        }
+      }
+    },
+    {
       path: '/:pathMatch(.*)*',
       redirect: '/'
     }
@@ -57,6 +68,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const headerStore = useHeaderStore();
+  const webSocketStore = useWebSocketStore();
   const headerMeta = to.meta.header;
   const requiresAuth = to.meta.requiresAuth;
   const isLoggedIn = !!localStorage.getItem('accessToken');
@@ -112,6 +124,11 @@ router.beforeEach(async (to, from, next) => {
 
   if (!headerStore.backHandler) {
     headerStore.backHandler = () => router.back();
+  }
+
+  // 페이지 이동 시 웹소켓 구독 해제 (연결은 유지)
+  if (from.path !== to.path) {
+    webSocketStore.unsubscribeAll();
   }
 
   next();

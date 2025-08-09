@@ -2,7 +2,7 @@
   <div class="asset-record-btn-fixed-wrapper">
     <!-- 보유하지 않은 상품일 때 -->
     <button
-      v-if="!active"
+      v-if="!isHolding"
       type="button"
       class="asset-record-btn-fixed"
       @click="handleBuyClick">
@@ -31,9 +31,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
+  productInfo: Object, // 새로운 구조: productInfo 객체
+  // 기존 개별 props (하위 호환성을 위해 유지)
   bank: String,
   title: String,
   maxRate: String,
@@ -44,7 +46,20 @@ const props = defineProps({
   id: [String, Number]
 });
 
-const emit = defineEmits(['buy', 'sell']);
+const emit = defineEmits(['buy-click', 'sell-click']);
+
+// productInfo에서 데이터 추출
+const isHolding = computed(() => {
+  return props.productInfo?.isHolding || props.active || false;
+});
+
+const category = computed(() => {
+  return props.productInfo?.category || props.category || 'etf';
+});
+
+const productId = computed(() => {
+  return props.productInfo?.productCode || props.id;
+});
 
 const heartActive = ref(false);
 function toggleHeart() {
@@ -53,15 +68,16 @@ function toggleHeart() {
 
 function handleBuyClick() {
   // 구매하기 버튼 클릭 시 이벤트 emit
-  emit('buy', {
-    category: props.category,
-    id: props.id
+  emit('buy-click', {
+    category: category.value,
+    id: productId.value,
+    productInfo: props.productInfo
   });
 }
 
 function handleSellClick() {
   // 판매하기/해지하기 버튼 클릭 시 이벤트 emit
-  emit('sell', {
+  emit('sell-click', {
     category: props.category,
     id: props.id
   });
@@ -69,7 +85,7 @@ function handleSellClick() {
 
 // 첫 구매/가입 버튼 텍스트 반환
 function getBuyButtonText() {
-  if (props.category === 'deposit') {
+  if (category.value === 'deposit') {
     return '가입하기';
   }
   return '구매하기';
@@ -77,7 +93,7 @@ function getBuyButtonText() {
 
 // 구매/해지 버튼 텍스트 반환
 function getSellButtonText() {
-  if (props.category === 'deposit') {
+  if (category.value === 'deposit') {
     return '해지하기';
   }
   return '판매하기';
@@ -85,7 +101,7 @@ function getSellButtonText() {
 
 // 구매 버튼 텍스트 반환
 function getAdditionalBuyButtonText() {
-  if (props.category === 'deposit') {
+  if (category.value === 'deposit') {
     return '가입하기';
   }
   return '구매하기';

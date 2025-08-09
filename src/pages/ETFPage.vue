@@ -1,53 +1,39 @@
 <template>
-  <div
-    class="page-container"
-    :class="{ 'modal-open': isModalOpen }">
-    <div v-if="isLoading">로딩 중...</div>
-    <div v-else-if="error">{{ error }}</div>
-    <div v-else-if="productInfo">
-      <DetailMainEtf
-        :bank="productInfo.productCompanyName"
-        :title="productInfo.productName"
-        :yield="productInfo.yield"
-        :current-price="productInfo.currentPrice"
-        :net_assets="productInfo.etfNetAssets"
-        :risk="productInfo.productRiskGrade"
-        :is-watched="isWatched"
-        @heart-toggle="handleHeartToggle" />
-
+  <div class="etf-page">
+    <LoadingSpinner v-if="isLoading" />
+    <div
+      v-else-if="error"
+      class="error-message">
+      {{ error }}
+    </div>
+    <div
+      v-else-if="productInfo"
+      class="etf-content">
+      <DetailMainEtf :product-info="productInfo" />
       <DetailTabs
         :tabs="tabs"
         :selected-tab="selectedTab"
         @update:selected-tab="selectTab" />
-
       <DetailSection
         :tab-data="tabData"
         :selected-tab="selectedTab" />
-
       <DetailActionButton
-        :id="productInfo.productCode"
-        :active="productInfo.isHolding"
-        :category="'etf'"
-        @buy="handleBuyClick"
-        @sell="handleSellClick" />
+        :product-info="productInfo"
+        @buy-click="handleBuyClick"
+        @sell-click="handleSellClick" />
     </div>
 
     <!-- 모달 컴포넌트들 -->
     <FundEtfBuyModal
       ref="buyModalRef"
       :product-info="productInfo"
-      :product-type="'ETF'"
-      :is-loading="isBuyLoading"
-      @close="handleModalClose"
-      @submit="handleBuySubmit" />
-
+      @submit="handleBuySubmit"
+      @close="handleModalClose" />
     <FundEtfSellModal
       ref="sellModalRef"
       :product-info="productInfo"
-      :product-type="'ETF'"
-      :is-loading="isSellLoading"
-      @close="handleModalClose"
-      @submit="handleSellSubmit" />
+      @submit="handleSellSubmit"
+      @close="handleModalClose" />
 
     <!-- 토스트 메시지 -->
     <ToastMessage
@@ -61,17 +47,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { ref, onMounted, computed, watch, nextTick, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useEtfStore } from '@/stores/etf';
 import { useBuyStore } from '@/stores/buy';
 import { useSellStore } from '@/stores/sell';
+import { useProductSubscription } from '@/composables/useProductSubscription';
 import { storeToRefs } from 'pinia';
 
-// DetailMainSection: ETF/Fund 등 상품의 주요 정보를 보여주는 상단 섹션 컴포넌트
-// DetailTabs: 상품 상세 정보의 탭 네비게이션 컴포넌트
-// DetailSection: 선택된 탭에 따라 상세 내용을 보여주는 컴포넌트
-// DetailActionButton: 상품 가입/신청 등 주요 액션 버튼 컴포넌트
 import DetailMainEtf from '@/components/detail/DetailMainEtf.vue';
 import DetailTabs from '@/components/detail/DetailTabs.vue';
 import DetailSection from '@/components/detail/DetailSection.vue';
@@ -79,15 +62,24 @@ import DetailActionButton from '@/components/detail/DetailActionButton.vue';
 import FundEtfBuyModal from '@/components/buysell/FundEtfBuyModal.vue';
 import FundEtfSellModal from '@/components/buysell/FundEtfSellModal.vue';
 import ToastMessage from '@/components/common/ToastMessage.vue';
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 
 const route = useRoute();
 
 const etfStore = useEtfStore();
 const buyStore = useBuyStore();
 const sellStore = useSellStore();
-const { productInfo, isLoading, error, isWatched } = storeToRefs(etfStore);
+const { productInfo, isLoading, error, isYieldHistoryLoaded, isYieldHistoryLoading } =
+  storeToRefs(etfStore);
 const { isLoading: isBuyLoading } = storeToRefs(buyStore);
 const { isLoading: isSellLoading } = storeToRefs(sellStore);
+
+// 웹소켓 구독 관련
+const { subscribeToSingleProduct, unsubscribeFromSingleProduct, isConnected } =
+  useProductSubscription();
+const isWebSocketConnected = ref(false);
+const currentSubscription = ref(null);
+const isSubscribed = ref(false); // 구독 상태 추적
 
 // 모달 상태 관리
 const isModalOpen = ref(false);
@@ -96,7 +88,7 @@ const isModalOpen = ref(false);
 const buyModalRef = ref(null);
 const sellModalRef = ref(null);
 
-// 모달 닫기 처리 중복 방지
+// 모달 닫기 중복 방지
 const isClosing = ref(false);
 
 // 토스트 설정
@@ -110,8 +102,76 @@ onMounted(() => {
   const productId = route.params.id;
   if (productId) {
     etfStore.fetchProduct(productId);
+    // 페이지 새로고침 시 수익률 히스토리 초기화
+    etfStore.resetYieldHistory();
   } else {
     // 상품 ID가 URL에 없습니다.
+  }
+});
+
+// 웹소켓 연결 상태 모니터링
+watch(isConnected, connected => {
+  isWebSocketConnected.value = connected;
+});
+
+// 상품 정보가 로드되면 웹소켓 구독 시작
+watch(
+  productInfo,
+  async newProductInfo => {
+    // 보유기록이 있는 경우에만 웹소켓 구독
+    if (
+      newProductInfo &&
+      newProductInfo.productCode &&
+      newProductInfo.isHolding &&
+      !isSubscribed.value
+    ) {
+      console.log('[ETF DETAIL] 보유기록이 있는 ETF - 웹소켓 구독 시작');
+      await startWebSocketSubscription(newProductInfo.productCode);
+    } else if (newProductInfo && newProductInfo.productCode && !newProductInfo.isHolding) {
+      console.log('[ETF DETAIL] 보유기록이 없는 ETF - 웹소켓 구독하지 않음');
+    }
+  },
+  { immediate: true }
+);
+
+// 웹소켓 구독 시작
+const startWebSocketSubscription = async productCode => {
+  try {
+    // 이미 구독 중이면 중복 구독 방지
+    if (isSubscribed.value) {
+      console.log(`[ETF DETAIL] 이미 구독 중: ${productCode}`);
+      return;
+    }
+
+    // 새로운 구독 시작
+    const subscription = await subscribeToSingleProduct(productCode, handleWebSocketData);
+    if (subscription) {
+      currentSubscription.value = subscription;
+      isSubscribed.value = true;
+      console.log(`[ETF DETAIL] 상품 ${productCode} 웹소켓 구독 시작`);
+    }
+  } catch (error) {
+    console.error(`[ETF DETAIL] 웹소켓 구독 실패:`, error);
+  }
+};
+
+// 웹소켓 데이터 처리
+const handleWebSocketData = (data, productCode) => {
+  console.log(`[ETF DETAIL] 웹소켓 데이터 수신:`, data);
+
+  // 실시간 데이터로 store 업데이트
+  if (data) {
+    etfStore.updateRealtimeData(data);
+  }
+};
+
+// 컴포넌트 언마운트 시 웹소켓 구독 해제
+onUnmounted(() => {
+  if (currentSubscription.value && isSubscribed.value) {
+    unsubscribeFromSingleProduct(currentSubscription.value.code);
+    isSubscribed.value = false;
+    currentSubscription.value = null;
+    console.log(`[ETF DETAIL] 웹소켓 구독 해제`);
   }
 });
 
@@ -150,22 +210,45 @@ const tabs = computed(() => {
 });
 
 const selectedTab = ref('info');
-const selectTab = tab => {
+const selectTab = async tab => {
+  console.log('selectTab called with tab:', tab);
+  console.log('isYieldHistoryLoaded:', isYieldHistoryLoaded.value);
+  console.log('isYieldHistoryLoading:', isYieldHistoryLoading.value);
+
   selectedTab.value = tab;
+
+  // 수익률 탭을 처음 클릭할 때만 API 호출
+  if (tab === 'yield' && !isYieldHistoryLoaded.value && !isYieldHistoryLoading.value) {
+    const productId = route.params.id;
+    console.log('Fetching yield history for productId:', productId);
+    if (productId) {
+      try {
+        await etfStore.fetchYieldHistory(productId);
+        console.log('Yield history fetched successfully');
+      } catch (error) {
+        console.error('Failed to fetch yield history:', error);
+      }
+    }
+  }
 };
 
 // productInfo가 변경될 때 보유기록 탭이 있으면 자동으로 첫 번째 탭 선택
 watch(
   productInfo,
-  newProductInfo => {
-    if (newProductInfo?.isHolding) {
+  (newProductInfo, oldProductInfo) => {
+    // 보유기록이 있고, 이전에 productInfo가 없었거나 보유기록이 없었을 때만 holding으로 변경
+    if (
+      newProductInfo?.isHolding &&
+      (!oldProductInfo || !oldProductInfo.isHolding) &&
+      selectedTab.value === 'info'
+    ) {
       selectedTab.value = 'holding';
     }
   },
   { immediate: true }
 );
 
-// tabData를 computed로 변경하여 실제 API 데이터 사용
+// tabData를 computed로 변경하여 productId를 전달
 const tabData = computed(() => {
   return etfStore.tabData;
 });
@@ -249,27 +332,25 @@ const handleHeartToggle = async isActive => {
     showToast(message, 'success');
   } catch (error) {
     showToast('찜 상태 변경에 실패했습니다. 다시 시도해주세요.', 'error');
+    showToast('ETF 매도에 실패했습니다. 다시 시도해주세요.', 'error');
   }
 };
 </script>
 
 <style scoped>
-.page-container {
-  position: relative;
+.etf-page {
   min-height: 100vh;
-  transition: all 0.3s ease;
+  background: var(--main05);
 }
 
-.page-container.modal-open::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(2px);
-  z-index: 999;
-  pointer-events: none;
+.etf-content {
+  position: relative;
+}
+
+.error-message {
+  text-align: center;
+  padding: 40px;
+  color: var(--error);
+  font-size: 16px;
 }
 </style>

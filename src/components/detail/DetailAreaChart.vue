@@ -39,94 +39,119 @@ function selectRange(idx) {
 }
 
 const filteredData = computed(() => {
-  if (!props.data || !props.data.length) return [];
+  if (!props.data || !props.data.length) {
+    return [];
+  }
   const days = rangeDays[selectedRangeIdx.value];
   // 최신 날짜 기준으로 days만큼만 자르기 (날짜 내림차순 정렬 후)
   const sorted = [...props.data].sort((a, b) => new Date(b.date) - new Date(a.date));
   return sorted.slice(0, days).reverse();
 });
 
-const chartSeries = computed(() => [
-  {
-    name: '수익률',
-    type: 'area', // area 그래프
-    data: filteredData.value.map(d => [d.date, d.수익률])
-  },
-  {
-    name: '기준가',
-    type: 'line', // 선 그래프
-    data: filteredData.value.map(d => [d.date, d.기준가])
-  }
-]);
+const chartSeries = computed(() => {
+  const series = [];
 
-const chartOptions = computed(() => ({
-  chart: {
-    type: 'line', // 시리즈별 타입을 쓸 때는 'line'으로 지정
-    toolbar: { show: false },
-    zoom: { enabled: false }
-  },
-  stroke: {
-    curve: 'smooth',
-    width: 3
-  },
-  xaxis: {
-    type: 'datetime',
-    labels: {
-      datetimeFormatter: {
-        year: 'yyyy',
-        month: 'MM월',
-        day: 'MM/dd',
-        hour: 'HH:mm'
-      }
-    }
-  },
-  yaxis: [
-    {
+  // 수익률 데이터가 있으면 추가
+  if (filteredData.value.length > 0 && filteredData.value[0].수익률 !== undefined) {
+    series.push({
+      name: '수익률',
+      type: 'area', // area 그래프
+      data: filteredData.value.map(d => [d.date, d.수익률])
+    });
+  }
+
+  // 기준가 데이터가 있으면 추가
+  if (filteredData.value.length > 0 && filteredData.value[0].기준가 !== undefined) {
+    series.push({
+      name: '기준가',
+      type: 'line', // 선 그래프
+      data: filteredData.value.map(d => [d.date, d.기준가])
+    });
+  }
+
+  return series;
+});
+
+const chartOptions = computed(() => {
+  const hasYield = filteredData.value.length > 0 && filteredData.value[0].수익률 !== undefined;
+  const hasPrice = filteredData.value.length > 0 && filteredData.value[0].기준가 !== undefined;
+
+  const yaxis = [];
+  const tooltipY = [];
+
+  if (hasYield) {
+    yaxis.push({
       title: { text: '수익률(%)' },
       labels: {
         formatter: val => `${val}%`
       }
-    },
-    {
+    });
+    tooltipY.push({
+      formatter: val => `${val}%`
+    });
+  }
+
+  if (hasPrice) {
+    yaxis.push({
       opposite: true,
       title: { text: '기준가' },
       labels: {
         formatter: val => `${val}`
       }
-    }
-  ],
-  tooltip: {
-    x: {
-      format: 'yyyy/MM/dd'
-    },
-    y: [
-      {
-        formatter: val => `${val}%`
-      },
-      {
-        formatter: val => `${val}`
-      }
-    ]
-  },
-  colors: ['#2563eb', '#059669'],
-  legend: {
-    show: true,
-    position: 'top',
-    horizontalAlign: 'right'
-  },
-  dataLabels: {
-    enabled: false
-  },
-  fill: {
-    type: 'gradient',
-    gradient: {
-      shadeIntensity: 0.3,
-      opacityFrom: 0.9,
-      opacityTo: 0.4,
-      stops: [0, 90, 100]
-    }
+    });
+    tooltipY.push({
+      formatter: val => `${val}`
+    });
   }
-}));
+
+  return {
+    chart: {
+      type: 'line', // 시리즈별 타입을 쓸 때는 'line'으로 지정
+      toolbar: { show: false },
+      zoom: { enabled: false }
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 3
+    },
+    xaxis: {
+      type: 'datetime',
+      labels: {
+        datetimeFormatter: {
+          year: 'yyyy',
+          month: 'MM월',
+          day: 'MM/dd',
+          hour: 'HH:mm'
+        }
+      }
+    },
+    yaxis: yaxis,
+    tooltip: {
+      x: {
+        format: 'yyyy/MM/dd'
+      },
+      y: tooltipY
+    },
+    colors: hasPrice ? ['#2563eb', '#059669'] : ['#2563eb'],
+    legend: {
+      show: true,
+      position: 'top',
+      horizontalAlign: 'right'
+    },
+    dataLabels: {
+      enabled: false
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 0.3,
+        opacityFrom: 0.9,
+        opacityTo: 0.4,
+        stops: [0, 90, 100]
+      }
+    }
+  };
+});
 </script>
 
 <style scoped>
