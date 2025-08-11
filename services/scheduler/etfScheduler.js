@@ -51,10 +51,16 @@ class ETFScheduler {
 
     cron.schedule('* * * * * *', async () => {
       try {
-        const etfPriceData = generateAllETFPriceData();
+        const allEtfPriceData = generateAllETFPriceData();
+        const changedEtfPriceData = [];
 
-        // InfluxDB에 저장
-        for (const etfData of etfPriceData) {
+        // InfluxDB에 저장 및 변경된 데이터 필터링
+        for (const etfData of allEtfPriceData) {
+          // 일정 확률로 데이터 변경하지 않음 (예: 30% 확률로 변경 안함)
+          if (Math.random() < 0.5) {
+            continue; // 다음 종목으로
+          }
+
           await writeToInflux(
             'etf_price',
             { value: etfData.etf_price },
@@ -68,20 +74,26 @@ class ETFScheduler {
             { product_code: etfData.product_code },
             etfData.timestamp
           );
+
+          changedEtfPriceData.push(etfData);
         }
 
-        // WebSocket으로 브로드캐스트
-        const broadcastData = etfPriceData.map(data => ({
-          product_code: data.product_code,
-          price: data.etf_price,
-          volume: data.etf_volume,
-          timestamp: data.timestamp
-        }));
+        // 변경된 데이터만 WebSocket으로 브로드캐스트
+        if (changedEtfPriceData.length > 0) {
+          const broadcastData = changedEtfPriceData.map(data => ({
+            product_code: data.product_code,
+            price: data.etf_price,
+            volume: data.etf_volume,
+            timestamp: data.timestamp
+          }));
 
-        broadcastETFData(broadcastData);
+          broadcastETFData(broadcastData);
+        }
 
         const now = new Date();
-        console.log(`[ETF] ${etfPriceData.length}개 저장 완료 - ${now.toLocaleString('ko-KR')}`);
+        console.log(
+          `[ETF] ${changedEtfPriceData.length}개 변경 및 저장 완료 - ${now.toLocaleString('ko-KR')}`
+        );
       } catch (error) {
         console.error('[ETF Scheduler] 시세 및 거래량 처리 중 오류:', error);
       }

@@ -13,12 +13,12 @@ const etfBaseNavs = {}; // ETF 기준가 추가
 // ETF 기본 시세, 거래량, 기준가 초기화
 function initializeETFData() {
   ETF_PRODUCT_ID.forEach(symbol => {
-    // ETF 시세 범위: 1,000원에서 50,000원 사이의 랜덤 초기 시세
-    const initialPrice = Math.random() * 49000 + 1000;
+    // ETF 시세 범위: 5,000원에서 30,000원 사이의 랜덤 초기 시세
+    const initialPrice = Math.random() * 25000 + 5000;
     etfBasePrices[symbol] = Math.max(initialPrice, 100); // 최소 100원 보장
 
-    // ETF 거래량 범위: 1000주 ~ 100000주
-    const initialVolume = Math.floor(Math.random() * 99000 + 1000);
+    // ETF 거래량 범위: 1000주 ~ 50000주
+    const initialVolume = Math.floor(Math.random() * 49000 + 1000);
     etfBaseVolumes[symbol] = Math.max(initialVolume, 100); // 최소 100주 보장
 
     // ETF 기준가 범위: 8,000원에서 15,000원 사이의 랜덤 초기 기준가
@@ -41,7 +41,7 @@ async function initializeETFDataFromHistory(startTime) {
         etfBasePrices[symbol] = latestData.price[symbol];
         console.log(`[ETF] ${symbol} 시세 초기값 설정: ${latestData.price[symbol]}`);
       } else {
-        etfBasePrices[symbol] = Math.random() * 49000 + 1000;
+        etfBasePrices[symbol] = Math.random() * 25000 + 5000;
         console.log(`[ETF] ${symbol} 시세 기본값 생성: ${etfBasePrices[symbol]}`);
       }
 
@@ -49,7 +49,7 @@ async function initializeETFDataFromHistory(startTime) {
         etfBaseVolumes[symbol] = latestData.volume[symbol];
         console.log(`[ETF] ${symbol} 거래량 초기값 설정: ${latestData.volume[symbol]}`);
       } else {
-        etfBaseVolumes[symbol] = Math.floor(Math.random() * 99000 + 1000);
+        etfBaseVolumes[symbol] = Math.floor(Math.random() * 49000 + 1000);
         console.log(`[ETF] ${symbol} 거래량 기본값 생성: ${etfBaseVolumes[symbol]}`);
       }
 
@@ -73,7 +73,7 @@ async function initializeETFDataFromHistory(startTime) {
 function generatePriceChange(currentPrice) {
   // 안전장치: 현재 가격이 유효하지 않으면 기본값 사용
   if (!currentPrice || isNaN(currentPrice) || !isFinite(currentPrice) || currentPrice <= 0) {
-    return Math.random() * 49000 + 1000;
+    return Math.random() * 25000 + 5000;
   }
 
   // ETF 시세 최대값 제한 (실제 주식 시세에 적합한 범위)
@@ -105,7 +105,7 @@ function generatePriceChange(currentPrice) {
 function generateVolumeChange(currentVolume) {
   // 안전장치: 현재 거래량이 유효하지 않으면 기본값 사용
   if (!currentVolume || isNaN(currentVolume) || !isFinite(currentVolume) || currentVolume <= 0) {
-    return Math.floor(Math.random() * 99000 + 1000);
+    return Math.floor(Math.random() * 49000 + 1000);
   }
 
   // ETF 거래량 최대값 제한 (실제 거래량에 적합한 범위)
@@ -170,10 +170,10 @@ function generateNavChange(currentNav) {
 function generateETFPriceData(symbol) {
   // 기본값이 없으면 초기화
   if (!etfBasePrices[symbol] || isNaN(etfBasePrices[symbol]) || etfBasePrices[symbol] <= 0) {
-    etfBasePrices[symbol] = Math.random() * 49000 + 1000;
+    etfBasePrices[symbol] = Math.random() * 25000 + 5000;
   }
   if (!etfBaseVolumes[symbol] || isNaN(etfBaseVolumes[symbol]) || etfBaseVolumes[symbol] <= 0) {
-    etfBaseVolumes[symbol] = Math.floor(Math.random() * 99000 + 1000);
+    etfBaseVolumes[symbol] = Math.floor(Math.random() * 49000 + 1000);
   }
 
   const currentPrice = etfBasePrices[symbol];
@@ -192,7 +192,7 @@ function generateETFPriceData(symbol) {
 
   return {
     product_code: symbol,
-    etf_price: parseFloat(finalPrice.toFixed(0)),
+    etf_price: parseFloat(finalPrice.toFixed(2)),
     etf_volume: parseInt(finalVolume),
     timestamp: new Date().toISOString()
   };
