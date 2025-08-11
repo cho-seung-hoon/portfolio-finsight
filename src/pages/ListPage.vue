@@ -11,6 +11,7 @@
       <ListEtfPage />
     </div>
   </section>
+
   <div class="list-page-banner-wrapper">
     <div
       class="list-page-banner"
@@ -23,10 +24,14 @@
         <IconCheck
           :width="20"
           :color="isMatched ? 'var(--white)' : 'var(--main03)'" />
-        <span>
-          {{ isMatched ? '내 투자 성향에 맞춰보는 중!' : '내 투자 성향에 맞춰보기' }}
+        <span
+          v-if="!isMatched"
+          class="gradient-animated">
+          내 투자 성향에 맞춰보기
         </span>
+        <span v-else> 내 투자 성향에 맞춰보는 중! </span>
       </div>
+
       <button
         v-if="isMatched"
         class="close-btn"
@@ -58,9 +63,11 @@ import axios from 'axios';
 
 const route = useRoute();
 const category = computed(() => route.params.category);
+
 const isMatched = ref(false);
 const showModal = ref(false);
 const investmentProfileType = ref('');
+const profileClass = ref('');
 
 onMounted(() => {
   isMatched.value = getFinFilters().isMatched || false;
@@ -68,9 +75,7 @@ onMounted(() => {
 });
 
 function openModal() {
-  if (!isMatched.value) {
-    showModal.value = true;
-  }
+  if (!isMatched.value) showModal.value = true;
 }
 
 function closeModal() {
@@ -80,14 +85,12 @@ function closeModal() {
 function confirmMatch() {
   isMatched.value = true;
   updateIsMatchedInStorage(true);
-  emitMatchChange();
   showModal.value = false;
 }
 
 function resetMatch() {
   isMatched.value = false;
   updateIsMatchedInStorage(false);
-  emitMatchChange();
 }
 
 function updateIsMatchedInStorage(val) {
@@ -95,10 +98,6 @@ function updateIsMatchedInStorage(val) {
     ...getFinFilters(),
     isMatched: val
   });
-}
-
-function emitMatchChange() {
-  window.dispatchEvent(new CustomEvent('isMatchedChanged'));
 }
 
 const fetchInvestmentProfile = async () => {
@@ -109,19 +108,16 @@ const fetchInvestmentProfile = async () => {
   }
   try {
     const response = await axios.get('http://localhost:8080/users/invt', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+      headers: { Authorization: `Bearer ${accessToken}` }
     });
     const type = response.data.investmentProfileType;
     investmentProfileType.value = translateProfileType(type);
     profileClass.value = getProfileClass(type);
-    console.log('투자성향결과:', type);
   } catch (error) {
     console.error('투자성향 조회 실패:', error);
   }
 };
-const profileClass = ref('');
+
 const translateProfileType = type => {
   switch (type) {
     case 'stable':
@@ -138,6 +134,7 @@ const translateProfileType = type => {
       return '알 수 없음';
   }
 };
+
 const getProfileClass = type => {
   switch (type) {
     case 'stable':
@@ -157,7 +154,6 @@ const getProfileClass = type => {
 </script>
 
 <style scoped>
-/* 성향별 배경색 정의 */
 .list-page-banner.matched.highlight-stable {
   background: var(--mint01);
   border: 1px solid var(--mint01);
@@ -178,9 +174,10 @@ const getProfileClass = type => {
   background: var(--red01);
   border: 1px solid var(--red01);
 }
+
 .page-content {
   width: 100%;
-  padding: 12px 0px 50px;
+  padding: 12px 0 50px;
 }
 
 .list-page-banner-wrapper {
@@ -212,17 +209,69 @@ const getProfileClass = type => {
   padding: 10px 18px;
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
-  border-radius: 12px;
+  border-radius: 16px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  color: var(--main02);
+  box-shadow: 0 8px 50px rgba(51, 56, 83, 0.1);
+  z-index: 0;
 }
 
-.list-page-banner {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  color: var(--main02);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+.list-page-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   border-radius: 16px;
-  box-shadow: 0 8px 50px 0 rgba(51, 56, 83, 0.1);
+  padding: 2px;
+  background: linear-gradient(
+    270deg,
+    rgba(252, 177, 177, 0.6),
+    rgba(255, 214, 165, 0.6),
+    rgba(201, 228, 255, 0.6),
+    rgba(215, 198, 255, 0.6),
+    rgba(252, 177, 177, 0.6)
+  );
+  background-size: 400% 400%;
+  animation: gradient-rotate 8s ease infinite;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: -1;
+}
+
+.list-page-banner.matched::before {
+  content: none;
+}
+
+.gradient-animated {
+  background: linear-gradient(270deg, #b96262, #af8657, #5784ae, #795eb9, #a45384);
+  background-size: 400% 400%;
+  animation: gradient-rotate 8s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.list-page-banner.matched .gradient-animated {
+  background: none;
+  animation: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: currentColor;
+}
+
+@keyframes gradient-rotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .list-page-banner.matched {
