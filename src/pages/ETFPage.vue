@@ -16,7 +16,8 @@
         @update:selected-tab="selectTab" />
       <DetailSection
         :tab-data="tabData"
-        :selected-tab="selectedTab" />
+        :selected-tab="selectedTab"
+        category="etf"/>
       <DetailActionButton
         :product-info="productInfo"
         @buy-click="handleBuyClick"

@@ -108,6 +108,7 @@
           v-model="form.code"
           :error="!!errors.code"
           :valid="emailStore.verified && !errors.code"
+          :disabled="!status.codeRequested"
           @verify="verifyCode"
           @resend="resendCode"
           @blur="validateCode"
@@ -184,7 +185,8 @@ const status = reactive({
   userIdChecked: false,
   nicknameChecked: false,
   emailVerified: false,
-  codeVerified: false
+  codeVerified: false,
+  codeRequested: false
 });
 
 const showCompleteModal = ref(false);
@@ -423,13 +425,20 @@ const requestCode = async () => {
   emailStore.email = form.email;
   try {
     const msg = await emailStore.sendCode();
+    status.codeRequested = true; // ✅ 전송 성공 후에만 활성화
+    errors.code = '';
     openModal(msg);
   } catch {
+    status.codeRequested = false;
     openModal(emailStore.error || '인증코드 전송 실패');
   }
 };
 
 const verifyCode = async () => {
+  if (!status.codeRequested) {
+    errors.code = '• 먼저 이메일로 인증코드를 받아주세요.';
+    return false;
+  }
   if (!form.email || !form.code) {
     errors.code = '• 이메일과 인증코드를 모두 입력해주세요.';
     return false;
@@ -451,6 +460,10 @@ const verifyCode = async () => {
 
 const resendCode = async () => {
   if (!validateEmail()) return;
+  if (!status.codeRequested) {
+    // 아직 최초 전송 안 했으면 최초 전송으로 유도
+    return requestCode();
+  }
   emailStore.email = form.email;
 
   try {
@@ -472,8 +485,15 @@ watch(
 );
 watch(
   () => form.email,
-  () => (emailStore.verified = false)
+  () => {
+    emailStore.verified = false;
+    status.codeVerified = false;
+    status.codeRequested = false; // ✅ 이메일 변경 시 초기화
+    form.code = ''; // ✅ 값 초기화
+    errors.code = ''; // ✅ 에러도 초기화
+  }
 );
+
 watch(
   () => form.code,
   () => (status.codeVerified = false)
