@@ -31,7 +31,7 @@
         </template>
         <template v-else-if="item.type === 'areachart' && Array.isArray(item.desc)">
           <div style="margin-bottom: 32px">
-            <DetailAreaChart :data="item.desc" />
+            <DetailAreaChart :data="item.desc" :category="category" />
           </div>
         </template>
         <template v-else-if="item.type === 'pdf' && Array.isArray(item.desc)">
@@ -74,7 +74,8 @@ import DetailNewsList from './section/DetailNewsList.vue';
 
 const props = defineProps({
   tabData: Object,
-  selectedTab: String
+  selectedTab: String,
+  category : String
 });
 // 그래프 컴포넌트 import 예시 (실제 구현 필요)
 // import MyChartComponent from '@/components/common/MyChartComponent.vue';
