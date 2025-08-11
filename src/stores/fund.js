@@ -246,7 +246,7 @@ export const useFundStore = defineStore('fund', () => {
       isWatched: productDetail.holdings?.is_watched || false,
 
       // DetailMainFund 컴포넌트용 데이터
-      yield: productDetail.fundPriceSummaryDto?.percent_change_from_3_months_ago || 0,
+      yield3Months: productDetail.fundPriceSummaryDto?.percent_change_from_3_months_ago || 0,
       priceArr: generatePriceArray(productDetail),
       productCompanyName: productDetail.productCompanyName || '한국투자신탁운용',
       productName: productDetail.productName || '한국투자베트남그로스증권자투자신탁UH(주식)(A)',
@@ -350,9 +350,9 @@ export const useFundStore = defineStore('fund', () => {
   };
 
   // 수익률 데이터 가공 함수
-  const generateYieldTab = productDetail => {
+  const generateYieldTab = (productDetail, history) => {
     // 실제 API에서 받아온 히스토리 데이터 사용 (fallback 추가)
-    const priceHistory = yieldHistory.value || productDetail.priceHistory;
+    const priceHistory = history || productDetail.priceHistory;
     if (!priceHistory || !priceHistory.length) {
       return [];
     }
@@ -632,7 +632,7 @@ export const useFundStore = defineStore('fund', () => {
 
     const baseTabData = {
       info: product.value.info,
-      price: generateYieldTab(product.value),
+      yield: generateYieldTab(product.value, yieldHistory.value),
       composition: product.value.composition,
       news: product.value.news
     };
