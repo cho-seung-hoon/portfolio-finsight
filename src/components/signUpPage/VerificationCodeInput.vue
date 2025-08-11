@@ -1,7 +1,7 @@
 <template>
   <div
     class="input-row"
-    :class="{ error, focus: isFocused }">
+    :class="{ error, focus: isFocused, disabled: disabled }">
     <div class="left">
       <i
         class="fas fa-key icon"
@@ -11,6 +11,8 @@
         type="text"
         :value="modelValue"
         placeholder="인증코드 입력"
+        :disabled="disabled"
+        :aria-disabled="disabled ? 'true' : 'false'"
         @input="onInput"
         @focus="handleFocus"
         @blur="handleBlur" />
@@ -19,12 +21,14 @@
       <button
         type="button"
         class="resend"
+        :disabled="disabled"
         @click="$emit('resend')">
         재요청
       </button>
       <button
         type="button"
         class="action-btn"
+        :disabled="disabled"
         @click="$emit('verify')">
         확인
       </button>
@@ -38,21 +42,28 @@ import { ref } from 'vue';
 const props = defineProps({
   modelValue: String,
   error: Boolean,
-  valid: Boolean // ✅ 유효성 전달용
+  valid: Boolean,
+  disabled: { type: Boolean, default: false } // ✅ 부모가 제어
 });
 
 const emit = defineEmits(['update:modelValue', 'verify', 'resend', 'blur', 'focus']);
 
-const onInput = e => emit('update:modelValue', e.target.value);
-
 const isFocused = ref(false);
 
+// 입력 시: 비활성 상태면 무시
+const onInput = e => {
+  if (props.disabled) return; // ✅ 가드
+  emit('update:modelValue', e.target.value);
+};
+
 const handleFocus = e => {
+  if (props.disabled) return; // ✅ 가드
   isFocused.value = true;
   emit('focus', e);
 };
 
 const handleBlur = e => {
+  if (props.disabled) return; // ✅ 가드
   isFocused.value = false;
   emit('blur', e);
 };
@@ -67,7 +78,9 @@ const handleBlur = e => {
   padding: 0 12px;
   border-bottom: 1px solid #ddd;
   background-color: #fff;
-  transition: border-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .input-row:first-child {
@@ -87,6 +100,12 @@ const handleBlur = e => {
 
 .input-row.focus {
   border-color: #f97b6d;
+}
+
+/* ✅ 비활성화 시 시각/상호작용 모두 차단 */
+.input-row.disabled {
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .left {
@@ -138,6 +157,11 @@ input {
   padding: 0;
 }
 
+.resend:disabled {
+  text-decoration: none;
+  cursor: default;
+}
+
 .action-btn {
   background-color: #f97b6d;
   color: #fff;
@@ -149,5 +173,10 @@ input {
   height: 32px;
   cursor: pointer;
   white-space: nowrap;
+}
+
+.action-btn:disabled {
+  opacity: 0.8;
+  cursor: default;
 }
 </style>
