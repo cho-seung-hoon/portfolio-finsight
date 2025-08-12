@@ -9,7 +9,7 @@
         :product-info="productInfo"
         :bank="productInfo.productCompanyName"
         :title="productInfo.productName"
-        :yield="productInfo.yield"
+        :yield="productInfo.yield3Months"
         :price-arr="productInfo.priceArr"
         :current-price="productInfo.currentPrice"
         :price-change="productInfo.priceChange"

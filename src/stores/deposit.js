@@ -132,7 +132,7 @@ export const useDepositStore = defineStore('deposit', () => {
       holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
 
       // 찜 여부 판단
-      isWatched: productDetail.holdings?.is_watched || false,
+      isWatched: productDetail.holdings?.isWatched || false,
 
       // DetailMainDeposit 컴포넌트용 데이터
       productCompanyName: productDetail.productCompanyName || 'SH 수협은행',

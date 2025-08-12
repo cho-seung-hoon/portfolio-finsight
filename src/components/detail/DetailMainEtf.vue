@@ -48,12 +48,9 @@ const emit = defineEmits(['heart-toggle']);
 
 const yieldValue = computed(() => {
   // productInfo가 있으면 productInfo에서 가져오고, 없으면 기존 props 사용
-  // 웹소켓의 change_rate1s를 우선적으로 사용
+  // 전일 대비 수익률은 서버에서 내려주는 changeRateFromPrevDay 사용
   const yieldData =
-    props.productInfo?.change_rate1s ||
-    props.productInfo?.changeRate ||
-    props.productInfo?.percent_change_from_yesterday ||
-    props.yield;
+    props.productInfo?.price?.priceChangePercent ?? props.productInfo?.changeRateFromPrevDay;
 
   if (!yieldData) return 0;
 

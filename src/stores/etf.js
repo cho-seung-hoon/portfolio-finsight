@@ -192,12 +192,8 @@ export const useEtfStore = defineStore('etf', () => {
       // 보유 여부 판단
       isHolding: !!productDetail.holdings,
       holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
-
-      // 찜 여부 판단
-      isWatched: productDetail.holdings?.is_watched || false,
-
-      // DetailMainEtf 컴포넌트용 데이터
-      yield: productDetail.etfPriceSummaryDto?.percent_change_from_3_months_ago || 0, // 3개월 수익률
+      isWatched: productDetail.holdings?.isWatched ?? productDetail.holdings?.is_watched ?? false,
+      yield3Months: productDetail.etfPriceSummaryDto?.percentChangeFrom3MonthsAgo ?? 0,
       currentPrice: productDetail.currentPrice ? productDetail.currentPrice.toLocaleString() : '0',
       productCompanyName: productDetail.productCompanyName || 'TIGER',
       productName: productDetail.productName || 'TIGER 미국S&P500선물 ETN',
@@ -214,8 +210,9 @@ export const useEtfStore = defineStore('etf', () => {
 
   // 시세 데이터 가공 함수 (시세 데이터가 없는 경우 처리)
   const generatePriceData = productDetail => {
-    // 시세 데이터가 없는 경우 기본값 반환
-    if (!productDetail.currentPrice) {
+    // ETF도 카멜케이스만 사용
+    const priceSummary = productDetail.etfPriceSummaryDto || productDetail.priceSummary;
+    if (!priceSummary) {
       return {
         currentPrice: 0,
         previousPrice: 0,
@@ -225,15 +222,19 @@ export const useEtfStore = defineStore('etf', () => {
       };
     }
 
+    const currentNav =
+      priceSummary.currentNav ?? productDetail.currentNav ?? productDetail.currentPrice ?? 0;
+    const changeFromYesterday = priceSummary.changeFromYesterday ?? productDetail.priceChange ?? 0;
+    const priceChangePercent =
+      priceSummary.percentChangeFromYesterday ?? productDetail.priceChangePercent ?? 0;
+    const previousNav = new Decimal(currentNav).sub(changeFromYesterday).toNumber();
+
     return {
-      currentPrice: productDetail.currentPrice || 0,
-      previousPrice: productDetail.previousPrice || 0,
-      priceChange: productDetail.priceChange || 0,
-      priceChangePercent: productDetail.priceChangePercent || 0,
-      priceArr: [
-        new Decimal(productDetail.currentPrice || 0),
-        new Decimal(productDetail.previousPrice || 0)
-      ]
+      currentPrice: currentNav,
+      previousPrice: previousNav,
+      priceChange: changeFromYesterday,
+      priceChangePercent,
+      priceArr: [new Decimal(currentNav), new Decimal(previousNav)]
     };
   };
 
@@ -256,25 +257,17 @@ export const useEtfStore = defineStore('etf', () => {
           keyword: 'ETF',
           color: '#007AFF',
           desc: newsData.map(news => {
-            console.log('Processing news item:', news);
-
-            // 날짜 배열을 Date 객체로 변환
             const [year, month, day, hour, minute] = news.newsPublishedAt;
             const publishedDate = new Date(year, month - 1, day, hour, minute);
-
-            // DetailNewsList.vue 형식에 맞춰 데이터 변환
-            const processedNews = {
+            return {
               news_id: news.newsId,
               news_title: news.newsTitle,
               news_content_url: news.newsContentUrl,
-              news_published_at: publishedDate.toISOString(), // ISO 문자열로 변환
+              news_published_at: publishedDate.toISOString(),
               news_score: news.newsScore / 100,
               news_sentiment: news.newsSentiment,
               news_publisher: news.newsPublisher
             };
-
-            console.log('Processed news item:', processedNews);
-            return processedNews;
           })
         }
       ];
@@ -306,11 +299,7 @@ export const useEtfStore = defineStore('etf', () => {
     });
 
     return [
-      {
-        type: 'areachart',
-        title: '수익률 추이',
-        desc: chartData
-      },
+      { type: 'areachart', title: '수익률 추이', desc: chartData },
       {
         type: 'text',
         title: '상장일',
@@ -352,9 +341,11 @@ export const useEtfStore = defineStore('etf', () => {
       {
         type: 'text',
         title: '순자산 총액',
-        desc: productDetail.etfNetAssets
-          ? `${(productDetail.etfNetAssets / 1e8).toFixed(2)}억원`
-          : '25.23억원'
+        desc: productDetail.currentAum
+          ? `${(productDetail.currentAum / 1e8).toFixed(2)}억원`
+          : productDetail.etfNetAssets
+            ? `${(productDetail.etfNetAssets / 1e8).toFixed(2)}억원`
+            : '25.23억원'
       },
       { type: 'text', title: '총보수', desc: `${productDetail.etfTotalExpenseRatio || 0.09}%` },
       { type: 'text', title: '기초지수', desc: productDetail.etfBenchmarkIndex || 'S&P500' },
@@ -459,19 +450,17 @@ export const useEtfStore = defineStore('etf', () => {
 
   // 보유 내역 탭 생성 함수 수정 (실제 API 응답 구조에 맞춰 수정)
   const generateHoldingTab = (holdingData, productDetail) => {
-    console.log('generateHoldingTab - holdingData:', holdingData);
+    if (!holdingData) return [];
 
-    if (!holdingData) {
-      console.log('No holding data available');
-      return [];
-    }
-
-    // 현재 시세로 평가액 계산 (Decimal 사용)
-    // 시세 데이터가 없는 경우 기본값 사용
-    const currentPrice = new Decimal(productDetail.currentPrice || 12500);
-    const holdingsTotalQuantity = new Decimal(holdingData.holdings_total_quantity || 0);
-    const holdingsTotalPrice = new Decimal(holdingData.holdings_total_price || 0);
-
+    const currentPrice = new Decimal(
+      productDetail.currentNav ?? productDetail.currentPrice ?? 12500
+    );
+    const holdingsTotalQuantity = new Decimal(
+      holdingData.holdingsTotalQuantity ?? holdingData.holdings_total_quantity ?? 0
+    );
+    const holdingsTotalPrice = new Decimal(
+      holdingData.holdingsTotalPrice ?? holdingData.holdings_total_price ?? 0
+    );
     const currentTotalValue = holdingsTotalQuantity.mul(currentPrice);
     const avgPrice = holdingsTotalQuantity.gt(0)
       ? holdingsTotalPrice.div(holdingsTotalQuantity)
@@ -497,30 +486,24 @@ export const useEtfStore = defineStore('etf', () => {
       }
     ];
 
-    // holdingsTotalQuantity가 0보다 크고 holdingsStatus가 'zero'가 아닐 때만 투자 기록 추가
-    if (holdingsTotalQuantity.gt(0) && holdingData.holdings_status !== 'zero') {
+    if (
+      holdingsTotalQuantity.gt(0) &&
+      (holdingData.holdingsStatus ?? holdingData.holdings_status) !== 'zero'
+    ) {
       result.push({
         type: 'holdinghistory',
         title: '투자 기록',
         desc:
           holdingData.history?.map(item => {
-            // 거래 타입에 따른 표시 형식 설정
             const isSell = item.historyTradeType === 'sell';
-            const isBuy = item.historyTradeType === 'buy';
-
-            // 거래 수량에 부호 추가 (콤마 포함)
             const quantity = new Decimal(item.historyQuantity || 0);
             const displayQuantity = isSell
               ? `-${formatNumberWithComma(quantity.toNumber())}`
               : `+${formatNumberWithComma(quantity.toNumber())}`;
-
-            // 거래 금액에 부호 추가 (콤마 포함)
             const amount = new Decimal(item.historyAmount || 0);
             const displayAmount = isSell
               ? `-${formatNumberWithComma(amount.toNumber())}`
               : `+${formatNumberWithComma(amount.toNumber())}`;
-
-            // 날짜 형식 수정 (yyyy/mm/dd 오전 hh:mm:ss)
             const tradeDate = new Date(item.historyTradeDate);
             const year = tradeDate.getFullYear();
             const month = String(tradeDate.getMonth() + 1).padStart(2, '0');
@@ -529,23 +512,16 @@ export const useEtfStore = defineStore('etf', () => {
             const minutes = String(tradeDate.getMinutes()).padStart(2, '0');
             const seconds = String(tradeDate.getSeconds()).padStart(2, '0');
             const ampm = hours < 12 ? '오전' : '오후';
-            const displayHours = String(hours < 12 ? hours : hours - 12).padStart(2, '0');
+            const displayHours = String(hours % 12 || 12).padStart(2, '0');
             const displayDate = `${year}/${month}/${day} ${ampm} ${displayHours}:${minutes}:${seconds}`;
 
             return {
               ...item,
-              // 원본 데이터 유지
-              historyQuantity: item.historyQuantity,
-              historyAmount: item.historyAmount,
-              historyTradeDate: item.historyTradeDate,
-              // 표시용 데이터 추가
               displayQuantity,
               displayAmount,
               displayDate,
-              // 스타일링을 위한 플래그
               isSell,
-              isBuy,
-              // 색상 정보
+              isBuy: !isSell,
               quantityColor: isSell ? '#FF3B30' : '#007AFF',
               amountColor: isSell ? '#FF3B30' : '#007AFF'
             };
@@ -565,11 +541,17 @@ export const useEtfStore = defineStore('etf', () => {
       info: product.value.info,
       yield: generateYieldTab(product.value),
       composition: product.value.composition,
-      news: product.value.news
+      news: product.value.news,
+      yield: [
+        {
+          type: 'areachart',
+          title: '수익률 추이',
+          desc: chartData.value // chartData와 직접 연결
+        },
+        ...product.value.yield.slice(1) // 기존의 상장일, 총보수 등 정보 유지
+      ]
     };
-
-    // 보유 중인 상품이면 holding 데이터 추가
-    if (product.value.isHolding && product.value.holding) {
+    if (product.value.isHolding) {
       baseTabData.holding = product.value.holding;
     }
 
@@ -598,10 +580,7 @@ export const useEtfStore = defineStore('etf', () => {
 
     try {
       const response = await fetch(`http://localhost:8080/etf/${productId}/history`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          'Content-Type': 'application/json'
-        }
+        headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' }
       });
 
       if (!response.ok) {
@@ -619,24 +598,11 @@ export const useEtfStore = defineStore('etf', () => {
       // API 실패 시 Mock 데이터 반환
       const mockHistory = [
         { baseDate: [2025, 6, 19], etfNav: 12451.92 },
-        { baseDate: [2025, 6, 20], etfNav: 12640.32 },
-        { baseDate: [2025, 6, 21], etfNav: 12826.89 },
-        { baseDate: [2025, 6, 22], etfNav: 12890.51 },
-        { baseDate: [2025, 6, 23], etfNav: 12600.29 },
-        { baseDate: [2025, 6, 24], etfNav: 12307.0 },
-        { baseDate: [2025, 6, 25], etfNav: 12480.02 },
-        { baseDate: [2025, 6, 26], etfNav: 12718.15 },
-        { baseDate: [2025, 6, 27], etfNav: 13068.27 },
-        { baseDate: [2025, 6, 28], etfNav: 13067.99 },
-        { baseDate: [2025, 6, 29], etfNav: 12998.96 },
-        { baseDate: [2025, 6, 30], etfNav: 12685.7 },
-        { baseDate: [2025, 7, 22], etfNav: 12736.72 }
+        { baseDate: [2025, 6, 20], etfNav: 12640.32 }
       ];
-      yieldHistory.value = mockHistory;
+    } finally {
       isYieldHistoryLoaded.value = true;
       return mockHistory;
-    } finally {
-      isYieldHistoryLoading.value = false;
     }
   };
 
@@ -649,58 +615,62 @@ export const useEtfStore = defineStore('etf', () => {
 
   // 실시간 웹소켓 데이터 업데이트 함수
   const updateRealtimeData = realtimeData => {
-    if (!product.value) return;
+    if (!product.value || !realtimeData) return;
 
-    console.log('[ETF STORE] 실시간 데이터 수신:', realtimeData);
-
-    // 실시간 데이터로 product 업데이트
-    const updatedProduct = {
-      ...product.value,
-      currentPrice:
-        realtimeData?.current_price || realtimeData?.price || product.value.currentPrice,
-      change_rate1s:
-        realtimeData?.change_rate1s || realtimeData?.changeRate || product.value.change_rate1s,
-      volume: realtimeData?.current_volume || realtimeData?.volume || product.value.volume,
-      tradeAmount:
-        realtimeData?.trade_amount || realtimeData?.tradeAmount || product.value.tradeAmount,
-      marketCap: realtimeData?.market_cap || realtimeData?.marketCap || product.value.marketCap,
-      lastUpdate: realtimeData?.timestamp || realtimeData?.time || new Date().toISOString()
-    };
-
-    // 보유기록이 있는 경우 현재가와 평가액 업데이트
-    if (updatedProduct.holding && updatedProduct.holding.length > 0) {
-      const currentPrice =
-        realtimeData?.current_price || realtimeData?.price || updatedProduct.currentPrice;
-
-      console.log('[ETF STORE] 보유기록 업데이트 - 현재가:', currentPrice);
-
-      // 보유기록 데이터 업데이트
-      updatedProduct.holding = updatedProduct.holding.map(holdingItem => {
-        if (holdingItem.type === 'holdingsummary') {
-          const holdingsTotalQuantity = new Decimal(holdingItem.desc.holdingsTotalQuantity || 0);
-          const currentTotalValue = holdingsTotalQuantity.mul(currentPrice);
-
-          console.log('[ETF STORE] 보유기록 계산:', {
-            holdingsTotalQuantity: holdingsTotalQuantity.toNumber(),
-            currentPrice,
-            currentTotalValue: currentTotalValue.toNumber()
-          });
-
-          return {
-            ...holdingItem,
-            desc: {
-              ...holdingItem.desc,
-              currentPricePerUnit: currentPrice,
-              currentTotalValue: currentTotalValue.toNumber()
-            }
-          };
-        }
-        return holdingItem;
-      });
+    if (realtimeData && realtimeData.timestamp) {
+      chartData.value = [...chartData.value, realtimeData];
     }
 
-    product.value = updatedProduct;
-    console.log('[ETF STORE] 실시간 데이터 업데이트 완료');
+    const newPrice = realtimeData?.currentPrice;
+
+    // [설명] 새로운 가격 정보가 있을 때만 가격 관련 상태를 '직접' 수정합니다.
+    // 이렇게 하면 Vue는 정확히 변경된 부분만 감지하여 불필요한 재계산을 방지합니다.
+    if (newPrice !== undefined) {
+      // 1. 최상위 현재가 정보 업데이트
+      product.value.currentPrice = newPrice;
+
+      // 2. price 객체 내부 정보 업데이트
+      if (product.value.price) {
+        product.value.price.currentPrice = newPrice;
+
+        // [수정 전] 클라이언트에서 직접 계산하던 방식
+        // const priceChange = new Decimal(newPrice).sub(product.value.price.previousPrice);
+        // product.value.price.priceChange = priceChange.toNumber();
+        // if (new Decimal(product.value.price.previousPrice).gt(0)) {
+        //   product.value.price.priceChangePercent = priceChange.div(product.value.price.previousPrice).mul(100).toFixed(2);
+        // }
+
+        // [수정 후] 서버가 보내준 계산된 값을 그대로 사용 (카멜케이스 고정)
+        product.value.price.priceChange =
+          realtimeData.changeFromPrevDay ?? product.value.price.priceChange;
+        product.value.price.priceChangePercent =
+          realtimeData.changeRateFromPrevDay ?? product.value.price.priceChangePercent;
+      }
+
+      // 3. 보유 내역이 있는 경우, 평가액과 손익 정보 업데이트
+      if (product.value.isHolding && product.value.holding?.length > 0) {
+        const holdingSummary = product.value.holding.find(item => item.type === 'holdingsummary');
+        if (holdingSummary) {
+          const desc = holdingSummary.desc;
+          const holdingsTotalQuantity = new Decimal(desc.holdingsTotalQuantity || 0);
+          const holdingsTotalPrice = new Decimal(desc.holdingsTotalPrice || 0);
+
+          const currentTotalValue = holdingsTotalQuantity.mul(newPrice);
+          const profitLoss = currentTotalValue.sub(holdingsTotalPrice);
+
+          // 보유 현황(desc) 객체 내부의 값들을 직접 수정
+          desc.currentPricePerUnit = newPrice;
+          desc.currentTotalValue = currentTotalValue.toNumber();
+          desc.profitLoss = profitLoss.toNumber();
+          if (holdingsTotalPrice.gt(0)) {
+            desc.profitLossPercent = profitLoss.div(holdingsTotalPrice).mul(100).toFixed(2);
+          }
+        }
+      }
+    }
+
+    // [설명] 기타 실시간 정보가 있다면 동일한 방식으로 직접 수정할 수 있습니다.
+    // product.value.volume = realtimeData?.current_volume ?? product.value.volume;
   };
 
   return {

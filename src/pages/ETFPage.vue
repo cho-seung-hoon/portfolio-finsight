@@ -16,7 +16,8 @@
         @update:selected-tab="selectTab" />
       <DetailSection
         :tab-data="tabData"
-        :selected-tab="selectedTab" />
+        :selected-tab="selectedTab"
+        category="etf" />
       <DetailActionButton
         :product-info="productInfo"
         @buy-click="handleBuyClick"
@@ -126,8 +127,8 @@ watch(
   { immediate: true }
 );
 
-// 웹소켓 구독 시작
-const startWebSocketSubscription = async productCode => {
+// 웹소켓 구독 시작 (함수 선언으로 호이스팅 보장)
+async function startWebSocketSubscription(productCode) {
   try {
     // 이미 구독 중이면 중복 구독 방지
     if (isSubscribed.value) {
@@ -145,7 +146,7 @@ const startWebSocketSubscription = async productCode => {
   } catch (error) {
     console.error(`[ETF DETAIL] 웹소켓 구독 실패:`, error);
   }
-};
+}
 
 // 웹소켓 데이터 처리
 const handleWebSocketData = (data, productCode) => {
