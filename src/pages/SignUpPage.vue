@@ -142,7 +142,7 @@
 
 <script setup>
 import { reactive, ref, watch, onMounted } from 'vue';
-import axios from 'axios';
+import { signUpUser, checkUserIdExists } from '@/api/user';
 import { useEmailStore } from '@/stores/emailStore';
 
 import InputWithIcon from '@/components/signUpPage/InputWithIcon.vue';
@@ -222,7 +222,7 @@ const handleSignUp = async () => {
       birthday: formatBirthDate(form.birth),
       email: form.email
     };
-    await axios.post('/users', payload);
+    await signUpUser(payload);
     showCompleteModal.value = true;
   } catch (error) {
     openModal(
@@ -389,7 +389,7 @@ const validateCode = () => {
 const checkUserId = async () => {
   if (!validateUserId()) return;
   try {
-    const res = await axios.get('/users', { params: { userid: form.userId } });
+    const res = await checkUserIdExists(form.userId);
     if (res.data === true) {
       errors.userId = '• 이미 사용 중인 아이디입니다.';
       status.userIdChecked = false;
