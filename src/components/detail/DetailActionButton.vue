@@ -14,6 +14,7 @@
       v-else
       class="holding-buttons">
       <button
+        v-if="canSell"
         type="button"
         class="asset-record-btn-fixed sell-btn"
         @click="handleSellClick">
@@ -61,6 +62,15 @@ const productId = computed(() => {
   return props.productInfo?.productCode || props.id;
 });
 
+// 판매 가능 여부 (보유 수량이 0보다 클 때만)
+const canSell = computed(() => {
+  const holdingsTotalQuantity =
+    props.productInfo?.holdingsTotalQuantity ||
+    props.productInfo?.holdings?.holdingsTotalQuantity ||
+    0;
+  return holdingsTotalQuantity > 0;
+});
+
 const heartActive = ref(false);
 function toggleHeart() {
   heartActive.value = !heartActive.value;
@@ -78,8 +88,9 @@ function handleBuyClick() {
 function handleSellClick() {
   // 판매하기/해지하기 버튼 클릭 시 이벤트 emit
   emit('sell-click', {
-    category: props.category,
-    id: props.id
+    category: category.value,
+    id: productId.value,
+    productInfo: props.productInfo
   });
 }
 

@@ -36,15 +36,17 @@
           </div>
         </div>
 
-        <!-- 현재 보유 수량 -->
-        <div class="info-row">
-          <label>현재 보유 수량</label>
+        <!-- 현재 총 보유 수량 -->
+        <div class="info-row highlight">
+          <label>현재 총 보유 수량</label>
           <div class="info-value-wrapper">
-            <div class="info-value">{{ formatQuantity(productInfo?.holdingQuantity || 0) }}</div>
+            <div class="info-value">
+              {{ formatQuantity(getHoldingsTotalQuantity()) }}
+            </div>
             <div
-              v-if="productInfo?.holdingQuantity && getKoreanNumber(productInfo.holdingQuantity)"
+              v-if="getHoldingsTotalQuantity() && getKoreanNumber(getHoldingsTotalQuantity())"
               class="korean-number">
-              {{ getKoreanNumber(productInfo.holdingQuantity) }} 주
+              {{ getKoreanNumber(getHoldingsTotalQuantity()) }}
             </div>
           </div>
         </div>
@@ -76,14 +78,8 @@
           </div>
           <div class="input-hint">
             최소 1주 이상, 최대
-            {{ formatQuantity(productInfo?.holdingQuantity || 0) }}까지 판매 가능 (최대 10억원까지)
+            {{ formatQuantity(getHoldingsTotalQuantity()) }}까지 판매 가능 (최대 10억원까지)
           </div>
-        </div>
-
-        <!-- 판매일 -->
-        <div class="form-group">
-          <label>판매일</label>
-          <div class="form-control readonly">{{ currentDateTime }}</div>
         </div>
 
         <!-- 예상 판매 금액 -->
@@ -150,15 +146,6 @@ const formData = ref({
   quantity: ''
 });
 
-// 현재 날짜 포맷팅
-const currentDateTime = computed(() => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}.${month}.${day}`;
-});
-
 // 총 판매 금액 계산
 const totalAmount = computed(() => {
   const price = getCurrentPrice() || 0;
@@ -173,7 +160,7 @@ const totalAmount = computed(() => {
 // 폼 유효성 검사
 const isFormValid = computed(() => {
   const quantity = parseNumberFromComma(formData.value.quantity);
-  const maxQuantity = props.productInfo?.holdingQuantity || 0;
+  const maxQuantity = getHoldingsTotalQuantity();
   const price = getCurrentPrice() || 0;
   const totalAmountValue = new Decimal(quantity).times(price);
 
@@ -187,31 +174,14 @@ const isFormValid = computed(() => {
 
 // 통화 포맷팅
 const formatCurrency = amount => {
-  // 숫자가 아닌 값이나 빈 값 처리
-  if (!amount || amount === '') return '0 원';
-
-  // 이미 "원"이 포함된 문자열인 경우 숫자 부분만 추출
-  if (typeof amount === 'string' && amount.includes('원')) {
-    const numericPart = amount.replace(/[^0-9,]/g, '');
-    const cleanNumber = parseNumberFromComma(numericPart);
-    return new Intl.NumberFormat('ko-KR').format(cleanNumber.toNumber()) + ' 원';
-  }
-
-  // 일반적인 숫자 처리
-  try {
-    const decimalAmount = amount instanceof Decimal ? amount : new Decimal(amount || 0);
-    return new Intl.NumberFormat('ko-KR').format(decimalAmount.toNumber()) + ' 원';
-  } catch (error) {
-    console.warn('formatCurrency error:', error, 'amount:', amount);
-    return '0 원';
-  }
+  if (!amount) return '0 원';
+  const num = amount instanceof Decimal ? amount.toNumber() : Number(amount) || 0;
+  return new Intl.NumberFormat('ko-KR').format(num) + ' 원';
 };
 
 // 수량 포맷팅
 const formatQuantity = quantity => {
-  return (
-    new Intl.NumberFormat('ko-KR').format(quantity) + (props.productType === 'ETF' ? '주' : '좌')
-  );
+  return new Intl.NumberFormat('ko-KR').format(quantity);
 };
 
 // 폼 초기화 함수
@@ -223,13 +193,10 @@ const resetForm = () => {
 
 // 모달 열기
 const openModal = () => {
-  resetForm(); // 모달 열기 전에 폼 초기화
-  // 약간의 지연 후 모달 열기 (폼 초기화가 완료되도록)
-  setTimeout(() => {
-    if (modalRef.value) {
-      modalRef.value.showModal();
-    }
-  }, 10);
+  resetForm();
+  if (modalRef.value) {
+    modalRef.value.showModal();
+  }
 };
 
 // 모달 닫기
@@ -243,7 +210,6 @@ const closeModal = () => {
   }
   emit('close');
 
-  // 100ms 후에 닫기 상태 초기화
   setTimeout(() => {
     isClosing.value = false;
   }, 100);
@@ -260,13 +226,17 @@ const handleBackdropClick = event => {
 const handleSubmit = async () => {
   if (!isFormValid.value) return;
 
+  // 현재 날짜를 동적으로 생성
+  const today = new Date();
+  const saleDate = today.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+
   const tradeData = {
     productCode: props.productInfo?.productCode,
     productCategory: props.productType.toLowerCase(),
     quantity: new Decimal(parseNumberFromComma(formData.value.quantity)).toNumber(),
     amount: totalAmount.value.toNumber(),
     price: getCurrentPrice(),
-    saleDate: currentDateTime.value
+    saleDate: saleDate
   };
 
   try {
@@ -276,7 +246,7 @@ const handleSubmit = async () => {
       emit('submit', {
         quantity: new Decimal(parseNumberFromComma(formData.value.quantity)),
         price: getCurrentPrice(),
-        saleDate: currentDateTime.value,
+        saleDate: saleDate,
         code: props.productInfo?.productCode,
         category: props.productType
       });
@@ -299,7 +269,7 @@ const handleQuantityInput = event => {
   value = value.replace(/[^0-9,]/g, '');
 
   let numValue = parseNumberFromComma(value);
-  const maxQuantity = props.productInfo?.holdingQuantity || 0;
+  const maxQuantity = getHoldingsTotalQuantity();
   const price = getCurrentPrice() || 0;
 
   // 보유 수량 제한
@@ -332,31 +302,14 @@ const getKoreanNumber = value => {
   return convertToKoreanNumber(value);
 };
 
+// 보유 총 수량 가져오기 함수
+const getHoldingsTotalQuantity = () => {
+  return props.productInfo?.holdings?.holdingsTotalQuantity || 0;
+};
+
 // 현재 가격 계산 함수
 const getCurrentPrice = () => {
-  // productInfo에서 현재 가격을 가져오는 우선순위
-  // 1. currentPrice (웹소켓 실시간 데이터)
-  // 2. fundPriceSummaryDto.current_nav (Fund API)
-  // 3. etfPriceSummaryDto.current_price (ETF API)
-  // 4. price.currentPrice (기존 구조)
-
-  if (props.productInfo?.currentPrice) {
-    return props.productInfo.currentPrice;
-  }
-
-  if (props.productInfo?.fundPriceSummaryDto?.current_nav) {
-    return props.productInfo.fundPriceSummaryDto.current_nav;
-  }
-
-  if (props.productInfo?.etfPriceSummaryDto?.current_price) {
-    return props.productInfo.etfPriceSummaryDto.current_price;
-  }
-
-  if (props.productInfo?.price?.currentPrice) {
-    return props.productInfo.price.currentPrice;
-  }
-
-  return 0;
+  return props.productInfo?.currentPrice || 0;
 };
 
 // 외부에서 모달 열기 메서드 노출

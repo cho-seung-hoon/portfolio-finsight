@@ -130,6 +130,7 @@ export const useDepositStore = defineStore('deposit', () => {
       // 보유 여부 판단
       isHolding: !!productDetail.holdings,
       holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
+      holdingsTotalQuantity: productDetail.holdings?.holdings_total_quantity || 0,
 
       // 찜 여부 판단
       isWatched: productDetail.holdings?.isWatched || false,

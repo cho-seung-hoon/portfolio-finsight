@@ -64,12 +64,6 @@
           <div class="input-hint">최소 1주 이상 입력해주세요. (최대 10억원까지 구매 가능)</div>
         </div>
 
-        <!-- 구매일 -->
-        <div class="form-group">
-          <label>구매일</label>
-          <div class="form-control readonly">{{ todayDate }}</div>
-        </div>
-
         <!-- 예상 구매 금액 -->
         <div class="info-row highlight">
           <label>예상 구매 금액</label>
@@ -236,13 +230,17 @@ const handleBackdropClick = event => {
 const handleSubmit = async () => {
   if (!isFormValid.value) return;
 
+  // 현재 날짜를 동적으로 생성
+  const today = new Date();
+  const buyDate = today.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+
   const tradeData = {
     productCode: props.productInfo?.productCode,
     productCategory: props.productType.toLowerCase(),
     quantity: new Decimal(parseNumberFromComma(formData.value.quantity)).toNumber(),
     amount: totalAmount.value.toNumber(),
     price: getCurrentPrice(),
-    buyDate: todayDate.value
+    buyDate: buyDate
   };
 
   try {
@@ -252,7 +250,7 @@ const handleSubmit = async () => {
       emit('submit', {
         quantity: new Decimal(parseNumberFromComma(formData.value.quantity)),
         price: getCurrentPrice(),
-        buyDate: todayDate.value,
+        buyDate: buyDate,
         code: props.productInfo?.productCode,
         category: props.productType
       });

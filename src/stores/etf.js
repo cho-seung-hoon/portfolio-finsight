@@ -152,6 +152,7 @@ export const useEtfStore = defineStore('etf', () => {
       price: generatePriceData(productDetail),
       isHolding: !!productDetail.holdings,
       holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
+      holdingsTotalQuantity: productDetail.holdings?.holdings_total_quantity || 0,
       isWatched: productDetail.holdings?.isWatched ?? productDetail.holdings?.is_watched ?? false,
       yield3Months: productDetail.etfPriceSummaryDto?.percentChangeFrom3MonthsAgo ?? 0,
       currentPrice: productDetail.currentPrice ? productDetail.currentPrice.toLocaleString() : '0',

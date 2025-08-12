@@ -30,18 +30,13 @@
             class="form-control"
             required>
             <option value="">기간을 선택하세요</option>
-            <option value="3">3개월</option>
-            <option value="6">6개월</option>
-            <option value="12">12개월</option>
-            <option value="24">24개월</option>
-            <option value="36">36개월</option>
+            <option
+              v-for="option in availablePeriods"
+              :key="option.value"
+              :value="option.value">
+              {{ option.label }}
+            </option>
           </select>
-        </div>
-
-        <!-- 예금 시작일 -->
-        <div class="form-group">
-          <label>예금 시작일</label>
-          <div class="form-control readonly">{{ todayDate }}</div>
         </div>
 
         <!-- 예금액 입력 -->
@@ -141,13 +136,31 @@ const formData = ref({
   amount: ''
 });
 
-// 오늘 날짜 포맷팅
-const todayDate = computed(() => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  return `${year}.${month}.${day}`;
+// 사용 가능한 기간 옵션 (상품 정보에서 가져오거나 기본값 사용)
+const availablePeriods = computed(() => {
+  if (props.productInfo?.doption && props.productInfo.doption.length > 0) {
+    return props.productInfo.doption.map(option => ({
+      value: option.doptionSaveTrm,
+      label: `${option.doptionSaveTrm}개월 (${option.doptionIntrRate}%)`
+    }));
+  }
+  // 기본 기간 옵션
+  return [
+    { value: '3', label: '3개월' },
+    { value: '6', label: '6개월' },
+    { value: '12', label: '12개월' },
+    { value: '24', label: '24개월' },
+    { value: '36', label: '36개월' }
+  ];
+});
+
+// 최소/최대 금액 (상품 정보에서 가져오거나 props에서 가져오기)
+const minAmount = computed(() => {
+  return props.productInfo?.depositMinLimit || props.minAmount || 1000000;
+});
+
+const maxAmount = computed(() => {
+  return props.productInfo?.depositMaxLimit || props.maxAmount || 10000000;
 });
 
 // 폼 유효성 검사
@@ -156,8 +169,8 @@ const isFormValid = computed(() => {
   return (
     formData.value.period &&
     formData.value.amount &&
-    new Decimal(amount).gte(props.minAmount) &&
-    new Decimal(amount).lte(props.maxAmount)
+    new Decimal(amount).gte(minAmount.value) &&
+    new Decimal(amount).lte(maxAmount.value)
   );
 });
 
@@ -243,13 +256,17 @@ const handleBackdropClick = event => {
 const handleSubmit = async () => {
   if (!isFormValid.value) return;
 
+  // 현재 날짜를 동적으로 생성
+  const today = new Date();
+  const startDate = today.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+
   const tradeData = {
     productCode: props.productInfo?.productCode,
     productCategory: 'deposit',
     quantity: 1,
     amount: new Decimal(parseNumberFromComma(formData.value.amount)).toNumber(),
     period: parseInt(formData.value.period),
-    startDate: todayDate.value
+    startDate: startDate
   };
 
   try {
@@ -259,7 +276,7 @@ const handleSubmit = async () => {
       emit('submit', {
         period: formData.value.period,
         amount: new Decimal(parseNumberFromComma(formData.value.amount)),
-        startDate: todayDate.value,
+        startDate: startDate,
         code: props.productInfo?.productCode
       });
       closeModal();
@@ -283,8 +300,8 @@ const handleAmountInput = event => {
   let numValue = parseNumberFromComma(value);
 
   // 최대 금액 제한
-  if (new Decimal(numValue).gt(props.maxAmount)) {
-    numValue = props.maxAmount;
+  if (new Decimal(numValue).gt(maxAmount.value)) {
+    numValue = maxAmount.value;
     value = String(numValue);
   }
 
@@ -313,7 +330,7 @@ watch(
       resetForm();
     } else {
       // 모달이 열릴 때 최소 금액을 기본값으로 설정
-      formData.value.amount = formatInputNumber(String(props.minAmount));
+      formData.value.amount = formatInputNumber(String(minAmount.value));
     }
   }
 );
