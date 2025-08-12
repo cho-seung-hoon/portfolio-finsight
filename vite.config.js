@@ -24,12 +24,6 @@ export default defineConfig({
         secure: false,
         rewrite: path => path.replace(/^\/exchange/, '/site/program/financial/exchangeJSON')
       },
-      // ✅ 백엔드 API 프록시 추가
-      '/users': {
-        target: 'http://localhost:8080', // Spring 서버 주소
-        changeOrigin: true,
-        secure: false
-      },
       // 투자성향분석 API 프록시 추가 (양지윤)
       '/api': {
         target: 'http://localhost:8080',
@@ -37,11 +31,6 @@ export default defineConfig({
         secure: false,
         rewrite: path => path.replace(/^\/api/, '')
       }
-    },
-    '/holdings': {
-      target: 'http://localhost:8080', // Spring 서버 주소
-      changeOrigin: true,
-      secure: false
     },
     '/ws': {
       target: 'http://localhost:8080',

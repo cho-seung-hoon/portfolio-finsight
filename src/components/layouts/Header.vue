@@ -93,10 +93,10 @@ function updateRemainingTime() {
     remainingTime.value = `${m}:${s}`;
 
     // ✅ 토큰 만료 5분전 팝업 기능
-    if (totalSeconds <= 3480 && !hasShownExpireWarning.value) {
-      emit('open-time-modal'); // 부모에게 이벤트 전달
-      hasShownExpireWarning.value = true;
-    }
+    // if (totalSeconds <= 3480 && !hasShownExpireWarning.value) {
+    //   emit('open-time-modal'); // 부모에게 이벤트 전달
+    //   hasShownExpireWarning.value = true;
+    // }
   }
 }
 let intervalId = null;

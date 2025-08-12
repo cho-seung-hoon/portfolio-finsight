@@ -4,7 +4,7 @@
       <!-- 로고 섹션 -->
       <div class="logo-section">
         <div class="logo-icon">
-          <IconLogo class="logo-svg"/>
+          <IconLogo class="logo-svg" />
         </div>
         <h1 class="logo-text">Fin-Sight</h1>
       </div>
@@ -66,6 +66,9 @@ import axios from 'axios';
 import { computed, reactive, ref } from 'vue';
 
 import IconLogo from '@/components/icons/IconLogo.vue';
+import { useSessionStore } from '@/stores/session'; // ✅ 추가
+
+const sessionStore = useSessionStore(); // ✅ 추가
 
 const formData = reactive({
   id: '',
@@ -100,37 +103,26 @@ const handleLogin = async () => {
       password: formData.password
     });
 
-    if (response.data.success) {
-      const accessToken = response.data.data.accessToken;
-      localStorage.setItem('accessToken', accessToken);
-      // router.push('/');
-
-      // === goToInvTestMainPage start 양지윤 ====================================== //
-      // ✅ 토큰을 Authorization 헤더에 담아 사용자 정보 요청
-      console.log('accessToken 입니다. :', accessToken);
-      const userInfoResponse = await axios.get('http://localhost:8080/users/me', { // 경로를 보내야함. 예: 'http://localhost:8080/users/me'
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        }
-      });
-      const userRole = userInfoResponse.data.data.userRole;
-      localStorage.setItem('userRole', userRole);
-      console.log('userRole', userRole);
-
-      // ✅ 역할에 따라 라우팅
-      if (userRole === 'COMPLETE') {
-        router.push('/');
-      } else {
-        router.push('/inv-type-main-page');
+    const accessToken = response.data.accessToken;
+    localStorage.setItem('accessToken', accessToken);
+    console.log('accessToken 입니다. :', accessToken);
+    const userInfoResponse = await axios.get('http://localhost:8080/users/me', {
+      // 경로를 보내야함. 예: 'http://localhost:8080/users/me'
+      headers: {
+        Authorization: `Bearer ${accessToken}`
       }
+    });
+    const userRole = userInfoResponse.data.userRole;
+    localStorage.setItem('userRole', userRole);
+    console.log('userRole', userRole);
+    if (userRole === 'COMPLETE') {
+      router.push('/');
+    } else {
+      router.push('/inv-type-main-page');
     }
     // === goToInvTestMainPage end 양지윤 ====================================== //
   } catch (error) {
-    if (error.response && error.response.status === 400) {
-      errorMessage.value = error.response.data?.error || '잘못된 요청입니다.';
-    } else {
-      errorMessage.value = '로그인에 실패하였습니다. 다시 시도해주세요!';
-    }
+    console.log(error);
   }
 };
 
@@ -155,7 +147,7 @@ const handleKeyPress = event => {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content:flex-start;
+  justify-content: flex-start;
   align-items: center;
   background: var(--main01);
   padding: 70px 20px;
@@ -183,7 +175,7 @@ const handleKeyPress = event => {
 .logo-text {
   font-size: 32px;
   font-weight: var(--font-weight-bold);
-  letter-spacing:-1px;
+  letter-spacing: -1px;
   color: var(--white);
 }
 
@@ -255,5 +247,4 @@ const handleKeyPress = event => {
   color: var(--sub01);
   border: none;
 }
-
 </style>
