@@ -48,9 +48,8 @@ const emit = defineEmits(['heart-toggle']);
 
 const yieldValue = computed(() => {
   // productInfo가 있으면 productInfo에서 가져오고, 없으면 기존 props 사용
-  // 전일 대비 수익률은 서버에서 내려주는 changeRateFromPrevDay 사용
-  const yieldData =
-    props.productInfo?.price?.priceChangePercent ?? props.productInfo?.changeRateFromPrevDay;
+  // 웹소켓의 change_rate1s를 우선적으로 사용
+  const yieldData = props.productInfo?.price?.priceChangePercent;
 
   if (!yieldData) return 0;
 
@@ -76,7 +75,7 @@ const yieldChangeColor = computed(() => {
 
 const formattedCurrentPrice = computed(() => {
   // productInfo가 있으면 productInfo에서 가져오고, 없으면 기존 props 사용
-  const price = props.productInfo?.currentPrice || props.currentPrice;
+  const price = props.productInfo?.price?.currentPrice ?? props.productInfo?.currentPrice;
 
   if (!price) return '-';
 

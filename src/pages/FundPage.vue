@@ -22,6 +22,7 @@
 
       <DetailSection
         :tab-data="tabData"
+        category="fund"
         :selected-tab="selectedTab" />
 
       <DetailActionButton
@@ -137,14 +138,14 @@ const tabs = computed(() => {
     return [
       { key: 'holding', label: '보유기록' },
       { key: 'info', label: '상품안내' },
-      { key: 'price', label: '수익률' },
+      { key: 'yield', label: '수익률' },
       { key: 'composition', label: '구성종목' },
       { key: 'news', label: '뉴스' }
     ];
   }
   return [
     { key: 'info', label: '상품안내' },
-    { key: 'price', label: '수익률' },
+    { key: 'yield', label: '수익률' },
     { key: 'composition', label: '구성종목' },
     { key: 'news', label: '뉴스' }
   ];
@@ -159,7 +160,7 @@ const selectTab = async tab => {
   selectedTab.value = tab;
 
   // 수익률 탭을 처음 클릭할 때만 API 호출
-  if (tab === 'price' && !isYieldHistoryLoaded.value && !isYieldHistoryLoading.value) {
+  if (tab === 'yield' && !isYieldHistoryLoaded.value && !isYieldHistoryLoading.value) {
     const productId = route.params.id;
     console.log('Fetching yield history for productId:', productId);
     if (productId) {
