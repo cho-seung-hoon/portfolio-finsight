@@ -137,7 +137,7 @@ async function handleExtendSession() {
       }
     );
 
-    const newAccessToken = response.data.data;
+    const newAccessToken = response.data;
     localStorage.setItem('accessToken', newAccessToken);
     console.log('로그인 연장 성공:', response.data.success);
   } catch (error) {

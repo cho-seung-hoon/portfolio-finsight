@@ -80,7 +80,7 @@ const fetchUsersInfo = async () => {
     const response = await axios.get('http://localhost:8080/users/info', {
       headers: { Authorization: `Bearer ${token}` }
     });
-    userInfo.value = response.data.data;
+    userInfo.value = response.data;
   } catch (e) {
     console.error('유저 정보 불러오기 실패:', e);
   }
