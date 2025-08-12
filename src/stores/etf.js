@@ -152,8 +152,8 @@ export const useEtfStore = defineStore('etf', () => {
       price: generatePriceData(productDetail),
       isHolding: !!productDetail.holdings,
       holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
-      isWatched: productDetail.holdings?.is_watched || false,
-      yield3Months: productDetail.etfPriceSummaryDto?.percent_change_from_3_months_ago || 0,
+      isWatched: productDetail.holdings?.isWatched ?? productDetail.holdings?.is_watched ?? false,
+      yield3Months: productDetail.etfPriceSummaryDto?.percentChangeFrom3MonthsAgo ?? 0,
       currentPrice: productDetail.currentPrice ? productDetail.currentPrice.toLocaleString() : '0',
       productCompanyName: productDetail.productCompanyName || 'TIGER',
       productName: productDetail.productName || 'TIGER 미국S&P500선물 ETN',
@@ -167,7 +167,9 @@ export const useEtfStore = defineStore('etf', () => {
   };
 
   const generatePriceData = productDetail => {
-    if (!productDetail.currentPrice) {
+    // ETF도 카멜케이스만 사용
+    const priceSummary = productDetail.etfPriceSummaryDto || productDetail.priceSummary;
+    if (!priceSummary) {
       return {
         currentPrice: 0,
         previousPrice: 0,
@@ -176,15 +178,20 @@ export const useEtfStore = defineStore('etf', () => {
         priceArr: [new Decimal(0), new Decimal(0)]
       };
     }
+
+    const currentNav =
+      priceSummary.currentNav ?? productDetail.currentNav ?? productDetail.currentPrice ?? 0;
+    const changeFromYesterday = priceSummary.changeFromYesterday ?? productDetail.priceChange ?? 0;
+    const priceChangePercent =
+      priceSummary.percentChangeFromYesterday ?? productDetail.priceChangePercent ?? 0;
+    const previousNav = new Decimal(currentNav).sub(changeFromYesterday).toNumber();
+
     return {
-      currentPrice: productDetail.currentPrice || 0,
-      previousPrice: productDetail.previousPrice || 0,
-      priceChange: productDetail.priceChange || 0,
-      priceChangePercent: productDetail.priceChangePercent || 0,
-      priceArr: [
-        new Decimal(productDetail.currentPrice || 0),
-        new Decimal(productDetail.previousPrice || 0)
-      ]
+      currentPrice: currentNav,
+      previousPrice: previousNav,
+      priceChange: changeFromYesterday,
+      priceChangePercent,
+      priceArr: [new Decimal(currentNav), new Decimal(previousNav)]
     };
   };
 
@@ -273,9 +280,11 @@ export const useEtfStore = defineStore('etf', () => {
       {
         type: 'text',
         title: '순자산 총액',
-        desc: productDetail.etfNetAssets
-          ? `${(productDetail.etfNetAssets / 1e8).toFixed(2)}억원`
-          : '25.23억원'
+        desc: productDetail.currentAum
+          ? `${(productDetail.currentAum / 1e8).toFixed(2)}억원`
+          : productDetail.etfNetAssets
+            ? `${(productDetail.etfNetAssets / 1e8).toFixed(2)}억원`
+            : '25.23억원'
       },
       { type: 'text', title: '총보수', desc: `${productDetail.etfTotalExpenseRatio || 0.09}%` },
       { type: 'text', title: '기초지수', desc: productDetail.etfBenchmarkIndex || 'S&P500' },
@@ -372,9 +381,15 @@ export const useEtfStore = defineStore('etf', () => {
   const generateHoldingTab = (holdingData, productDetail) => {
     if (!holdingData) return [];
 
-    const currentPrice = new Decimal(productDetail.currentPrice || 12500);
-    const holdingsTotalQuantity = new Decimal(holdingData.holdings_total_quantity || 0);
-    const holdingsTotalPrice = new Decimal(holdingData.holdings_total_price || 0);
+    const currentPrice = new Decimal(
+      productDetail.currentNav ?? productDetail.currentPrice ?? 12500
+    );
+    const holdingsTotalQuantity = new Decimal(
+      holdingData.holdingsTotalQuantity ?? holdingData.holdings_total_quantity ?? 0
+    );
+    const holdingsTotalPrice = new Decimal(
+      holdingData.holdingsTotalPrice ?? holdingData.holdings_total_price ?? 0
+    );
     const currentTotalValue = holdingsTotalQuantity.mul(currentPrice);
     const avgPrice = holdingsTotalQuantity.gt(0)
       ? holdingsTotalPrice.div(holdingsTotalQuantity)
@@ -400,7 +415,10 @@ export const useEtfStore = defineStore('etf', () => {
       }
     ];
 
-    if (holdingsTotalQuantity.gt(0) && holdingData.holdings_status !== 'zero') {
+    if (
+      holdingsTotalQuantity.gt(0) &&
+      (holdingData.holdingsStatus ?? holdingData.holdings_status) !== 'zero'
+    ) {
       result.push({
         type: 'holdinghistory',
         title: '투자 기록',
@@ -503,7 +521,7 @@ export const useEtfStore = defineStore('etf', () => {
       chartData.value = [...chartData.value, realtimeData];
     }
 
-    const newPrice = realtimeData?.current_price;
+    const newPrice = realtimeData?.currentPrice;
 
     // [설명] 새로운 가격 정보가 있을 때만 가격 관련 상태를 '직접' 수정합니다.
     // 이렇게 하면 Vue는 정확히 변경된 부분만 감지하여 불필요한 재계산을 방지합니다.
@@ -515,19 +533,11 @@ export const useEtfStore = defineStore('etf', () => {
       if (product.value.price) {
         product.value.price.currentPrice = newPrice;
 
-        // [수정 전] 클라이언트에서 직접 계산하던 방식
-        // const priceChange = new Decimal(newPrice).sub(product.value.price.previousPrice);
-        // product.value.price.priceChange = priceChange.toNumber();
-        // if (new Decimal(product.value.price.previousPrice).gt(0)) {
-        //   product.value.price.priceChangePercent = priceChange.div(product.value.price.previousPrice).mul(100).toFixed(2);
-        // }
-
-        // [수정 후] 서버가 보내준 계산된 값을 그대로 사용
-        // realtimeData에 포함된 필드명으로 변경해주세요. (예: price_change, change_rate 등)
+        // [수정 후] 서버가 보내준 계산된 값을 그대로 사용 (카멜케이스 고정)
         product.value.price.priceChange =
-          realtimeData.change_from_prev_day ?? product.value.price.priceChange;
+          realtimeData.changeFromPrevDay ?? product.value.price.priceChange;
         product.value.price.priceChangePercent =
-          realtimeData.change_rate1s ?? product.value.price.priceChangePercent;
+          realtimeData.changeRateFromPrevDay ?? product.value.price.priceChangePercent;
       }
 
       // 3. 보유 내역이 있는 경우, 평가액과 손익 정보 업데이트
