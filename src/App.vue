@@ -1,15 +1,25 @@
 <template>
   <div id="app-container">
     <component :is="layoutComponent" />
+
+    <!-- 전용 세션 만료 모달 -->
+    <SessionExpireModal
+      :visible="sessionStore.isExpireModalVisible"
+      :remainingTime="sessionStore.remainingTime"
+      @extend="sessionStore.extendSession"
+      @logout="sessionStore.logout"
+      @close="sessionStore.isExpireModalVisible = false" />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import DefaultLayout from './components/layouts/DefaultLayout.vue';
 import EmptyLayout from './components/layouts/EmptyLayout.vue';
 import HeaderLayout from './components/layouts/HeaderLayout.vue';
+import { useSessionStore } from '@/stores/session';
+import SessionExpireModal from '@/components/common/SessionExpireModal.vue';
 
 const layouts = {
   DefaultLayout,
@@ -20,6 +30,14 @@ const layouts = {
 const route = useRoute();
 
 const layoutComponent = computed(() => layouts[route.meta.layout || 'DefaultLayout']);
+
+const sessionStore = useSessionStore();
+
+onMounted(() => {
+  if (localStorage.getItem('accessToken')) sessionStore.startCountdown();
+});
+
+onUnmounted(() => sessionStore.stopCountdown());
 </script>
 
 <style>
@@ -33,6 +51,7 @@ body {
 }
 
 #app-container {
+  position: relative;
   height: 100vh;
   width: 100%;
   display: flex;
