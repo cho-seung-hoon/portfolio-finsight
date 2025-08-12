@@ -118,6 +118,8 @@ export const useWebSocketStore = defineStore('websocket', () => {
         message => {
           if (message.body) {
             const data = JSON.parse(message.body);
+            // 카멜케이스 웹소켓 페이로드: ProductWebSocketDTO 기준
+            // { productCode, currentPrice, currentVolume, return3Months, changeFromPrevDay, changeRateFromPrevDay, changeRate1s, timestamp }
             callback(data);
           }
         },

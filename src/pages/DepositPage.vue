@@ -25,11 +25,12 @@
         :selected-tab="selectedTab" />
 
       <DetailActionButton
+        :product-info="productInfo"
         :id="productInfo?.productCode"
         :active="productInfo?.isHolding || false"
         :category="'deposit'"
-        @buy="handleBuyClick"
-        @sell="handleSellClick" />
+        @buy-click="handleBuyClick"
+        @sell-click="handleSellClick" />
     </div>
 
     <!-- 모달 컴포넌트들 -->
@@ -157,7 +158,11 @@ const showToast = (message, type = 'success', timestamp = null) => {
 
 // 탭 관련 데이터
 const tabs = computed(() => {
-  if (productInfo.value?.isHolding && productInfo.value?.holding) {
+  if (
+    productInfo.value?.isHolding &&
+    productInfo.value?.holding &&
+    productInfo.value?.holding.length > 0
+  ) {
     return [
       { key: 'holding', label: '보유기록' },
       { key: 'info', label: '상품안내' },
@@ -181,7 +186,11 @@ const selectTab = tab => {
 watch(
   productInfo,
   newProductInfo => {
-    if (newProductInfo?.isHolding && newProductInfo?.holding) {
+    if (
+      newProductInfo?.isHolding &&
+      newProductInfo?.holding &&
+      newProductInfo?.holding.length > 0
+    ) {
       selectedTab.value = 'holding';
     }
   },
@@ -281,6 +290,12 @@ const handleBuySubmit = async formData => {
       second: '2-digit'
     });
     showToast('예금 가입이 완료되었습니다.', 'success', timestamp);
+
+    // 상품체결 성공 후 상세페이지 데이터 새로고침
+    const productId = route.params.id;
+    if (productId) {
+      await depositStore.fetchProduct(productId, 'deposit');
+    }
   } catch (error) {
     showToast('예금 가입에 실패했습니다. 다시 시도해주세요.', 'error');
   }
@@ -300,6 +315,12 @@ const handleSellSubmit = async formData => {
       second: '2-digit'
     });
     showToast('예금 해지가 완료되었습니다.', 'success', timestamp);
+
+    // 상품체결 성공 후 상세페이지 데이터 새로고침
+    const productId = route.params.id;
+    if (productId) {
+      await depositStore.fetchProduct(productId, 'deposit');
+    }
   } catch (error) {
     showToast('예금 해지에 실패했습니다. 다시 시도해주세요.', 'error');
     handleModalClose(); // 실패 시에도 모달 닫기

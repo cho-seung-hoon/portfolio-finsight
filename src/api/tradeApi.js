@@ -1,4 +1,4 @@
-import api from '@/api';
+import axios from 'axios';
 
 // 매수 함수
 export async function purchaseProduct(tradeData) {
@@ -10,9 +10,10 @@ export async function purchaseProduct(tradeData) {
       return { success: false, error: '인증 토큰이 없습니다.' };
     }
 
-    const response = await api.post('/holdings/purchases', tradeData, {
+    const response = await axios.post('http://localhost:8080/holdings/purchases', tradeData, {
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
     });
     console.log('매수 성공:', response.data);
@@ -33,9 +34,10 @@ export async function sellProduct(tradeData) {
       return { success: false, error: '인증 토큰이 없습니다.' };
     }
 
-    const response = await api.post('/holdings/sales', tradeData, {
+    const response = await axios.post('http://localhost:8080/holdings/sales', tradeData, {
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
     });
     console.log('매도 성공:', response.data);

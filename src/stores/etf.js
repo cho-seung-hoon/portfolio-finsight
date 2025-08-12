@@ -152,8 +152,9 @@ export const useEtfStore = defineStore('etf', () => {
       price: generatePriceData(productDetail),
       isHolding: !!productDetail.holdings,
       holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
-      isWatched: productDetail.holdings?.is_watched || false,
-      yield3Months: productDetail.etfPriceSummaryDto?.percent_change_from_3_months_ago || 0,
+      holdingsTotalQuantity: productDetail.holdings?.holdings_total_quantity || 0,
+      isWatched: productDetail.holdings?.isWatched ?? productDetail.holdings?.is_watched ?? false,
+      yield3Months: productDetail.etfPriceSummaryDto?.percentChangeFrom3MonthsAgo ?? 0,
       currentPrice: productDetail.currentPrice ? productDetail.currentPrice.toLocaleString() : '0',
       productCompanyName: productDetail.productCompanyName || 'TIGER',
       productName: productDetail.productName || 'TIGER 미국S&P500선물 ETN',
@@ -167,15 +168,29 @@ export const useEtfStore = defineStore('etf', () => {
   };
 
   const generatePriceData = productDetail => {
-    if (!productDetail.currentPrice) {
-      return { currentPrice: 0, previousPrice: 0, priceChange: 0, priceChangePercent: 0, priceArr: [new Decimal(0), new Decimal(0)] };
+    // ETF도 카멜케이스만 사용
+    const priceSummary = productDetail.etfPriceSummaryDto || productDetail.priceSummary;
+    if (!priceSummary) {
+      return {
+        currentPrice: 0,
+        previousPrice: 0,
+        priceChange: 0,
+        priceChangePercent: 0
+      };
     }
+
+    const currentNav =
+      priceSummary.currentNav ?? productDetail.currentNav ?? productDetail.currentPrice ?? 0;
+    const changeFromYesterday = priceSummary.changeFromYesterday ?? productDetail.priceChange ?? 0;
+    const priceChangePercent =
+      priceSummary.percentChangeFromYesterday ?? productDetail.priceChangePercent ?? 0;
+    const previousNav = new Decimal(currentNav).sub(changeFromYesterday).toNumber();
+
     return {
-      currentPrice: productDetail.currentPrice || 0,
-      previousPrice: productDetail.previousPrice || 0,
-      priceChange: productDetail.priceChange || 0,
-      priceChangePercent: productDetail.priceChangePercent || 0,
-      priceArr: [new Decimal(productDetail.currentPrice || 0), new Decimal(productDetail.previousPrice || 0)]
+      currentPrice: currentNav,
+      previousPrice: previousNav,
+      priceChange: changeFromYesterday,
+      priceChangePercent
     };
   };
 
@@ -183,25 +198,27 @@ export const useEtfStore = defineStore('etf', () => {
     const newsData = productDetail.etfNewsResponse;
     if (!newsData || !newsData.length) return [];
     try {
-      return [{
-        type: 'news',
-        title: 'ETF 관련 뉴스',
-        keyword: 'ETF',
-        color: '#007AFF',
-        desc: newsData.map(news => {
-          const [year, month, day, hour, minute] = news.newsPublishedAt;
-          const publishedDate = new Date(year, month - 1, day, hour, minute);
-          return {
-            news_id: news.newsId,
-            news_title: news.newsTitle,
-            news_content_url: news.newsContentUrl,
-            news_published_at: publishedDate.toISOString(),
-            news_score: news.newsScore / 100,
-            news_sentiment: news.newsSentiment,
-            news_publisher: news.newsPublisher
-          };
-        })
-      }];
+      return [
+        {
+          type: 'news',
+          title: 'ETF 관련 뉴스',
+          keyword: 'ETF',
+          color: '#007AFF',
+          desc: newsData.map(news => {
+            const [year, month, day, hour, minute] = news.newsPublishedAt;
+            const publishedDate = new Date(year, month - 1, day, hour, minute);
+            return {
+              news_id: news.newsId,
+              news_title: news.newsTitle,
+              news_content_url: news.newsContentUrl,
+              news_published_at: publishedDate.toISOString(),
+              news_score: news.newsScore / 100,
+              news_sentiment: news.newsSentiment,
+              news_publisher: news.newsPublisher
+            };
+          })
+        }
+      ];
     } catch (error) {
       console.error('Error processing news data:', error);
       return [];
@@ -222,23 +239,61 @@ export const useEtfStore = defineStore('etf', () => {
     });
     return [
       { type: 'areachart', title: '수익률 추이', desc: chartData },
-      { type: 'text', title: '상장일', desc: Array.isArray(productDetail.etfListingDate) ? `${productDetail.etfListingDate[0]}-${String(productDetail.etfListingDate[1]).padStart(2, '0')}-${String(productDetail.etfListingDate[2]).padStart(2, '0')}` : productDetail.etfListingDate || '2021-06-10' },
+      {
+        type: 'text',
+        title: '상장일',
+        desc: Array.isArray(productDetail.etfListingDate)
+          ? `${productDetail.etfListingDate[0]}-${String(productDetail.etfListingDate[1]).padStart(2, '0')}-${String(productDetail.etfListingDate[2]).padStart(2, '0')}`
+          : productDetail.etfListingDate || '2021-06-10'
+      },
       { type: 'text', title: '총보수', desc: `${productDetail.etfTotalExpenseRatio || 0.5}%` },
-      { type: 'text', title: '기초지수', desc: productDetail.etfBenchmarkIndex || 'iSelect 비메모리반도체 지수(시장가격지수)' }
+      {
+        type: 'text',
+        title: '기초지수',
+        desc: productDetail.etfBenchmarkIndex || 'iSelect 비메모리반도체 지수(시장가격지수)'
+      }
     ];
   };
 
   const generateInfoTab = productDetail => {
     return [
-      { type: 'text', title: '상품명', desc: productDetail.productName || 'TIGER 미국S&P500선물 ETN' },
+      {
+        type: 'text',
+        title: '상품명',
+        desc: productDetail.productName || 'TIGER 미국S&P500선물 ETN'
+      },
       { type: 'text', title: '운용사', desc: productDetail.productCompanyName || 'TIGER' },
-      { type: 'longtext', title: '펀드 특징', desc: productDetail.etfFundCharacteristics || 'S&P500 지수를 추종하는 대표적인 ETF 상품' },
-      { type: 'longtext', title: '운용 전략', desc: productDetail.etfManagementStrategy || '이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.' },
+      {
+        type: 'longtext',
+        title: '펀드 특징',
+        desc: productDetail.etfFundCharacteristics || 'S&P500 지수를 추종하는 대표적인 ETF 상품'
+      },
+      {
+        type: 'longtext',
+        title: '운용 전략',
+        desc:
+          productDetail.etfManagementStrategy ||
+          '이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.'
+      },
       { type: 'text', title: '위험 등급', desc: `${productDetail.productRiskGrade || 3}등급` },
-      { type: 'text', title: '순자산 총액', desc: productDetail.etfNetAssets ? `${(productDetail.etfNetAssets / 1e8).toFixed(2)}억원` : '25.23억원' },
+      {
+        type: 'text',
+        title: '순자산 총액',
+        desc: productDetail.currentAum
+          ? `${(productDetail.currentAum / 1e8).toFixed(2)}억원`
+          : productDetail.etfNetAssets
+            ? `${(productDetail.etfNetAssets / 1e8).toFixed(2)}억원`
+            : '25.23억원'
+      },
       { type: 'text', title: '총보수', desc: `${productDetail.etfTotalExpenseRatio || 0.09}%` },
       { type: 'text', title: '기초지수', desc: productDetail.etfBenchmarkIndex || 'S&P500' },
-      { type: 'text', title: '상장일', desc: Array.isArray(productDetail.etfListingDate) ? `${productDetail.etfListingDate[0]}-${String(productDetail.etfListingDate[1]).padStart(2, '0')}-${String(productDetail.etfListingDate[2]).padStart(2, '0')}` : productDetail.etfListingDate || '2010-10-14' },
+      {
+        type: 'text',
+        title: '상장일',
+        desc: Array.isArray(productDetail.etfListingDate)
+          ? `${productDetail.etfListingDate[0]}-${String(productDetail.etfListingDate[1]).padStart(2, '0')}-${String(productDetail.etfListingDate[2]).padStart(2, '0')}`
+          : productDetail.etfListingDate || '2010-10-14'
+      },
       { type: 'text', title: '최소 거래 단위', desc: `${productDetail.etfMinTradingUnit || 1}주` },
       { type: 'text', title: '과세 유형', desc: productDetail.etfTaxType || '배당소득세' }
     ];
@@ -247,87 +302,158 @@ export const useEtfStore = defineStore('etf', () => {
   const generateCompositionTab = productDetail => {
     const result = [];
     if (productDetail.eassetAllocation && productDetail.eassetAllocation.length > 0) {
-      result.push({ type: 'piechart', title: '자산 배분', desc: productDetail.eassetAllocation.map(item => ({ 종목명: item.eassetAllocationType, 비중: `${item.eassetAllocationPer}%` })) });
+      result.push({
+        type: 'piechart',
+        title: '자산 배분',
+        desc: productDetail.eassetAllocation.map(item => ({
+          종목명: item.eassetAllocationType,
+          비중: `${item.eassetAllocationPer}%`
+        }))
+      });
     }
     if (productDetail.eequityRatio && productDetail.eequityRatio.length > 0) {
-      result.push({ type: 'table', title: '지분 비율', desc: productDetail.eequityRatio.map(item => ({ 종목명: item.eequityRatioName, 비중: `${item.eequityRatioPer}%` })) });
+      result.push({
+        type: 'table',
+        title: '지분 비율',
+        desc: productDetail.eequityRatio.map(item => ({
+          종목명: item.eequityRatioName,
+          비중: `${item.eequityRatioPer}%`
+        }))
+      });
     }
     if (productDetail.econstituentStocks && productDetail.econstituentStocks.length > 0) {
-      result.push({ type: 'table', title: '구성종목', desc: productDetail.econstituentStocks.map(item => ({ 종목명: item.econstituentStocksName, 비중: `${item.econstituentPer}%` })) });
+      result.push({
+        type: 'table',
+        title: '구성종목',
+        desc: productDetail.econstituentStocks.map(item => ({
+          종목명: item.econstituentStocksName,
+          비중: `${item.econstituentPer}%`
+        }))
+      });
     }
     return result;
   };
 
   const generatePdfTab = productDetail => {
     return [
-      { type: 'pdf', title: '공시/보고서', desc: [
-          { category: '성과보고서', items: [{ label: '자산운용보고서(3개월)', url: 'https://www.samsungfund.com/report/asset-3m.pdf' }] },
-          { category: '공시문서', items: [
-              { label: '집합투자규약', url: productDetail.etfCollectiveInvestmentAgreementUrl || 'https://www.samsungfund.com/docs/rule.pdf' },
-              { label: '투자설명서', url: productDetail.etfInvestmentProspectusUrl || 'https://www.samsungfund.com/docs/desc.pdf' },
-              { label: '간이투자설명서', url: productDetail.etfSimplifiedProspectusUrl || 'https://www.samsungfund.com/docs/simple.pdf' }
-            ]}
-        ]}
+      {
+        type: 'pdf',
+        title: '공시/보고서',
+        desc: [
+          {
+            category: '성과보고서',
+            items: [
+              {
+                label: '자산운용보고서(3개월)',
+                url: 'https://www.samsungfund.com/report/asset-3m.pdf'
+              }
+            ]
+          },
+          {
+            category: '공시문서',
+            items: [
+              {
+                label: '집합투자규약',
+                url:
+                  productDetail.etfCollectiveInvestmentAgreementUrl ||
+                  'https://www.samsungfund.com/docs/rule.pdf'
+              },
+              {
+                label: '투자설명서',
+                url:
+                  productDetail.etfInvestmentProspectusUrl ||
+                  'https://www.samsungfund.com/docs/desc.pdf'
+              },
+              {
+                label: '간이투자설명서',
+                url:
+                  productDetail.etfSimplifiedProspectusUrl ||
+                  'https://www.samsungfund.com/docs/simple.pdf'
+              }
+            ]
+          }
+        ]
+      }
     ];
   };
 
   const generateHoldingTab = (holdingData, productDetail) => {
     if (!holdingData) return [];
 
-    const currentPrice = new Decimal(productDetail.currentPrice || 12500);
-    const holdingsTotalQuantity = new Decimal(holdingData.holdings_total_quantity || 0);
-    const holdingsTotalPrice = new Decimal(holdingData.holdings_total_price || 0);
+    const currentPrice = new Decimal(
+      productDetail.currentNav ?? productDetail.currentPrice ?? 12500
+    );
+    const holdingsTotalQuantity = new Decimal(
+      holdingData.holdingsTotalQuantity ?? holdingData.holdings_total_quantity ?? 0
+    );
+    const holdingsTotalPrice = new Decimal(
+      holdingData.holdingsTotalPrice ?? holdingData.holdings_total_price ?? 0
+    );
     const currentTotalValue = holdingsTotalQuantity.mul(currentPrice);
-    const avgPrice = holdingsTotalQuantity.gt(0) ? holdingsTotalPrice.div(holdingsTotalQuantity) : new Decimal(0);
+    const avgPrice = holdingsTotalQuantity.gt(0)
+      ? holdingsTotalPrice.div(holdingsTotalQuantity)
+      : new Decimal(0);
     const profitLoss = currentTotalValue.sub(holdingsTotalPrice);
-    const profitLossPercent = holdingsTotalPrice.gt(0) ? profitLoss.div(holdingsTotalPrice).mul(100) : new Decimal(0);
+    const profitLossPercent = holdingsTotalPrice.gt(0)
+      ? profitLoss.div(holdingsTotalPrice).mul(100)
+      : new Decimal(0);
 
-    const result = [{
-      type: 'holdingsummary',
-      title: '보유 현황',
-      desc: {
-        holdingsTotalPrice: holdingsTotalPrice.toNumber(),
-        holdingsTotalQuantity: holdingsTotalQuantity.toNumber(),
-        currentPricePerUnit: currentPrice.toNumber(),
-        currentTotalValue: currentTotalValue.toNumber(),
-        avgPrice: avgPrice.toNumber(),
-        profitLoss: profitLoss.toNumber(),
-        profitLossPercent: profitLossPercent.toFixed(2)
+    const result = [
+      {
+        type: 'holdingsummary',
+        title: '보유 현황',
+        desc: {
+          holdingsTotalPrice: holdingsTotalPrice.toNumber(),
+          holdingsTotalQuantity: holdingsTotalQuantity.toNumber(),
+          currentPricePerUnit: currentPrice.toNumber(),
+          currentTotalValue: currentTotalValue.toNumber(),
+          avgPrice: avgPrice.toNumber(),
+          profitLoss: profitLoss.toNumber(),
+          profitLossPercent: profitLossPercent.toFixed(2)
+        }
       }
-    }];
+    ];
 
-    if (holdingsTotalQuantity.gt(0) && holdingData.holdings_status !== 'zero') {
+    if (
+      holdingsTotalQuantity.gt(0) &&
+      (holdingData.holdingsStatus ?? holdingData.holdings_status) !== 'zero'
+    ) {
       result.push({
         type: 'holdinghistory',
         title: '투자 기록',
-        desc: holdingData.history?.map(item => {
-          const isSell = item.historyTradeType === 'sell';
-          const quantity = new Decimal(item.historyQuantity || 0);
-          const displayQuantity = isSell ? `-${formatNumberWithComma(quantity.toNumber())}` : `+${formatNumberWithComma(quantity.toNumber())}`;
-          const amount = new Decimal(item.historyAmount || 0);
-          const displayAmount = isSell ? `-${formatNumberWithComma(amount.toNumber())}` : `+${formatNumberWithComma(amount.toNumber())}`;
-          const tradeDate = new Date(item.historyTradeDate);
-          const year = tradeDate.getFullYear();
-          const month = String(tradeDate.getMonth() + 1).padStart(2, '0');
-          const day = String(tradeDate.getDate()).padStart(2, '0');
-          const hours = tradeDate.getHours();
-          const minutes = String(tradeDate.getMinutes()).padStart(2, '0');
-          const seconds = String(tradeDate.getSeconds()).padStart(2, '0');
-          const ampm = hours < 12 ? '오전' : '오후';
-          const displayHours = String(hours % 12 || 12).padStart(2, '0');
-          const displayDate = `${year}/${month}/${day} ${ampm} ${displayHours}:${minutes}:${seconds}`;
+        desc:
+          holdingData.history?.map(item => {
+            const isSell = item.historyTradeType === 'sell';
+            const quantity = new Decimal(item.historyQuantity || 0);
+            const displayQuantity = isSell
+              ? `-${formatNumberWithComma(quantity.toNumber())}`
+              : `+${formatNumberWithComma(quantity.toNumber())}`;
+            const amount = new Decimal(item.historyAmount || 0);
+            const displayAmount = isSell
+              ? `-${formatNumberWithComma(amount.toNumber())}`
+              : `+${formatNumberWithComma(amount.toNumber())}`;
+            const tradeDate = new Date(item.historyTradeDate);
+            const year = tradeDate.getFullYear();
+            const month = String(tradeDate.getMonth() + 1).padStart(2, '0');
+            const day = String(tradeDate.getDate()).padStart(2, '0');
+            const hours = tradeDate.getHours();
+            const minutes = String(tradeDate.getMinutes()).padStart(2, '0');
+            const seconds = String(tradeDate.getSeconds()).padStart(2, '0');
+            const ampm = hours < 12 ? '오전' : '오후';
+            const displayHours = String(hours % 12 || 12).padStart(2, '0');
+            const displayDate = `${year}/${month}/${day} ${ampm} ${displayHours}:${minutes}:${seconds}`;
 
-          return {
-            ...item,
-            displayQuantity,
-            displayAmount,
-            displayDate,
-            isSell,
-            isBuy: !isSell,
-            quantityColor: isSell ? '#FF3B30' : '#007AFF',
-            amountColor: isSell ? '#FF3B30' : '#007AFF'
-          };
-        }) || []
+            return {
+              ...item,
+              displayQuantity,
+              displayAmount,
+              displayDate,
+              isSell,
+              isBuy: !isSell,
+              quantityColor: isSell ? '#FF3B30' : '#007AFF',
+              amountColor: isSell ? '#FF3B30' : '#007AFF'
+            };
+          }) || []
       });
     }
     return result;
@@ -343,7 +469,7 @@ export const useEtfStore = defineStore('etf', () => {
         {
           type: 'areachart',
           title: '수익률 추이',
-          desc: chartData.value, // chartData와 직접 연결
+          desc: chartData.value // chartData와 직접 연결
         },
         ...product.value.yield.slice(1) // 기존의 상장일, 총보수 등 정보 유지
       ]
@@ -363,7 +489,7 @@ export const useEtfStore = defineStore('etf', () => {
     const authToken = token || localStorage.getItem('accessToken');
     try {
       const response = await fetch(`http://localhost:8080/etf/${productId}/history`, {
-        headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' },
+        headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' }
       });
       if (!response.ok) throw new Error('수익률 히스토리 로딩 실패');
       chartData.value = await response.json();
@@ -371,7 +497,7 @@ export const useEtfStore = defineStore('etf', () => {
       console.error('Yield History API Error:', error);
       chartData.value = [
         { baseDate: [2025, 6, 19], etfNav: 12451.92 },
-        { baseDate: [2025, 6, 20], etfNav: 12640.32 },
+        { baseDate: [2025, 6, 20], etfNav: 12640.32 }
       ];
     } finally {
       isYieldHistoryLoaded.value = true;
@@ -394,7 +520,7 @@ export const useEtfStore = defineStore('etf', () => {
       chartData.value = [...chartData.value, realtimeData];
     }
 
-    const newPrice = realtimeData?.current_price;
+    const newPrice = realtimeData?.currentPrice;
 
     // [설명] 새로운 가격 정보가 있을 때만 가격 관련 상태를 '직접' 수정합니다.
     // 이렇게 하면 Vue는 정확히 변경된 부분만 감지하여 불필요한 재계산을 방지합니다.
@@ -406,17 +532,11 @@ export const useEtfStore = defineStore('etf', () => {
       if (product.value.price) {
         product.value.price.currentPrice = newPrice;
 
-        // [수정 전] 클라이언트에서 직접 계산하던 방식
-        // const priceChange = new Decimal(newPrice).sub(product.value.price.previousPrice);
-        // product.value.price.priceChange = priceChange.toNumber();
-        // if (new Decimal(product.value.price.previousPrice).gt(0)) {
-        //   product.value.price.priceChangePercent = priceChange.div(product.value.price.previousPrice).mul(100).toFixed(2);
-        // }
-
-        // [수정 후] 서버가 보내준 계산된 값을 그대로 사용
-        // realtimeData에 포함된 필드명으로 변경해주세요. (예: price_change, change_rate 등)
-        product.value.price.priceChange = realtimeData.change_from_prev_day ?? product.value.price.priceChange;
-        product.value.price.priceChangePercent = realtimeData.change_rate1s ?? product.value.price.priceChangePercent;
+        // [수정 후] 서버가 보내준 계산된 값을 그대로 사용 (카멜케이스 고정)
+        product.value.price.priceChange =
+          realtimeData.changeFromPrevDay ?? product.value.price.priceChange;
+        product.value.price.priceChangePercent =
+          realtimeData.changeRateFromPrevDay ?? product.value.price.priceChangePercent;
       }
 
       // 3. 보유 내역이 있는 경우, 평가액과 손익 정보 업데이트

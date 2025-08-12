@@ -36,11 +36,11 @@ export const useFundStore = defineStore('fund', () => {
     fundReportSimplidfiedProspectusUrl: 'https://www.miraeasset.com/report/simple.pdf',
     fundEstablishedDate: '2020-01-01',
     fundPriceSummaryDto: {
-      current_nav: 1414.27,
-      current_aum: 2.5e11,
-      change_from_yesterday: 40.55,
-      percent_change_from_yesterday: 2.95,
-      percent_change_from_3_months_ago: 25.97
+      currentNav: 1414.27,
+      currentAum: 2.5e11,
+      changeFromYesterday: 40.55,
+      percentChangeFromYesterday: 2.95,
+      percentChangeFrom3MonthsAgo: 25.97
     },
     fassetAllocation: [
       { fassetAllocationType: '주식', fassetAllocationPer: 60 },
@@ -156,31 +156,6 @@ export const useFundStore = defineStore('fund', () => {
       console.error('Yield History API Error:', error);
       // API 실패 시 Mock 데이터 반환
       const mockHistory = [
-        { baseDate: [2025, 7, 1], fundNav: 9080.36, fundAum: 2.68993648307e11 },
-        { baseDate: [2025, 7, 2], fundNav: 9036.5, fundAum: 2.80791060298e11 },
-        { baseDate: [2025, 7, 3], fundNav: 8900.64, fundAum: 2.85558763133e11 },
-        { baseDate: [2025, 7, 4], fundNav: 8891.4, fundAum: 3.12955027586e11 },
-        { baseDate: [2025, 7, 5], fundNav: 8983.97, fundAum: 3.21564874004e11 },
-        { baseDate: [2025, 7, 6], fundNav: 8880.65, fundAum: 3.41157953676e11 },
-        { baseDate: [2025, 7, 7], fundNav: 9007.37, fundAum: 3.45245306456e11 },
-        { baseDate: [2025, 7, 8], fundNav: 9072.73, fundAum: 3.25566634747e11 },
-        { baseDate: [2025, 7, 9], fundNav: 8998.75, fundAum: 3.60726050177e11 },
-        { baseDate: [2025, 7, 10], fundNav: 9137.33, fundAum: 4.14559054539e11 },
-        { baseDate: [2025, 7, 11], fundNav: 9142.61, fundAum: 4.06269478975e11 },
-        { baseDate: [2025, 7, 12], fundNav: 8960.09, fundAum: 3.77630324171e11 },
-        { baseDate: [2025, 7, 13], fundNav: 9012.92, fundAum: 3.86486491275e11 },
-        { baseDate: [2025, 7, 14], fundNav: 8970.37, fundAum: 3.57937695826e11 },
-        { baseDate: [2025, 7, 15], fundNav: 8814.75, fundAum: 3.91411988802e11 },
-        { baseDate: [2025, 7, 16], fundNav: 8702.45, fundAum: 4.01143440857e11 },
-        { baseDate: [2025, 7, 17], fundNav: 8698.79, fundAum: 4.56891361098e11 },
-        { baseDate: [2025, 7, 18], fundNav: 8843.08, fundAum: 4.90183132958e11 },
-        { baseDate: [2025, 7, 19], fundNav: 8886.53, fundAum: 4.79498046897e11 },
-        { baseDate: [2025, 7, 20], fundNav: 8796.34, fundAum: 5.00668689933e11 },
-        { baseDate: [2025, 7, 21], fundNav: 8788.58, fundAum: 4.85183914248e11 },
-        { baseDate: [2025, 7, 22], fundNav: 8786.71, fundAum: 4.60855677871e11 },
-        { baseDate: [2025, 7, 23], fundNav: 8889.79, fundAum: 5.29954924452e11 },
-        { baseDate: [2025, 7, 24], fundNav: 8851.59, fundAum: 4.96418851018e11 },
-        { baseDate: [2025, 7, 25], fundNav: 8770.82, fundAum: 4.75255925741e11 },
         { baseDate: [2025, 7, 26], fundNav: 8890.74, fundAum: 5.46473268012e11 },
         { baseDate: [2025, 7, 27], fundNav: 9003.48, fundAum: 4.95595010044e11 },
         { baseDate: [2025, 7, 28], fundNav: 8989.9, fundAum: 5.51005951576e11 },
@@ -241,39 +216,25 @@ export const useFundStore = defineStore('fund', () => {
       // 보유 여부 판단
       isHolding: !!productDetail.holdings,
       holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
+      holdingsTotalQuantity: productDetail.holdings?.holdings_total_quantity || 0,
 
       // 찜 여부 판단
-      isWatched: productDetail.holdings?.is_watched || false,
+      isWatched: productDetail.holdings?.isWatched ?? productDetail.holdings?.is_watched ?? false,
 
       // DetailMainFund 컴포넌트용 데이터
-      yield3Months: productDetail.fundPriceSummaryDto?.percent_change_from_3_months_ago || 0,
-      priceArr: generatePriceArray(productDetail),
+      yield3Months: productDetail.fundPriceSummaryDto?.percentChangeFrom3MonthsAgo || 0,
       productCompanyName: productDetail.productCompanyName || '한국투자신탁운용',
       productName: productDetail.productName || '한국투자베트남그로스증권자투자신탁UH(주식)(A)',
       productCode: productDetail.productCode || productId,
       productRiskGrade: productDetail.productRiskGrade || 2,
-      // 현재가와 전일대비 정보 추가
-      currentPrice: productDetail.fundPriceSummaryDto?.current_nav || 0,
-      priceChange: productDetail.fundPriceSummaryDto?.change_from_yesterday || 0,
-      priceChangePercent: productDetail.fundPriceSummaryDto?.percent_change_from_yesterday || 0
+      // 현재가와 전일대비 정보 추가 (신규 네이밍 우선 사용)
+      currentPrice: productDetail.fundPriceSummaryDto?.currentNav ?? 0,
+      priceChange: productDetail.fundPriceSummaryDto?.changeFromYesterday ?? 0,
+      priceChangePercent: productDetail.fundPriceSummaryDto?.percentChangeFromYesterday ?? 0
     };
 
     console.log('Final processed Fund data:', result);
     return result;
-  };
-
-  // 기준가 배열 생성 함수 (API에서 계산된 값 사용)
-  const generatePriceArray = productDetail => {
-    const priceSummary = productDetail.fundPriceSummaryDto;
-    if (!priceSummary) {
-      return [0, 0];
-    }
-
-    const currentNav = priceSummary.current_nav || 0;
-    const changeFromYesterday = priceSummary.change_from_yesterday || 0;
-    const previousNav = currentNav - changeFromYesterday;
-
-    return [currentNav, previousNav];
   };
 
   // 시세 데이터 가공 함수
@@ -284,21 +245,19 @@ export const useFundStore = defineStore('fund', () => {
         currentPrice: 0,
         previousPrice: 0,
         priceChange: 0,
-        priceChangePercent: 0,
-        priceArr: [new Decimal(0), new Decimal(0)]
+        priceChangePercent: 0
       };
     }
 
-    const currentNav = priceSummary.current_nav || 0;
-    const changeFromYesterday = priceSummary.change_from_yesterday || 0;
+    const currentNav = priceSummary.currentNav ?? 0;
+    const changeFromYesterday = priceSummary.changeFromYesterday ?? 0;
     const previousNav = currentNav - changeFromYesterday;
 
     return {
       currentPrice: currentNav,
       previousPrice: previousNav,
       priceChange: changeFromYesterday,
-      priceChangePercent: priceSummary.percent_change_from_yesterday || 0,
-      priceArr: [new Decimal(currentNav), new Decimal(previousNav)]
+      priceChangePercent: priceSummary.percentChangeFromYesterday ?? 0
     };
   };
 
@@ -431,6 +390,11 @@ export const useFundStore = defineStore('fund', () => {
       { type: 'text', title: '위험 등급', desc: `${productDetail.productRiskGrade || 2}등급` },
       {
         type: 'text',
+        title: '순자산 총액',
+        desc: productDetail.currentAum ? `${(productDetail.currentAum / 1e8).toFixed(2)}억원` : '—'
+      },
+      {
+        type: 'text',
         title: '총보수',
         desc: productDetail.fundFeeTotalExpenseRatio || '연 1.8280%'
       },
@@ -537,9 +501,17 @@ export const useFundStore = defineStore('fund', () => {
     }
 
     // 현재 시세로 평가액 계산 (Decimal 사용)
-    const currentPrice = new Decimal(productDetail.fundPriceSummaryDto?.current_nav || 0);
-    const holdingsTotalQuantity = new Decimal(holdingData.holdings_total_quantity || 0);
-    const holdingsTotalPrice = new Decimal(holdingData.holdings_total_price || 0);
+    const currentPrice = new Decimal(
+      productDetail.fundPriceSummaryDto?.currentNav ??
+        productDetail.fundPriceSummaryDto?.current_nav ??
+        0
+    );
+    const holdingsTotalQuantity = new Decimal(
+      holdingData.holdingsTotalQuantity ?? holdingData.holdings_total_quantity ?? 0
+    );
+    const holdingsTotalPrice = new Decimal(
+      holdingData.holdingsTotalPrice ?? holdingData.holdings_total_price ?? 0
+    );
 
     const currentTotalValue = holdingsTotalQuantity.mul(currentPrice);
     const avgPrice = holdingsTotalQuantity.gt(0)
@@ -567,7 +539,10 @@ export const useFundStore = defineStore('fund', () => {
     ];
 
     // holdingsTotalQuantity가 0보다 크고 holdingsStatus가 'zero'가 아닐 때만 투자 기록 추가
-    if (holdingsTotalQuantity.gt(0) && holdingData.holdings_status !== 'zero') {
+    if (
+      holdingsTotalQuantity.gt(0) &&
+      (holdingData.holdingsStatus ?? holdingData.holdings_status) !== 'zero'
+    ) {
       result.push({
         type: 'holdinghistory',
         title: '투자 기록',
