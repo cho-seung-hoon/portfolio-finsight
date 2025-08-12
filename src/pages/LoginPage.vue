@@ -4,7 +4,7 @@
       <!-- 로고 섹션 -->
       <div class="logo-section">
         <div class="logo-icon">
-          <IconLogo class="logo-svg"/>
+          <IconLogo class="logo-svg" />
         </div>
         <h1 class="logo-text">Fin-Sight</h1>
       </div>
@@ -66,6 +66,9 @@ import axios from 'axios';
 import { computed, reactive, ref } from 'vue';
 
 import IconLogo from '@/components/icons/IconLogo.vue';
+import { useSessionStore } from '@/stores/session'; // ✅ 추가
+
+const sessionStore = useSessionStore(); // ✅ 추가
 
 const formData = reactive({
   id: '',
@@ -105,12 +108,16 @@ const handleLogin = async () => {
       localStorage.setItem('accessToken', accessToken);
       // router.push('/');
 
+      // ✅ 로그인 직후 즉시 카운트다운 시작 (새로고침 없이 모달 동작)
+      sessionStore.startCountdown();
+
       // === goToInvTestMainPage start 양지윤 ====================================== //
       // ✅ 토큰을 Authorization 헤더에 담아 사용자 정보 요청
       console.log('accessToken 입니다. :', accessToken);
-      const userInfoResponse = await axios.get('http://localhost:8080/users/me', { // 경로를 보내야함. 예: 'http://localhost:8080/users/me'
+      const userInfoResponse = await axios.get('http://localhost:8080/users/me', {
+        // 경로를 보내야함. 예: 'http://localhost:8080/users/me'
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`
         }
       });
       const userRole = userInfoResponse.data.data.userRole;
@@ -155,7 +162,7 @@ const handleKeyPress = event => {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content:flex-start;
+  justify-content: flex-start;
   align-items: center;
   background: var(--main01);
   padding: 70px 20px;
@@ -183,7 +190,7 @@ const handleKeyPress = event => {
 .logo-text {
   font-size: 32px;
   font-weight: var(--font-weight-bold);
-  letter-spacing:-1px;
+  letter-spacing: -1px;
   color: var(--white);
 }
 
@@ -255,5 +262,4 @@ const handleKeyPress = event => {
   color: var(--sub01);
   border: none;
 }
-
 </style>
