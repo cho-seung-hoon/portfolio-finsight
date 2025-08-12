@@ -22,6 +22,13 @@ export const useSessionStore = defineStore('session', () => {
 
   const updateRemainingTime = () => {
     const token = localStorage.getItem('accessToken');
+
+    // ✅ 토큰 없으면 즉시 종료 (디코딩 안 함)
+    if (!token) {
+      remainingTime.value = '정보 없음';
+      return;
+    }
+
     const timeObj = decodingJWT(token);
 
     if (!token || timeObj === null) {

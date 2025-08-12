@@ -1,6 +1,8 @@
 <template>
   <div id="app-container">
-    <component :is="layoutComponent" />
+    <component
+      :is="layoutComponent"
+      :key="$route.fullPath" />
 
     <!-- 전용 세션 만료 모달 -->
     <SessionExpireModal

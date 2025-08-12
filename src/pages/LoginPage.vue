@@ -126,9 +126,11 @@ const handleLogin = async () => {
 
       // ✅ 역할에 따라 라우팅
       if (userRole === 'COMPLETE') {
-        router.push('/');
+        await router.push('/');
+        // await router.replace('/');
       } else {
-        router.push('/inv-type-main-page');
+        await router.push('/inv-type-main-page');
+        // await router.replace('/inv-type-main-page');
       }
     }
     // === goToInvTestMainPage end 양지윤 ====================================== //
