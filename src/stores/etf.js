@@ -174,8 +174,7 @@ export const useEtfStore = defineStore('etf', () => {
         currentPrice: 0,
         previousPrice: 0,
         priceChange: 0,
-        priceChangePercent: 0,
-        priceArr: [new Decimal(0), new Decimal(0)]
+        priceChangePercent: 0
       };
     }
 
@@ -190,8 +189,7 @@ export const useEtfStore = defineStore('etf', () => {
       currentPrice: currentNav,
       previousPrice: previousNav,
       priceChange: changeFromYesterday,
-      priceChangePercent,
-      priceArr: [new Decimal(currentNav), new Decimal(previousNav)]
+      priceChangePercent
     };
   };
 

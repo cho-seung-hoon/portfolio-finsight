@@ -221,8 +221,7 @@ export const useFundStore = defineStore('fund', () => {
       isWatched: productDetail.holdings?.isWatched ?? productDetail.holdings?.is_watched ?? false,
 
       // DetailMainFund 컴포넌트용 데이터
-      yield3Months: productDetail.fundPriceSummaryDto?.percent_change_from_3_months_ago || 0,
-      priceArr: generatePriceArray(productDetail),
+      yield3Months: productDetail.fundPriceSummaryDto?.percentChangeFrom3MonthsAgo || 0,
       productCompanyName: productDetail.productCompanyName || '한국투자신탁운용',
       productName: productDetail.productName || '한국투자베트남그로스증권자투자신탁UH(주식)(A)',
       productCode: productDetail.productCode || productId,
@@ -237,23 +236,6 @@ export const useFundStore = defineStore('fund', () => {
     return result;
   };
 
-  // 기준가 배열 생성 함수 (3개월 기준값 사용)
-  const generatePriceArray = productDetail => {
-    const priceSummary = productDetail.fundPriceSummaryDto;
-    if (!priceSummary) {
-      return [0, 0];
-    }
-
-    const currentNav = priceSummary.currentNav ?? 0;
-    const percentChange3Months = priceSummary.percentChangeFrom3MonthsAgo ?? 0;
-
-    // 3개월 전 기준가: current = prev * (1 + r) => prev = current / (1 + r)
-    const divisor = 1 + percentChange3Months / 100;
-    const previousNav3Months = divisor !== 0 ? currentNav / divisor : 0;
-
-    return [currentNav, previousNav3Months];
-  };
-
   // 시세 데이터 가공 함수
   const generatePriceData = productDetail => {
     const priceSummary = productDetail.fundPriceSummaryDto;
@@ -262,8 +244,7 @@ export const useFundStore = defineStore('fund', () => {
         currentPrice: 0,
         previousPrice: 0,
         priceChange: 0,
-        priceChangePercent: 0,
-        priceArr: [new Decimal(0), new Decimal(0)]
+        priceChangePercent: 0
       };
     }
 
@@ -275,8 +256,7 @@ export const useFundStore = defineStore('fund', () => {
       currentPrice: currentNav,
       previousPrice: previousNav,
       priceChange: changeFromYesterday,
-      priceChangePercent: priceSummary.percentChangeFromYesterday ?? 0,
-      priceArr: [new Decimal(currentNav), new Decimal(previousNav)]
+      priceChangePercent: priceSummary.percentChangeFromYesterday ?? 0
     };
   };
 
