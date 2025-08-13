@@ -85,12 +85,14 @@ function closeModal() {
 function confirmMatch() {
   isMatched.value = true;
   updateIsMatchedInStorage(true);
+  emitMatchChange();
   showModal.value = false;
 }
 
 function resetMatch() {
   isMatched.value = false;
   updateIsMatchedInStorage(false);
+  emitMatchChange();
 }
 
 function updateIsMatchedInStorage(val) {
@@ -98,6 +100,10 @@ function updateIsMatchedInStorage(val) {
     ...getFinFilters(),
     isMatched: val
   });
+}
+
+function emitMatchChange() {
+  window.dispatchEvent(new CustomEvent('isMatchedChanged'));
 }
 
 const fetchInvestmentProfile = async () => {
