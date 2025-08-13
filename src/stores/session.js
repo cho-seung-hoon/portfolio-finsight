@@ -55,7 +55,7 @@ export const useSessionStore = defineStore('session', () => {
     remainingTime.value = `${String(timeObj.minutes).padStart(2, '0')}:${String(timeObj.seconds).padStart(2, '0')}`;
 
     // ✅ 30초 이하 남으면 countdown 모드로 모달 표시
-    if (totalSeconds <= 30 && !isExpireModalVisible.value) {
+    if (totalSeconds <= 180 && !isExpireModalVisible.value) {
       modalMode.value = 'countdown';
       isExpireModalVisible.value = true;
     }
