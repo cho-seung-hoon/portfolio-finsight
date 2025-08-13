@@ -31,23 +31,29 @@
     <section class="etf-item-content-section">
       <div class="info-row">
         <span class="label">현재가</span>
-        <span class="value">{{ fmtNumber(item.currentPrice) }}</span>
+        <span class="value">
+          {{
+            item.currentPrice != null && item.currentPrice !== ''
+              ? fmtNumber(item.currentPrice) + '원'
+              : '-'
+          }}
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="label">거래량</span>
+        <span class="value">
+          {{ item.volume != null && item.volume !== '' ? fmtNumber(item.volume) + '주' : '-' }}
+        </span>
       </div>
 
       <div class="info-row">
-        <span class="label">수익률</span>
+        <span class="label">수익률(3개월)</span>
         <span
           class="value"
           :class="changeClass"
           >{{ fmtPercent(item.return3Months) }}</span
         >
       </div>
-
-      <div class="info-row">
-        <span class="label">거래량</span>
-        <span class="value">{{ fmtNumber(item.volume) }}</span>
-      </div>
-
       <div class="info-row">
         <span class="label">위험등급</span>
         <span class="value">{{ item.productRiskGrade }}등급</span>
@@ -248,10 +254,10 @@ function getSegmentStyle(key) {
 }
 
 .label {
-  width: 80px;
+  width: 120px;
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
-  color: var(--main01);
+  color: var(--main02);
   flex-shrink: 0;
 }
 
@@ -262,6 +268,7 @@ function getSegmentStyle(key) {
   align-items: center;
   background-color: var(--main05);
   padding: 8px;
+  margin-top: 12px;
   border: 1px solid var(--main04);
   border-radius: 12px;
   justify-content: space-between;
