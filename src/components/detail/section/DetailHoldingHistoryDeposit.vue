@@ -1,12 +1,12 @@
 <template>
-  <div class="holding-history">
+  <div class="holding-history-deposit">
     <div class="history-list">
       <div
-        v-for="(record, index) in data"
+        v-for="(record, index) in latestRecord"
         :key="index"
         class="history-item">
         <div class="history-header">
-          <span class="date">{{ record.displayDate || record.historyTradeDate }}</span>
+          <span class="date">{{ formatDate(record.displayDate || record.historyTradeDate) }}</span>
           <span
             class="quantity"
             :class="{ buy: record.isBuy, sell: record.isSell }">
@@ -23,7 +23,7 @@
             {{
               formatNumberWithComma(
                 new Decimal(record.historyAmount || 0)
-                  .dividedBy(record.historyQuantity || 1)
+                  .dividedBy(Math.abs(record.historyQuantity || 1))
                   .toNumber()
               )
             }}원</span
@@ -46,6 +46,7 @@
 <script setup>
 import Decimal from 'decimal.js';
 import { formatNumberWithComma } from '@/utils/numberUtils';
+import { computed } from 'vue';
 
 const props = defineProps({
   data: {
@@ -61,10 +62,34 @@ const props = defineProps({
     }
   }
 });
+
+// 최신 기록 하나만 보여주기
+const latestRecord = computed(() => {
+  if (!props.data || !Array.isArray(props.data) || props.data.length === 0) {
+    return [];
+  }
+  // 가장 최신 기록을 맨 위에 표시 (날짜 기준으로 정렬)
+  const sortedData = [...props.data].sort((a, b) => {
+    const dateA = new Date(a.historyTradeDate || a.displayDate || 0);
+    const dateB = new Date(b.historyTradeDate || b.displayDate || 0);
+    return dateB - dateA; // 내림차순 (최신이 위)
+  });
+  return [sortedData[0]]; // 최신 기록 하나만 반환
+});
+
+// 날짜 포맷팅 함수
+const formatDate = (dateString) => {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}. ${month}. ${day}`;
+};
 </script>
 
 <style scoped>
-.holding-history {
+.holding-history-deposit {
   margin-bottom: 20px;
 }
 

@@ -1,15 +1,15 @@
 <template>
   <div class="asset-record-btn-fixed-wrapper">
-    <!-- 보유하지 않은 상품일 때 -->
+    <!-- 보유하지 않은 상품이거나 보유수량이 0인 경우 -->
     <button
-      v-if="!isHolding"
+      v-if="!hasValidHoldings"
       type="button"
       class="asset-record-btn-fixed"
       @click="handleBuyClick">
       <span class="asset-record-btn-text center">{{ getBuyButtonText() }}</span>
     </button>
 
-    <!-- 보유 중인 상품일 때 -->
+    <!-- 실제로 보유 중인 상품일 때 -->
     <div
       v-else
       class="holding-buttons">
@@ -54,6 +54,20 @@ const isHolding = computed(() => {
   return props.productInfo?.isHolding || props.active || false;
 });
 
+// 실제로 보유 중인지 확인 (수량이 0보다 크고 상태가 "zero"가 아닌 경우)
+const hasValidHoldings = computed(() => {
+  if (!isHolding.value) return false;
+  
+  const holdingsTotalQuantity = 
+    props.productInfo?.holdingsTotalQuantity ||
+    props.productInfo?.holdings?.holdingsTotalQuantity ||
+    0;
+  
+  const holdingsStatus = props.productInfo?.holdings?.holdingsStatus;
+  
+  return holdingsTotalQuantity > 0 && holdingsStatus !== 'zero';
+});
+
 const category = computed(() => {
   return props.productInfo?.category || props.category || 'etf';
 });
@@ -62,8 +76,14 @@ const productId = computed(() => {
   return props.productInfo?.productCode || props.id;
 });
 
-// 판매 가능 여부 (보유 수량이 0보다 클 때만)
+// 판매 가능 여부 (예금의 경우 보유 수량이 0이어도 해지 가능, 다른 상품은 보유 수량이 0보다 클 때만)
 const canSell = computed(() => {
+  if (category.value === 'deposit') {
+    // 예금의 경우 실제로 보유 중이면 해지 가능
+    return hasValidHoldings.value;
+  }
+  
+  // ETF/펀드의 경우 보유 수량이 0보다 클 때만 판매 가능
   const holdingsTotalQuantity =
     props.productInfo?.holdingsTotalQuantity ||
     props.productInfo?.holdings?.holdingsTotalQuantity ||

@@ -83,9 +83,9 @@
         </button>
         <button
           class="btn btn-primary"
-          :disabled="!isFormValid || isLoading"
+          :disabled="!isFormValid || isSubmitting"
           @click="handleSubmit">
-          {{ isLoading ? '처리중...' : '가입하기' }}
+          {{ isSubmitting ? '처리중...' : '가입하기' }}
         </button>
       </div>
     </div>
@@ -116,10 +116,6 @@ const props = defineProps({
   maxAmount: {
     type: Number,
     default: 10000000
-  },
-  isLoading: {
-    type: Boolean,
-    default: false
   }
 });
 
@@ -130,6 +126,9 @@ const modalRef = ref(null);
 
 // 중복 close 이벤트 방지
 const isClosing = ref(false);
+
+// 로딩 상태 관리
+const isSubmitting = ref(false);
 
 const formData = ref({
   period: '',
@@ -256,6 +255,8 @@ const handleBackdropClick = event => {
 const handleSubmit = async () => {
   if (!isFormValid.value) return;
 
+  isSubmitting.value = true; // 로딩 시작
+
   // 현재 날짜를 동적으로 생성
   const today = new Date();
   const startDate = today.toISOString().split('T')[0]; // YYYY-MM-DD 형식
@@ -273,7 +274,10 @@ const handleSubmit = async () => {
     const result = await purchaseProduct(tradeData);
     if (result.success) {
       console.log('예금 가입 성공:', result.data);
+      // API 호출 결과를 포함하여 부모에게 전달
       emit('submit', {
+        success: true,
+        data: result.data,
         period: formData.value.period,
         amount: new Decimal(parseNumberFromComma(formData.value.amount)),
         startDate: startDate,
@@ -282,10 +286,21 @@ const handleSubmit = async () => {
       closeModal();
     } else {
       console.error('예금 가입 실패:', result.error);
-      // 에러
+      // 실패 결과도 부모에게 전달
+      emit('submit', {
+        success: false,
+        error: result.error
+      });
     }
   } catch (error) {
     console.error('예금 가입 중 오류 발생:', error);
+    // 에러 결과도 부모에게 전달
+    emit('submit', {
+      success: false,
+      error: error.message || '알 수 없는 오류가 발생했습니다.'
+    });
+  } finally {
+    isSubmitting.value = false; // 로딩 종료
   }
 };
 

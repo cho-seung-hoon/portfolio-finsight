@@ -4,11 +4,11 @@
       <div class="summary-info">
         <div class="info-row">
           <span class="label">예금 체결일</span>
-          <span class="value">{{ data.contractDate }}</span>
+          <span class="value">{{ formatDate(data.contractDate) }}</span>
         </div>
         <div class="info-row">
           <span class="label">예금 만료일</span>
-          <span class="value">{{ data.maturityDate }}</span>
+          <span class="value">{{ formatDate(data.maturityDate) }}</span>
         </div>
         <div class="info-row">
           <span class="label">예금액</span>
@@ -29,14 +29,24 @@ const props = defineProps({
     type: Object,
     required: true,
     validator: value => {
-      return (
-        value.contractDate !== undefined &&
-        value.maturityDate !== undefined &&
-        value.holdingsTotalPrice !== undefined
-      );
+      // contractDate와 maturityDate는 undefined일 수 있음 (해지된 상품 등)
+      // holdingsTotalPrice는 0을 포함한 모든 숫자값 허용
+      return value && 
+             typeof value === 'object' && 
+             (value.holdingsTotalPrice !== undefined && value.holdingsTotalPrice !== null);
     }
   }
 });
+
+// 날짜 포맷팅 함수
+const formatDate = (dateString) => {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}. ${month}. ${day}`;
+};
 </script>
 
 <style scoped>

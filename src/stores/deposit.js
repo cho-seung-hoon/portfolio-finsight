@@ -129,8 +129,21 @@ export const useDepositStore = defineStore('deposit', () => {
 
       // 보유 여부 판단
       isHolding: !!productDetail.holdings,
-      holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
-      holdingsTotalQuantity: productDetail.holdings?.holdings_total_quantity || 0,
+      // 예금의 경우 보유가 있으면 수량 개념이 없어도 1로 간주
+      holdingQuantity: (() => {
+        const q = productDetail.holdings?.holdings_total_quantity;
+        if (q == null || Number(q) === 0) {
+          return productDetail.holdings ? 1 : 0;
+        }
+        return Number(q);
+      })(),
+      holdingsTotalQuantity: (() => {
+        const q = productDetail.holdings?.holdings_total_quantity;
+        if (q == null || Number(q) === 0) {
+          return productDetail.holdings ? 1 : 0;
+        }
+        return Number(q);
+      })(),
 
       // 찜 여부 판단
       isWatched: productDetail.holdings?.isWatched || false,
@@ -371,9 +384,35 @@ export const useDepositStore = defineStore('deposit', () => {
       notice: product.value.notice
     };
 
-    // 보유 중인 상품이면 holding 데이터 추가
-    if (product.value.isHolding && product.value.holding) {
-      baseTabData.holding = product.value.holding;
+    // 보유 중인 상품이고 보유수량이 0보다 크고 holdingsStatus가 "zero"가 아닐 때만 holding 데이터 추가
+    const hasValidHoldings = product.value.isHolding && 
+      (product.value.holding || product.value.holdings) &&
+      (product.value.holdings?.holdingsTotalQuantity > 0 || product.value.holding?.holdingsTotalQuantity > 0) &&
+      product.value.holdings?.holdingsStatus !== 'zero';
+    
+    if (hasValidHoldings) {
+      // holdingsummarydeposit 타입의 데이터 생성 (가입 직후와 동일한 구조)
+      const holdingSummaryData = {
+        type: 'holdingsummarydeposit',
+        title: '보유 현황',
+        desc: {
+          contractDate: product.value.holding?.contractDate || product.value.holdings?.contractDate,
+          maturityDate: product.value.holding?.maturityDate || product.value.holdings?.maturityDate,
+          holdingsTotalPrice: product.value.holding?.holdingsTotalPrice || product.value.holdings?.holdingsTotalPrice || 0,
+          // 가입 직후와 동일한 구조를 위해 추가 필드들
+          startDate: product.value.holding?.startDate || product.value.holdings?.contractDate,
+          period: product.value.holding?.period || null
+        }
+      };
+
+      // holdinghistorydeposit 타입의 데이터 생성 (예금 전용)
+      const holdingHistoryData = {
+        type: 'holdinghistorydeposit',
+        title: '투자 기록',
+        desc: product.value.holding?.history || product.value.holdings?.history || []
+      };
+
+      baseTabData.holding = [holdingSummaryData, holdingHistoryData];
     }
 
     return baseTabData;

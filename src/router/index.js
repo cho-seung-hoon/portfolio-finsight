@@ -93,7 +93,7 @@ router.beforeEach(async (to, from, next) => {
       const response = await axios.get('http://localhost:8080/users/info', {
         headers: { Authorization: `Bearer ${accessToken}` }
       });
-      const userName = response.data.data.userName;
+      const userName = response.data.userName;
       console.log(userName);
 
       headerStore.setHeader({

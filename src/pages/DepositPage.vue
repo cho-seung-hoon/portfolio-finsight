@@ -10,9 +10,8 @@
       <DetailMainDeposit
         :bank="productInfo?.productCompanyName"
         :title="productInfo?.productName"
-        :max-rate="productInfo?.maxRate"
-        :max-rate-desc="'(12개월 세전)'"
-        :base-rate="productInfo?.baseRate" />
+        :max-rate="productInfo?.doptionIntrRate2"
+        :base-rate="productInfo?.doptionIntrRate" />
 
       <DetailTabs
         :tabs="tabs"
@@ -47,14 +46,12 @@
       :product-info="productInfo"
       :min-amount="1000000"
       :max-amount="maxAmountNumber"
-      :is-loading="isBuyLoading"
       @close="handleModalClose"
       @submit="handleBuySubmit" />
 
     <DepositSellModal
       ref="sellModalRef"
-      :product-info="{ ...productInfo, holdingData: productInfo?.holding || null }"
-      :is-loading="isSellLoading"
+      :product-info="{ ...productInfo, holdingData: sellModalHoldingData }"
       @close="handleModalClose"
       @submit="handleSellSubmit" />
 
@@ -73,9 +70,8 @@
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDepositStore } from '@/stores/deposit';
-import { useBuyStore } from '@/stores/buy';
-import { useSellStore } from '@/stores/sell';
 import { storeToRefs } from 'pinia';
+import { purchaseProduct, sellProduct } from '@/api/tradeApi';
 import Decimal from 'decimal.js';
 
 import DetailMainDeposit from '@/components/detail/DetailMainDeposit.vue';
@@ -90,14 +86,13 @@ import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 
 const route = useRoute();
 const depositStore = useDepositStore();
-const buyStore = useBuyStore();
-const sellStore = useSellStore();
 const { productInfo, isLoading, error, isWatched } = storeToRefs(depositStore);
-const { isLoading: isBuyLoading } = storeToRefs(buyStore);
-const { isLoading: isSellLoading } = storeToRefs(sellStore);
 
 // 모달 상태 관리
 const isModalOpen = ref(false);
+
+// 중복 매수 방지 플래그
+const isTransactionInProgress = ref(false);
 
 // 모달 refs
 const termsModalRef = ref(null);
@@ -158,11 +153,12 @@ const showToast = (message, type = 'success', timestamp = null) => {
 
 // 탭 관련 데이터
 const tabs = computed(() => {
-  if (
-    productInfo.value?.isHolding &&
-    productInfo.value?.holding &&
-    productInfo.value?.holding.length > 0
-  ) {
+  const hasValidHoldings = productInfo.value?.isHolding &&
+    (productInfo.value?.holdings || productInfo.value?.holding) &&
+    (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
+    productInfo.value?.holdings?.holdingsStatus !== 'zero';
+  
+  if (hasValidHoldings) {
     return [
       { key: 'holding', label: '보유기록' },
       { key: 'info', label: '상품안내' },
@@ -186,12 +182,16 @@ const selectTab = tab => {
 watch(
   productInfo,
   newProductInfo => {
-    if (
-      newProductInfo?.isHolding &&
-      newProductInfo?.holding &&
-      newProductInfo?.holding.length > 0
-    ) {
+    const hasValidHoldings = newProductInfo?.isHolding &&
+      (newProductInfo?.holdings || newProductInfo?.holding) &&
+      (newProductInfo?.holdings?.holdingsTotalQuantity > 0 || newProductInfo?.holding?.holdingsTotalQuantity > 0) &&
+      newProductInfo?.holdings?.holdingsStatus !== 'zero';
+    
+    if (hasValidHoldings) {
       selectedTab.value = 'holding';
+    } else if (!newProductInfo?.isHolding) {
+      // 보유하지 않는 경우 상품안내 탭으로 포커스
+      selectedTab.value = 'info';
     }
   },
   { immediate: true }
@@ -208,8 +208,38 @@ const tabData = computed(() => {
   return depositStore.tabData;
 });
 
+// 디버깅용: productInfo와 holding 데이터 확인
+const debugInfo = computed(() => {
+  console.log('DepositPage - productInfo:', productInfo.value);
+  console.log('DepositPage - holding:', productInfo.value?.holding);
+  return {
+    productInfo: productInfo.value,
+    holding: productInfo.value?.holding
+  };
+});
+
+// DepositSellModal에 전달할 holdingData
+const sellModalHoldingData = computed(() => {
+  // holdings 객체에서 필요한 데이터를 추출하여 전달
+  if (productInfo.value?.holdings) {
+    return {
+      holdingsTotalPrice: productInfo.value.holdings.holdingsTotalPrice,
+      holdingsTotalQuantity: productInfo.value.holdings.holdingsTotalQuantity,
+      maturityDate: productInfo.value.holdings.maturityDate || productInfo.value.holding?.maturityDate,
+      contractDate: productInfo.value.holdings.contractDate || productInfo.value.holding?.contractDate
+    };
+  }
+  return productInfo.value?.holding || null;
+});
+
 // 구매 버튼 클릭 처리
 const handleBuyClick = async data => {
+  // 중복 매수 방지
+  if (isTransactionInProgress.value) {
+    showToast('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.', 'warning');
+    return;
+  }
+  
   currentTransactionType.value = 'buy';
   isModalOpen.value = true;
   await nextTick();
@@ -218,10 +248,17 @@ const handleBuyClick = async data => {
 
 // 판매 버튼 클릭 처리
 const handleSellClick = async data => {
+  // 중복 매수 방지
+  if (isTransactionInProgress.value) {
+    showToast('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.', 'warning');
+    return;
+  }
+  
   currentTransactionType.value = 'sell';
   isModalOpen.value = true;
   await nextTick();
-  termsModalRef.value?.openModal();
+  // 판매는 약관 동의 없이 바로 판매 모달 열기
+  sellModalRef.value?.openModal();
 };
 
 // 모달 닫기 처리
@@ -237,6 +274,9 @@ const handleModalClose = () => {
   sellModalRef.value?.closeModalSilently();
   showToast('거래가 취소', 'cancel');
 
+  // 거래 진행 중 플래그 해제
+  isTransactionInProgress.value = false;
+
   // 100ms 후에 닫기 상태 초기화
   setTimeout(() => {
     isClosing.value = false;
@@ -245,6 +285,9 @@ const handleModalClose = () => {
 
 // 약관 동의 확인 처리
 const handleTermsConfirm = async agreementData => {
+  // 거래 시작 플래그 설정
+  isTransactionInProgress.value = true;
+  
   if (currentTransactionType.value === 'buy') {
     // 구매인 경우 상품 가입 모달로 이어짐
     // 약관 동의 모달은 닫지만 전체 모달 상태는 유지
@@ -253,12 +296,75 @@ const handleTermsConfirm = async agreementData => {
     await nextTick();
     buyModalRef.value?.openModal();
   } else {
-    // 판매인 경우 바로 판매 처리
-    try {
-      await sellStore.sellProduct({
-        code: productInfo.value?.productCode,
-        category: 'DEPOSIT'
+    // 판매인 경우 약관 동의 없이 바로 판매 모달 열기
+    termsModalRef.value?.closeModalSilently();
+    await nextTick();
+    sellModalRef.value?.openModal();
+  }
+};
+
+
+
+// 상품 데이터 새로고침 함수
+const refreshProductData = async () => {
+  try {
+    const productId = route.params.id;
+    if (productId) {
+      await depositStore.fetchProduct(productId, 'deposit');
+      // 새로고침 후 보유기록 탭이 있으면 해당 탭으로, 없으면 상품안내 탭으로
+      if (productInfo.value?.isHolding && 
+          (productInfo.value?.holdings || productInfo.value?.holding) && 
+          (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) && 
+          productInfo.value?.holdings?.holdingsStatus !== 'zero') {
+        selectedTab.value = 'holding';
+      } else {
+        selectedTab.value = 'info';
+      }
+    }
+  } catch (error) {
+    console.error('상품 데이터 새로고침 중 오류 발생:', error);
+  }
+};
+
+
+
+// 구매 제출 처리
+const handleBuySubmit = async formData => {
+  try {
+    // 모달에서 API 호출 결과를 받아서 처리
+    if (formData.success) {
+      // 성공인 경우
+      handleModalClose();
+      const timestamp = new Date().toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
       });
+      showToast('예금 가입이 완료되었습니다.', 'success', timestamp);
+
+      // 상품 데이터 새로고침
+      await refreshProductData();
+    } else {
+      // 실패인 경우
+      showToast(`예금 가입에 실패했습니다: ${formData.error}`, 'error');
+    }
+  } catch (error) {
+    showToast('예금 가입 처리 중 오류가 발생했습니다.', 'error');
+  } finally {
+    // 거래 완료 플래그 해제
+    isTransactionInProgress.value = false;
+  }
+};
+
+// 판매 제출 처리
+const handleSellSubmit = async formData => {
+  try {
+    // 모달에서 API 호출 결과를 받아서 처리
+    if (formData.success) {
+      // 성공인 경우
       handleModalClose();
       const timestamp = new Date().toLocaleString('ko-KR', {
         year: 'numeric',
@@ -269,61 +375,18 @@ const handleTermsConfirm = async agreementData => {
         second: '2-digit'
       });
       showToast('예금 해지가 완료되었습니다.', 'success', timestamp);
-    } catch (error) {
-      showToast('예금 해지에 실패했습니다. 다시 시도해주세요.', 'error');
-      handleModalClose();
-    }
-  }
-};
 
-// 구매 제출 처리
-const handleBuySubmit = async formData => {
-  try {
-    await buyStore.buyProduct(formData);
-    handleModalClose();
-    const timestamp = new Date().toLocaleString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
-    showToast('예금 가입이 완료되었습니다.', 'success', timestamp);
-
-    // 상품체결 성공 후 상세페이지 데이터 새로고침
-    const productId = route.params.id;
-    if (productId) {
-      await depositStore.fetchProduct(productId, 'deposit');
-    }
-  } catch (error) {
-    showToast('예금 가입에 실패했습니다. 다시 시도해주세요.', 'error');
-  }
-};
-
-// 판매 제출 처리
-const handleSellSubmit = async formData => {
-  try {
-    await sellStore.sellProduct(formData);
-    handleModalClose();
-    const timestamp = new Date().toLocaleString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
-    showToast('예금 해지가 완료되었습니다.', 'success', timestamp);
-
-    // 상품체결 성공 후 상세페이지 데이터 새로고침
-    const productId = route.params.id;
-    if (productId) {
-      await depositStore.fetchProduct(productId, 'deposit');
+      // 상품 데이터 새로고침
+      await refreshProductData();
+    } else {
+      // 실패인 경우
+      showToast(`예금 해지에 실패했습니다: ${formData.error}`, 'error');
     }
   } catch (error) {
     showToast('예금 해지에 실패했습니다. 다시 시도해주세요.', 'error');
-    handleModalClose(); // 실패 시에도 모달 닫기
+  } finally {
+    // 거래 완료 플래그 해제
+    isTransactionInProgress.value = false;
   }
 };
 </script>

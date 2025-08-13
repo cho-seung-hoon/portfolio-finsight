@@ -243,7 +243,10 @@ const handleSubmit = async () => {
     const result = await sellProduct(tradeData);
     if (result.success) {
       console.log('매도 성공:', result.data);
+      // API 호출 결과를 포함하여 부모에게 전달
       emit('submit', {
+        success: true,
+        data: result.data,
         quantity: new Decimal(parseNumberFromComma(formData.value.quantity)),
         price: getCurrentPrice(),
         saleDate: saleDate,
@@ -253,10 +256,19 @@ const handleSubmit = async () => {
       closeModal();
     } else {
       console.error('매도 실패:', result.error);
-      // 에러 처리 로직 추가 가능
+      // 실패 결과도 부모에게 전달
+      emit('submit', {
+        success: false,
+        error: result.error
+      });
     }
   } catch (error) {
     console.error('매도 중 오류 발생:', error);
+    // 오류 결과도 부모에게 전달
+    emit('submit', {
+      success: false,
+      error: error.message
+    });
   }
 };
 
