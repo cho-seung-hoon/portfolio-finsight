@@ -1,7 +1,7 @@
 import apiClient from './index.js';
 
 // 투자 모아보기(보유 상품 평가액) 조회
-export const getAllPrice = async () => {
+export const getAllPriceApi = async () => {
   return apiClient.get('/holdings/');
 };
 

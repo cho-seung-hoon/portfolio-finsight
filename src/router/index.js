@@ -16,7 +16,6 @@ import startRoutes from './startRoutes';
 
 import { useHeaderStore } from '@/stores/header.js';
 import { useWebSocketStore } from '@/stores/websocket.js';
-import axios from 'axios'; // ✅ 추가됨
 import { fetchUserInfoApi } from '@/api/user';
 
 const router = createRouter({
