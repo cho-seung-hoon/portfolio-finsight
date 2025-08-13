@@ -104,6 +104,10 @@ const handleLogin = async () => {
     });
 
     const accessToken = response.data.accessToken;
+
+    // ✅ 로그인 직후 즉시 카운트다운 시작 (새로고침 없이 모달 동작)
+    sessionStore.startCountdown();
+
     localStorage.setItem('accessToken', accessToken);
     console.log('accessToken 입니다. :', accessToken);
     const userInfoResponse = await axios.get('http://localhost:8080/users/me', {
@@ -116,9 +120,9 @@ const handleLogin = async () => {
     localStorage.setItem('userRole', userRole);
     console.log('userRole', userRole);
     if (userRole === 'COMPLETE') {
-      router.push('/');
+      await router.push('/');
     } else {
-      router.push('/inv-type-main-page');
+      await router.push('/inv-type-main-page');
     }
     // === goToInvTestMainPage end 양지윤 ====================================== //
   } catch (error) {
