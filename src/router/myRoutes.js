@@ -5,7 +5,8 @@ const myRoutes = [
     component: () => import('../pages/MyPage.vue'),
     meta: {
       header: {
-        titleParts: [{ text: '마이페이지', color: 'var(--white)' }]
+        titleParts: [{ text: '마이페이지', color: 'var(--white)' }],
+        bColor: 'var(--main01)'
       }
     }
   },
@@ -14,8 +15,22 @@ const myRoutes = [
     name: 'userInfoEdit',
     component: () => import('../pages/UserInfoEdit.vue'),
     meta: {
+      layout: 'HeaderLayout',
       header: {
-        titleParts: [{ text: '내 정보 수정하기', color: 'var(--main01)' }]
+        titleParts: [{ text: '내 정보 수정하기', color: 'var(--main01)' }],
+        showBackButton: true
+      }
+    }
+  },
+  {
+    path: '/watch',
+    name: 'watch',
+    component: () => import('../pages/WatchPage.vue'),
+    meta: {
+      layout: 'HeaderLayout',
+      header: {
+        titleParts: [{ text: '찜한 목록', color: 'var(--main01)' }],
+        showBackButton: true
       }
     }
   }

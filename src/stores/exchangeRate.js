@@ -1,5 +1,3 @@
-// stores/exchangeRate.js
-
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { get } from '@/api/exchangeRate.js';

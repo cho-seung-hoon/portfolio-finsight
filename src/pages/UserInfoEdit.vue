@@ -1,155 +1,138 @@
 <template>
-  <br />
-  <div class="user-edit-container">
-    <h2 class="title">
-      <img
-        src="@/assets/logo.svg"
-        class="logo"
-        alt="Fin-Sight Logo" />
-      <p>Fin-Sight</p>
-    </h2>
-    <br />
-
-    <!-- 사용자 이름/아이디 -->
-    <div class="subItem1">
-      <i class="fa fa-user"></i>
-      <span class="subItem2">나의 이름: </span>
-      <span class="subItem2">{{ UserInfoA.userName }}</span>
-    </div>
-    <br />
-    <div class="subItem1">
-      <i class="fa fa-user"></i>
-      <span class="subItem2">나의 아이디: </span>
-      <span class="subItem3">{{ UserInfoA.userId }}</span>
-    </div>
-    <hr class="subLine" />
-
-    <!-- 수정 폼 -->
-    <form
-      class="form"
-      @submit.prevent="handleEdit">
-      <!-- 비밀번호 -->
-      <InputWithIcon
-        v-model="form.password"
-        icon="fa-lock"
-        type="password"
-        placeholder="새 비밀번호"
-        :error="!!errors.password"
-        :valid="form.password?.length >= 10 && !errors.password"
-        @blur="validatePassword"
-        @focus="clearError('password')" />
-      <InputWithIcon
-        v-model="form.confirmPassword"
-        icon="fa-lock"
-        type="password"
-        placeholder="새 비밀번호 재확인"
-        :error="!!errors.confirmPassword"
-        :valid="form.confirmPassword?.length > 0 && !errors.confirmPassword"
-        @blur="validateConfirmPassword"
-        @focus="clearError('confirmPassword')" />
-
-      <!-- 이메일 -->
-      <InputWithIcon
-        v-model="form.email"
-        icon="fa-envelope"
-        placeholder="이메일"
-        button-text="인증"
-        :error="!!errors.email"
-        :valid="emailStore.verified && !errors.email"
-        autocapitalize="off"
-        autocomplete="off"
-        autocorrect="off"
-        @button-click="requestCode"
-        @focus="clearError('email')" />
-      <br />
-
-      <!-- 인증코드 입력 -->
-      <div class="card">
-        <VerificationCodeInput
-          v-model="form.code"
-          :error="!!errors.code"
-          :valid="emailStore.verified && !errors.code"
-          @verify="verifyCode"
-          @resend="resendCode"
-          @blur="validateCode"
-          @focus="clearError('code')" />
+  <div class="subBox">
+    <div class="user-edit-container">
+      <div class="user-info-header">
+        <img src="@/assets/cha4.png" alt="곰돌이" class="bear-icon" />
+        <div class="user-details">
+          <div class="detail-row">
+            <span class="detail-label">이름</span>
+            <span class="detail-value">{{ UserInfoA.userName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">아이디</span>
+            <span class="detail-value">{{ UserInfoA.userId }}</span>
+          </div>
+        </div>
       </div>
 
-      <!-- 에러 메시지 -->
-      <div class="validation-block">
-        <ValidationMessage :message="errors.password" />
-        <ValidationMessage :message="errors.confirmPassword" />
-        <ValidationMessage :message="errors.email" />
-        <ValidationMessage :message="errors.code" />
+      <div class="subItem-title">
+        비밀번호 변경
       </div>
 
-      <!-- 버튼 -->
-      <button
-        type="submit"
-        class="submit-btn">
-        수정 완료
-      </button>
-    </form>
-    <div class="subBox2">
-      <div
-        class="action delete-btn"
-        @click="showDeleteModal = true">
-        회원탈퇴
+      <form class="form" @submit.prevent="handleEdit">
+        <div class="card">
+          <InputWithIcon
+            v-model="form.password"
+            icon="fa-lock"
+            type="password"
+            placeholder="새 비밀번호"
+            :error="!!errors.password"
+            :valid="form.password?.length >= 10 && !errors.password"
+            @blur="validatePassword"
+            @focus="clearError('password')"
+          />
+          <InputWithIcon
+            v-model="form.confirmPassword"
+            icon="fa-lock"
+            type="password"
+            placeholder="새 비밀번호 재확인"
+            :error="!!errors.confirmPassword"
+            :valid="form.confirmPassword?.length > 0 && !errors.confirmPassword"
+            @blur="validateConfirmPassword"
+            @focus="clearError('confirmPassword')"
+          />
+        </div>
+
+
+
+
+
+        <div class="card">
+          <InputWithIcon
+            v-model="form.email"
+            icon="fa-envelope"
+            placeholder="이메일"
+            button-text="인증"
+            :error="!!errors.email"
+            :valid="emailStore.verified && !errors.email"
+            autocapitalize="off"
+            autocomplete="off"
+            autocorrect="off"
+            @button-click="requestCode"
+            @focus="clearError('email')"
+          />
+          <VerificationCodeInput
+            v-model="form.code"
+            :error="!!errors.code"
+            :valid="emailStore.verified && !errors.code"
+            @verify="verifyCode"
+            @resend="resendCode"
+            @blur="validateCode"
+            @focus="clearError('code')"
+          />
+        </div>
+
+        <div class="validation-block">
+          <ValidationMessage :message="errors.password" />
+          <ValidationMessage :message="errors.confirmPassword" />
+          <ValidationMessage :message="errors.email" />
+          <ValidationMessage :message="errors.code" />
+        </div>
+
+        <button type="submit" class="submit-btn">수정 완료</button>
+      </form>
+      <div class="subBox2">
+        <div class="action delete-btn" @click="showDeleteModal = true">
+          회원탈퇴
+        </div>
       </div>
+
+      <BaseModal
+        :visible="showDeleteModal"
+        :showCancel="true"
+        :confirmText="'탈퇴'"
+        :cancelText="'취소'"
+        :onClose="() => (showDeleteModal = false)"
+        :onConfirm="
+          () => {
+            showDeleteModal = false;
+            handleDelete();
+          }
+        "
+      >
+        <template #default>
+          정말 탈퇴하시겠습니까?<br />
+          탈퇴 후 복구가 불가능합니다.
+        </template>
+      </BaseModal>
+
+      <BaseModal
+        :visible="showCompleteModal"
+        message="회원 정보 수정 완료!"
+        redirect="/my"
+        :onClose="() => (showCompleteModal = false)"
+        :showIcon="true"
+      />
+
+      <BaseModal
+        :visible="showModal"
+        :message="modalMessage"
+        :onClose="() => (showModal = false)"
+      />
+
+      <BaseModal
+        :visible="showDeleteSuccessModal"
+        message="회원 탈퇴가 완료되었습니다."
+        redirect="/start"
+        :onClose="() => (showDeleteSuccessModal = false)"
+        :showIcon="true"
+      />
     </div>
-
-    <!-- <DeleteUserInfo
-      v-if="showDeleteModal"
-      @close="showDeleteModal = false"
-      @confirm="
-        () => {
-          showDeleteModal = false;
-          handleDelete();
-        }
-      " /> -->
-    <BaseModal
-      :visible="showDeleteModal"
-      :showCancel="true"
-      :confirmText="'탈퇴'"
-      :cancelText="'취소'"
-      :onClose="() => (showDeleteModal = false)"
-      :onConfirm="
-        () => {
-          showDeleteModal = false;
-          handleDelete();
-        }
-      ">
-      <template #default>
-        정말 탈퇴하시겠습니까?<br />
-        탈퇴 후 복구가 불가능합니다.
-      </template>
-    </BaseModal>
-
-    <!-- ✅ 회원정보 수정 완료 모달 -->
-    <BaseModal
-      :visible="showCompleteModal"
-      message="회원 정보 수정 완료!"
-      redirect="/my"
-      :onClose="() => (showCompleteModal = false)"
-      :showIcon="true" />
-
-    <!-- ✅ 일반 알림 모달 -->
-    <BaseModal
-      :visible="showModal"
-      :message="modalMessage"
-      :onClose="() => (showModal = false)" />
-
-    <!-- 탈퇴 성공 시 모달 -->
-    <BaseModal
-      :visible="showDeleteSuccessModal"
-      message="회원 탈퇴가 완료되었습니다."
-      redirect="/start"
-      :onClose="() => (showDeleteSuccessModal = false)"
-      :showIcon="true" />
   </div>
 </template>
 
 <script setup>
+// 스크립트 부분은 변경사항이 없으므로 그대로 사용합니다.
 import { ref, reactive, onMounted } from 'vue';
 import axios from 'axios';
 import { useEmailStore } from '@/stores/emailStore';
@@ -316,7 +299,7 @@ const handleDelete = async () => {
   }
 
   try {
-    await axios.delete('/users', {
+    await axios.delete('http://localhost:8080/users', {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -344,28 +327,80 @@ const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''))
 </script>
 
 <style scoped>
-/* Title Section Styles */
+/* ▼▼▼ 전체적인 레이아웃 및 폼 스타일 ▼▼▼ */
+.subBox {
+  min-height: calc(100dvh - 56px);
+  padding: 20px;
+}
+
 .user-edit-container {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 24px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
 }
-.logo {
-  width: 60px;
-  margin: 0 auto 8px;
-  text-align: center;
+
+/* ▼▼▼ 사용자 정보 표시 영역 스타일 (핵심 수정 부분) ▼▼▼ */
+.user-info-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background-color: var(--main01);
+  border-radius: 8px;
+  color: var(--white);
 }
-.title {
-  text-align: center;
-  margin-bottom: 24px;
-  font-size: 20px;
-  font-weight: bold;
-  color: var(--main01);
+
+.bear-icon {
+  width: 50px;
 }
-/* Btn Styles */
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* 이름과 아이디 행 사이의 간격 */
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+}
+
+.detail-label {
+  min-width: 50px;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  margin-right: 16px;
+}
+
+.detail-value {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  padding-left: 16px;
+  border-left: 2px solid var(--main04);
+}
+
+/* ▼▼▼ 폼 및 버튼 스타일 ▼▼▼ */
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  background: var(--white);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  margin:10px 0;
+}
+
+.validation-block {
+  margin-top: 2px;
+  text-align: left;
+  padding-left: 12px;
+}
+.subItem-title{
+  font-size:var(--font-size-md);
+
+}
 .submit-btn {
   width: 100%;
   margin-top: 20px;
@@ -373,118 +408,21 @@ const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''))
   color: var(--white);
   border: 1.5px solid var(--sub01);
   border-radius: 6px;
-  padding: 10px;
+  padding: 12px;
+  font-size: var(--font-size-md);
   font-weight: bold;
   cursor: pointer;
-}
-.delete-btn {
-  /* width: 100px; */
-  /* margin-top: 12px; */
-  /* background-color: var(--main04); */
-  /* color: var(--main01); */
-  /* border: 1.5px solid var(--main01); */
-  /* border-radius: 6px; */
-  /* padding: 10px; */
-  /* font-weight: bold; */
-  /* cursor: pointer; */
-  /* text-align: center; */
-  display: flex;
-  flex-direction: row;
-  /* align-items: center; */
-  justify-content: center; /* 중앙 정렬 */
-  gap: 16px; /* 요소 간 간격 */
 }
 
 .subBox2 {
   padding-top: 10px;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center; /* 중앙 정렬 */
-  gap: 16px; /* 요소 간 간격 */
+  justify-content: center;
 }
 
-.action {
+.delete-btn {
   font-size: var(--font-size-sm);
-  color: var(--main02); /* 원하는 색상 */
-  cursor: pointer;
-}
-
-.subItem1 {
-  padding: 0px 12px 0px 12px;
-}
-.fa {
   color: var(--main02);
-}
-.subItem2 {
-  padding-left: 16px;
-  color: var(--main01);
-  font-family: 'Pretendard';
-}
-.subLine {
-  border-color: var(--main04);
-  margin: 10px;
-}
-.subItem3 {
-  margin-left: 5px;
-}
-.signup {
-  /* max-width: 460px; */
-  /* margin: 0 auto; */
-  /* margin-left: -20px; */
-  /* margin-right: -20px; */
-  min-height: 100dvh;
-  width: 100%;
-  height: 100%;
-  /* padding: 2rem 1rem; */
-  text-align: center;
-  /* font-family: 'Pretendard', sans-serif; */
-  position: relative; /* ✅ 모달 위치 기준점이 됨 */
-  padding-bottom: 40px;
-}
-.logo {
-  width: 60px;
-  margin: 0 auto 8px;
-}
-.title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #151f3e;
-}
-hr {
-  border: none;
-  height: 2px;
-  background: #f97b6d;
-  margin: 16px 0 24px;
-}
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-.card {
-  background: #fff;
-  padding: 0;
-  border-radius: 10px;
-  border: 1px solid #e6e6e6;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.submit-button {
-  height: 50px;
-  background: #151f3e;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-weight: bold;
-  font-size: 1rem;
-  margin-top: 10px;
   cursor: pointer;
-}
-.validation-block {
-  margin-top: 2px;
-  text-align: left;
-  padding-left: 12px;
 }
 </style>
