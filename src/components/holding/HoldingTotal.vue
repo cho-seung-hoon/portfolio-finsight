@@ -82,7 +82,7 @@ onMounted(() => {
 });
 
 //  === 양지윤 ==================
-import { getAllPrice } from '@/api/tradeApi';
+import { getAllPriceApi } from '@/api/tradeApi';
 import { ref } from 'vue';
 
 const depositByUserId = ref(null);
@@ -97,7 +97,7 @@ const foreiTotal = (foreignByUserId / total) * 100;
 const getAllPrice = async () => {
   const token = localStorage.getItem('accessToken');
   try {
-    const response = await getAllPrice();
+    const response = await getAllPriceApi();
     depositByUserId.value = response.data.depositByUserId;
     domesticByUserId.value = response.data.domesticByUserId;
     foreignByUserId.value = response.data.foreignByUserId;
