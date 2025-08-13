@@ -7,7 +7,7 @@ import invtRoutes from '@/router/invtRoutes.js';
 import productRoutes from '@/router/productRoutes.js';
 import { useHeaderStore } from '@/stores/header.js';
 import { useWebSocketStore } from '@/stores/websocket.js';
-import axios from 'axios';
+import { fetchUserInfoApi } from '@/api/user';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -80,9 +80,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.name === 'home' && isLoggedIn) {
     try {
       const accessToken = localStorage.getItem('accessToken');
-      const response = await axios.get('http://localhost:8080/users/info', {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+      const response = await fetchUserInfoApi();
       const userName = response.data.userName;
       console.log(userName);
 

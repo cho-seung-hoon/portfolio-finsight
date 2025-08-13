@@ -1,99 +1,120 @@
 <template>
-<div class="main-section">
-  <section class="main-title">
-        <span :class="['invt', profileClass]">{{ investmentProfileType }}</span>
-        <span>을 위한 자산 배분안</span>
-      </section>
-  <!-- Main Section start -->
-  <section class="sub-section">
-    <div class="result-section">
-      <div class="comment-wrapper">
-        <img class="comment-img" src="@/assets/cha2.png" alt="cha">
-        <span class="subItem1">Fin-Sight와 함께하는<br>성공적인 재테크 !!</span> 
-      </div>
-      <table class="table-main-style">
-        <thead>
-          <tr>
-            <th class="table-header">상품별 종목</th>
-            <th class="table-header">위험 등급</th>
-            <th class="table-header"><span :class="['invt', profileClass]">{{ investmentProfileType }}</span></th>
-          </tr>
-        </thead>
-        
-        <tbody>
-          <tr>
-            <td class="table-cell">국내 주식형 펀드/ETF</td>
-            <td class="table-cell">2등급</td>
-            <td class="table-cell" >
-              <span :class="['invt', profileClass]">{{ selectedRecom[0] }} %</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="table-cell">국내 채권혼합형 펀드/ETF</td>
-            <td class="table-cell">5등급</td>
-            <td class="table-cell" >
-              <span :class="['invt', profileClass]">{{ selectedRecom[1] }} %</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="table-cell">국내 채권형 펀드/ETF</td>
-            <td class="table-cell">5등급</td>
-            <td class="table-cell" >
-              <span :class="['invt', profileClass]">{{ selectedRecom[2] }} %</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="table-cell">국내 채권형 펀드/ETF</td>
-            <td class="table-cell">6등급</td>
-            <td class="table-cell" >
-              <span :class="['invt', profileClass]">{{ selectedRecom[3] }} %</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="table-cell">현금성(예금 등)</td>
-            <td class="table-cell">6등급</td>
-            <td class="table-cell" >
-              <span :class="['invt', profileClass]">{{ selectedRecom[4] }} %</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="table-cell">해외 주식형 펀드/ETF</td>
-            <td class="table-cell">1등급</td>
-            <td class="table-cell" >
-              <span :class="['invt', profileClass]">{{ selectedRecom[5] }} %</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="table-cell">해외 주식형 펀드/ETF</td>
-            <td class="table-cell">2등급</td>
-            <td class="table-cell" >
-              <span :class="['invt', profileClass]">{{ selectedRecom[6] }} %</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="table-cell">해외 주식형 펀드/ETF</td>
-            <td class="table-cell">3등급</td>
-            <td class="table-cell" >
-              <span :class="['invt', profileClass]">{{ selectedRecom[7] }} %</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="table-cell">해외 채권형 펀드/ETF</td>
-            <td class="table-cell">4등급</td>
-            <td class="table-cell" >
-              <span :class="['invt', profileClass]">{{ selectedRecom[8] }} %</span>
-            </td>          
-          </tr>
-          <tr>
-            <td class="table-cell summary-label"colspan="2">위험자산군** 비중</td>
-            <td class="table-cell" :class="['invt', profileClass]">{{ selectedRecom[9] }}</td>
-          </tr>
-          <tr>
-            <td class="table-cell summary-label"colspan="2">모델 포트폴리오 위험도</td>
-            <td class="table-cell" :class="['invt', profileClass]">{{ selectedRecom[10] }}</td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="main-section">
+    <section class="main-title">
+      <span :class="['invt', profileClass]">{{ investmentProfileType }}</span>
+      <span>을 위한 자산 배분안</span>
+    </section>
+    <!-- Main Section start -->
+    <section class="sub-section">
+      <div class="result-section">
+        <div class="comment-wrapper">
+          <img
+            class="comment-img"
+            src="@/assets/cha2.png"
+            alt="cha" />
+          <span class="subItem1">Fin-Sight와 함께하는<br />성공적인 재테크 !!</span>
+        </div>
+        <table class="table-main-style">
+          <thead>
+            <tr>
+              <th class="table-header">상품별 종목</th>
+              <th class="table-header">위험 등급</th>
+              <th class="table-header">
+                <span :class="['invt', profileClass]">{{ investmentProfileType }}</span>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td class="table-cell">국내 주식형 펀드/ETF</td>
+              <td class="table-cell">2등급</td>
+              <td class="table-cell">
+                <span :class="['invt', profileClass]">{{ selectedRecom[0] }} %</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="table-cell">국내 채권혼합형 펀드/ETF</td>
+              <td class="table-cell">5등급</td>
+              <td class="table-cell">
+                <span :class="['invt', profileClass]">{{ selectedRecom[1] }} %</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="table-cell">국내 채권형 펀드/ETF</td>
+              <td class="table-cell">5등급</td>
+              <td class="table-cell">
+                <span :class="['invt', profileClass]">{{ selectedRecom[2] }} %</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="table-cell">국내 채권형 펀드/ETF</td>
+              <td class="table-cell">6등급</td>
+              <td class="table-cell">
+                <span :class="['invt', profileClass]">{{ selectedRecom[3] }} %</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="table-cell">현금성(예금 등)</td>
+              <td class="table-cell">6등급</td>
+              <td class="table-cell">
+                <span :class="['invt', profileClass]">{{ selectedRecom[4] }} %</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="table-cell">해외 주식형 펀드/ETF</td>
+              <td class="table-cell">1등급</td>
+              <td class="table-cell">
+                <span :class="['invt', profileClass]">{{ selectedRecom[5] }} %</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="table-cell">해외 주식형 펀드/ETF</td>
+              <td class="table-cell">2등급</td>
+              <td class="table-cell">
+                <span :class="['invt', profileClass]">{{ selectedRecom[6] }} %</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="table-cell">해외 주식형 펀드/ETF</td>
+              <td class="table-cell">3등급</td>
+              <td class="table-cell">
+                <span :class="['invt', profileClass]">{{ selectedRecom[7] }} %</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="table-cell">해외 채권형 펀드/ETF</td>
+              <td class="table-cell">4등급</td>
+              <td class="table-cell">
+                <span :class="['invt', profileClass]">{{ selectedRecom[8] }} %</span>
+              </td>
+            </tr>
+            <tr>
+              <td
+                class="table-cell summary-label"
+                colspan="2">
+                위험자산군** 비중
+              </td>
+              <td
+                class="table-cell"
+                :class="['invt', profileClass]">
+                {{ selectedRecom[9] }}
+              </td>
+            </tr>
+            <tr>
+              <td
+                class="table-cell summary-label"
+                colspan="2">
+                모델 포트폴리오 위험도
+              </td>
+              <td
+                class="table-cell"
+                :class="['invt', profileClass]">
+                {{ selectedRecom[10] }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         <!-- Notice Section start -->
         <small class="notice">
@@ -122,7 +143,7 @@
 // imports
 import { useRouter, useRoute } from 'vue-router';
 import { onMounted, computed, ref } from 'vue';
-import axios from 'axios';
+import { fetchInvestmentProfileApi, fetchUserInfoApi } from '@/api/user';
 
 // Route Section
 const router = useRouter();
@@ -134,28 +155,25 @@ const goToMain = () => {
 const route = useRoute();
 const RiskType = ref('');
 
-
 // === ✅ 개인정보 GET 호출 ===========================
 const UserInfoA = ref({
-    userId: '', 
-    userName: ''
+  userId: '',
+  userName: ''
 });
 const getUserInfo = async () => {
-    const token = localStorage.getItem('accessToken');
-    try {
-    const response = await axios.get('http://localhost:8080/users/info', {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+  const token = localStorage.getItem('accessToken');
+  try {
+    const response = await fetchUserInfoApi();
     UserInfoA.value = response.data.data;
     console.log(UserInfoA.value);
-    } catch (e) {
+  } catch (e) {
     console.error('유저 정보 불러오기 실패:', e);
-    }
+  }
 };
 
 // === ✅ 투자성향 GET 호출 ===========================
 const profileClass = ref('');
-const translateProfileType = (type) => {
+const translateProfileType = type => {
   switch (type) {
     case 'stable':
       return '안정형';
@@ -171,52 +189,52 @@ const translateProfileType = (type) => {
       return '알 수 없음';
   }
 };
-const getProfileClass = (type) => {
+const getProfileClass = type => {
   switch (type) {
-    case 'stable': return 'highlight-stable';
-    case 'stableplus': return 'highlight-stableplus';
-    case 'neutral': return 'highlight-neutral';
-    case 'aggressive': return 'highlight-aggressive';
-    case 'veryaggressive': return 'highlight-veryaggressive';
-    default: return '';
+    case 'stable':
+      return 'highlight-stable';
+    case 'stableplus':
+      return 'highlight-stableplus';
+    case 'neutral':
+      return 'highlight-neutral';
+    case 'aggressive':
+      return 'highlight-aggressive';
+    case 'veryaggressive':
+      return 'highlight-veryaggressive';
+    default:
+      return '';
   }
 };
 const investmentProfileType = ref('');
 const rawProfileType = ref('');
 const getUserType = async () => {
   const token = localStorage.getItem('accessToken');
-    try {
-    const response = await axios.get(
-      'http://localhost:8080/users/invt',
-      {
-        headers: { Authorization: `Bearer ${token}`,
-        },
-      });
-      const type = response.data.investmentProfileType;
-      investmentProfileType.value = translateProfileType(type);
-      rawProfileType.value = type;
-      profileClass.value = getProfileClass(type);
-      console.log('---------------')
-      console.log('투자성향결과:', type);
+  try {
+    const response = await fetchInvestmentProfileApi();
+    const type = response.data.investmentProfileType;
+    investmentProfileType.value = translateProfileType(type);
+    rawProfileType.value = type;
+    profileClass.value = getProfileClass(type);
+    console.log('---------------');
+    console.log('투자성향결과:', type);
   } catch (e) {
     console.error('투자성향 불러오기 실패: ', e);
   }
-}
+};
 
 // === ✅ GET 호출된 데이터들 Mounted 하기 ==============
-onMounted (() => {
+onMounted(() => {
   getUserInfo();
   getUserType();
-})
-
+});
 
 // === ✅ 상품정보 데이터 ==============
 const pdt_tdl = [
-  {type: 'stable', recom: [ 0, 0, 0, 98, 2, 0, 0, 0, 0, 0, 6.00 ]},
-  {type: 'stableplus', recom: [ 7, 12, 5, 59, 2, 0, 10, 5, 0, 22, 5.00 ]},
-  {type: 'neutral', recom: [ 8, 10, 6, 34, 2, 0, 28, 12, 0, 48, 4.04 ]},
-  {type: 'aggressive', recom: [ 10, 0, 10, 23, 2, 4, 32, 14, 5, 60, 3.50 ]},
-  {type: 'veryaggressive', recom: [ 21, 0, 5, 2, 2, 8, 40, 22, 0, 91, 2.45 ]}
+  { type: 'stable', recom: [0, 0, 0, 98, 2, 0, 0, 0, 0, 0, 6.0] },
+  { type: 'stableplus', recom: [7, 12, 5, 59, 2, 0, 10, 5, 0, 22, 5.0] },
+  { type: 'neutral', recom: [8, 10, 6, 34, 2, 0, 28, 12, 0, 48, 4.04] },
+  { type: 'aggressive', recom: [10, 0, 10, 23, 2, 4, 32, 14, 5, 60, 3.5] },
+  { type: 'veryaggressive', recom: [21, 0, 5, 2, 2, 8, 40, 22, 0, 91, 2.45] }
 ];
 
 // (1) 데이터와 성향을 묶기
@@ -227,14 +245,14 @@ const selectedRecom = computed(() => {
 </script>
 
 <style scoped>
-.main-section{
+.main-section {
   background: var(--off-white);
   display: flex;
   flex-direction: column;
   position: relative;
   min-height: calc(100dvh - 56px);
 }
-.comment-wrapper{
+.comment-wrapper {
   padding-left: 15px;
   padding-right: 15px;
   display: flex;
@@ -272,8 +290,8 @@ const selectedRecom = computed(() => {
   object-fit: cover;
   object-position: top;
 }
-.title{
-  font-size:var(--font-size-md);
+.title {
+  font-size: var(--font-size-md);
 }
 
 /* Table Section style */
@@ -387,8 +405,8 @@ const selectedRecom = computed(() => {
   font-size: var(--font-size-md);
   cursor: pointer;
   border-radius: 8px;
-  margin-top:auto;
-  margin-bottom:60px;
+  margin-top: auto;
+  margin-bottom: 60px;
 }
 /* TableSection style */
 .table-main-style {

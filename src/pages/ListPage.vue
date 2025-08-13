@@ -59,7 +59,7 @@ import ListFundPage from './list/ListFundPage.vue';
 import ListEtfPage from './list/ListEtfPage.vue';
 import IconCheck from '@/components/icons/IconCheck.vue';
 import BottomModal from '@/components/list/BottomModal.vue';
-import axios from 'axios';
+import { fetchInvestmentProfileApi } from '@/api/user';
 
 const route = useRoute();
 const category = computed(() => route.params.category);
@@ -107,9 +107,7 @@ const fetchInvestmentProfile = async () => {
     return;
   }
   try {
-    const response = await axios.get('http://localhost:8080/users/invt', {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    });
+    const response = await fetchInvestmentProfileApi();
     const type = response.data.investmentProfileType;
     investmentProfileType.value = translateProfileType(type);
     profileClass.value = getProfileClass(type);

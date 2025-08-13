@@ -403,23 +403,6 @@ const checkUserId = async () => {
   }
 };
 
-// const checkNickname = async () => {
-//   if (!form.nickname) return (errors.nickname = '● 닉네임을 입력해주세요.');
-//   try {
-//     const res = await axios.get('/users', { params: { nickname: form.nickname } });
-//     if (res.data === true) {
-//       errors.nickname = '● 이미 사용 중인 닉네임입니다.';
-//       status.nicknameChecked = false;
-//     } else {
-//       errors.nickname = '';
-//       status.nicknameChecked = true;
-//     }
-//   } catch {
-//     errors.nickname = '● 닉네임 중복 확인 실패';
-//     status.nicknameChecked = false;
-//   }
-// };
-
 const requestCode = async () => {
   if (!validateEmail()) return;
   emailStore.email = form.email;

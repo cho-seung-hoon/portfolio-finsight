@@ -63,7 +63,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { fetchUserInfoApi, fetchInvestmentProfileApi } from '@/api/user';
 
 const investmentProfileType = ref('');
 onMounted(() => {
@@ -77,9 +77,7 @@ const userInfo = ref({
 const fetchUsersInfo = async () => {
   const token = localStorage.getItem('accessToken');
   try {
-    const response = await axios.get('http://localhost:8080/users/info', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const response = await fetchUserInfoApi();
     userInfo.value = response.data;
   } catch (e) {
     console.error('유저 정보 불러오기 실패:', e);
@@ -93,11 +91,7 @@ const fetchInvestmentProfile = async () => {
     return;
   }
   try {
-    const response = await axios.get('http://localhost:8080/users/invt', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
+    const response = await fetchInvestmentProfileApi();
     const type = response.data.investmentProfileType;
     investmentProfileType.value = translateProfileType(type);
     profileClass.value = getProfileClass(type);

@@ -67,6 +67,8 @@ import { computed, reactive, ref } from 'vue';
 
 import IconLogo from '@/components/icons/IconLogo.vue';
 import { useSessionStore } from '@/stores/session'; // ✅ 추가
+import { loginApi } from '@/api/auth';
+import { getMyInfoApi } from '@/api/user';
 
 const sessionStore = useSessionStore(); // ✅ 추가
 
@@ -98,27 +100,34 @@ const handleLogin = async () => {
   if (!validateForm()) return;
 
   try {
-    const response = await axios.post('http://localhost:8080/users/login', {
-      userId: formData.id,
-      password: formData.password
-    });
+    const response = await loginApi(formData.id, formData.password);
 
     const accessToken = response.data.accessToken;
+
+    // ✅ 로그인 직후 즉시 카운트다운 시작 (새로고침 없이 모달 동작)
+    sessionStore.startCountdown();
+
     localStorage.setItem('accessToken', accessToken);
+    // router.push('/');
+
+    // ✅ 로그인 직후 즉시 카운트다운 시작 (새로고침 없이 모달 동작)
+    // sessionStore.startCountdown();
+
+    // === goToInvTestMainPage start 양지윤 ====================================== //
+    // ✅ 토큰을 Authorization 헤더에 담아 사용자 정보 요청
     console.log('accessToken 입니다. :', accessToken);
-    const userInfoResponse = await axios.get('http://localhost:8080/users/me', {
-      // 경로를 보내야함. 예: 'http://localhost:8080/users/me'
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
+    const userInfoResponse = await getMyInfoApi();
     const userRole = userInfoResponse.data.userRole;
     localStorage.setItem('userRole', userRole);
     console.log('userRole', userRole);
+
+    // ✅ 역할에 따라 라우팅
     if (userRole === 'COMPLETE') {
-      router.push('/');
+      await router.push('/');
+      await router.push('/');
+      // await router.replace('/');
     } else {
-      router.push('/inv-type-main-page');
+      await router.push('/inv-type-main-page');
     }
     // === goToInvTestMainPage end 양지윤 ====================================== //
   } catch (error) {
