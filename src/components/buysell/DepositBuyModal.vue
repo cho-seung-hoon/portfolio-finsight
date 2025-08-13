@@ -23,10 +23,10 @@
 
         <!-- 기간 선택 -->
         <div class="form-group">
-          <label for="period">기간</label>
+          <label for="contractMonths">기간</label>
           <select
-            id="period"
-            v-model="formData.period"
+            id="contractMonths"
+            v-model="formData.contractMonths"
             class="form-control"
             required>
             <option value="">기간을 선택하세요</option>
@@ -38,7 +38,7 @@
             </option>
           </select>
         </div>
-
+        
         <!-- 예금액 입력 -->
         <div class="form-group">
           <label for="amount">예금액</label>
@@ -131,7 +131,7 @@ const isClosing = ref(false);
 const isSubmitting = ref(false);
 
 const formData = ref({
-  period: '',
+  contractMonths: '',
   amount: ''
 });
 
@@ -166,7 +166,7 @@ const maxAmount = computed(() => {
 const isFormValid = computed(() => {
   const amount = parseNumberFromComma(formData.value.amount);
   return (
-    formData.value.period &&
+    formData.value.contractMonths &&
     formData.value.amount &&
     new Decimal(amount).gte(minAmount.value) &&
     new Decimal(amount).lte(maxAmount.value)
@@ -198,7 +198,7 @@ const formatCurrency = amount => {
 // 폼 초기화 함수
 const resetForm = () => {
   formData.value = {
-    period: '',
+    contractMonths: '',
     amount: ''
   };
 };
@@ -266,7 +266,7 @@ const handleSubmit = async () => {
     productCategory: 'deposit',
     quantity: 1,
     amount: new Decimal(parseNumberFromComma(formData.value.amount)).toNumber(),
-    period: parseInt(formData.value.period),
+    contractMonths: parseInt(formData.value.contractMonths), // 선택된 기간을 contractMonths로 전달
     startDate: startDate
   };
 
@@ -278,7 +278,6 @@ const handleSubmit = async () => {
       emit('submit', {
         success: true,
         data: result.data,
-        period: formData.value.period,
         amount: new Decimal(parseNumberFromComma(formData.value.amount)),
         startDate: startDate,
         code: props.productInfo?.productCode
