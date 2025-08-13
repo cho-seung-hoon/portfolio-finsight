@@ -168,7 +168,7 @@ const getUserInfo = async () => {
   const token = localStorage.getItem('accessToken');
   try {
     const response = await fetchUserInfoApi();
-    UserInfoA.value = response.data.data;
+    UserInfoA.value = response.data;
     console.log(UserInfoA.value);
   } catch (e) {
     console.error('유저 정보 불러오기 실패:', e);
