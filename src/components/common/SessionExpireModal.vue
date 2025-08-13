@@ -1,3 +1,4 @@
+<!-- src\components\common\SessionExpireModal.vue -->
 <template>
   <div
     v-if="visible"
@@ -15,15 +16,20 @@
       </h3>
 
       <div class="message">
-        세션이 곧 만료됩니다.<br />
-        남은 시간: <strong>{{ remainingTime }}</strong
-        ><br />
-        연장하시겠습니까?
+        <template v-if="mode === 'countdown'">
+          세션이 곧 만료됩니다.<br />
+          남은 시간: <strong>{{ remainingTime }}</strong
+          ><br />
+          연장하시겠습니까?
+        </template>
+        <template v-else> 세션이 만료되어<br />자동 로그아웃 되었습니다. </template>
       </div>
 
       <hr class="divider" />
 
-      <div class="button-group">
+      <div
+        class="button-group"
+        v-if="mode === 'countdown'">
         <button
           class="cancel-btn"
           type="button"
@@ -37,6 +43,14 @@
           연장
         </button>
       </div>
+
+      <button
+        v-else
+        class="confirm-only-btn"
+        type="button"
+        @click="emitClose">
+        확인
+      </button>
     </div>
   </div>
 </template>
@@ -44,7 +58,8 @@
 <script setup>
 const props = defineProps({
   visible: { type: Boolean, default: false },
-  remainingTime: { type: String, default: '00:00' }
+  remainingTime: { type: String, default: '00:00' },
+  mode: { type: String, default: 'countdown' } // 🔹 'countdown' | 'expired'
 });
 const emit = defineEmits(['extend', 'logout', 'close']);
 
