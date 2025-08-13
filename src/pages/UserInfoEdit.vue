@@ -2,7 +2,10 @@
   <div class="subBox">
     <div class="user-edit-container">
       <div class="user-info-header">
-        <img src="@/assets/cha4.png" alt="곰돌이" class="bear-icon" />
+        <img
+          src="@/assets/cha4.png"
+          alt="곰돌이"
+          class="bear-icon" />
         <div class="user-details">
           <div class="detail-row">
             <span class="detail-label">이름</span>
@@ -15,11 +18,11 @@
         </div>
       </div>
 
-      <div class="subItem-title">
-        비밀번호 변경
-      </div>
+      <div class="subItem-title">비밀번호 변경</div>
 
-      <form class="form" @submit.prevent="handleEdit">
+      <form
+        class="form"
+        @submit.prevent="handleEdit">
         <div class="card">
           <InputWithIcon
             v-model="form.password"
@@ -29,8 +32,7 @@
             :error="!!errors.password"
             :valid="form.password?.length >= 10 && !errors.password"
             @blur="validatePassword"
-            @focus="clearError('password')"
-          />
+            @focus="clearError('password')" />
           <InputWithIcon
             v-model="form.confirmPassword"
             icon="fa-lock"
@@ -39,13 +41,8 @@
             :error="!!errors.confirmPassword"
             :valid="form.confirmPassword?.length > 0 && !errors.confirmPassword"
             @blur="validateConfirmPassword"
-            @focus="clearError('confirmPassword')"
-          />
+            @focus="clearError('confirmPassword')" />
         </div>
-
-
-
-
 
         <div class="card">
           <InputWithIcon
@@ -59,8 +56,7 @@
             autocomplete="off"
             autocorrect="off"
             @button-click="requestCode"
-            @focus="clearError('email')"
-          />
+            @focus="clearError('email')" />
           <VerificationCodeInput
             v-model="form.code"
             :error="!!errors.code"
@@ -68,8 +64,7 @@
             @verify="verifyCode"
             @resend="resendCode"
             @blur="validateCode"
-            @focus="clearError('code')"
-          />
+            @focus="clearError('code')" />
         </div>
 
         <div class="validation-block">
@@ -79,10 +74,16 @@
           <ValidationMessage :message="errors.code" />
         </div>
 
-        <button type="submit" class="submit-btn">수정 완료</button>
+        <button
+          type="submit"
+          class="submit-btn">
+          수정 완료
+        </button>
       </form>
       <div class="subBox2">
-        <div class="action delete-btn" @click="showDeleteModal = true">
+        <div
+          class="action delete-btn"
+          @click="showDeleteModal = true">
           회원탈퇴
         </div>
       </div>
@@ -98,8 +99,7 @@
             showDeleteModal = false;
             handleDelete();
           }
-        "
-      >
+        ">
         <template #default>
           정말 탈퇴하시겠습니까?<br />
           탈퇴 후 복구가 불가능합니다.
@@ -111,22 +111,19 @@
         message="회원 정보 수정 완료!"
         redirect="/my"
         :onClose="() => (showCompleteModal = false)"
-        :showIcon="true"
-      />
+        :showIcon="true" />
 
       <BaseModal
         :visible="showModal"
         :message="modalMessage"
-        :onClose="() => (showModal = false)"
-      />
+        :onClose="() => (showModal = false)" />
 
       <BaseModal
         :visible="showDeleteSuccessModal"
         message="회원 탈퇴가 완료되었습니다."
         redirect="/start"
         :onClose="() => (showDeleteSuccessModal = false)"
-        :showIcon="true"
-      />
+        :showIcon="true" />
     </div>
   </div>
 </template>
@@ -148,7 +145,7 @@ const getUserInfo = async () => {
   const token = localStorage.getItem('accessToken');
   try {
     const response = await fetchUserInfoApi();
-    UserInfoA.value = response.data.data;
+    UserInfoA.value = response.data;
   } catch (e) {
     console.error('유저 정보 불러오기 실패:', e);
   }
@@ -384,7 +381,7 @@ const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''))
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  margin:10px 0;
+  margin: 10px 0;
 }
 
 .validation-block {
@@ -392,9 +389,8 @@ const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''))
   text-align: left;
   padding-left: 12px;
 }
-.subItem-title{
-  font-size:var(--font-size-md);
-
+.subItem-title {
+  font-size: var(--font-size-md);
 }
 .submit-btn {
   width: 100%;
