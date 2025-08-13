@@ -1,22 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomePage from '@/pages/HomePage.vue';
-
 import holdingRoutes from './holdingRoutes';
 import listRoutes from './listRoutes';
 import myRoutes from './myRoutes';
-import signUpRoutes from './signUpRoutes';
 import invtRoutes from '@/router/invtRoutes.js';
-import watchRoutes from './watchRoutes';
-import searchRoutes from './searchRoutes';
-import depositRoutes from './depositRoutes';
-import etfRoutes from './etfRoutes';
-import fundRoutes from './fundRoutes';
-import portfolioRoutes from './portfolioRoutes';
-import startRoutes from './startRoutes';
-
+import productRoutes from '@/router/productRoutes.js';
 import { useHeaderStore } from '@/stores/header.js';
 import { useWebSocketStore } from '@/stores/websocket.js';
-import axios from 'axios'; // ✅ 추가됨
 import { fetchUserInfoApi } from '@/api/user';
 
 const router = createRouter({
@@ -27,7 +17,16 @@ const router = createRouter({
       name: 'home',
       component: HomePage,
       meta: {
-        header: true // ✅ 동적으로 세팅할 예정이라 true로만 표시
+        header: true,
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/start',
+      name: 'Start',
+      component: () => import('../pages/StartPage.vue'),
+      meta: {
+        layout: 'EmptyLayout'
       }
     },
     {
@@ -38,28 +37,19 @@ const router = createRouter({
         layout: 'EmptyLayout'
       }
     },
+    {
+      path: '/signup',
+      name: 'SignUp',
+      component: () => import('../pages/SignUpPage.vue'),
+      meta: {
+        layout: 'EmptyLayout'
+      }
+    },
     ...holdingRoutes,
     ...listRoutes,
     ...myRoutes,
-    ...signUpRoutes,
     ...invtRoutes,
-    ...watchRoutes,
-    ...searchRoutes,
-    ...depositRoutes,
-    ...etfRoutes,
-    ...fundRoutes,
-    ...startRoutes,
-    ...portfolioRoutes,
-    {
-      path: '/example/etf-list-websocket',
-      name: 'etf-list-websocket',
-      component: () => import('@/pages/example/EtfListWithWebSocket.vue'),
-      meta: {
-        header: {
-          titleParts: [{ text: 'ETF 리스트 (웹소켓)', color: 'var(--main01)' }]
-        }
-      }
-    },
+    ...productRoutes,
     {
       path: '/:pathMatch(.*)*',
       redirect: '/'
@@ -87,7 +77,6 @@ router.beforeEach(async (to, from, next) => {
     return;
   }
 
-  // ✅ HOME 진입 시 userName을 API로 불러와서 헤더 설정
   if (to.name === 'home' && isLoggedIn) {
     try {
       const accessToken = localStorage.getItem('accessToken');
@@ -103,11 +92,9 @@ router.beforeEach(async (to, from, next) => {
       });
     } catch (error) {
       console.error('유저 이름 불러오기 실패:', error);
-      headerStore.resetHeader(); // 실패 시 기본 헤더로
+      headerStore.resetHeader();
     }
   }
-
-  // ✅ 그 외 일반적인 header 처리
   else if (headerMeta && headerMeta !== 'none') {
     const options = typeof headerMeta === 'function' ? headerMeta(to) : { ...headerMeta };
 
@@ -115,7 +102,6 @@ router.beforeEach(async (to, from, next) => {
       const backTarget = options.backHandler;
       options.backHandler = () => router.push(backTarget);
     }
-
     headerStore.setHeader(options);
   } else {
     headerStore.resetHeader();
@@ -125,7 +111,7 @@ router.beforeEach(async (to, from, next) => {
     headerStore.backHandler = () => router.back();
   }
 
-  // 페이지 이동 시 웹소켓 구독 해제 (연결은 유지)
+
   if (from.path !== to.path) {
     webSocketStore.unsubscribeAll();
   }
