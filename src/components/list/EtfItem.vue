@@ -30,6 +30,25 @@
 
     <section class="etf-item-content-section">
       <div class="info-row">
+        <span class="label">현재가</span>
+        <span class="value">{{ fmtNumber(item.currentPrice) }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">수익률</span>
+        <span
+          class="value"
+          :class="changeClass"
+          >{{ fmtPercent(item.return3Months) }}</span
+        >
+      </div>
+
+      <div class="info-row">
+        <span class="label">거래량</span>
+        <span class="value">{{ fmtNumber(item.volume) }}</span>
+      </div>
+
+      <div class="info-row">
         <span class="label">위험등급</span>
         <span class="value">{{ item.productRiskGrade }}등급</span>
       </div>
@@ -56,6 +75,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import IconHeartStroke from '../icons/IconHeartStroke.vue';
 
@@ -86,6 +106,28 @@ const router = useRouter();
 function goToDetail() {
   router.push(`/etf/${props.item.productCode}`);
 }
+
+function fmtNumber(n) {
+  if (n == null || n === '') return '-';
+  const num = Number(n);
+  if (Number.isNaN(num)) return '-';
+  return num.toLocaleString('ko-KR');
+}
+function fmtPercent(v) {
+  if (v == null || v === '') return '-';
+  let num = Number(v);
+  if (Number.isNaN(num)) return '-';
+  if (Math.abs(num) > 0 && Math.abs(num) < 1) num *= 100;
+  return `${num.toFixed(2)}%`;
+}
+
+const changeClass = computed(() => {
+  const v = Number(props.item?.return3Months);
+  if (Number.isNaN(v)) return '';
+  if (v > 0) return 'up';
+  if (v < 0) return 'down';
+  return 'flat';
+});
 
 function getSegmentStyle(key) {
   const values = props.item.newsSentiment || { positive: 0, neutral: 0, negative: 0 };
@@ -213,12 +255,6 @@ function getSegmentStyle(key) {
   flex-shrink: 0;
 }
 
-.value {
-  font-size: var(--font-size-ms);
-  font-weight: var(--font-weight-regular);
-  color: var(--main01);
-}
-
 .news-response-box {
   display: flex;
   flex-direction: row;
@@ -263,5 +299,23 @@ function getSegmentStyle(key) {
 
 .news-bar-segment.center {
   border-radius: 0;
+}
+
+.value {
+  font-size: var(--font-size-ms);
+  font-weight: var(--font-weight-regular);
+  color: var(--main01);
+}
+
+.value.up {
+  color: var(--text-red);
+  font-weight: var(--font-weight-medium);
+}
+.value.down {
+  color: var(--text-blue);
+  font-weight: var(--font-weight-medium);
+}
+.value.flat {
+  color: var(--main01);
 }
 </style>
