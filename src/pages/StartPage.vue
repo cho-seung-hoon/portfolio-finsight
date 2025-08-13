@@ -35,7 +35,7 @@ const goToLogin = () => {
 
 <style scoped>
 .intro-page {
-  background-color: #0e1830;
+  background-color: var(--main01);
   height: 100dvh;
   color: white;
   text-align: center;

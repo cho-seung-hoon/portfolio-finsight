@@ -4,25 +4,31 @@ import { ref } from 'vue';
 export const useLoadingStore = defineStore('loading', () => {
   const isLoading = ref(false);
   const loadingText = ref('데이터를 불러오는 중...');
+  const requestCount = ref(0);
 
   const startLoading = (text = '데이터를 불러오는 중...') => {
-    console.log('startLoading 호출됨 - text:', text);
-    loadingText.value = text;
-    isLoading.value = true;
-    console.log('startLoading 완료 - isLoading:', isLoading.value);
+    requestCount.value++;
+
+    if (requestCount.value === 1) {
+      loadingText.value = text;
+      isLoading.value = true;
+    }
   };
 
   const stopLoading = () => {
-    console.log('stopLoading 호출됨');
-    isLoading.value = false;
-    console.log('stopLoading 완료 - isLoading:', isLoading.value);
+    if (requestCount.value > 0) {
+      requestCount.value--;
+    }
+
+    if (requestCount.value === 0) {
+      isLoading.value = false;
+    }
   };
 
   const resetLoading = () => {
-    console.log('resetLoading 호출됨');
+    requestCount.value = 0;
     isLoading.value = false;
     loadingText.value = '데이터를 불러오는 중...';
-    console.log('resetLoading 완료');
   };
 
   return {

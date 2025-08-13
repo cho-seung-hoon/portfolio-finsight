@@ -44,7 +44,7 @@
       </div>
       <div class="subItem-right">
         <div class="subItem-title02">지난 7일 집계</div>
-        <div class="icon-wrapper icon-refresh">
+        <div class="icon-wrapper icon-refresh" @click="handleRefreshClick">
           <IconRefresh/>
         </div>
       </div>
@@ -72,12 +72,16 @@ const props = defineProps({
     required: true
   }
 });
-const emit = defineEmits(['keyword-click', 'initial-load']);
+const emit = defineEmits(['keyword-click', 'initial-load', 'refresh-data']);
 
 const chartBox = ref(null);
 const showTooltip = ref(false);
 const initialLoadDone = ref(false);
 let svg, simulation, resizeObserver;
+
+function handleRefreshClick() {
+  emit('refresh-data');
+}
 
 // 이벤트 핸들러
 function onBubbleClick(keyword) {
