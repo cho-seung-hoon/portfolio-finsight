@@ -39,6 +39,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import BaseModal from '@/components/common/BaseModal.vue';
+import { fetchInvestmentProfileApi } from '@/api/user';
 
 const investmentProfileType = ref('');
 onMounted(() => {
@@ -55,11 +56,7 @@ const fetchInvestmentProfile = async () => {
   }
 
   try {
-    const response = await axios.get('http://localhost:8080/users/invt', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
+    const response = await fetchInvestmentProfileApi();
     const type = response.data.investmentProfileType;
     investmentProfileType.value = translateProfileType(type);
     profileClass.value = getProfileClass(type);

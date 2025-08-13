@@ -2,13 +2,16 @@
   <div class="subBox2">
     <div class="subItem subItemWrapper">
       <div class="name">{{ userInfo.userName }} 님</div>
-      <button @click="goToUserInfoEdit" class="btn">
-        <img 
+      <button
+        @click="goToUserInfoEdit"
+        class="btn">
+        <img
           src="@/assets/userinfo.png"
           class="btn-userinfo"
           alt="회원정보 수정 버튼" />
       </button>
-    </div><br>
+    </div>
+    <br />
     <div class="subItem">
       <img
         src="@/assets/logo.svg"
@@ -36,27 +39,25 @@
 <script setup>
 // ✅ 마이페이지에 개인정보 GET 호출하기
 import { onMounted, ref } from 'vue';
-import axios from 'axios';
+import { fetchUserInfoApi } from '@/api/user';
 
 const userInfo = ref({
   userName: '',
   userEmail: '',
   userBirthday: '',
-  userCreatedAt: '',
+  userCreatedAt: ''
 });
 const fetchUsersInfo = async () => {
   const token = localStorage.getItem('accessToken');
   try {
-    const response = await axios.get('http://localhost:8080/users/info', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await fetchUserInfoApi();
     userInfo.value = response.data;
   } catch (e) {
     console.error('유저 정보 불러오기 실패:', e);
   }
 };
 
-const formatArrayDateToYYYYMMDD = (dateArray) => {
+const formatArrayDateToYYYYMMDD = dateArray => {
   const [year, month, day] = dateArray;
   const formattedMonth = String(month).padStart(2, '0');
   const formattedDay = String(day).padStart(2, '0');
@@ -64,7 +65,7 @@ const formatArrayDateToYYYYMMDD = (dateArray) => {
   return `${year}-${formattedMonth}-${formattedDay}`;
 };
 
-const formatArrayDateTimeToYYYYMMDD = (dateTimeArray) => {
+const formatArrayDateTimeToYYYYMMDD = dateTimeArray => {
   // 배열의 첫 세 요소(년, 월, 일)만 사용
   const [year, month, day] = dateTimeArray;
 
@@ -83,7 +84,6 @@ const goToUserInfoEdit = () => {
   router.push('/user-info-edit');
 };
 </script>
-
 
 <style scoped>
 .subBox2 {

@@ -82,7 +82,7 @@ onMounted(() => {
 });
 
 //  === 양지윤 ==================
-import axios from 'axios';
+import { getAllPrice } from '@/api/tradeApi';
 import { ref } from 'vue';
 
 const depositByUserId = ref(null);
@@ -94,26 +94,17 @@ const depTotal = (depositByUserId / total) * 100;
 const domeTotal = (domesticByUserId / total) * 100;
 const foreiTotal = (foreignByUserId / total) * 100;
 
-
-
 const getAllPrice = async () => {
   const token = localStorage.getItem('accessToken');
   try {
-    const response = await axios.get(
-      'http://localhost:8080/holdings/',
-      {
-        headers: { Authorization: `Bearer ${token}`,
-        }
-    });
+    const response = await getAllPrice();
     depositByUserId.value = response.data.depositByUserId;
     domesticByUserId.value = response.data.domesticByUserId;
     foreignByUserId.value = response.data.foreignByUserId;
 
-    console.log('정기예금: ', depositByUserId.value)
-    console.log('국내 투자상품: ', domesticByUserId.value)
-    console.log('해외 투자상품: ', foreignByUserId.value)
-    
-
+    console.log('정기예금: ', depositByUserId.value);
+    console.log('국내 투자상품: ', domesticByUserId.value);
+    console.log('해외 투자상품: ', foreignByUserId.value);
   } catch (error) {
     console.error('투자모아보기 가져오기 실패:', error);
     depositByUserId.value = 0; // 에러 시 0으로 대체
@@ -125,8 +116,6 @@ const getAllPrice = async () => {
 onMounted(() => {
   getAllPrice();
 });
-
-
 </script>
 
 <style scoped>

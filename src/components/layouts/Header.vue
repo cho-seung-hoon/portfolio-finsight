@@ -61,7 +61,7 @@ import { storeToRefs } from 'pinia';
 import { useHeaderStore } from '@/stores/header';
 import { useRouter } from 'vue-router';
 import IconSearch from '@/components/icons/IconSearch.vue';
-import axios from 'axios';
+import { refreshTokenApi } from '@/api/session';
 import { decodingJWT } from '@/utils/jwtUtil.js';
 
 const router = useRouter();
@@ -127,15 +127,7 @@ async function handleExtendSession() {
   console.log(accessToken);
 
   try {
-    const response = await axios.post(
-      'http://localhost:8080/users/token',
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-    );
+    const response = await refreshTokenApi();
 
     const newAccessToken = response.data;
     localStorage.setItem('accessToken', newAccessToken);

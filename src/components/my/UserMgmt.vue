@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import axios from 'axios';
+import { logoutApi } from '@/api/session';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import BaseModal from '../common/BaseModal.vue';
@@ -39,15 +39,7 @@ const logout = async () => {
   const refreshToken = localStorage.getItem('refreshToken');
 
   try {
-    await axios.post(
-      'http://localhost:8080/users/logout',
-      { refreshToken },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-    );
+    await logoutApi(refreshToken); // ✅ API 호출
 
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');

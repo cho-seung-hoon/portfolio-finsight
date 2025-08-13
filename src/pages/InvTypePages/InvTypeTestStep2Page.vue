@@ -641,7 +641,7 @@
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { updateInvestmentProfileApi } from '@/api/user';
 import BaseModal from '@/components/common/BaseModal.vue';
 
 const router = useRouter();
@@ -722,17 +722,7 @@ const submitInvestmentProfile = async () => {
   console.log('🔐 accessToken:', accessToken);
 
   try {
-    const response = await axios.put(
-      'http://localhost:8080/users/invt',
-      {
-        investmentProfileType: investmentProfileType.value
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-    );
+    const response = await updateInvestmentProfileApi(investmentProfileType.value);
     console.log('투자성향 저장 성공:', response.data);
   } catch (error) {
     console.error('투자성향 저장 실패:', error);

@@ -1,4 +1,9 @@
-import axios from 'axios';
+import apiClient from './index.js';
+
+// 투자 모아보기(보유 상품 평가액) 조회
+export const getAllPrice = async () => {
+  return apiClient.get('/holdings/');
+};
 
 // 매수 함수
 export async function purchaseProduct(tradeData) {
@@ -10,7 +15,7 @@ export async function purchaseProduct(tradeData) {
       return { success: false, error: '인증 토큰이 없습니다.' };
     }
 
-    const response = await axios.post('http://localhost:8080/holdings/purchases', tradeData, {
+    const response = await apiClient.post('/holdings/purchases', tradeData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -34,7 +39,7 @@ export async function sellProduct(tradeData) {
       return { success: false, error: '인증 토큰이 없습니다.' };
     }
 
-    const response = await axios.post('http://localhost:8080/holdings/sales', tradeData, {
+    const response = await apiClient.post('/holdings/sales', tradeData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -47,3 +52,12 @@ export async function sellProduct(tradeData) {
     return { success: false, error: error.response?.data || error.message };
   }
 }
+
+export const getMyPortfolioApi = () => {
+  return apiClient.get('/holdings/mp');
+};
+
+// ✅ 예금 보유내역 조회
+export const getDepositHoldingsApi = () => {
+  return apiClient.get('/holdings/deposit'); // 토큰 자동 포함
+};

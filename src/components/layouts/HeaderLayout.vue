@@ -145,25 +145,6 @@ onBeforeUnmount(() => {
 watch(route, () => {
   scrollRef.value?.scrollTo({ top: 0, behavior: 'smooth' });
 });
-
-// ✅ 토큰 만료 5분전 팝업 기능
-// import axios from 'axios';
-// const extendSession = async () => {
-//   const token = localStorage.getItem('accessToken');
-//   try {
-//     const response = await axios.post(
-//       'http://localhost:8080/users/token',
-//       {},
-//       { headers: { Authorization: `Bearer ${token}` } }
-//     );
-//     const newToken = response.data.data;
-//     localStorage.setItem('accessToken', newToken);
-//     isModalVisible.value = false;
-//     hasShownExpireWarning.value = false;
-//   } catch (e) {
-//     console.error('연장 실패:', e);
-//   }
-// };
 </script>
 
 <style scoped>

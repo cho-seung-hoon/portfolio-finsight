@@ -151,7 +151,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-import axios from 'axios';
+import { fetchUserInfoApi, updateUserInfoApi, deleteUserApi } from '@/api/user';
 import { useEmailStore } from '@/stores/emailStore';
 
 import InputWithIcon from '@/components/signUpPage/InputWithIcon.vue';
@@ -164,9 +164,7 @@ const UserInfoA = ref({ userId: '', userName: '' });
 const getUserInfo = async () => {
   const token = localStorage.getItem('accessToken');
   try {
-    const response = await axios.get('http://localhost:8080/users/info', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const response = await fetchUserInfoApi();
     UserInfoA.value = response.data.data;
   } catch (e) {
     console.error('유저 정보 불러오기 실패:', e);
@@ -294,9 +292,8 @@ const handleEdit = async () => {
   if (!isValid) return;
 
   try {
-    await axios.put('http://localhost:8080/users/info', payload, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    await updateUserInfoApi(payload);
+
     showCompleteModal.value = true;
   } catch (error) {
     openModal(
@@ -316,9 +313,7 @@ const handleDelete = async () => {
   }
 
   try {
-    await axios.delete('/users', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    await deleteUserApi();
 
     // ✅ 모달로 안내
     localStorage.removeItem('accessToken');
