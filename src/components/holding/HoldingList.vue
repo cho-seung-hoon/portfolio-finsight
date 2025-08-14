@@ -3,8 +3,8 @@
     <div class="subItem-title">
       <span
         class="keyword"
-        :style="{ color: props.color }"
-        >{{ props.keyword }}</span
+        style="color: var(--main01)"
+        >보유 내역</span
       >
     </div>
 
@@ -56,9 +56,7 @@ import HoldingListDeposit from '@/components/holding/HoldingListDeposit.vue';
 import HoldingListFundNEtf from '@/components/holding/HoldingListFund_N_ETF.vue';
 
 const props = defineProps({
-  keyword: String,
-  color: String,
-  products: Array // productList -> products 로 변경
+  products: Array
 });
 
 const selectCategory = ref('예금');

@@ -59,6 +59,7 @@
         </div>
         <div class="total-info-detail-item">
           <div class="total-info-detail-item-2">{{ investmentRatios.foreign }} %</div>
+          <div class="total-info-detail-item-3">{{ formatDollarAmount(calculatedForeignInvestment) }}</div>
         </div>
       </div>
     </div>
@@ -66,7 +67,8 @@
 </template>
 
 <script setup>
-import { onMounted, watch, computed } from 'vue';
+import { onMounted, watch, computed, ref } from 'vue';
+import { get } from '@/api/exchangeRate';
 
 // Props 정의
 const props = defineProps({
@@ -92,6 +94,9 @@ const props = defineProps({
   }
 });
 
+// 환율 데이터
+const usdExchangeRate = ref(0);
+
 // 실제 국내 투자 평가액 계산 (국내 펀드 + 국내 ETF)
 const calculatedDomesticInvestment = computed(() => {
   return props.domesticInvestment;
@@ -115,8 +120,6 @@ const investmentRatios = computed(() => {
   // 해외 투자 비율
   const foreignRatio = (calculatedForeignInvestment.value / total) * 100;
   
-
-  
   return {
     deposit: depositRatio.toFixed(1),
     domestic: domesticRatio.toFixed(1),
@@ -131,6 +134,23 @@ const formatCurrency = (value) => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
   }).format(value);
+};
+
+// 달러 포맷팅 함수
+const formatDollarAmount = (wonAmount) => {
+  if (!wonAmount) return '';
+  
+  // 환율이 없을 경우 기본값 사용 (1달러 = 1300원)
+  const rate = usdExchangeRate.value || 1300;
+  const dollarAmount = wonAmount / rate;
+  
+  console.log('달러 변환:', {
+    wonAmount,
+    exchangeRate: rate,
+    dollarAmount: dollarAmount.toFixed(2)
+  });
+  
+  return `$${dollarAmount.toFixed(2)}`;
 };
 
 // 차트 업데이트 함수
@@ -155,13 +175,40 @@ const updateChart = () => {
   }
 };
 
+// 환율 데이터 가져오기
+const fetchExchangeRate = async () => {
+  try {
+    const exchangeData = await get();
+    
+    if (exchangeData && exchangeData.length > 0) {
+      const usdData = exchangeData.find(item => item.cur_unit === 'USD');
+      if (usdData) {
+        usdExchangeRate.value = parseFloat(usdData.deal_bas_r.replace(/,/g, ''));
+      } else {
+        console.log('USD 환율 데이터를 찾을 수 없음');
+        // 기본값 1300
+        usdExchangeRate.value = 1300;
+      }
+    } else {
+      console.log('환율 데이터가 비어있음');
+      // 기본값 1300
+      usdExchangeRate.value = 1300;
+    }
+  } catch (error) {
+    console.error('환율 데이터 가져오기 실패:', error);
+    // 기본값 1300
+    usdExchangeRate.value = 1300;
+  }
+};
+
 // props 변경 감지하여 차트 업데이트
 watch(() => [props.totalValuation, props.timeDeposit, props.domesticInvestment, props.foreignInvestment], () => {
   updateChart();
 }, { immediate: true });
 
-onMounted(() => {
+onMounted(async () => {
   updateChart();
+  await fetchExchangeRate();
 });
 </script>
 
@@ -275,5 +322,13 @@ onMounted(() => {
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-light);
   color: var(--main02);
+}
+
+.total-info-detail-item-3 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-light);
+  color: var(--main02);
+  text-align: right;
+  margin-left: auto;
 }
 </style>

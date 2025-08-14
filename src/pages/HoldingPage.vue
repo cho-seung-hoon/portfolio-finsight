@@ -24,9 +24,7 @@
   </div>
   <div class="holding-box">
     <HoldingList 
-      :products="processedProducts" 
-      :keyword="'보유 내역'"
-      :color="'var(--main01)'" />
+      :products="processedProducts" />
   </div>
 </template>
 
@@ -319,65 +317,65 @@ const loadHoldingData = async () => {
 // Mock 데이터 로드 함수
 const loadMockData = () => {
   const mockData = {
-    "totalValuation": 100000.00,
-    "message": "핀사이트에 가입하고 난 후의 평가액입니다!",
-    "timeDeposit": 50000.00,
-    "domesticInvestment": 30000.00,
-    "foreignInvestment": 20000.00,
-    "fundHoldings": [
-      {
-        "productCode": "FUND001",
-        "productName": "샘플 펀드",
-        "productCompanyName": "샘플운용",
-        "productCategory": null,
-        "productCountry": "국내",
-        "productType": "혼합형",
-        "currentHoldings": 1,
-        "currentValuation": 30000.00,
-        "previousDayPrice": 30000.00,
-        "priceChange": 100.00,
-        "priceChangePercent": 0.33,
-        "totalPriceChange": 100.00,
-        "maturityDate": null,
-        "isWatched": false
-      }
-    ],
-    "etfHoldings": [
-      {
-        "productCode": "ETF001",
-        "productName": "샘플 ETF",
-        "productCompanyName": "샘플운용",
-        "productCategory": null,
-        "productCountry": "해외",
-        "productType": "주식형",
-        "currentHoldings": 1,
-        "currentValuation": 20000.00,
-        "previousDayPrice": 20000.00,
-        "priceChange": 50.00,
-        "priceChangePercent": 0.25,
-        "totalPriceChange": 50.00,
-        "maturityDate": null,
-        "isWatched": false
-      }
-    ],
-    "depositHoldings": [
-      {
-        "productCode": "DEP001",
-        "productName": "샘플 예금",
-        "productCompanyName": "샘플은행",
-        "productCategory": null,
-        "productCountry": "국내",
-        "productType": "예금",
-        "currentHoldings": 50000.00,
-        "currentValuation": 50000.00,
-        "previousDayPrice": null,
-        "priceChange": null,
-        "priceChangePercent": null,
-        "totalPriceChange": null,
-        "maturityDate": "2026-12-31",
-        "isWatched": false
-      }
-    ]
+    // "totalValuation": 100000.00,
+    // "message": "핀사이트에 가입하고 난 후의 평가액입니다!",
+    // "timeDeposit": 50000.00,
+    // "domesticInvestment": 30000.00,
+    // "foreignInvestment": 20000.00,
+    // "fundHoldings": [
+    //   {
+    //     "productCode": "FUND001",
+    //     "productName": "샘플 펀드",
+    //     "productCompanyName": "샘플운용",
+    //     "productCategory": null,
+    //     "productCountry": "국내",
+    //     "productType": "혼합형",
+    //     "currentHoldings": 1,
+    //     "currentValuation": 30000.00,
+    //     "previousDayPrice": 30000.00,
+    //     "priceChange": 100.00,
+    //     "priceChangePercent": 0.33,
+    //     "totalPriceChange": 100.00,
+    //     "maturityDate": null,
+    //     "isWatched": false
+    //   }
+    // ],
+    // "etfHoldings": [
+    //   {
+    //     "productCode": "ETF001",
+    //     "productName": "샘플 ETF",
+    //     "productCompanyName": "샘플운용",
+    //     "productCategory": null,
+    //     "productCountry": "해외",
+    //     "productType": "주식형",
+    //     "currentHoldings": 1,
+    //     "currentValuation": 20000.00,
+    //     "previousDayPrice": 20000.00,
+    //     "priceChange": 50.00,
+    //     "priceChangePercent": 0.25,
+    //     "totalPriceChange": 50.00,
+    //     "maturityDate": null,
+    //     "isWatched": false
+    //   }
+    // ],
+    // "depositHoldings": [
+    //   {
+    //     "productCode": "DEP001",
+    //     "productName": "샘플 예금",
+    //     "productCompanyName": "샘플은행",
+    //     "productCategory": null,
+    //     "productCountry": "국내",
+    //     "productType": "예금",
+    //     "currentHoldings": 50000.00,
+    //     "currentValuation": 50000.00,
+    //     "previousDayPrice": null,
+    //     "priceChange": null,
+    //     "priceChangePercent": null,
+    //     "totalPriceChange": null,
+    //     "maturityDate": "2026-12-31",
+    //     "isWatched": false
+    //   }
+    // ]
   };
 
   // 데이터 설정
