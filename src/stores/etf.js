@@ -474,8 +474,29 @@ export const useEtfStore = defineStore('etf', () => {
         ...product.value.yield.slice(1) // 기존의 상장일, 총보수 등 정보 유지
       ]
     };
-    if (product.value.isHolding) {
-      baseTabData.holding = product.value.holding;
+    // 보유 중인 상품이고 보유수량이 0보다 크고 holdingsStatus가 "zero"가 아닐 때만 holding 데이터 추가
+    if (product.value.isHolding && 
+        (product.value.holding || product.value.holdings) &&
+        (product.value.holdings?.holdingsTotalQuantity > 0 || product.value.holding?.holdingsTotalQuantity > 0) &&
+        (product.value.holdings?.holdingsStatus !== 'zero' || product.value.holding?.holdingsStatus !== 'zero')) {
+      
+      // holdingsummary 타입의 데이터 생성
+      const holdingSummaryData = {
+        type: 'holdingsummary',
+        title: '보유 현황',
+        desc: product.value.holding?.find(item => item.type === 'holdingsummary')?.desc || 
+              product.value.holdings?.find(item => item.type === 'holdingsummary')?.desc || {}
+      };
+
+      // holdinghistory 타입의 데이터 생성 (모든 투자 기록 표시)
+      const holdingHistoryData = {
+        type: 'holdinghistory',
+        title: '투자 기록',
+        desc: product.value.holding?.find(item => item.type === 'holdinghistory')?.desc || 
+              product.value.holdings?.find(item => item.type === 'holdinghistory')?.desc || []
+      };
+
+      baseTabData.holding = [holdingSummaryData, holdingHistoryData];
     }
     return baseTabData;
   });

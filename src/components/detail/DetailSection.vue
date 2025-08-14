@@ -16,6 +16,9 @@
         <template v-else-if="item.type === 'holdinghistory' && Array.isArray(item.desc)">
           <DetailHoldingHistory :data="item.desc" />
         </template>
+        <template v-else-if="item.type === 'holdinghistorydeposit' && Array.isArray(item.desc)">
+          <DetailHoldingHistoryDeposit :data="item.desc" />
+        </template>
         <template v-else-if="item.type === 'longtext' && typeof item.desc === 'string'">
           <DetailLongText>
             <span v-html="item.desc.replace(/\n/g, '<br>')"></span>
@@ -70,6 +73,7 @@ import DetailAreaChart from './DetailAreaChart.vue';
 import DetailHoldingSummary from './section/DetailHoldingSummary.vue';
 import DetailHoldingSummaryDeposit from './section/DetailHoldingSummaryDeposit.vue';
 import DetailHoldingHistory from './section/DetailHoldingHistory.vue';
+import DetailHoldingHistoryDeposit from './section/DetailHoldingHistoryDeposit.vue';
 import DetailNewsList from './section/DetailNewsList.vue';
 
 const props = defineProps({

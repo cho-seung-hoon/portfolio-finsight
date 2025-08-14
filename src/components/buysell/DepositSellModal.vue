@@ -25,13 +25,16 @@
         <div class="info-row">
           <label>현재 예치금액</label>
           <div class="info-value-wrapper">
-            <div class="info-value">{{ formatCurrency(holdingData?.holdingsTotalPrice || 0) }}</div>
+            <div class="info-value">
+              {{ formatCurrency(holdingData?.holdingsTotalPrice || productInfo?.holding?.holdingsTotalPrice || 0) }}
+            </div>
             <div
               v-if="
-                holdingData?.holdingsTotalPrice && getKoreanNumber(holdingData.holdingsTotalPrice)
+                (holdingData?.holdingsTotalPrice || productInfo?.holding?.holdingsTotalPrice) && 
+                getKoreanNumber(holdingData?.holdingsTotalPrice || productInfo?.holding?.holdingsTotalPrice)
               "
               class="korean-number">
-              {{ getKoreanNumber(holdingData.holdingsTotalPrice) }} 원
+              {{ getKoreanNumber(holdingData?.holdingsTotalPrice || productInfo?.holding?.holdingsTotalPrice) }} 원
             </div>
           </div>
         </div>
@@ -39,14 +42,12 @@
         <!-- 만기일 -->
         <div class="info-row">
           <label>만기일</label>
-          <div class="info-value">{{ formatDate(holdingData?.maturityDate) }}</div>
+          <div class="info-value">
+            {{ formatDate(holdingData?.maturityDate || productInfo?.holding?.maturityDate) }}
+          </div>
         </div>
 
-        <!-- 남은 기간 -->
-        <div class="info-row">
-          <label>남은 기간</label>
-          <div class="info-value">{{ remainingPeriod }}</div>
-        </div>
+
 
         <!-- 해지 시 수령금액 예상 -->
         <!-- <div class="info-row highlight">
@@ -70,9 +71,9 @@
         </button>
         <button
           class="btn btn-primary"
-          :disabled="isLoading"
+          :disabled="isSubmitting"
           @click="handleSubmit">
-          {{ isLoading ? '처리중...' : '해지하기' }}
+          {{ isSubmitting ? '처리중...' : '해지하기' }}
         </button>
       </div>
     </div>
@@ -103,8 +104,13 @@ const modalRef = ref(null);
 // 중복 close 이벤트 방지
 const isClosing = ref(false);
 
+// 로딩 상태 관리
+const isSubmitting = ref(false);
+
 // 보유 데이터
 const holdingData = computed(() => {
+  console.log('DepositSellModal - productInfo:', props.productInfo);
+  console.log('DepositSellModal - holdingData:', props.productInfo?.holdingData);
   return props.productInfo?.holdingData || null;
 });
 
@@ -117,26 +123,7 @@ const currentDateTime = computed(() => {
   return `${year}.${month}.${day}`;
 });
 
-// 남은 기간 계산
-const remainingPeriod = computed(() => {
-  if (!holdingData.value?.maturityDate) return '-';
 
-  const today = new Date();
-  const maturityDate = new Date(holdingData.value.maturityDate);
-  const diffTime = maturityDate - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays <= 0) return '만기';
-
-  const months = Math.floor(diffDays / 30);
-  const days = diffDays % 30;
-
-  if (months > 0) {
-    return `${months}개월 ${days}일`;
-  } else {
-    return `${days}일`;
-  }
-});
 // 통화 포맷팅
 const formatCurrency = amount => {
   // 숫자가 아닌 값이나 빈 값 처리
@@ -218,6 +205,10 @@ const handleBackdropClick = event => {
 
 // 제출 처리
 const handleSubmit = async () => {
+  if (isSubmitting.value) return;
+  
+  isSubmitting.value = true;
+  
   const tradeData = {
     productCode: props.productInfo?.productCode,
     productCategory: 'deposit',
@@ -230,17 +221,31 @@ const handleSubmit = async () => {
     const result = await sellProduct(tradeData);
     if (result.success) {
       console.log('예금 해지 성공:', result.data);
+      // API 호출 결과를 포함하여 부모에게 전달
       emit('submit', {
+        success: true,
+        data: result.data,
         code: props.productInfo?.productCode,
         category: 'DEPOSIT'
       });
       closeModal();
     } else {
       console.error('예금 해지 실패:', result.error);
-      // 에러
+      // 실패 결과도 부모에게 전달
+      emit('submit', {
+        success: false,
+        error: result.error
+      });
     }
   } catch (error) {
     console.error('예금 해지 중 오류 발생:', error);
+    // 에러 결과도 부모에게 전달
+    emit('submit', {
+      success: false,
+      error: error.message || '알 수 없는 오류가 발생했습니다.'
+    });
+  } finally {
+    isSubmitting.value = false;
   }
 };
 

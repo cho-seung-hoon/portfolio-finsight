@@ -82,9 +82,9 @@
         </button>
         <button
           class="btn btn-primary"
-          :disabled="!isFormValid || isLoading"
+          :disabled="!isFormValid || isSubmitting"
           @click="handleSubmit">
-          {{ isLoading ? '처리중...' : '구매하기' }}
+          {{ isSubmitting ? '처리중...' : '구매하기' }}
         </button>
       </div>
     </div>
@@ -123,6 +123,9 @@ const modalRef = ref(null);
 
 // 중복 close 이벤트 방지
 const isClosing = ref(false);
+
+// 제출 중 중복 클릭 방지
+const isSubmitting = ref(false);
 
 const formData = ref({
   quantity: ''
@@ -228,7 +231,8 @@ const handleBackdropClick = event => {
 
 // 제출 처리
 const handleSubmit = async () => {
-  if (!isFormValid.value) return;
+  if (!isFormValid.value || isSubmitting.value) return;
+  isSubmitting.value = true;
 
   // 현재 날짜를 동적으로 생성
   const today = new Date();
@@ -247,7 +251,10 @@ const handleSubmit = async () => {
     const result = await purchaseProduct(tradeData);
     if (result.success) {
       console.log('매수 성공:', result.data);
+      // API 호출 결과를 포함하여 부모에게 전달
       emit('submit', {
+        success: true,
+        data: result.data,
         quantity: new Decimal(parseNumberFromComma(formData.value.quantity)),
         price: getCurrentPrice(),
         buyDate: buyDate,
@@ -257,10 +264,21 @@ const handleSubmit = async () => {
       closeModal();
     } else {
       console.error('매수 실패:', result.error);
-      // 에러 처리 로직 추가 가능
+      // 실패 결과도 부모에게 전달
+      emit('submit', {
+        success: false,
+        error: result.error
+      });
     }
   } catch (error) {
     console.error('매수 중 오류 발생:', error);
+    // 오류 결과도 부모에게 전달
+    emit('submit', {
+      success: false,
+      error: error.message
+    });
+  } finally {
+    isSubmitting.value = false;
   }
 };
 

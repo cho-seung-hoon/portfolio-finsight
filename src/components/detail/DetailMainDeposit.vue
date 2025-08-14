@@ -8,13 +8,14 @@
     <div class="rate-box">
       <div class="rate-info left">
         <div class="rate-label">최고금리</div>
-        <div class="rate-value">{{ maxRate }}</div>
-        <div class="rate-desc">{{ maxRateDesc }}</div>
+        <div class="rate-value">연 {{ maxRate }}%</div>
+        <div class="rate-desc">(12개월 세전)</div>
       </div>
       <div class="rate-divider"></div>
       <div class="rate-info right">
         <div class="rate-label">기본금리</div>
-        <div class="rate-value">{{ baseRate }}</div>
+        <div class="rate-value">연 {{ baseRate }}%</div>
+        <div class="rate-desc">(12개월 세전)</div>
       </div>
     </div>
   </div>
@@ -26,9 +27,8 @@ import HeartToggle from '@/components/common/HeartToggle.vue';
 defineProps({
   bank: String,
   title: String,
-  maxRate: String,
-  maxRateDesc: String,
-  baseRate: String
+  maxRate: Number,
+  baseRate: Number
 });
 
 const handleHeartToggle = isActive => {

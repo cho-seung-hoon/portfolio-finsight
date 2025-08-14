@@ -23,10 +23,10 @@
 
         <!-- 기간 선택 -->
         <div class="form-group">
-          <label for="period">기간</label>
+          <label for="contractMonths">기간</label>
           <select
-            id="period"
-            v-model="formData.period"
+            id="contractMonths"
+            v-model="formData.contractMonths"
             class="form-control"
             required>
             <option value="">기간을 선택하세요</option>
@@ -38,7 +38,7 @@
             </option>
           </select>
         </div>
-
+        
         <!-- 예금액 입력 -->
         <div class="form-group">
           <label for="amount">예금액</label>
@@ -83,9 +83,9 @@
         </button>
         <button
           class="btn btn-primary"
-          :disabled="!isFormValid || isLoading"
+          :disabled="!isFormValid || isSubmitting"
           @click="handleSubmit">
-          {{ isLoading ? '처리중...' : '가입하기' }}
+          {{ isSubmitting ? '처리중...' : '가입하기' }}
         </button>
       </div>
     </div>
@@ -111,15 +111,11 @@ const props = defineProps({
   },
   minAmount: {
     type: Number,
-    default: 1000000
+    default: 100000
   },
   maxAmount: {
     type: Number,
     default: 10000000
-  },
-  isLoading: {
-    type: Boolean,
-    default: false
   }
 });
 
@@ -131,8 +127,11 @@ const modalRef = ref(null);
 // 중복 close 이벤트 방지
 const isClosing = ref(false);
 
+// 로딩 상태 관리
+const isSubmitting = ref(false);
+
 const formData = ref({
-  period: '',
+  contractMonths: '',
   amount: ''
 });
 
@@ -146,7 +145,6 @@ const availablePeriods = computed(() => {
   }
   // 기본 기간 옵션
   return [
-    { value: '3', label: '3개월' },
     { value: '6', label: '6개월' },
     { value: '12', label: '12개월' },
     { value: '24', label: '24개월' },
@@ -156,7 +154,7 @@ const availablePeriods = computed(() => {
 
 // 최소/최대 금액 (상품 정보에서 가져오거나 props에서 가져오기)
 const minAmount = computed(() => {
-  return props.productInfo?.depositMinLimit || props.minAmount || 1000000;
+  return props.productInfo?.depositMinLimit || props.minAmount || 100000;
 });
 
 const maxAmount = computed(() => {
@@ -167,7 +165,7 @@ const maxAmount = computed(() => {
 const isFormValid = computed(() => {
   const amount = parseNumberFromComma(formData.value.amount);
   return (
-    formData.value.period &&
+    formData.value.contractMonths &&
     formData.value.amount &&
     new Decimal(amount).gte(minAmount.value) &&
     new Decimal(amount).lte(maxAmount.value)
@@ -199,7 +197,7 @@ const formatCurrency = amount => {
 // 폼 초기화 함수
 const resetForm = () => {
   formData.value = {
-    period: '',
+    contractMonths: '',
     amount: ''
   };
 };
@@ -256,6 +254,8 @@ const handleBackdropClick = event => {
 const handleSubmit = async () => {
   if (!isFormValid.value) return;
 
+  isSubmitting.value = true; // 로딩 시작
+
   // 현재 날짜를 동적으로 생성
   const today = new Date();
   const startDate = today.toISOString().split('T')[0]; // YYYY-MM-DD 형식
@@ -265,7 +265,7 @@ const handleSubmit = async () => {
     productCategory: 'deposit',
     quantity: 1,
     amount: new Decimal(parseNumberFromComma(formData.value.amount)).toNumber(),
-    period: parseInt(formData.value.period),
+    contractMonths: parseInt(formData.value.contractMonths), // 선택된 기간을 contractMonths로 전달
     startDate: startDate
   };
 
@@ -273,8 +273,10 @@ const handleSubmit = async () => {
     const result = await purchaseProduct(tradeData);
     if (result.success) {
       console.log('예금 가입 성공:', result.data);
+      // API 호출 결과를 포함하여 부모에게 전달
       emit('submit', {
-        period: formData.value.period,
+        success: true,
+        data: result.data,
         amount: new Decimal(parseNumberFromComma(formData.value.amount)),
         startDate: startDate,
         code: props.productInfo?.productCode
@@ -282,10 +284,21 @@ const handleSubmit = async () => {
       closeModal();
     } else {
       console.error('예금 가입 실패:', result.error);
-      // 에러
+      // 실패 결과도 부모에게 전달
+      emit('submit', {
+        success: false,
+        error: result.error
+      });
     }
   } catch (error) {
     console.error('예금 가입 중 오류 발생:', error);
+    // 에러 결과도 부모에게 전달
+    emit('submit', {
+      success: false,
+      error: error.message || '알 수 없는 오류가 발생했습니다.'
+    });
+  } finally {
+    isSubmitting.value = false; // 로딩 종료
   }
 };
 
