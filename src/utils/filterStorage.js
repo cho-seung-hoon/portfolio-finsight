@@ -1,7 +1,7 @@
 const defaultFilters = {
   deposit: { sort: '기본금리순' },
   fund: { fund_type: '전체', country: '전체', sort: '수익률순' },
-  etf: { etf_type: '전체', country: '전체', sort: '수익률순' },
+  etf: { etf_type: '전체', country: '전체', sort: '기준가높은순' },
   isMatched: false
 };
 

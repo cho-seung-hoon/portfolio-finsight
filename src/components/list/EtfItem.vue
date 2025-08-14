@@ -58,6 +58,10 @@
         <span class="label">위험등급</span>
         <span class="value">{{ item.productRiskGrade }}등급</span>
       </div>
+      <div class="info-row">
+        <span class="label">기준가</span>
+        <span class="value">{{ item.etfNav }}</span>
+      </div>
 
       <div
         v-if="item.newsSentiment"

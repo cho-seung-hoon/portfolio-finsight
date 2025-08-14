@@ -27,11 +27,11 @@ import { getEtfs } from '@/api/productApi';
 const filters = [
   { key: 'country', label: '국가', options: ['전체', '국내', '해외'] },
   { key: 'etf_type', label: '유형', options: ['전체', '주식형', '채권형', '혼합형'] },
-  { key: 'sort', label: '정렬', options: ['수익률순', '거래량순', '조회수순'] }
+  { key: 'sort', label: '정렬', options: ['기준가 높은순', '기준가 낮은순'] }
 ];
 
 const selected = ref({ country: '전체', etf_type: '전체', sort: '수익률순' });
-const sortMap = { 수익률순: 'rate_of_return', 거래량순: 'volume', 조회수순: 'view_count' };
+const sortMap = { '기준가 높은순': 'desc', '기준가 낮은순': 'asc' };
 const countryMap = { 전체: undefined, 국내: 'domestic', 해외: 'foreign' };
 const typeMap = { 전체: undefined, 주식형: 'equity', 채권형: 'bond', 혼합형: 'mixed' };
 const etfs = ref([]);
