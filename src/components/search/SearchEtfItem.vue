@@ -1,22 +1,22 @@
 <template>
   <section
-    class="fund-item-container"
+    class="etf-item-container"
     @click="goToDetail">
-    <section class="fund-item-header-section">
-      <div class="fund-item-sub-title">
+    <section class="etf-item-header-section">
+      <div class="etf-item-sub-title">
         {{ countryLabelMap[item.productCountry] ?? item.productCountry }}
         ・
         {{ typeLabelMap[item.productType] ?? item.productType }}
       </div>
 
-      <header class="fund-item-header">
-        <div class="fund-item-title-left">
+      <header class="etf-item-header">
+        <div class="etf-item-title-left">
           <span class="product-name">{{ item.productName }}</span>
           <span
             v-if="item.userOwns"
-            class="own-tag"
-            >보유중</span
-          >
+            class="own-tag">
+            보유중
+          </span>
         </div>
         <IconHeartStroke class="heart-icon" />
       </header>
@@ -60,8 +60,30 @@ const colorMap = {
 const router = useRouter();
 
 function goToDetail() {
-  router.push(`/fund/${props.item.productCode}`);
+  router.push(`/etf/${props.item.productCode}`);
 }
+
+function fmtNumber(n) {
+  if (n == null || n === '') return '-';
+  const num = Number(n);
+  if (Number.isNaN(num)) return '-';
+  return num.toLocaleString('ko-KR');
+}
+function fmtPercent(v) {
+  if (v == null || v === '') return '-';
+  let num = Number(v);
+  if (Number.isNaN(num)) return '-';
+  if (Math.abs(num) > 0 && Math.abs(num) < 1) num *= 100;
+  return `${num.toFixed(2)}%`;
+}
+
+const changeClass = computed(() => {
+  const v = Number(props.item?.return3Months);
+  if (Number.isNaN(v)) return '';
+  if (v > 0) return 'up';
+  if (v < 0) return 'down';
+  return 'flat';
+});
 
 function getSegmentStyle(key) {
   const values = props.item.newsSentiment || { positive: 0, neutral: 0, negative: 0 };
@@ -74,22 +96,6 @@ function getSegmentStyle(key) {
     backgroundColor: key === maxKey ? colorMap[key] : 'var(--main04)',
     marginRight: key !== 'negative' ? '3px' : '0'
   };
-}
-
-const changeClass = computed(() => {
-  const raw = props.item?.productRateOfReturn;
-  const v = Number(raw);
-  if (raw == null || raw === '' || Number.isNaN(v)) return '';
-  if (v > 0) return 'up';
-  if (v < 0) return 'down';
-  return 'flat';
-});
-
-function fmtNumber(n) {
-  if (n == null || n === '') return '-';
-  const num = Number(n);
-  if (Number.isNaN(num)) return '-';
-  return num.toLocaleString('ko-KR');
 }
 </script>
 
@@ -105,7 +111,7 @@ function fmtNumber(n) {
   }
 }
 
-.fund-item-container {
+.etf-item-container {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -120,17 +126,17 @@ function fmtNumber(n) {
   transition: transform 0.2s ease;
 }
 
-.fund-item-container:active {
+.etf-item-container:active {
   transform: scale(0.98);
   background-color: var(--main04);
 }
 
-.fund-item-header-section {
+.etf-item-header-section {
   display: flex;
   flex-direction: column;
 }
 
-.fund-item-header {
+.etf-item-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -139,7 +145,7 @@ function fmtNumber(n) {
   color: var(--main01);
 }
 
-.fund-item-title-left {
+.etf-item-title-left {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -162,10 +168,6 @@ function fmtNumber(n) {
   height: 24px;
 }
 
-.fund-item-header svg:hover {
-  transform: none;
-}
-
 .own-tag {
   background-color: var(--main04);
   color: var(--main02);
@@ -175,7 +177,7 @@ function fmtNumber(n) {
   border-radius: 4px;
 }
 
-.fund-item-sub-title {
+.etf-item-sub-title {
   display: flex;
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
@@ -189,7 +191,7 @@ function fmtNumber(n) {
   color: var(--green01);
 }
 
-.fund-item-content-section {
+.etf-item-content-section {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -207,24 +209,6 @@ function fmtNumber(n) {
   font-weight: var(--font-weight-regular);
   color: var(--main02);
   flex-shrink: 0;
-}
-
-.value {
-  font-size: var(--font-size-ms);
-  font-weight: var(--font-weight-regular);
-  color: var(--main01);
-}
-
-.value.up {
-  color: var(--text-red);
-  font-weight: var(--font-weight-medium);
-}
-.value.down {
-  color: var(--text-blue);
-  font-weight: var(--font-weight-medium);
-}
-.value.flat {
-  color: var(--main01);
 }
 
 .news-response-box {
@@ -272,5 +256,23 @@ function fmtNumber(n) {
 
 .news-bar-segment.center {
   border-radius: 0;
+}
+
+.value {
+  font-size: var(--font-size-ms);
+  font-weight: var(--font-weight-regular);
+  color: var(--main01);
+}
+
+.value.up {
+  color: var(--text-red);
+  font-weight: var(--font-weight-medium);
+}
+.value.down {
+  color: var(--text-blue);
+  font-weight: var(--font-weight-medium);
+}
+.value.flat {
+  color: var(--main01);
 }
 </style>

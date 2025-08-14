@@ -26,7 +26,7 @@
       </section>
       <section class="search-category-section">
         <h4 class="search-category-label">ETF</h4>
-        <EtfItem
+        <SearchEtfItem
           v-for="item in etfs"
           :key="item.product_code"
           :item="item" />
@@ -44,7 +44,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import SearchDepositItem from '@/components/search/SearchDepositItem.vue';
 import SearchFundItem from '@/components/search/SearchFundItem.vue';
-import EtfItem from '@/components/list/EtfItem.vue';
+import SearchEtfItem from '@/components/search/SearchEtfItem.vue';
 import { getSearchDeposits, getSearchFunds, getSearchEtfs } from '@/api/searchApi';
 
 const route = useRoute();
