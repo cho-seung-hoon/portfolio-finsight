@@ -297,20 +297,8 @@ export const useDepositStore = defineStore('deposit', () => {
         desc: {
           holdingsTotalPrice: holdingsTotalPrice.toNumber(),
           holdingsTotalQuantity: holdingsTotalQuantity.toNumber(),
-          contractDate: new Date(
-            holdingData.history?.[0]?.historyTradeDate || new Date()
-          ).toLocaleDateString('ko-KR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-          }),
-          maturityDate: new Date(
-            holdingData.history?.[0]?.historyTradeDate || new Date()
-          ).toLocaleDateString('ko-KR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-          })
+          contractDate: holdingData.contractDate || holdingData.history?.[0]?.historyTradeDate,
+          maturityDate: holdingData.maturityDate || holdingData.history?.[0]?.historyTradeDate
         }
       }
     ];
@@ -396,11 +384,11 @@ export const useDepositStore = defineStore('deposit', () => {
         type: 'holdingsummarydeposit',
         title: '보유 현황',
         desc: {
-          contractDate: product.value.holding?.contractDate || product.value.holdings?.contractDate,
-          maturityDate: product.value.holding?.maturityDate || product.value.holdings?.maturityDate,
-          holdingsTotalPrice: product.value.holding?.holdingsTotalPrice || product.value.holdings?.holdingsTotalPrice || 0,
+          contractDate: product.value.holdings?.contractDate || product.value.holding?.contractDate,
+          maturityDate: product.value.holdings?.maturityDate || product.value.holding?.maturityDate,
+          holdingsTotalPrice: product.value.holdings?.holdingsTotalPrice || product.value.holding?.holdingsTotalPrice || 0,
           // 가입 직후와 동일한 구조를 위해 추가 필드들
-          startDate: product.value.holding?.startDate || product.value.holdings?.contractDate,
+          startDate: product.value.holdings?.contractDate || product.value.holding?.startDate,
           period: product.value.holding?.period || null
         }
       };

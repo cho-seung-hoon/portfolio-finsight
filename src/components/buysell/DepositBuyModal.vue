@@ -111,7 +111,7 @@ const props = defineProps({
   },
   minAmount: {
     type: Number,
-    default: 1000000
+    default: 100000
   },
   maxAmount: {
     type: Number,
@@ -145,7 +145,6 @@ const availablePeriods = computed(() => {
   }
   // 기본 기간 옵션
   return [
-    { value: '3', label: '3개월' },
     { value: '6', label: '6개월' },
     { value: '12', label: '12개월' },
     { value: '24', label: '24개월' },
@@ -155,7 +154,7 @@ const availablePeriods = computed(() => {
 
 // 최소/최대 금액 (상품 정보에서 가져오거나 props에서 가져오기)
 const minAmount = computed(() => {
-  return props.productInfo?.depositMinLimit || props.minAmount || 1000000;
+  return props.productInfo?.depositMinLimit || props.minAmount || 100000;
 });
 
 const maxAmount = computed(() => {

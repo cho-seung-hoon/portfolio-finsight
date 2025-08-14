@@ -44,7 +44,7 @@
     <DepositBuyModal
       ref="buyModalRef"
       :product-info="productInfo"
-      :min-amount="1000000"
+      :min-amount="100000"
       :max-amount="maxAmountNumber"
       @close="handleModalClose"
       @submit="handleBuySubmit" />
@@ -178,7 +178,6 @@ const selectTab = tab => {
   selectedTab.value = tab;
 };
 
-// productInfo가 변경될 때 보유기록 탭이 있으면 자동으로 첫 번째 탭 선택
 watch(
   productInfo,
   newProductInfo => {
@@ -190,7 +189,6 @@ watch(
     if (hasValidHoldings) {
       selectedTab.value = 'holding';
     } else if (!newProductInfo?.isHolding) {
-      // 보유하지 않는 경우 상품안내 탭으로 포커스
       selectedTab.value = 'info';
     }
   },
@@ -208,7 +206,7 @@ const tabData = computed(() => {
   return depositStore.tabData;
 });
 
-// 디버깅용: productInfo와 holding 데이터 확인
+// 디버깅용
 const debugInfo = computed(() => {
   console.log('DepositPage - productInfo:', productInfo.value);
   console.log('DepositPage - holding:', productInfo.value?.holding);
