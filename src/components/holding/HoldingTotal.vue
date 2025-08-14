@@ -68,7 +68,7 @@
 
 <script setup>
 import { onMounted, watch, computed, ref } from 'vue';
-import { get } from '@/api/exchangeRate';
+import { exchangeRate } from '@/api/exchangeRate';
 
 // Props 정의
 const props = defineProps({
@@ -178,7 +178,7 @@ const updateChart = () => {
 // 환율 데이터 가져오기
 const fetchExchangeRate = async () => {
   try {
-    const exchangeData = await get();
+    const exchangeData = await exchangeRate();
     
     if (exchangeData && exchangeData.length > 0) {
       const usdData = exchangeData.find(item => item.cur_unit === 'USD');
