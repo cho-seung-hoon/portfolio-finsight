@@ -45,7 +45,6 @@
           {{ item.volume != null && item.volume !== '' ? fmtNumber(item.volume) + '주' : '-' }}
         </span>
       </div>
-
       <div class="info-row">
         <span class="label">수익률(3개월)</span>
         <span
@@ -55,14 +54,15 @@
         >
       </div>
       <div class="info-row">
+        <span class="label">기준가</span>
+        <span class="value">
+          {{ item.etfNav != null && item.etfNav !== '' ? fmtNumber(item.etfNav) + '원' : '-' }}
+        </span>
+      </div>
+      <div class="info-row">
         <span class="label">위험등급</span>
         <span class="value">{{ item.productRiskGrade }}등급</span>
       </div>
-      <div class="info-row">
-        <span class="label">기준가</span>
-        <span class="value">{{ item.etfNav }}</span>
-      </div>
-
       <div
         v-if="item.newsSentiment"
         class="news-response-box">
@@ -248,7 +248,7 @@ function getSegmentStyle(key) {
 .etf-item-content-section {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .info-row {
@@ -314,7 +314,7 @@ function getSegmentStyle(key) {
 
 .value {
   font-size: var(--font-size-ms);
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-medium);
   color: var(--main01);
 }
 

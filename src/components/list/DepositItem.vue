@@ -164,13 +164,13 @@ function goToDetail() {
   width: 80px;
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
-  color: var(--main01);
+  color: var(--main02);
   flex-shrink: 0;
 }
 
 .value {
   font-size: var(--font-size-ms);
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-medium);
   color: var(--main01);
 }
 </style>

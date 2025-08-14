@@ -70,7 +70,6 @@ function openSort() {
 
 function selectFilterOption(filterKey, option) {
   emit('change', filterKey, option);
-  // 드롭다운이 닫히도록 상태를 업데이트합니다.
   openedFilter.value = null;
   openedSort.value = false;
 }
@@ -103,20 +102,21 @@ function selectFilterOption(filterKey, option) {
 .filter-sort-bar-filter-label {
   color: var(--main04);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-md);
+  font-weight: var(--font-weight-medium);
 }
 .filter-sort-bar-filter-value {
   color: var(--white);
   font-size: var(--font-size-ms);
-  font-weight: var(--font-weight-md);
+  font-weight: var(--font-weight-medium);
 }
 .icon-arrow-down {
   width: 16px;
   height: 16px;
 }
 .filter-sort-bar-sort {
-  color: var(--main01);
+  color: var(--main02);
   font-size: var(--font-size-ms);
+  font-weight: var(--font-weight-medium);
   margin-left: auto;
   cursor: pointer;
 }

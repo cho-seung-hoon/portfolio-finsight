@@ -49,7 +49,6 @@
         <span class="label">위험등급</span>
         <span class="value">{{ item.productRiskGrade }}등급</span>
       </div>
-
       <div
         v-if="item.newsSentiment"
         class="news-response-box">
@@ -233,7 +232,7 @@ function fmtNumber(n) {
 .fund-item-content-section {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .info-row {
@@ -252,7 +251,7 @@ function fmtNumber(n) {
 
 .value {
   font-size: var(--font-size-ms);
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-medium);
   color: var(--main01);
 }
 
