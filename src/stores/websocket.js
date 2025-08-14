@@ -163,12 +163,18 @@ export const useWebSocketStore = defineStore('websocket', () => {
       // 연결이 안 되어 있다면 연결 시도
       if (!isConnected.value) {
         console.log('웹소켓 연결이 안 되어 있습니다. 연결을 시도합니다.');
-        await connect();
+        await ensureConnection();
+        
+        // 연결 완료까지 대기
+        if (!isConnected.value) {
+          console.error('웹소켓 연결에 실패했습니다.');
+          return null;
+        }
       }
 
       return subscribe(`/topic/etf/${productCode}`, callback);
     } catch (error) {
-      console.warn('웹소켓 연결 실패로 구독을 수행하지 못했습니다.');
+      console.error('ETF 구독 실패:', error);
       return null;
     }
   };

@@ -6,7 +6,6 @@
         :style="{ color: props.color }"
         >{{ props.keyword }}</span
       >
-      <span>보유 상품 목록</span>
     </div>
 
     <div class="filter">
@@ -78,15 +77,12 @@ const filteredProducts = computed(() => {
   background-color: var(--white);
   border-radius: 8px;
   border: 1px solid var(--main04);
-  padding: 20px;
+  padding: var(--font-size-lg);
 }
+
 .subItem-title {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semi-bold);
-}
-
-.keyword {
-  text-decoration: underline;
 }
 
 .product-list {
@@ -94,21 +90,20 @@ const filteredProducts = computed(() => {
 }
 
 .filter {
-  margin: 12px 0;
+  margin: var(--font-size-ms) 0;
   display: flex;
-  gap: 8px;
+  gap: var(--font-size-md);
 }
 
 .filter button {
   all: unset;
-  padding: 6px 10px;
-  border: 1px solid #ccc;
+  padding: 6px var(--font-size-ms);
+  border: 1px solid var(--main03);
   background-color: var(--main04);
   color: var(--main02);
   font-size: var(--font-size-sm);
   cursor: pointer;
   border-radius: 6px;
-  transition: all 0.2s;
 }
 
 .filter button.active {
