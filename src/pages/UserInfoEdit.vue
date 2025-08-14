@@ -2,10 +2,9 @@
   <div class="subBox">
     <div class="user-edit-container">
       <div class="user-info-header">
-        <img
-          src="@/assets/cha4.png"
-          alt="곰돌이"
-          class="bear-icon" />
+        <div class="iconBox">
+          <img src="@/assets/cha4.png" alt="곰돌이" class="bear-icon" />
+        </div>
         <div class="user-details">
           <div class="detail-row">
             <span class="detail-label">이름</span>
@@ -18,11 +17,8 @@
         </div>
       </div>
 
-      <div class="subItem-title">비밀번호 변경</div>
-
-      <form
-        class="form"
-        @submit.prevent="handleEdit">
+      <form id="user-edit-form" class="form" @submit.prevent="handleEdit">
+        <div class="subItem-title">비밀번호 변경</div>
         <div class="card">
           <InputWithIcon
             v-model="form.password"
@@ -32,7 +28,8 @@
             :error="!!errors.password"
             :valid="form.password?.length >= 10 && !errors.password"
             @blur="validatePassword"
-            @focus="clearError('password')" />
+            @focus="clearError('password')"
+          />
           <InputWithIcon
             v-model="form.confirmPassword"
             icon="fa-lock"
@@ -41,9 +38,11 @@
             :error="!!errors.confirmPassword"
             :valid="form.confirmPassword?.length > 0 && !errors.confirmPassword"
             @blur="validateConfirmPassword"
-            @focus="clearError('confirmPassword')" />
+            @focus="clearError('confirmPassword')"
+          />
         </div>
 
+        <div class="subItem-title">이메일 변경</div>
         <div class="card">
           <InputWithIcon
             v-model="form.email"
@@ -56,7 +55,8 @@
             autocomplete="off"
             autocorrect="off"
             @button-click="requestCode"
-            @focus="clearError('email')" />
+            @focus="clearError('email')"
+          />
           <VerificationCodeInput
             v-model="form.code"
             :error="!!errors.code"
@@ -64,7 +64,8 @@
             @verify="verifyCode"
             @resend="resendCode"
             @blur="validateCode"
-            @focus="clearError('code')" />
+            @focus="clearError('code')"
+          />
         </div>
 
         <div class="validation-block">
@@ -74,18 +75,16 @@
           <ValidationMessage :message="errors.code" />
         </div>
 
-        <button
-          type="submit"
-          class="submit-btn">
-          수정 완료
-        </button>
-      </form>
-      <div class="subBox2">
-        <div
-          class="action delete-btn"
-          @click="showDeleteModal = true">
-          회원탈퇴
+        <div class="subBox2">
+          <div class="action delete-btn" @click="showDeleteModal = true">
+            회원탈퇴
+          </div>
         </div>
+
+
+      </form>
+      <div class="button-container">
+        <button type="submit" form="user-edit-form" class="submit-btn">수정 완료</button>
       </div>
 
       <BaseModal
@@ -129,7 +128,6 @@
 </template>
 
 <script setup>
-// 스크립트 부분은 변경사항이 없으므로 그대로 사용합니다.
 import { ref, reactive, onMounted } from 'vue';
 import { fetchUserInfoApi, updateUserInfoApi, deleteUserApi } from '@/api/user';
 import { useEmailStore } from '@/stores/emailStore';
@@ -139,11 +137,11 @@ import VerificationCodeInput from '@/components/signUpPage/VerificationCodeInput
 import ValidationMessage from '@/components/signUpPage/ValidationMessage.vue';
 import BaseModal from '@/components/common/BaseModal.vue';
 
-// 사용자 정보 가져오기
 const UserInfoA = ref({ userId: '', userName: '' });
 const getUserInfo = async () => {
   const token = localStorage.getItem('accessToken');
   try {
+
     const response = await fetchUserInfoApi();
     UserInfoA.value = response.data;
   } catch (e) {
@@ -152,7 +150,6 @@ const getUserInfo = async () => {
 };
 onMounted(getUserInfo);
 
-// 폼 & 에러 상태
 const form = reactive({
   password: '',
   confirmPassword: '',
@@ -166,45 +163,40 @@ const errors = reactive({
   code: ''
 });
 
-const showDeleteSuccessModal = ref(false); // 모달 표시 상태 추가
+const showDeleteSuccessModal = ref(false);
 
-// 이메일 인증 상태 관리
 const emailStore = useEmailStore();
 
-// 유효성 검사 함수
 const validatePassword = () => {
   const pw = form.password;
   const rules = [/[a-z]/, /[A-Z]/, /\d/, /[^a-zA-Z0-9]/];
-  const ruleCount = rules.filter(r => r.test(pw)).length;
-  if (!pw) return ((errors.password = '● 비밀번호를 입력해주세요.'), false);
+  const ruleCount = rules.filter((r) => r.test(pw)).length;
+  if (!pw) return ((errors.password = '• 비밀번호를 입력해주세요.'), false);
   if (pw.length < 10 || ruleCount < 2) {
-    errors.password =
-      '● 영문 대/소문자, 숫자, 특수문자 중 2종 이상 조합으로 10자 이상이어야 합니다.';
+    errors.password = '• 영문 대/소문자, 숫자, 특수문자 중 2종 이상 조합으로 10자 이상이어야 합니다.';
     return false;
   }
   return true;
 };
 const validateConfirmPassword = () => {
-  if (!form.confirmPassword)
-    return ((errors.confirmPassword = '● 비밀번호 재확인을 입력해주세요.'), false);
+  if (!form.confirmPassword) return ((errors.confirmPassword = '• 비밀번호 재확인을 입력해주세요.'), false);
   if (form.password !== form.confirmPassword) {
-    errors.confirmPassword = '● 비밀번호가 일치하지 않습니다.';
+    errors.confirmPassword = '• 비밀번호가 일치하지 않습니다.';
     return false;
   }
   return true;
 };
 const validateEmail = () => {
-  if (!form.email) return ((errors.email = '● 이메일을 입력해주세요.'), false);
+  if (!form.email) return ((errors.email = '• 이메일을 입력해주세요.'), false);
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!regex.test(form.email)) return ((errors.email = '● 올바른 이메일 형식이 아닙니다.'), false);
+  if (!regex.test(form.email)) return ((errors.email = '• 올바른 이메일 형식이 아닙니다.'), false);
   return true;
 };
 const validateCode = () => {
-  if (!form.code) return ((errors.code = '● 인증코드를 입력해주세요.'), false);
+  if (!form.code) return ((errors.code = '• 인증코드를 입력해주세요.'), false);
   return true;
 };
 
-// 인증코드 요청/확인/재요청
 const requestCode = async () => {
   if (!validateEmail()) return;
   emailStore.email = form.email;
@@ -217,7 +209,7 @@ const requestCode = async () => {
 };
 const verifyCode = async () => {
   if (!form.email || !form.code) {
-    errors.code = '● 이메일과 인증코드를 모두 입력해주세요.';
+    errors.code = '• 이메일과 인증코드를 모두 입력해주세요.';
     return false;
   }
   emailStore.email = form.email;
@@ -225,7 +217,7 @@ const verifyCode = async () => {
   errors.code = '';
   await emailStore.verifyCode();
   if (!emailStore.verified) {
-    errors.code = emailStore.error || '● 인증코드가 일치하지 않습니다.';
+    errors.code = emailStore.error || '• 인증코드가 일치하지 않습니다.';
     openModal(errors.code);
     return false;
   }
@@ -243,7 +235,6 @@ const resendCode = async () => {
   }
 };
 
-// 수정 요청 (입력된 항목만 보냄)
 const handleEdit = async () => {
   resetErrors();
 
@@ -251,18 +242,16 @@ const handleEdit = async () => {
   const payload = {};
   const token = localStorage.getItem('accessToken');
 
-  // 비밀번호 입력 시 유효성 검사
   if (form.password || form.confirmPassword) {
     if (!validatePassword()) isValid = false;
     if (!validateConfirmPassword()) isValid = false;
     payload.password = form.password;
   }
 
-  // 이메일 입력 시 유효성 검사
   if (form.email || form.code) {
     if (!validateEmail()) isValid = false;
     if (!emailStore.verified) {
-      errors.code = '● 이메일 인증을 완료해주세요.';
+      errors.code = '• 이메일 인증을 완료해주세요.';
       isValid = false;
     } else {
       payload.email = form.email;
@@ -273,7 +262,6 @@ const handleEdit = async () => {
 
   try {
     await updateUserInfoApi(payload);
-
     showCompleteModal.value = true;
   } catch (error) {
     openModal(
@@ -293,9 +281,8 @@ const handleDelete = async () => {
   }
 
   try {
-    await deleteUserApi();
 
-    // ✅ 모달로 안내
+    await deleteUserApi();
     localStorage.removeItem('accessToken');
     showDeleteSuccessModal.value = true;
   } catch (error) {
@@ -305,40 +292,48 @@ const handleDelete = async () => {
   }
 };
 
-// 기타 상태/함수
 const showDeleteModal = ref(false);
 const showCompleteModal = ref(false);
 const showModal = ref(false);
 const modalMessage = ref('');
-const openModal = msg => {
+const openModal = (msg) => {
   modalMessage.value = msg;
   showModal.value = true;
 };
-const clearError = field => (errors[field] = '');
-const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''));
+const clearError = (field) => (errors[field] = '');
+const resetErrors = () => Object.keys(errors).forEach((key) => (errors[key] = ''));
+
 </script>
 
 <style scoped>
-/* ▼▼▼ 전체적인 레이아웃 및 폼 스타일 ▼▼▼ */
 .subBox {
   min-height: calc(100dvh - 56px);
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .user-edit-container {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
-/* ▼▼▼ 사용자 정보 표시 영역 스타일 (핵심 수정 부분) ▼▼▼ */
 .user-info-header {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px;
   background-color: var(--main01);
-  border-radius: 8px;
   color: var(--white);
+  margin: 0 -20px;
+  padding: 20px;
+}
+
+.iconBox {
+  padding: 15px;
+  border-radius: 8px;
+  background-color: var(--white);
+  display: flex;
+  justify-content: center;
 }
 
 .bear-icon {
@@ -348,7 +343,7 @@ const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''))
 .user-details {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* 이름과 아이디 행 사이의 간격 */
+  gap: 8px;
 }
 
 .detail-row {
@@ -370,11 +365,12 @@ const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''))
   border-left: 2px solid var(--main04);
 }
 
-/* ▼▼▼ 폼 및 버튼 스타일 ▼▼▼ */
 .form {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
+
 
 .card {
   background: var(--white);
@@ -389,12 +385,46 @@ const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''))
   text-align: left;
   padding-left: 12px;
 }
+
 .subItem-title {
   font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  border-left: 5px solid var(--main01);
+  padding-left: 20px;
+  margin: 20px 0 10px 0;
 }
+
+.button-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  background-color: var(--off-white);
+  padding: 16px 20px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+}
+
+.button-container::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(
+    to bottom,
+    rgb(from var(--off-white) r g b / 0),
+    rgb(from var(--off-white) r g b / 0.85),
+    var(--off-white)
+  );
+  pointer-events: none;
+}
+
+
 .submit-btn {
   width: 100%;
-  margin-top: 20px;
   background-color: var(--sub01);
   color: var(--white);
   border: 1.5px solid var(--sub01);
@@ -406,9 +436,9 @@ const resetErrors = () => Object.keys(errors).forEach(key => (errors[key] = ''))
 }
 
 .subBox2 {
-  padding-top: 10px;
+  margin: 20px 5px;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .delete-btn {

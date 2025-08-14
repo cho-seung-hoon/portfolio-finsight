@@ -197,13 +197,15 @@ watch(route, () => {
 }
 
 .content-container {
-  flex: 1;
-  /* position: relative; */
-  overflow-y: auto;
+  /* flex: 1;           <- 제거 */
+  /* overflow-y: auto;  <- 제거 */
   overflow-x: hidden;
   padding: 0 20px;
+  /* 자식 컴포넌트가 부모의 flex 컨텍스트에 올바르게 반응하도록 함 */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
-
 .custom-scrollbar-thumb:active {
   cursor: grabbing;
 }

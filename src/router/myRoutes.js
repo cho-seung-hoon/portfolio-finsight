@@ -6,7 +6,8 @@ const myRoutes = [
     meta: {
       header: {
         titleParts: [{ text: '마이페이지', color: 'var(--white)' }],
-        bColor: 'var(--main01)'
+        bColor: 'var(--main01)',
+        showBorder:false
       }
     }
   },
@@ -17,8 +18,10 @@ const myRoutes = [
     meta: {
       layout: 'HeaderLayout',
       header: {
-        titleParts: [{ text: '내 정보 수정하기', color: 'var(--main01)' }],
-        showBackButton: true
+        titleParts: [{ text: '내 정보 수정하기', color: 'var(--white)' }],
+        showBackButton: true,
+        bColor: 'var(--main01)',
+        showBorder:false
       }
     }
   },

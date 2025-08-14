@@ -11,30 +11,29 @@
       </div>
       <div class="sentiment-filter">
         <button
-          :class="{ active: selectedSentiment === 'all' }"
-          @click="setSentimentFilter('all')">
+          :class="{ active: selectedSentiment === 'ALL' }"
+          @click="setSentimentFilter('ALL')">
           전체
         </button>
         <button
-          :class="{ active: selectedSentiment === 'positive' }"
-          @click="setSentimentFilter('positive')">
+          :class="{ active: selectedSentiment === 'POSITIVE' }"
+          @click="setSentimentFilter('POSITIVE')">
           긍정
         </button>
         <button
-          :class="{ active: selectedSentiment === 'neutral' }"
-          @click="setSentimentFilter('neutral')">
+          :class="{ active: selectedSentiment === 'NEUTRAL' }"
+          @click="setSentimentFilter('NEUTRAL')">
           중립
         </button>
         <button
-          :class="{ active: selectedSentiment === 'negative' }"
-          @click="setSentimentFilter('negative')">
+          :class="{ active: selectedSentiment === 'NEGATIVE' }"
+          @click="setSentimentFilter('NEGATIVE')">
           부정
         </button>
       </div>
     </div>
 
     <div class="news-list">
-      <!-- 여기가 핵심: filterNews가 아닌 displayedNews 사용 -->
       <NewsListItem
         v-for="(news, index) in displayedNews"
         :key="index"
@@ -46,7 +45,7 @@
         :news-id="news.newsId" />
     </div>
 
-    <!-- 더보기 버튼 -->
+
     <div
       v-if="hasMoreNews"
       class="load-more-container">
@@ -99,21 +98,22 @@ const props = defineProps({
   color: String,
   newsList: Array // 뉴스 목록 데이터, 부모에서 전달
 });
-
 const currentPage = ref(1);
 const itemsPerPage = 3;
 const isLoading = ref(false);
 
-// [추가] 현재 선택된 감성 필터 상태 ('all', '긍정', '중립', '부정')
-const selectedSentiment = ref('all');
 
-// [수정] 선택된 감성에 따라 뉴스 목록을 필터링하도록 수정
+const selectedSentiment = ref('ALL');
+
+
 const filterNews = computed(() => {
   const allNews = props.newsList || [];
-  if (selectedSentiment.value === 'all') {
+  if (selectedSentiment.value === 'ALL') {
     return allNews;
   }
-  return allNews.filter(news => news.newsSentiment === selectedSentiment.value);
+  return allNews.filter(news => {
+    return news.newsSentiment === selectedSentiment.value;
+  });
 });
 
 // 현재 표시할 뉴스 목록 (페이지네이션 적용)
@@ -154,7 +154,7 @@ const setSentimentFilter = sentiment => {
 // props가 변경될 때 페이지와 필터를 초기화
 const resetPaginationAndFilter = () => {
   currentPage.value = 1;
-  selectedSentiment.value = 'all'; // 키워드가 바뀌면 필터도 '전체'로 초기화
+  selectedSentiment.value = 'ALL'; // 키워드가 바뀌면 필터도 '전체'로 초기화
 };
 
 // keyword나 newsList가 변경될 때 페이지네이션 초기화

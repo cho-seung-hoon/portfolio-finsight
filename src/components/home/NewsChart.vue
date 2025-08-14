@@ -62,10 +62,6 @@ import IconQuestion from '@/components/icons/IconQuestion.vue';
 import IconRefresh from '@/components/icons/IconRefresh.vue';
 import IconSquare from '@/components/icons/IconSquare.vue';
 
-// ===================================================================
-// ✨ 1. 로직 영역 (Logic Area)
-// ===================================================================
-
 const props = defineProps({
   chartData: {
     type: Array,
@@ -83,7 +79,6 @@ function handleRefreshClick() {
   emit('refresh-data');
 }
 
-// 이벤트 핸들러
 function onBubbleClick(keyword) {
   let colorToEmit;
   if (keyword.value > 5) {
@@ -99,7 +94,6 @@ function onBubbleClick(keyword) {
   });
 }
 
-// 데이터 변경 감지 및 생명주기 훅
 watch(
   () => props.chartData,
   newData => {
@@ -136,23 +130,19 @@ onBeforeUnmount(() => {
   if (simulation) simulation.stop();
 });
 
-// ===================================================================
-// ✨ 2. 차트 설정 및 구현 영역 (Chart Settings & Implementation)
-// ===================================================================
 
-// --- 색상 설정 ---
 const sentimentColors = {
-  negative: ['#f4dcd6', '#FC8675', '#f97662'],
-  neutral: ['#e2e4d8', '#e2e4d8', '#e2e4d8'],
-  positive: ['#ccddf8', '#6B96E0', '#6c8fe8']
+  NEGATIVE: ['#f4dcd6', '#FC8675', '#f97662'],
+  NEUTRAL: ['#e2e4d8', '#e2e4d8', '#e2e4d8'],
+  POSITIVE: ['#ccddf8', '#6B96E0', '#6c8fe8']
 };
 const sentimentTextColors = {
-  negative: ['#5E2720', '#9c3428', '#FFFFFF'],
-  neutral: ['#7c7c77', '#7c7c77', '#7c7c77'],
-  positive: ['#1D2C45', '#1a418e', '#FFFFFF']
+  NEGATIVE: ['#5E2720', '#9c3428', '#FFFFFF'],
+  NEUTRAL: ['#7c7c77', '#7c7c77', '#7c7c77'],
+  POSITIVE: ['#1D2C45', '#1a418e', '#FFFFFF']
 };
 
-// --- 헬퍼 함수 ---
+
 function colorScale(value, sentiment) {
   let index;
   if (value > 15) index = 2;
@@ -165,7 +155,6 @@ function colorScale(value, sentiment) {
   };
 }
 
-// --- 차트 그리기 메인 함수 ---
 function drawChart(data, width, height) {
   if (!data || data.length === 0) return;
 

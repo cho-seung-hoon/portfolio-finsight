@@ -1,15 +1,11 @@
-import axios from 'axios';
+import apiClient from './index.js';
 
-let BASE_URL = '/exchange';
-
-// GET 요청
-export const get = async params => {
+export const exchangeRate = async () => {
   try {
-    const response = await axios.get(BASE_URL, { params });
-    console.log(response.data);
+    const response = await apiClient.get('/exchange');
     return response.data;
   } catch (e) {
-    console.error(`Error - get: ${e}`);
+    console.error('Error fetching exchange rates:', e);
     throw e;
   }
 };
