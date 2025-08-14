@@ -19,7 +19,7 @@ const listRoutes = [
   {
     path: '/search',
     name: 'search',
-    component: () => import('../pages/SearchPage.vue'),
+    component: () => import('../pages/search/SearchPage.vue'),
     meta: {
       layout: 'HeaderLayout',
       header: {
@@ -32,7 +32,7 @@ const listRoutes = [
   {
     path: '/search/result',
     name: 'searchResult',
-    component: () => import('../pages/SearchResultPage.vue'),
+    component: () => import('../pages/search/SearchResultPage.vue'),
     meta: {
       layout: 'HeaderLayout',
       header: {

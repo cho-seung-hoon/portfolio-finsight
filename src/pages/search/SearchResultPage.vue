@@ -10,7 +10,7 @@
     <section class="list-search-page-contents">
       <section class="search-category-section">
         <h4 class="search-category-label">예금</h4>
-        <DepositItem
+        <SearchDepositItem
           v-for="item in deposits"
           :key="item.product_code"
           :item="item" />
@@ -18,7 +18,7 @@
       </section>
       <section class="search-category-section">
         <h4 class="search-category-label">펀드</h4>
-        <FundItem
+        <SearchFundItem
           v-for="item in funds"
           :key="item.product_code"
           :item="item" />
@@ -42,109 +42,35 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import DepositItem from '@/components/list/DepositItem.vue';
-import FundItem from '@/components/list/FundItem.vue';
+import SearchDepositItem from '@/components/search/SearchDepositItem.vue';
+import SearchFundItem from '@/components/search/SearchFundItem.vue';
 import EtfItem from '@/components/list/EtfItem.vue';
+import { getSearchDeposits, getSearchFunds, getSearchEtfs } from '@/api/searchApi';
 
 const route = useRoute();
 const router = useRouter();
 const search = ref('');
+const deposits = ref([]);
+const funds = ref([]);
+const etfs = ref([]);
 
-const deposits = [
-  {
-    product_code: 'deposit-001',
-    product_name: 'SH 첫만남우대예금',
-    company_name: 'SH 수협은행',
-    intr_rate: 1.2,
-    intr_rate2: 2.8,
-    userOwns: true,
-    isPopularInUserGroup: false
-  },
-  {
-    product_code: 'deposit-002',
-    product_name: 'KB Star 정기예금',
-    company_name: 'KB 국민은행',
-    intr_rate: 1.5,
-    intr_rate2: 3.0,
-    userOwns: false,
-    isPopularInUserGroup: true
-  }
-];
+async function fetchDeposits() {
+  deposits.value = await getSearchDeposits(search.value);
+}
 
-const funds = [
-  {
-    product_code: 'fund-001',
-    country: '국내',
-    fund_type: '주식형',
-    product_name: '미래에셋자산배분TINA펀드',
-    rate_of_return: 37.31,
-    scale: 2000,
-    risk_grade: 1,
-    news_response: {
-      positive: 20,
-      neutral: 30,
-      negative: 50
-    },
-    userOwns: true,
-    isPopularInUserGroup: true
-  },
-  {
-    product_code: 'fund-002',
-    country: '해외',
-    fund_type: '채권형',
-    product_name: '삼성 한국형TDF 2045',
-    rate_of_return: 12.1,
-    scale: 3000,
-    risk_grade: 3,
-    news_response: {
-      positive: 60,
-      neutral: 20,
-      negative: 20
-    },
-    userOwns: false,
-    isPopularInUserGroup: true
-  }
-];
+async function fetchFunds() {
+  funds.value = await getSearchFunds(search.value);
+}
 
-const etfs = [
-  {
-    product_code: 'etf-001',
-    country: '국내',
-    etf_type: '주식형',
-    product_name: 'TIGER 미국S&P500',
-    nav: 2000,
-    volume: 3000,
-    rate_of_return: '3.3% (1개월)',
-    risk_grade: 3,
-    news_response: {
-      positive: 20,
-      neutral: 30,
-      negative: 50
-    },
-    userOwns: false,
-    isPopularInUserGroup: true
-  },
-  {
-    product_code: 'etf-002',
-    country: '국내',
-    etf_type: '채권형',
-    product_name: 'KODEX 200',
-    nav: 10250,
-    volume: 45700,
-    rate_of_return: '1.1% (1개월)',
-    risk_grade: 2,
-    news_response: {
-      positive: 30,
-      neutral: 60,
-      negative: 10
-    },
-    userOwns: true,
-    isPopularInUserGroup: false
-  }
-];
+async function fetchEtfs() {
+  etfs.value = await getSearchEtfs(search.value);
+}
 
 onMounted(() => {
   search.value = route.query.query ?? '';
+  fetchDeposits();
+  fetchFunds();
+  fetchEtfs();
 });
 
 function goBack() {
