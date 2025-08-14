@@ -197,3 +197,12 @@ export async function sellProduct(tradeData) {
     return { success: false, error: error.response?.data || error.message };
   }
 }
+
+export const getMyPortfolioApi = () => {
+  return apiClient.get('/holdings/mp');
+};
+
+// ✅ 예금 보유내역 조회
+export const getDepositHoldingsApi = () => {
+  return apiClient.get('/holdings/deposit'); // 토큰 자동 포함
+};

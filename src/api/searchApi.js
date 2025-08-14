@@ -11,3 +11,54 @@ export async function getSearchSuggestions(word) {
     throw err;
   }
 }
+
+export async function getSearchDepositsPaged(word, page = 0, size = 4) {
+  try {
+    const response = await apiClient.get('/search', {
+      params: {
+        category: 'deposit',
+        word,
+        page,
+        size
+      }
+    });
+    return response.data;
+  } catch (err) {
+    console.error('예금 검색 목록 받아오는 API 호출 오류: ', err);
+    return [];
+  }
+}
+
+export async function getSearchFundsPaged(word, page = 0, size = 4) {
+  try {
+    const response = await apiClient.get('/search', {
+      params: {
+        category: 'fund',
+        word,
+        page,
+        size
+      }
+    });
+    return response.data;
+  } catch (err) {
+    console.error('펀드 검색 목록 받아오는 API 호출 오류: ', err);
+    return [];
+  }
+}
+
+export async function getSearchEtfsPaged(word, page = 0, size = 4) {
+  try {
+    const response = await apiClient.get('/search', {
+      params: {
+        category: 'etf',
+        word,
+        page,
+        size
+      }
+    });
+    return response.data;
+  } catch (err) {
+    console.error('ETF 검색 목록 받아오는 API 호출 오류: ', err);
+    return [];
+  }
+}

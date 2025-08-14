@@ -59,7 +59,7 @@ import ListFundPage from './list/ListFundPage.vue';
 import ListEtfPage from './list/ListEtfPage.vue';
 import IconCheck from '@/components/icons/IconCheck.vue';
 import BottomModal from '@/components/list/BottomModal.vue';
-import axios from 'axios';
+import { fetchInvestmentProfileApi } from '@/api/user';
 
 const route = useRoute();
 const category = computed(() => route.params.category);
@@ -85,12 +85,14 @@ function closeModal() {
 function confirmMatch() {
   isMatched.value = true;
   updateIsMatchedInStorage(true);
+  emitMatchChange();
   showModal.value = false;
 }
 
 function resetMatch() {
   isMatched.value = false;
   updateIsMatchedInStorage(false);
+  emitMatchChange();
 }
 
 function updateIsMatchedInStorage(val) {
@@ -100,6 +102,10 @@ function updateIsMatchedInStorage(val) {
   });
 }
 
+function emitMatchChange() {
+  window.dispatchEvent(new CustomEvent('isMatchedChanged'));
+}
+
 const fetchInvestmentProfile = async () => {
   const accessToken = localStorage.getItem('accessToken');
   if (!accessToken) {
@@ -107,9 +113,7 @@ const fetchInvestmentProfile = async () => {
     return;
   }
   try {
-    const response = await axios.get('http://localhost:8080/users/invt', {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    });
+    const response = await fetchInvestmentProfileApi();
     const type = response.data.investmentProfileType;
     investmentProfileType.value = translateProfileType(type);
     profileClass.value = getProfileClass(type);

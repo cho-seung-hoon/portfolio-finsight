@@ -7,7 +7,8 @@
     <NewsChart
       :chart-data="chartData"
       @initial-load="handleKeywordClick"
-      @keyword-click="handleKeywordClick" />
+      @keyword-click="handleKeywordClick"
+      @refresh-data="handleRefresh" />
   </div>
   <div class="home-box">
     <NewsList
@@ -40,74 +41,75 @@ const productListForKeyword = ref([]);
 const selectKeyword = ref(null);
 const selectColor = ref(null);
 
+
+async function initializePage() {
+  // 키워드 목록을 불러와서 차트 데이터만 설정하고 끝냅니다.
+  // 뉴스 목록을 미리 불러오거나, 색상을 임시로 설정하지 않습니다.
+  await fetchAndSetKeywords();
+
+  // NewsChart가 스스로 렌더링을 마친 후,
+  // @initial-load 이벤트를 통해 '진짜' 키워드 정보(색상 포함)를
+  // 보내주면 그 때 handleKeywordClick이 호출될 것입니다.
+}
+
 async function handleKeywordClick(payload) {
   selectKeyword.value = payload.label;
   selectColor.value = payload.color;
   await loadNewsAndProductsByKeyword(payload.id);
-
-  console.log("payload : " + payload.id);
 }
 
 async function loadNewsAndProductsByKeyword(keywordId) {
   loadingStore.startLoading('목록을 불러오는 중...');
   try {
     const responseData = await fetchNewsByKeyword(keywordId);
-
-    console.log('API 응답 데이터 (responseData):', responseData);
-
     if (responseData) {
+      console.log("responseData", responseData);
       newsListForKeyword.value = responseData.newsList || [];
       productListForKeyword.value = responseData.productList || [];
-    } else {
-      newsListForKeyword.value = [];
-      productListForKeyword.value = [];
     }
-
   } catch (error) {
     console.error('Error loading news data by keyword:', error);
-    newsListForKeyword.value = [];
-    productListForKeyword.value = [];
+
   } finally {
     loadingStore.stopLoading();
   }
 }
+
 const filteredNewsList = computed(() => newsListForKeyword.value);
 const filteredProductList = computed(() => productListForKeyword.value);
 
-onMounted(async () => {
-  loadingStore.startLoading('홈 데이터를 불러오는 중...');
+
+async function fetchAndSetKeywords() {
+  loadingStore.startLoading('키워드를 불러오는 중...'); // 카운터 +1
   try {
     const apiResponseData = await fetchKeywords();
+    console.log("apiResponseData", apiResponseData);
     const bubbleChartData = apiResponseData.map(item => {
-      const sentiments = {
-        positive: item.positiveCount * 5 , // 긍정 - 가중치
-        negative: item.negativeCount * 5, // 부정 - 가중치
-        neutral: item.neutralCount
-      };
+      const sentiments = { POSITIVE: item.positiveCount * 5, NEGATIVE: item.negativeCount * 5, NEUTRAL: item.neutralCount };
       let dominantSentiment;
-
-      if (sentiments.positive === sentiments.negative) {
-        dominantSentiment = 'neutral';
+      if (sentiments.POSITIVE === sentiments.NEGATIVE) {
+        dominantSentiment = 'NEUTRAL';
       } else {
-        dominantSentiment = Object.keys(sentiments).reduce((a, b) =>
-          sentiments[a] > sentiments[b] ? a : b
-        );
+        dominantSentiment = Object.keys(sentiments).reduce((a, b) => sentiments[a] > sentiments[b] ? a : b);
       }
-
-      return {
-        id: item.keywordId,
-        label: item.keyword,
-        value: sentiments[dominantSentiment],
-        sentiment: dominantSentiment
-      };
+      return { id: item.keywordId, label: item.keyword, value: sentiments[dominantSentiment], sentiment: dominantSentiment };
     });
     chartData.value = bubbleChartData;
+    return bubbleChartData;
   } catch (error) {
     console.error('Error loading initial home data:', error);
     chartData.value = [];
+    return null;
   } finally {
     loadingStore.stopLoading();
   }
+}
+
+
+const handleRefresh = fetchAndSetKeywords;
+
+onMounted(() => {
+  initializePage();
 });
 </script>
 

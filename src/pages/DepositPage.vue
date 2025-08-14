@@ -2,9 +2,9 @@
   <div
     class="page-container"
     :class="{ 'modal-open': isModalOpen }">
-    <LoadingSpinner
+<!--    <LoadingSpinner
       v-if="isLoading"
-      text="상품 정보를 불러오는 중..." />
+      text="상품 정보를 불러오는 중..." />-->
     <div v-else-if="error">{{ error }}</div>
     <div v-else-if="productInfo">
       <DetailMainDeposit

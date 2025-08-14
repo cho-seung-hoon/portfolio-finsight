@@ -1,13 +1,3 @@
-<!-- 
-    작성자: JY
-    작성일자: 2025-07-29
-    페이지명: 투자성향분석-Step-2-페이지
-    [경로]
-        path: '/inv-type-test-step-2-page',
-        name: 'InvTypeTestStep2Page',
-        component: InvTypeTestStep2Page,
--->
-
 <template>
   <div class="main-section">
     <!-- MainSection start-->
@@ -447,45 +437,6 @@
     </div>
   </div>
 
-  <!-- 통합해야할 모달창 -->
-  <!-- <div
-    v-if="isModalOpen"
-    class="modal-overlay">
-    <div class="modal-box">
-      <h3>투자성향분석 결과 안내</h3>
-      <br />
-      <p>
-        고객님의 투자성향과 가입하고자 하는 금융투자상품의 위험 수준을 확인 후 신중하게 투자하여
-        주시기 바랍니다.
-      </p>
-      <br />
-      <button
-        class="modal-complete-button"
-        @click="closeModal">
-        확인하였습니다.
-      </button>
-    </div>
-  </div> -->
-  <!-- Modal Section end -->
-
-  <!-- 통합해야할 모달창 -->
-  <!-- <div
-    v-if="isAlertModalOpen"
-    class="modal-overlay">
-    <div class="modal-box">
-      <h3>안내</h3>
-      <br />
-      <p>모든 질문에 응답해 주세요.</p>
-      <br />
-      <button
-        class="modal-complete-button"
-        @click="isAlertModalOpen = false">
-        확인
-      </button>
-    </div>
-  </div> -->
-  <!-- Alert Modal Section end -->
-
   <BaseModal
     :visible="isModalOpen"
     :onClose="closeModal"
@@ -641,12 +592,31 @@
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
 import BaseModal from '@/components/common/BaseModal.vue';
+import axios from 'axios';
 
 const router = useRouter();
 
-// === 1. 질문별 점수표
+// API 함수들 - 컴포넌트 내부에 정의
+const insertInvestmentProfileApi = (investmentProfileType) => {
+  const accessToken = localStorage.getItem('accessToken');
+  return axios.put('http://localhost:8080/users/invt',
+  // return axios.put('/users/invt', 
+    { investmentProfileType },
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+};
+
+const updateInvestmentProfileApi = (investmentProfileType) => {
+  const accessToken = localStorage.getItem('accessToken');
+  // return axios.put('/users/invt/update', 
+  return axios.put('http://localhost:8080/users/invt',
+    { investmentProfileType },
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+};
+
+
 const scoreTable = {
   q1: { 1: 12.5, 2: 12.5, 3: 9.3, 4: 6.2, 5: 3.1 },
   q2: { 1: 3.1, 2: 6.2, 3: 9.3, 4: 12.5, 5: 15.6 },
@@ -667,7 +637,6 @@ const selectedAnswers = reactive({
   q7: null
 });
 
-// === 2. 총 점수 계산
 const totalScore = computed(() => {
   let score = 0;
   for (const [key, val] of Object.entries(selectedAnswers)) {
@@ -680,8 +649,12 @@ const totalScore = computed(() => {
   return score;
 });
 
-// === 3. 투자 성향 유형 계산
 const getInvestmentProfileType = score => {
+  // if (score <= 20) return 'stable';
+  // if (score <= 40) return 'stableplus';
+  // if (score <= 60) return 'neutral';
+  // if (score <= 80) return 'aggressive';
+  // return 'veryaggressive';
   if (score <= 20) return 'STABLE';
   if (score <= 40) return 'STABLEPLUS';
   if (score <= 60) return 'NEUTRAL';
@@ -689,11 +662,9 @@ const getInvestmentProfileType = score => {
   return 'VERYAGGRESSIVE';
 };
 
-// === 4. 모달 관리
 const isAlertModalOpen = ref(false);
 const isModalOpen = ref(false);
 
-// === 5. 모든 문항 응답 여부 확인
 const isAllAnswered = computed(() => {
   return (
     selectedAnswers.q1 !== null &&
@@ -706,71 +677,67 @@ const isAllAnswered = computed(() => {
   );
 });
 
-// === 6. 서버로 보낼 formData
-// 폼 -> 로직 계산 후 투자성향을 investmentProfileType 넣어야함
-const investmentProfileType = ref(''); // ref로 선언했으므로 .value로 접근함.
+const investmentProfileType = ref('');
 
-// === 7. 투자 성향 저장 API 호출
+// 최초 저장 API ("/users/invt")
 const submitInvestmentProfile = async () => {
-  const accessToken = localStorage.getItem('accessToken');
-
-  if (!accessToken) {
-    console.error('accessToken이 없습니다.');
+  if (!investmentProfileType.value) {
+    console.error('투자성향 타입이 없습니다.');
     return;
   }
-
-  console.log('🔐 accessToken:', accessToken);
-
   try {
-    const response = await axios.put(
-      'http://localhost:8080/users/invt',
-      {
-        investmentProfileType: investmentProfileType.value
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-    );
+    const response = await insertInvestmentProfileApi(investmentProfileType.value);
     console.log('투자성향 저장 성공:', response.data);
   } catch (error) {
     console.error('투자성향 저장 실패:', error);
-    console.error('📄 응답 상태:', error.response?.status);
-    console.error('📄 응답 데이터:', error.response?.data);
-    console.error('📄 전체 에러:', error);
   }
 };
 
-// === 8. 다음 버튼 클릭 시 실행
+
+// 수정 API ("/api/users/invt/update")
+const updateInvestmentProfile = async () => {
+  if (!investmentProfileType.value) {
+    console.error('투자성향 타입이 없습니다.');
+    return;
+  }
+  try {
+    const response = await updateInvestmentProfileApi(investmentProfileType.value);
+    console.log('투자성향 수정 성공:', response.data);
+  } catch (error) {
+    console.error('투자성향 수정 실패:', error);
+  }
+};
+
+
+// submit 버튼 클릭 시 최초 저장 혹은 수정 API 호출 로직
+const isExistingProfile = ref(false);
+
 const goToNext = async () => {
   if (!isAllAnswered.value) {
     isAlertModalOpen.value = true;
     return;
   }
-
-  // formData.investmentProfileType = getInvestmentProfileType(totalScore.value)
   investmentProfileType.value = getInvestmentProfileType(totalScore.value);
-  console.log('>> 응답한 총 점수:', totalScore.value);
-  console.log('>> 계산된 투자성향:', investmentProfileType.value);
 
-  await submitInvestmentProfile();
+  if (isExistingProfile.value) {
+    await updateInvestmentProfile();
+  } else {
+    await submitInvestmentProfile();
+  }
+
   isModalOpen.value = true;
 };
 
-// === 9. 모달 닫기 후 결과 페이지로 이동
 const closeModal = () => {
   router.push({
     path: '/inv-type-results-page',
     query: {
       score: totalScore.value,
-      // investmentProfileType: formData.investmentProfileType
       investmentProfileType: investmentProfileType.value
     }
   });
 };
 
-// === 10. 점수 변화 로그 출력
 watch(totalScore, newScore => {
   console.log('현재 총 점수:', newScore.toFixed(2));
   console.log('현재 투자 성향:', getInvestmentProfileType(newScore));

@@ -6,8 +6,10 @@
 
     <!-- 전용 세션 만료 모달 -->
     <SessionExpireModal
+      :key="sessionStore.modalMode"
       :visible="sessionStore.isExpireModalVisible"
       :remainingTime="sessionStore.remainingTime"
+      :mode="sessionStore.modalMode"
       @extend="sessionStore.extendSession"
       @logout="sessionStore.logout"
       @close="sessionStore.isExpireModalVisible = false" />

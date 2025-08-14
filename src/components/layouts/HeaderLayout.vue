@@ -145,25 +145,6 @@ onBeforeUnmount(() => {
 watch(route, () => {
   scrollRef.value?.scrollTo({ top: 0, behavior: 'smooth' });
 });
-
-// ✅ 토큰 만료 5분전 팝업 기능
-// import axios from 'axios';
-// const extendSession = async () => {
-//   const token = localStorage.getItem('accessToken');
-//   try {
-//     const response = await axios.post(
-//       'http://localhost:8080/users/token',
-//       {},
-//       { headers: { Authorization: `Bearer ${token}` } }
-//     );
-//     const newToken = response.data.data;
-//     localStorage.setItem('accessToken', newToken);
-//     isModalVisible.value = false;
-//     hasShownExpireWarning.value = false;
-//   } catch (e) {
-//     console.error('연장 실패:', e);
-//   }
-// };
 </script>
 
 <style scoped>
@@ -216,13 +197,15 @@ watch(route, () => {
 }
 
 .content-container {
-  flex: 1;
-  /* position: relative; */
-  overflow-y: auto;
+  /* flex: 1;           <- 제거 */
+  /* overflow-y: auto;  <- 제거 */
   overflow-x: hidden;
   padding: 0 20px;
+  /* 자식 컴포넌트가 부모의 flex 컨텍스트에 올바르게 반응하도록 함 */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
-
 .custom-scrollbar-thumb:active {
   cursor: grabbing;
 }

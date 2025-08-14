@@ -1,16 +1,39 @@
 <template>
   <div class="subBox">
-    <div class="subItem-title">
-      <span
-        class="keyword"
-        :style="{ color: props.color }"
-        >{{ props.keyword }}</span
-      >
-      <span> 관련 뉴스</span>
+    <div class="subItem">
+      <div class="subItem-title">
+        <span
+          class="keyword"
+          :style="{ color: props.color }"
+          >{{ props.keyword }}</span
+        >
+        <span> 관련 뉴스</span>
+      </div>
+      <div class="sentiment-filter">
+        <button
+          :class="{ active: selectedSentiment === 'ALL' }"
+          @click="setSentimentFilter('ALL')">
+          전체
+        </button>
+        <button
+          :class="{ active: selectedSentiment === 'POSITIVE' }"
+          @click="setSentimentFilter('POSITIVE')">
+          긍정
+        </button>
+        <button
+          :class="{ active: selectedSentiment === 'NEUTRAL' }"
+          @click="setSentimentFilter('NEUTRAL')">
+          중립
+        </button>
+        <button
+          :class="{ active: selectedSentiment === 'NEGATIVE' }"
+          @click="setSentimentFilter('NEGATIVE')">
+          부정
+        </button>
+      </div>
     </div>
 
     <div class="news-list">
-      <!-- 여기가 핵심: filterNews가 아닌 displayedNews 사용 -->
       <NewsListItem
         v-for="(news, index) in displayedNews"
         :key="index"
@@ -22,7 +45,7 @@
         :news-id="news.newsId" />
     </div>
 
-    <!-- 더보기 버튼 -->
+
     <div
       v-if="hasMoreNews"
       class="load-more-container">
@@ -75,14 +98,22 @@ const props = defineProps({
   color: String,
   newsList: Array // 뉴스 목록 데이터, 부모에서 전달
 });
-
 const currentPage = ref(1);
 const itemsPerPage = 3;
 const isLoading = ref(false);
 
-// 필터링된 전체 뉴스 목록
+
+const selectedSentiment = ref('ALL');
+
+
 const filterNews = computed(() => {
-  return props.newsList || [];
+  const allNews = props.newsList || [];
+  if (selectedSentiment.value === 'ALL') {
+    return allNews;
+  }
+  return allNews.filter(news => {
+    return news.newsSentiment === selectedSentiment.value;
+  });
 });
 
 // 현재 표시할 뉴스 목록 (페이지네이션 적용)
@@ -114,16 +145,23 @@ const loadMore = async () => {
   isLoading.value = false;
 };
 
-// props가 변경될 때 페이지 초기화
-const resetPagination = () => {
+// [추가] 감성 필터 변경 시, 필터 상태를 업데이트하고 페이지네이션을 초기화하는 함수
+const setSentimentFilter = sentiment => {
+  selectedSentiment.value = sentiment;
+  currentPage.value = 1; // 필터 변경 시 첫 페이지로 리셋
+};
+
+// props가 변경될 때 페이지와 필터를 초기화
+const resetPaginationAndFilter = () => {
   currentPage.value = 1;
+  selectedSentiment.value = 'ALL'; // 키워드가 바뀌면 필터도 '전체'로 초기화
 };
 
 // keyword나 newsList가 변경될 때 페이지네이션 초기화
 watch(
   () => [props.keyword, props.newsList],
   () => {
-    resetPagination();
+    resetPaginationAndFilter();
   },
   { deep: true }
 );
@@ -137,9 +175,18 @@ watch(
   padding: 20px;
 }
 
+.subItem{
+  display:flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
 .subItem-title {
+  display: flex;
+  align-items: center;
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semi-bold);
+  gap: 5px;
 }
 
 .keyword {
@@ -148,6 +195,39 @@ watch(
 
 .news-list {
   margin-top: 10px;
+}
+
+/* 감성 필터 버튼들을 담는 컨테이너 */
+.sentiment-filter {
+  display: flex;
+  gap: 5px; /* 버튼 사이 간격 */
+}
+
+/* 감성 필터 개별 버튼 스타일 */
+.sentiment-filter button {
+  padding: 5px 10px;
+  border: 1px solid var(--main04);
+  background-color: var(--white);
+  color: var(--main02);
+  border-radius: 6px; /* 둥근 알약 모양 */
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 버튼에 마우스를 올렸을 때 스타일 */
+.sentiment-filter button:hover {
+  background-color: #f9fafb;
+  border-color: var(--main03);
+}
+
+/* 현재 선택된(활성화된) 버튼 스타일 */
+.sentiment-filter button.active {
+  background-color: var(--main01);
+  color: var(--white);
+  border-color: var(--main01);
+  font-weight: var(--font-weight-bold);
 }
 
 /* 새로 추가된 스타일 */

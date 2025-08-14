@@ -1,7 +1,7 @@
 <template>
   <div class="subBox">
     <div
-      v-for="(item, index) in processedData"
+      v-for="(item, index) in exchangeRateStore.processedData"
       :key="index"
       class="subItem">
       <div class="top-row">
@@ -40,15 +40,12 @@
 
 <script setup>
 import { onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
 import { useExchangeRateStore } from '@/stores/exchangeRate';
 import IconUp from '@/components/icons/IconUp.vue';
 import IconDown from '@/components/icons/IconDown.vue';
 
 const exchangeRateStore = useExchangeRateStore();
 
-const { processedData, displayDate } = storeToRefs(exchangeRateStore);
-const { fetchExchangeData } = exchangeRateStore;
 
 const getDiffClass = diff => {
   if (diff > 0) return 'up';
@@ -67,8 +64,8 @@ const getCountryCode = curUnit => {
   return mapping[curUnit] || 'un';
 };
 
-onMounted(() => {
-  fetchExchangeData();
+onMounted(async () => {
+  await exchangeRateStore.fetchExchangeData();
 });
 </script>
 

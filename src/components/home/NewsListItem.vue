@@ -49,11 +49,11 @@ const formattedDate = computed(() => {
 const sentimentText = computed(() => {
   if (!props.sentiment) return null;
   const sentimentMap = {
-    positive: '긍정',
-    negative: '부정',
-    neutral: '중립'
+    POSITIVE: '긍정',
+    NEGATIVE: '부정',
+    NEUTRAL: '중립'
   };
-  return sentimentMap[props.sentiment.toLowerCase()] || null;
+  return sentimentMap[props.sentiment] || null;
 });
 
 const handleClick = async e => {
@@ -111,19 +111,19 @@ const handleClick = async e => {
 }
 
 /* 긍정 태그 스타일 */
-.sentiment-tag.negative {
+.sentiment-tag.NEGATIVE {
   background-color: var(--newsNegative); /* 연한 빨강 */
   color: #ffffff; /* 진한 빨강 */
 }
 
 /* 부정 태그 스타일 */
-.sentiment-tag.positive {
+.sentiment-tag.POSITIVE {
   background-color: var(--newsPositive); /* 연한 파랑 */
   color: #ffffff; /* 진한 파랑 */
 }
 
 /* 중립 태그 스타일 */
-.sentiment-tag.neutral {
+.sentiment-tag.NEUTRAL {
   background-color: var(--newsNeutral); /* 연한 노랑 */
   color: #ffffff; /* 진한 노랑 */
 }

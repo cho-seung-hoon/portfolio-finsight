@@ -23,7 +23,7 @@ import { getFunds } from '@/api/productApi';
 const filters = [
   { key: 'country', label: '국가', options: ['전체', '국내', '해외'] },
   { key: 'fund_type', label: '유형', options: ['전체', '주식형', '채권형', '혼합형'] },
-  { key: 'sort', label: '정렬', options: ['수익률순', '펀드규모순', '조회수순'] }
+  { key: 'sort', label: '정렬', options: ['수익률순', '펀드규모순'] }
 ];
 const selected = ref({
   country: '전체',
@@ -33,8 +33,7 @@ const selected = ref({
 const funds = ref([]);
 const sortMap = {
   수익률순: 'rate_of_return',
-  펀드규모순: 'fund_scale',
-  조회수순: 'view_count'
+  펀드규모순: 'fund_scale'
 };
 const countryMap = {
   전체: undefined,
