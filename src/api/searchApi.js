@@ -12,12 +12,14 @@ export async function getSearchSuggestions(word) {
   }
 }
 
-export async function getSearchDeposits(word) {
+export async function getSearchDepositsPaged(word, page = 0, size = 4) {
   try {
     const response = await apiClient.get('/search', {
       params: {
         category: 'deposit',
-        word
+        word,
+        page,
+        size
       }
     });
     return response.data;
@@ -27,12 +29,14 @@ export async function getSearchDeposits(word) {
   }
 }
 
-export async function getSearchFunds(word) {
+export async function getSearchFundsPaged(word, page = 0, size = 4) {
   try {
     const response = await apiClient.get('/search', {
       params: {
         category: 'fund',
-        word
+        word,
+        page,
+        size
       }
     });
     return response.data;
@@ -42,12 +46,14 @@ export async function getSearchFunds(word) {
   }
 }
 
-export async function getSearchEtfs(word) {
+export async function getSearchEtfsPaged(word, page = 0, size = 4) {
   try {
     const response = await apiClient.get('/search', {
       params: {
         category: 'etf',
-        word
+        word,
+        page,
+        size
       }
     });
     return response.data;

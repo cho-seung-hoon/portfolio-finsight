@@ -18,42 +18,63 @@
     <section
       v-else
       class="list-search-page-contents">
+      <!-- 예금 -->
       <section
-        v-if="deposits.length"
+        v-if="deposits.items.length"
         class="search-category-section">
         <h4 class="search-category-label">예금</h4>
         <SearchDepositItem
-          v-for="item in deposits"
-          :key="item.product_code"
+          v-for="item in deposits.items"
+          :key="item.productCode"
           :item="item" />
-        <button class="search-category-more-button">예금 더보기</button>
+        <button
+          v-if="deposits.hasNext"
+          class="search-category-more-button"
+          :disabled="deposits.loading"
+          @click="loadMore('deposit')">
+          예금 더보기
+        </button>
       </section>
 
+      <!-- 펀드 -->
       <section
-        v-if="funds.length"
+        v-if="funds.items.length"
         class="search-category-section">
         <h4 class="search-category-label">펀드</h4>
         <SearchFundItem
-          v-for="item in funds"
-          :key="item.product_code"
+          v-for="item in funds.items"
+          :key="item.productCode"
           :item="item" />
-        <button class="search-category-more-button">펀드 더보기</button>
+        <button
+          v-if="funds.hasNext"
+          class="search-category-more-button"
+          :disabled="funds.loading"
+          @click="loadMore('fund')">
+          펀드 더보기
+        </button>
       </section>
 
+      <!-- ETF -->
       <section
-        v-if="etfs.length"
+        v-if="etfs.items.length"
         class="search-category-section">
         <h4 class="search-category-label">ETF</h4>
         <SearchEtfItem
-          v-for="item in etfs"
-          :key="item.product_code"
+          v-for="item in etfs.items"
+          :key="item.productCode"
           :item="item" />
-        <button class="search-category-more-button">ETF 더보기</button>
+        <button
+          v-if="etfs.hasNext"
+          class="search-category-more-button"
+          :disabled="etfs.loading"
+          @click="loadMore('etf')">
+          ETF 더보기
+        </button>
       </section>
 
       <!-- 검색어는 있는데 모든 결과가 비었을 때 -->
       <div
-        v-if="!deposits.length && !funds.length && !etfs.length"
+        v-if="!deposits.items.length && !funds.items.length && !etfs.items.length"
         class="no-result">
         검색 결과가 없습니다.
       </div>
@@ -67,42 +88,55 @@ import { useRoute, useRouter } from 'vue-router';
 import SearchDepositItem from '@/components/search/SearchDepositItem.vue';
 import SearchFundItem from '@/components/search/SearchFundItem.vue';
 import SearchEtfItem from '@/components/search/SearchEtfItem.vue';
-import { getSearchDeposits, getSearchFunds, getSearchEtfs } from '@/api/searchApi';
+import { getSearchDepositsPaged, getSearchFundsPaged, getSearchEtfsPaged } from '@/api/searchApi';
 
 const route = useRoute();
 const router = useRouter();
 const search = ref('');
 const isPlaceholder = computed(() => !search.value?.trim());
-const deposits = ref([]);
-const funds = ref([]);
-const etfs = ref([]);
 
-async function fetchDeposits() {
-  deposits.value = await getSearchDeposits(search.value);
+// 페이징 관련
+const deposits = ref({ items: [], page: 0, size: 4, hasNext: false, loading: false });
+const funds = ref({ items: [], page: 0, size: 4, hasNext: false, loading: false });
+const etfs = ref({ items: [], page: 0, size: 4, hasNext: false, loading: false });
+
+// 공통 로더
+async function load(state, fetcher) {
+  if (state.loading) return;
+  state.loading = true;
+  try {
+    const res = await fetcher(search.value, state.page, state.size);
+    state.items = state.page === 0 ? res.items : state.items.concat(res.items);
+    state.hasNext = !!res.hasNext;
+    if (res.hasNext) state.page += 1;
+  } catch (e) {
+    console.error('검색 로드 실패:', e);
+  } finally {
+    state.loading = false;
+  }
 }
 
-async function fetchFunds() {
-  funds.value = await getSearchFunds(search.value);
+async function initAll() {
+  await Promise.all([
+    load(deposits.value, getSearchDepositsPaged),
+    load(funds.value, getSearchFundsPaged),
+    load(etfs.value, getSearchEtfsPaged)
+  ]);
 }
 
-async function fetchEtfs() {
-  etfs.value = await getSearchEtfs(search.value);
+async function loadMore(kind) {
+  if (kind === 'deposit') return load(deposits.value, getSearchDepositsPaged);
+  if (kind === 'fund') return load(funds.value, getSearchFundsPaged);
+  if (kind === 'etf') return load(etfs.value, getSearchEtfsPaged);
 }
 
-onMounted(() => {
+onMounted(async () => {
   search.value = route.query.query ?? '';
-  fetchDeposits();
-  fetchFunds();
-  fetchEtfs();
+  if (!isPlaceholder.value) await initAll();
 });
 
 function goBack() {
-  router.push({
-    path: '/search',
-    state: {
-      query: search.value
-    }
-  });
+  router.push({ path: '/search', state: { query: search.value } });
 }
 </script>
 
@@ -139,16 +173,6 @@ function goBack() {
 
 .search-query-display.placeholder {
   color: var(--main02);
-}
-
-.list-search-page-input {
-  flex: 1;
-  padding: 12px 16px;
-  background-color: var(--main04);
-  border: 1px solid var(--main03);
-  border-radius: 12px;
-  font-size: var(--font-size-md);
-  outline: none;
 }
 
 .no-result {
