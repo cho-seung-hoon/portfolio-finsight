@@ -23,15 +23,6 @@
         안정추구형 HOT
       </div>
     </section>
-
-    <section class="deposit-item-content-section">
-      <div class="info-row">
-        <span class="label">금리(1년)</span>
-        <span class="value">
-          최고 {{ item.depositIntrRate2 }}% | 기본 {{ item.depositIntrRate }}%
-        </span>
-      </div>
-    </section>
   </section>
 </template>
 
@@ -164,13 +155,13 @@ function goToDetail() {
   width: 80px;
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
-  color: var(--main02);
+  color: var(--main01);
   flex-shrink: 0;
 }
 
 .value {
   font-size: var(--font-size-ms);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-regular);
   color: var(--main01);
 }
 </style>

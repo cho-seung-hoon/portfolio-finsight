@@ -1,22 +1,22 @@
 <template>
   <section
-    class="etf-item-container"
+    class="fund-item-container"
     @click="goToDetail">
-    <section class="etf-item-header-section">
-      <div class="etf-item-sub-title">
+    <section class="fund-item-header-section">
+      <div class="fund-item-sub-title">
         {{ countryLabelMap[item.productCountry] ?? item.productCountry }}
         ・
         {{ typeLabelMap[item.productType] ?? item.productType }}
       </div>
 
-      <header class="etf-item-header">
-        <div class="etf-item-title-left">
+      <header class="fund-item-header">
+        <div class="fund-item-title-left">
           <span class="product-name">{{ item.productName }}</span>
           <span
             v-if="item.userOwns"
-            class="own-tag">
-            보유중
-          </span>
+            class="own-tag"
+            >보유중</span
+          >
         </div>
         <IconHeartStroke class="heart-icon" />
       </header>
@@ -25,60 +25,6 @@
         v-if="item.isPopularInUserGroup"
         class="user-group-popular-badge">
         안정추구형 HOT
-      </div>
-    </section>
-
-    <section class="etf-item-content-section">
-      <div class="info-row">
-        <span class="label">현재가</span>
-        <span class="value">
-          {{
-            item.currentPrice != null && item.currentPrice !== ''
-              ? fmtNumber(item.currentPrice) + '원'
-              : '-'
-          }}
-        </span>
-      </div>
-      <div class="info-row">
-        <span class="label">거래량</span>
-        <span class="value">
-          {{ item.volume != null && item.volume !== '' ? fmtNumber(item.volume) + '주' : '-' }}
-        </span>
-      </div>
-      <div class="info-row">
-        <span class="label">수익률(3개월)</span>
-        <span
-          class="value"
-          :class="changeClass"
-          >{{ fmtPercent(item.return3Months) }}</span
-        >
-      </div>
-      <div class="info-row">
-        <span class="label">기준가</span>
-        <span class="value">
-          {{ item.etfNav != null && item.etfNav !== '' ? fmtNumber(item.etfNav) + '원' : '-' }}
-        </span>
-      </div>
-      <div class="info-row">
-        <span class="label">위험등급</span>
-        <span class="value">{{ item.productRiskGrade }}등급</span>
-      </div>
-      <div
-        v-if="item.newsSentiment"
-        class="news-response-box">
-        <span class="news-label">뉴스반응</span>
-        <div class="news-bar-wrapper">
-          <div
-            v-for="(key, index) in ['positive', 'neutral', 'negative']"
-            :key="key"
-            class="news-bar-segment"
-            :class="{
-              left: index === 0,
-              center: index === 1,
-              right: index === 2
-            }"
-            :style="getSegmentStyle(key)"></div>
-        </div>
       </div>
     </section>
   </section>
@@ -114,30 +60,8 @@ const colorMap = {
 const router = useRouter();
 
 function goToDetail() {
-  router.push(`/etf/${props.item.productCode}`);
+  router.push(`/fund/${props.item.productCode}`);
 }
-
-function fmtNumber(n) {
-  if (n == null || n === '') return '-';
-  const num = Number(n);
-  if (Number.isNaN(num)) return '-';
-  return num.toLocaleString('ko-KR');
-}
-function fmtPercent(v) {
-  if (v == null || v === '') return '-';
-  let num = Number(v);
-  if (Number.isNaN(num)) return '-';
-  if (Math.abs(num) > 0 && Math.abs(num) < 1) num *= 100;
-  return `${num.toFixed(2)}%`;
-}
-
-const changeClass = computed(() => {
-  const v = Number(props.item?.return3Months);
-  if (Number.isNaN(v)) return '';
-  if (v > 0) return 'up';
-  if (v < 0) return 'down';
-  return 'flat';
-});
 
 function getSegmentStyle(key) {
   const values = props.item.newsSentiment || { positive: 0, neutral: 0, negative: 0 };
@@ -150,6 +74,22 @@ function getSegmentStyle(key) {
     backgroundColor: key === maxKey ? colorMap[key] : 'var(--main04)',
     marginRight: key !== 'negative' ? '3px' : '0'
   };
+}
+
+const changeClass = computed(() => {
+  const raw = props.item?.productRateOfReturn;
+  const v = Number(raw);
+  if (raw == null || raw === '' || Number.isNaN(v)) return '';
+  if (v > 0) return 'up';
+  if (v < 0) return 'down';
+  return 'flat';
+});
+
+function fmtNumber(n) {
+  if (n == null || n === '') return '-';
+  const num = Number(n);
+  if (Number.isNaN(num)) return '-';
+  return num.toLocaleString('ko-KR');
 }
 </script>
 
@@ -165,7 +105,7 @@ function getSegmentStyle(key) {
   }
 }
 
-.etf-item-container {
+.fund-item-container {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -180,17 +120,17 @@ function getSegmentStyle(key) {
   transition: transform 0.2s ease;
 }
 
-.etf-item-container:active {
+.fund-item-container:active {
   transform: scale(0.98);
   background-color: var(--main04);
 }
 
-.etf-item-header-section {
+.fund-item-header-section {
   display: flex;
   flex-direction: column;
 }
 
-.etf-item-header {
+.fund-item-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -199,7 +139,7 @@ function getSegmentStyle(key) {
   color: var(--main01);
 }
 
-.etf-item-title-left {
+.fund-item-title-left {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -222,6 +162,10 @@ function getSegmentStyle(key) {
   height: 24px;
 }
 
+.fund-item-header svg:hover {
+  transform: none;
+}
+
 .own-tag {
   background-color: var(--main04);
   color: var(--main02);
@@ -231,7 +175,7 @@ function getSegmentStyle(key) {
   border-radius: 4px;
 }
 
-.etf-item-sub-title {
+.fund-item-sub-title {
   display: flex;
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
@@ -245,10 +189,10 @@ function getSegmentStyle(key) {
   color: var(--green01);
 }
 
-.etf-item-content-section {
+.fund-item-content-section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .info-row {
@@ -263,6 +207,24 @@ function getSegmentStyle(key) {
   font-weight: var(--font-weight-regular);
   color: var(--main02);
   flex-shrink: 0;
+}
+
+.value {
+  font-size: var(--font-size-ms);
+  font-weight: var(--font-weight-regular);
+  color: var(--main01);
+}
+
+.value.up {
+  color: var(--text-red);
+  font-weight: var(--font-weight-medium);
+}
+.value.down {
+  color: var(--text-blue);
+  font-weight: var(--font-weight-medium);
+}
+.value.flat {
+  color: var(--main01);
 }
 
 .news-response-box {
@@ -310,23 +272,5 @@ function getSegmentStyle(key) {
 
 .news-bar-segment.center {
   border-radius: 0;
-}
-
-.value {
-  font-size: var(--font-size-ms);
-  font-weight: var(--font-weight-medium);
-  color: var(--main01);
-}
-
-.value.up {
-  color: var(--text-red);
-  font-weight: var(--font-weight-medium);
-}
-.value.down {
-  color: var(--text-blue);
-  font-weight: var(--font-weight-medium);
-}
-.value.flat {
-  color: var(--main01);
 }
 </style>

@@ -27,60 +27,6 @@
         안정추구형 HOT
       </div>
     </section>
-
-    <section class="etf-item-content-section">
-      <div class="info-row">
-        <span class="label">현재가</span>
-        <span class="value">
-          {{
-            item.currentPrice != null && item.currentPrice !== ''
-              ? fmtNumber(item.currentPrice) + '원'
-              : '-'
-          }}
-        </span>
-      </div>
-      <div class="info-row">
-        <span class="label">거래량</span>
-        <span class="value">
-          {{ item.volume != null && item.volume !== '' ? fmtNumber(item.volume) + '주' : '-' }}
-        </span>
-      </div>
-      <div class="info-row">
-        <span class="label">수익률(3개월)</span>
-        <span
-          class="value"
-          :class="changeClass"
-          >{{ fmtPercent(item.return3Months) }}</span
-        >
-      </div>
-      <div class="info-row">
-        <span class="label">기준가</span>
-        <span class="value">
-          {{ item.etfNav != null && item.etfNav !== '' ? fmtNumber(item.etfNav) + '원' : '-' }}
-        </span>
-      </div>
-      <div class="info-row">
-        <span class="label">위험등급</span>
-        <span class="value">{{ item.productRiskGrade }}등급</span>
-      </div>
-      <div
-        v-if="item.newsSentiment"
-        class="news-response-box">
-        <span class="news-label">뉴스반응</span>
-        <div class="news-bar-wrapper">
-          <div
-            v-for="(key, index) in ['positive', 'neutral', 'negative']"
-            :key="key"
-            class="news-bar-segment"
-            :class="{
-              left: index === 0,
-              center: index === 1,
-              right: index === 2
-            }"
-            :style="getSegmentStyle(key)"></div>
-        </div>
-      </div>
-    </section>
   </section>
 </template>
 
@@ -248,7 +194,7 @@ function getSegmentStyle(key) {
 .etf-item-content-section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .info-row {
@@ -314,7 +260,7 @@ function getSegmentStyle(key) {
 
 .value {
   font-size: var(--font-size-ms);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-regular);
   color: var(--main01);
 }
 

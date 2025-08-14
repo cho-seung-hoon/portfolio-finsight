@@ -6,8 +6,13 @@
         @input="handleInput"
         type="text"
         placeholder="상품을 입력하세요"
+        @keyup.enter="handleComplete"
         class="list-search-page-input" />
-      <button class="list-search-page-complete-button">완료</button>
+      <button
+        class="list-search-page-complete-button"
+        @click="handleComplete">
+        완료
+      </button>
     </section>
     <section class="list-search-page-content">
       <SearchSuggestItem
@@ -23,13 +28,11 @@
 import { ref, watch, onMounted } from 'vue';
 import SearchSuggestItem from '@/components/list/SearchSuggestItem.vue';
 import { getSearchSuggestions } from '@/api/searchApi';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const word = ref('');
 const allProducts = ref([]);
-
-watch(word, async newValue => {
-  await fetchSuggestions(newValue);
-});
 
 function handleInput(event) {
   word.value = event.target.value;
@@ -50,6 +53,10 @@ async function fetchSuggestions(value) {
   }
 }
 
+function handleComplete() {
+  router.push({ path: '/search/result', query: { query: word.value } });
+}
+
 onMounted(async () => {
   const stateQuery = window.history.state?.query;
   if (typeof stateQuery === 'string') {
@@ -57,6 +64,10 @@ onMounted(async () => {
     await fetchSuggestions(stateQuery);
     window.history.replaceState({}, '');
   }
+});
+
+watch(word, async newValue => {
+  await fetchSuggestions(newValue);
 });
 </script>
 

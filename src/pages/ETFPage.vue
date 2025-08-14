@@ -1,7 +1,7 @@
 <template>
   <div class="etf-page">
-    <!-- <LoadingSpinner v-if="isLoading" /> -->
-    <!-- <div
+    <LoadingSpinner v-if="isLoading" />
+    <div
       v-else-if="error"
       class="error-message">
       {{ error }}

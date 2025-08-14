@@ -14,9 +14,9 @@
           <span class="product-name">{{ item.productName }}</span>
           <span
             v-if="item.userOwns"
-            class="own-tag">
-            보유중
-          </span>
+            class="own-tag"
+            >보유중</span
+          >
         </div>
         <IconHeartStroke class="heart-icon" />
       </header>
@@ -30,18 +30,25 @@
 
     <section class="fund-item-content-section">
       <div class="info-row">
-        <span class="label">수익률</span>
-        <span class="value">{{ item.productRateOfReturn }} (3개월)</span>
+        <span class="label">수익률(3개월)</span>
+        <span
+          class="value"
+          :class="changeClass">
+          {{
+            item.productRateOfReturn != null && item.productRateOfReturn !== ''
+              ? item.productRateOfReturn + '%'
+              : '-'
+          }}
+        </span>
       </div>
       <div class="info-row">
         <span class="label">펀드규모</span>
-        <span class="value">{{ item.fundScale }}</span>
+        <span class="value">{{ fmtNumber(item.fundScale) }}억원</span>
       </div>
       <div class="info-row">
         <span class="label">위험등급</span>
-        <span class="value">{{ item.productRiskGrade }}</span>
+        <span class="value">{{ item.productRiskGrade }}등급</span>
       </div>
-
       <div
         v-if="item.newsSentiment"
         class="news-response-box">
@@ -56,7 +63,7 @@
               center: index === 1,
               right: index === 2
             }"
-            :style="getSegmentStyle(key)"></div>
+            :style="getSegmentStyle(key)" />
         </div>
       </div>
     </section>
@@ -64,6 +71,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import IconHeartStroke from '../icons/IconHeartStroke.vue';
 
@@ -106,6 +114,22 @@ function getSegmentStyle(key) {
     backgroundColor: key === maxKey ? colorMap[key] : 'var(--main04)',
     marginRight: key !== 'negative' ? '3px' : '0'
   };
+}
+
+const changeClass = computed(() => {
+  const raw = props.item?.productRateOfReturn;
+  const v = Number(raw);
+  if (raw == null || raw === '' || Number.isNaN(v)) return '';
+  if (v > 0) return 'up';
+  if (v < 0) return 'down';
+  return 'flat';
+});
+
+function fmtNumber(n) {
+  if (n == null || n === '') return '-';
+  const num = Number(n);
+  if (Number.isNaN(num)) return '-';
+  return num.toLocaleString('ko-KR');
 }
 </script>
 
@@ -208,7 +232,7 @@ function getSegmentStyle(key) {
 .fund-item-content-section {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .info-row {
@@ -218,16 +242,28 @@ function getSegmentStyle(key) {
 }
 
 .label {
-  width: 80px;
+  width: 120px;
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
-  color: var(--main01);
+  color: var(--main02);
   flex-shrink: 0;
 }
 
 .value {
   font-size: var(--font-size-ms);
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-medium);
+  color: var(--main01);
+}
+
+.value.up {
+  color: var(--text-red);
+  font-weight: var(--font-weight-medium);
+}
+.value.down {
+  color: var(--text-blue);
+  font-weight: var(--font-weight-medium);
+}
+.value.flat {
   color: var(--main01);
 }
 
@@ -238,6 +274,7 @@ function getSegmentStyle(key) {
   align-items: center;
   background-color: var(--main05);
   padding: 8px;
+  margin-top: 12px;
   border: 1px solid var(--main04);
   border-radius: 12px;
   justify-content: space-between;
