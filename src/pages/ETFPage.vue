@@ -1,13 +1,12 @@
 <template>
   <div class="etf-page">
-    <LoadingSpinner v-if="isLoading" />
     <div
-      v-else-if="error"
+      v-if="error"
       class="error-message">
       {{ error }}
-    </div> -->
+    </div>
     <div
-      v-if="productInfo"
+      v-else-if="productInfo"
       class="etf-content">
       <DetailMainEtf :product-info="productInfo" />
       <DetailTabs
@@ -62,12 +61,12 @@ import DetailActionButton from '@/components/detail/DetailActionButton.vue';
 import FundEtfBuyModal from '@/components/buysell/FundEtfBuyModal.vue';
 import FundEtfSellModal from '@/components/buysell/FundEtfSellModal.vue';
 import ToastMessage from '@/components/common/ToastMessage.vue';
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
+
 
 const route = useRoute();
 
 const etfStore = useEtfStore();
-const { productInfo, isLoading, error, isYieldHistoryLoaded, isYieldHistoryLoading } =
+const { productInfo, error, isYieldHistoryLoaded, isYieldHistoryLoading } =
   storeToRefs(etfStore);
 
 // 웹소켓 구독 관련

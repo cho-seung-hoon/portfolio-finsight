@@ -2,8 +2,7 @@
   <div
     class="page-container"
     :class="{ 'modal-open': isModalOpen }">
-    <div v-if="isLoading">로딩 중...</div>
-    <div v-else-if="error">{{ error }}</div>
+    <div v-if="error">{{ error }}</div>
     <div v-else-if="productInfo">
       <DetailMainFund
         :product-info="productInfo"
@@ -79,7 +78,7 @@ import ToastMessage from '@/components/common/ToastMessage.vue';
 const route = useRoute();
 
 const fundStore = useFundStore();
-const { productInfo, isLoading, error, isYieldHistoryLoaded, isYieldHistoryLoading } =
+const { productInfo, error, isYieldHistoryLoaded, isYieldHistoryLoading } =
   storeToRefs(fundStore);
 
 // 모달 상태 관리

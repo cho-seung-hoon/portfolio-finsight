@@ -2,10 +2,7 @@
   <div
     class="page-container"
     :class="{ 'modal-open': isModalOpen }">
-<!--    <LoadingSpinner
-      v-if="isLoading"
-      text="상품 정보를 불러오는 중..." />-->
-    <div v-else-if="error">{{ error }}</div>
+    <div v-if="error">{{ error }}</div>
     <div v-else-if="productInfo">
       <DetailMainDeposit
         :bank="productInfo?.productCompanyName"
@@ -82,11 +79,11 @@ import TermsAgreementModal from '@/components/buysell/TermsAgreementModal.vue';
 import DepositBuyModal from '@/components/buysell/DepositBuyModal.vue';
 import DepositSellModal from '@/components/buysell/DepositSellModal.vue';
 import ToastMessage from '@/components/common/ToastMessage.vue';
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
+
 
 const route = useRoute();
 const depositStore = useDepositStore();
-const { productInfo, isLoading, error, isWatched } = storeToRefs(depositStore);
+const { productInfo, error, isWatched } = storeToRefs(depositStore);
 
 // 모달 상태 관리
 const isModalOpen = ref(false);
