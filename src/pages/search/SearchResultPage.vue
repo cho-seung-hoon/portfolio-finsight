@@ -3,12 +3,24 @@
     <section class="list-search-page-header">
       <div
         class="search-query-display"
+        :class="{ placeholder: isPlaceholder }"
         @click="goBack">
-        {{ search }}
+        {{ isPlaceholder ? '상품을 입력하세요.' : search }}
       </div>
     </section>
-    <section class="list-search-page-contents">
-      <section class="search-category-section">
+
+    <div
+      v-if="isPlaceholder"
+      class="no-result">
+      검색 결과가 없습니다.
+    </div>
+
+    <section
+      v-else
+      class="list-search-page-contents">
+      <section
+        v-if="deposits.length"
+        class="search-category-section">
         <h4 class="search-category-label">예금</h4>
         <SearchDepositItem
           v-for="item in deposits"
@@ -16,7 +28,10 @@
           :item="item" />
         <button class="search-category-more-button">예금 더보기</button>
       </section>
-      <section class="search-category-section">
+
+      <section
+        v-if="funds.length"
+        class="search-category-section">
         <h4 class="search-category-label">펀드</h4>
         <SearchFundItem
           v-for="item in funds"
@@ -24,7 +39,10 @@
           :item="item" />
         <button class="search-category-more-button">펀드 더보기</button>
       </section>
-      <section class="search-category-section">
+
+      <section
+        v-if="etfs.length"
+        class="search-category-section">
         <h4 class="search-category-label">ETF</h4>
         <SearchEtfItem
           v-for="item in etfs"
@@ -32,15 +50,19 @@
           :item="item" />
         <button class="search-category-more-button">ETF 더보기</button>
       </section>
-      <section class="search-category-section">
-        <h4 class="search-category-label">관련 뉴스</h4>
-      </section>
+
+      <!-- 검색어는 있는데 모든 결과가 비었을 때 -->
+      <div
+        v-if="!deposits.length && !funds.length && !etfs.length"
+        class="no-result">
+        검색 결과가 없습니다.
+      </div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import SearchDepositItem from '@/components/search/SearchDepositItem.vue';
 import SearchFundItem from '@/components/search/SearchFundItem.vue';
@@ -50,6 +72,7 @@ import { getSearchDeposits, getSearchFunds, getSearchEtfs } from '@/api/searchAp
 const route = useRoute();
 const router = useRouter();
 const search = ref('');
+const isPlaceholder = computed(() => !search.value?.trim());
 const deposits = ref([]);
 const funds = ref([]);
 const etfs = ref([]);
@@ -114,6 +137,10 @@ function goBack() {
   color: var(--main01);
 }
 
+.search-query-display.placeholder {
+  color: var(--main02);
+}
+
 .list-search-page-input {
   flex: 1;
   padding: 12px 16px;
@@ -122,6 +149,13 @@ function goBack() {
   border-radius: 12px;
   font-size: var(--font-size-md);
   outline: none;
+}
+
+.no-result {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--main02);
+  font-size: var(--font-size-md);
 }
 
 .list-search-page-contents {
