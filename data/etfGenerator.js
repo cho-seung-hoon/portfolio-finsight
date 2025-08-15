@@ -27,7 +27,7 @@ function initializeETFData() {
       const initialPrice = Math.random() * 25000 + 5000;
       etfBasePrices[symbol] = parseFloat(Math.max(initialPrice, 100).toFixed(2));
       
-      const initialVolume = Math.floor(Math.random() * 49000 + 1000);
+      const initialVolume = Math.floor(Math.random() * 490 + 10);
       etfBaseVolumes[symbol] = Math.max(initialVolume, 100);
       
       const initialNav = Math.random() * 7000 + 8000;
@@ -66,7 +66,7 @@ async function initializeETFDataFromHistory(startTime) {
         etfBaseVolumes[symbol] = initialConfig.initialVolume;
         console.log(`[ETF] ${symbol} 거래량 초기값 생성: ${initialConfig.initialVolume}`);
       } else {
-        etfBaseVolumes[symbol] = Math.floor(Math.random() * 49000 + 1000);
+        etfBaseVolumes[symbol] = Math.floor(Math.random() * 490 + 10);
         console.log(`[ETF] ${symbol} 거래량 기본값 생성: ${etfBaseVolumes[symbol]}`);
       }
 
@@ -133,7 +133,7 @@ function generateVolumeChange(symbol, currentVolume) {
   // 현재 거래량이 유효하지 않으면 기본값 사용
   if (!currentVolume || isNaN(currentVolume) || !isFinite(currentVolume) || currentVolume <= 0) {
     const initialConfig = initialValues.ETF_INITIAL_VALUES[symbol];
-    return initialConfig ? initialConfig.initialVolume : Math.floor(Math.random() * 49000 + 1000);
+    return initialConfig ? initialConfig.initialVolume : Math.floor(Math.random() * 490 + 10);
   }
 
   const initialConfig = initialValues.ETF_INITIAL_VALUES[symbol];
@@ -205,10 +205,10 @@ function generateETFPriceData(symbol) {
     const initialConfig = initialValues.ETF_INITIAL_VALUES[symbol];
     etfBasePrices[symbol] = initialConfig ? initialConfig.initialPrice : Math.random() * 25000 + 5000;
   }
-  if (!etfBaseVolumes[symbol] || isNaN(etfBaseVolumes[symbol]) || etfBaseVolumes[symbol] <= 0) {
-    const initialConfig = initialValues.ETF_INITIAL_VALUES[symbol];
-    etfBaseVolumes[symbol] = initialConfig ? initialConfig.initialVolume : Math.floor(Math.random() * 49000 + 1000);
-  }
+      if (!etfBaseVolumes[symbol] || isNaN(etfBaseVolumes[symbol]) || etfBaseVolumes[symbol] <= 0) {
+      const initialConfig = initialValues.ETF_INITIAL_VALUES[symbol];
+      etfBaseVolumes[symbol] = initialConfig ? initialConfig.initialVolume : Math.floor(Math.random() * 490 + 10);
+    }
 
   const currentPrice = etfBasePrices[symbol];
   const currentVolume = etfBaseVolumes[symbol];

@@ -61,7 +61,7 @@ async function initializeFundDataFromHistory(startTime) {
         fundBaseAums[symbol] = parseFloat(initialConfig.initialAum.toFixed(2));
         console.log(`[Fund] ${symbol} 운용규모 초기값 생성: ${initialConfig.initialAum}`);
       } else {
-        fundBaseAums[symbol] = parseFloat((Math.random() * 200 + 50).toFixed(2));
+        fundBaseNavs[symbol] = parseFloat((Math.random() * 200 + 50).toFixed(2));
         console.log(`[Fund] ${symbol} 운용규모 기본값 생성: ${fundBaseNavs[symbol]}`);
       }
     });
