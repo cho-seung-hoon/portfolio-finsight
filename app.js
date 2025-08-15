@@ -1,10 +1,13 @@
+// FINSIGHT-TRADE 메인 애플리케이션
+// ETF 및 펀드 데이터를 제공하는 HTTP 서버와 WebSocket 서버를 실행합니다
+
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const http = require('http');
-require('dotenv').config(); // .env 파일 로드
+require('dotenv').config();
 
-// 환경 변수 구조분해할당
+// 환경 변수 설정
 const {
   PORT = PORT,
   WS_PORT = WS_PORT,

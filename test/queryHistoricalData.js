@@ -1,4 +1,6 @@
-// .env 파일 로드
+// 과거 데이터 조회 스크립트
+// InfluxDB에서 특정 날짜 범위의 데이터를 조회합니다
+
 require('dotenv').config();
 
 const { InfluxDB } = require('@influxdata/influxdb-client');

@@ -1,4 +1,6 @@
-// .env 파일 로드
+// InfluxDB 클라이언트
+// InfluxDB와의 연결 및 데이터 저장/조회를 담당합니다
+
 require('dotenv').config();
 
 const { InfluxDB, Point } = require('@influxdata/influxdb-client');
@@ -16,13 +18,13 @@ const writeApi = client.getWriteApi(org, bucket);
 async function writeToInflux(measurement, fields, tags = {}, timestamp = null) {
   const point = new Point(measurement);
 
-  // 필드 추가 (NaN 값 체크)
+  // 필드 추가 (유효성 검사)
   Object.entries(fields).forEach(([key, value]) => {
-    // NaN 값 체크 및 필터링
+    // 유효하지 않은 값 체크 및 필터링
     if (typeof value === 'number' && !isNaN(value) && isFinite(value)) {
       point.floatField(key, value);
     } else {
-      console.warn(`[InfluxDB] NaN 또는 무한값 감지: ${measurement}.${key} = ${value}`);
+      console.warn(`[InfluxDB] 유효하지 않은 값 감지: ${measurement}.${key} = ${value}`);
       // 기본값으로 대체
       const defaultValue = key.includes('volume') ? 1000 : 10000;
       point.floatField(key, defaultValue);

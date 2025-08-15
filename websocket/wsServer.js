@@ -1,7 +1,11 @@
+// WebSocket 서버
+// 실시간 데이터를 클라이언트에게 브로드캐스트하는 WebSocket 서버입니다
+
 const WebSocket = require('ws');
 
 let wss;
 
+// WebSocket 서버 시작
 function startWebSocketServer(server) {
   wss = new WebSocket.Server({
     server,
@@ -57,7 +61,7 @@ function broadcastETFData(etfDataArray) {
   });
 }
 
-// 기존 broadcastData 함수 (하위 호환성 유지)
+// 기존 broadcastData 함수 (호환성 유지)
 function broadcastData(data) {
   if (!wss) return;
 
@@ -76,7 +80,7 @@ function getConnectedClientsCount() {
 
 module.exports = {
   startWebSocketServer,
-  broadcastData, // 기존 함수 (하위 호환성)
+  broadcastData, // 호환성을 위한 기존 함수
   broadcastETFData, // ETF 데이터 브로드캐스트 (시세와 거래량만)
   getConnectedClientsCount
 };

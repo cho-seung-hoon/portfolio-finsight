@@ -1,4 +1,6 @@
-// .env 파일 로드
+// InfluxDB 데이터 삭제 스크립트
+// InfluxDB의 모든 데이터를 삭제하거나 특정 데이터만 삭제할 수 있습니다
+
 require('dotenv').config();
 
 const { InfluxDB, Point } = require('@influxdata/influxdb-client');
@@ -9,7 +11,7 @@ const { URL } = require('url');
 /*
  * InfluxDB 데이터 전체 삭제 스크립트
  *
- * ⚠️ 주의: 이 스크립트는 모든 데이터를 영구적으로 삭제합니다!
+ * 주의: 이 스크립트는 모든 데이터를 영구적으로 삭제합니다!
  *
  * 사용법:
  * 1. .env 파일에 환경 변수 설정:
@@ -28,8 +30,8 @@ const { URL } = require('url');
 // InfluxDB 설정
 const url = process.env.INFLUX_URL || 'http://localhost:8086';
 const token = process.env.INFLUX_TOKEN;
-const org = process.env.INFLUX_ORG;
-const bucket = process.env.INFLUX_BUCKET || 'finsight';
+const org = process.env.INFLUX_ORG || 'finsight';
+const bucket = process.env.INFLUX_BUCKET || 'finsight_price';
 
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);

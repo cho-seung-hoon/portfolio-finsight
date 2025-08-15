@@ -1,4 +1,6 @@
-// .env 파일 로드
+// 펀드 데이터 스케줄러
+// 펀드 기준가 및 운용규모 데이터를 주기적으로 생성하고 저장합니다
+
 require('dotenv').config();
 
 const cron = require('node-cron');
@@ -50,6 +52,40 @@ class FundScheduler {
 
     cron.schedule('0 0 * * *', async () => {
       try {
+        const today = new Date();
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0); // 오늘 00:00:00
+        const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59); // 오늘 23:59:59
+        
+        // 오늘 데이터가 이미 있는지 확인 (오늘 00:00:00 ~ 23:59:59)
+        const { getLatestFundData } = require('../influx/influxClient');
+        const existingData = await getLatestFundData(todayEnd);
+        
+        // 오늘 생성된 데이터가 있는지 확인
+        let hasTodayData = false;
+        if (existingData.nav && Object.keys(existingData.nav).length > 0) {
+          // 실제로 오늘 데이터인지 추가 확인
+          const queryApi = require('../influx/influxClient').client.getQueryApi(require('../influx/influxClient').org);
+          const todayCheckQuery = `
+            from(bucket: "${require('../influx/influxClient').bucket}")
+              |> range(start: ${todayStart.toISOString()}, stop: ${todayEnd.toISOString()})
+              |> filter(fn: (r) => r._measurement == "fund_nav")
+              |> count()
+          `;
+          
+          for await (const { values, tableMeta } of queryApi.iterateRows(todayCheckQuery)) {
+            const o = tableMeta.toObject(values);
+            if (o._value > 0) {
+              hasTodayData = true;
+              break;
+            }
+          }
+        }
+        
+        if (hasTodayData) {
+          console.log(`[Fund] ${today.toISOString().split('T')[0]} 데이터가 이미 존재합니다. 건너뜁니다.`);
+          return;
+        }
+
         // 펀드 기준가 데이터 생성
         const fundNavData = generateAllFundNavData();
 
@@ -95,7 +131,7 @@ class FundScheduler {
   // 스케줄러 중지
   stop() {
     console.log('[Fund Scheduler] 스케줄러 중지');
-    // cron 작업은 자동으로 중지되므로 별도 처리 불필요
+    // cron 작업은 자동으로 중지됨
   }
 }
 

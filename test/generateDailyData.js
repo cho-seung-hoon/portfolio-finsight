@@ -1,12 +1,15 @@
-// .env 파일 로드
+// 일별 데이터 생성 스크립트
+// 특정 날짜 범위의 ETF 기준가, 펀드 기준가, 펀드 운용규모 데이터를 생성합니다
+
 require('dotenv').config();
 
 const { writeToInflux } = require('../services/influx/influxClient');
-const { generateAllETFNavData, initializeETFDataFromHistory } = require('../data/etfGenerator');
+const { generateAllETFNavData, initializeETFDataFromHistory, ETF_PRODUCT_ID } = require('../data/etfGenerator');
 const {
   generateAllFundNavData,
   generateAllFundAumData,
-  initializeFundDataFromHistory
+  initializeFundDataFromHistory,
+  FUND_PRODUCT_ID
 } = require('../data/fundGenerator');
 
 // 데이터 생성기 초기화
@@ -69,6 +72,7 @@ function formatDate(date) {
 // 데이터 생성기 초기화 (과거 데이터 기반)
 async function initializeGenerators() {
   console.log('=== 데이터 생성기 초기화 시작 ===');
+  console.log('종목별 초기값 설정을 사용합니다.');
 
   try {
     // ETF 데이터 생성기 초기화
@@ -91,6 +95,7 @@ async function generateDailyDataAtDate(targetDate) {
   try {
     // ETF 기준가 데이터 생성
     const etfNavData = generateAllETFNavData();
+    let etfNavCount = 0;
 
     for (const navData of etfNavData) {
       await writeToInflux(
@@ -99,10 +104,12 @@ async function generateDailyDataAtDate(targetDate) {
         { product_code: navData.product_code },
         timestamp
       );
+      etfNavCount++;
     }
 
     // 펀드 기준가 데이터 생성
     const fundNavData = generateAllFundNavData();
+    let fundNavCount = 0;
 
     for (const navData of fundNavData) {
       await writeToInflux(
@@ -111,10 +118,12 @@ async function generateDailyDataAtDate(targetDate) {
         { fund_code: navData.fund_code },
         timestamp
       );
+      fundNavCount++;
     }
 
     // 펀드 운용규모 데이터 생성
     const fundAumData = generateAllFundAumData();
+    let fundAumCount = 0;
 
     for (const aumData of fundAumData) {
       await writeToInflux(
@@ -123,12 +132,13 @@ async function generateDailyDataAtDate(targetDate) {
         { fund_code: aumData.fund_code },
         timestamp
       );
+      fundAumCount++;
     }
 
     return {
-      etfNav: etfNavData.length,
-      fundNav: fundNavData.length,
-      fundAum: fundAumData.length
+      etfNav: etfNavCount,
+      fundNav: fundNavCount,
+      fundAum: fundAumCount
     };
   } catch (error) {
     console.error(`[${formatDate(targetDate)}] 데이터 생성 오류:`, error);
@@ -183,6 +193,11 @@ async function main() {
   console.log(`처리된 일수: ${processedDays}일`);
   console.log(`평균 처리 속도: ${(totalRecords / duration).toFixed(0)} 레코드/초`);
   console.log(`처리된 날짜 범위: ${formatDate(startDate)} ~ ${formatDate(endDate)}`);
+  console.log('');
+  console.log('생성된 데이터 요약:');
+  console.log(`  - ETF 기준가: ${processedDays}일 × ${ETF_PRODUCT_ID?.length || 0}종목`);
+  console.log(`  - 펀드 기준가: ${processedDays}일 × ${FUND_PRODUCT_ID?.length || 0}종목`);
+  console.log(`  - 펀드 운용규모: ${processedDays}일 × ${FUND_PRODUCT_ID?.length || 0}종목`);
 }
 
 // 스크립트 실행
