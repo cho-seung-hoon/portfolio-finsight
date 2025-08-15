@@ -107,11 +107,6 @@ function emitMatchChange() {
 }
 
 const fetchInvestmentProfile = async () => {
-  const accessToken = localStorage.getItem('accessToken');
-  if (!accessToken) {
-    console.error('accessToken이 없습니다.');
-    return;
-  }
   try {
     const response = await fetchInvestmentProfileApi();
     const type = response.data.investmentProfileType;

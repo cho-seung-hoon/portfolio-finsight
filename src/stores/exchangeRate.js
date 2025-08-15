@@ -9,6 +9,7 @@ export const useExchangeRateStore = defineStore('exchangeRate', () => {
   const lastFetchTimestamp = ref(null);
 
   function isDataStale() {
+    // return true;
     const now = new Date(); // 현재 시간
 
     if (!lastFetchTimestamp.value) {

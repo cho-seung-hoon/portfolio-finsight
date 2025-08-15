@@ -49,7 +49,6 @@ const userInfo = ref({
   userCreatedAt: ''
 });
 const fetchUsersInfo = async () => {
-  const token = localStorage.getItem('accessToken');
   try {
     const response = await fetchUserInfoApi();
     userInfo.value = response.data;

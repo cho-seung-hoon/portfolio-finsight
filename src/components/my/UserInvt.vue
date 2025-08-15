@@ -35,46 +35,42 @@
 </template>
 
 <script setup>
-// 1. 투자성향 <template>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import BaseModal from '@/components/common/BaseModal.vue';
 import { fetchInvestmentProfileApi } from '@/api/user';
+import { storeToRefs } from 'pinia';
+import { useSessionStore } from '@/stores/session';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const sessionStore = useSessionStore();
+const { user: userInfo } = storeToRefs(sessionStore);
 
 const investmentProfileType = ref('');
+const profileClass = ref('');
+const canRetakeTest = ref(false);
+const showModal = ref(false);
+
 onMounted(() => {
   fetchInvestmentProfile();
 });
 
-// 2. 투자 성향 API 호출 (백엔드에 GET 요청 보내기)
+// 투자 성향 API 호출 (백엔드에 GET 요청 보내기)
 const fetchInvestmentProfile = async () => {
-  const accessToken = localStorage.getItem('accessToken');
-
-  if (!accessToken) {
-    console.error('accessToken이 없습니다.');
-    return;
-  }
-
   try {
     const response = await fetchInvestmentProfileApi();
     const type = response.data.investmentProfileType;
     investmentProfileType.value = translateProfileType(type);
     profileClass.value = getProfileClass(type);
-    console.log('---------------');
-    console.log('투자성향결과:', type);
 
     const updatedAt = response.data.investmentProfileUpdatedAt;
-    console.log('갱신일자', updatedAt);
-
     canRetakeTest.value = isOver24Hours(updatedAt);
-    console.log('24시간이 지났는가?:', canRetakeTest.value);
   } catch (error) {
     console.error('투자성향 조회 실패:', error);
   }
 };
 
-// 3. GET 받은 투자 성향을 변환하는 로직
-const profileClass = ref('');
+//  GET 받은 투자 성향을 변환하는 로직
 const translateProfileType = type => {
   switch (type) {
     case 'stable':
@@ -91,6 +87,7 @@ const translateProfileType = type => {
       return '알 수 없음';
   }
 };
+
 const getProfileClass = type => {
   switch (type) {
     case 'stable':
@@ -108,8 +105,7 @@ const getProfileClass = type => {
   }
 };
 
-// 4. 날짜 비교 로직
-const canRetakeTest = ref(false);
+// 날짜 비교 로직
 const isOver24Hours = updatedAtStr => {
   const updatedDate = new Date(updatedAtStr);
   const now = new Date();
@@ -118,20 +114,14 @@ const isOver24Hours = updatedAtStr => {
   return diffInHours >= 24;
 };
 
-//5. 모달
-import { useRouter } from 'vue-router';
-const router = useRouter();
-const showModal = ref(false);
 
 const handleRetakeClick = () => {
-  console.log('버튼 클릭됨');
   console.log('canRetakeTest:', canRetakeTest.value);
 
   if (!canRetakeTest.value) {
     showModal.value = true;
     return;
   }
-
   router.push('/inv-type-main-page');
 };
 </script>

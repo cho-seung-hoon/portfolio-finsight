@@ -63,33 +63,21 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { fetchUserInfoApi, fetchInvestmentProfileApi } from '@/api/user';
+import { storeToRefs } from 'pinia';
+import { fetchInvestmentProfileApi } from '@/api/user';
+import { useSessionStore } from '@/stores/session';
+
+const sessionStore = useSessionStore();
+const { user: userInfo } = storeToRefs(sessionStore);
 
 const investmentProfileType = ref('');
+const profileClass = ref('');
+
 onMounted(() => {
   fetchInvestmentProfile();
-  fetchUsersInfo();
 });
-
-const userInfo = ref({
-  userName: ''
-});
-const fetchUsersInfo = async () => {
-  const token = localStorage.getItem('accessToken');
-  try {
-    const response = await fetchUserInfoApi();
-    userInfo.value = response.data;
-  } catch (e) {
-    console.error('유저 정보 불러오기 실패:', e);
-  }
-};
 
 const fetchInvestmentProfile = async () => {
-  const accessToken = localStorage.getItem('accessToken');
-  if (!accessToken) {
-    console.error('accessToken이 없습니다.');
-    return;
-  }
   try {
     const response = await fetchInvestmentProfileApi();
     const type = response.data.investmentProfileType;
@@ -100,7 +88,7 @@ const fetchInvestmentProfile = async () => {
     console.error('투자성향 조회 실패:', error);
   }
 };
-const profileClass = ref('');
+
 const translateProfileType = type => {
   switch (type) {
     case 'stable':
@@ -133,6 +121,7 @@ const getProfileClass = type => {
       return '';
   }
 };
+
 </script>
 
 <style scoped>

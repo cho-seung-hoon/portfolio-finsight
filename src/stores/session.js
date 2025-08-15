@@ -1,33 +1,34 @@
-// src\stores\session.js
+// src/stores/session.js
+
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed } from 'vue';
 import { decodingJWT } from '@/utils/jwtUtil';
 import { refreshTokenApi, logoutApi } from '@/api/session';
+import { loginApi } from '@/api/auth';
+import { getMyInfoApi } from '@/api/user';
 
 export const useSessionStore = defineStore('session', () => {
   const isExpireModalVisible = ref(false);
   const remainingTime = ref('00:00');
+  const modalMode = ref('countdown');
   let intervalId = null;
-  const router = useRouter();
 
-  const startCountdown = () => {
-    stopCountdown();
-    updateRemainingTime();
-    intervalId = setInterval(updateRemainingTime, 1000);
-  };
+
+  const accessToken = ref(null);
+  const user = ref(null);
+
+  const isAuthenticated = computed(() => !!accessToken.value);
 
   const stopCountdown = () => {
     if (intervalId) clearInterval(intervalId);
   };
 
-  const modalMode = ref('countdown'); // 🔹 'countdown' or 'expired'
   const updateRemainingTime = () => {
-    const token = localStorage.getItem('accessToken');
+    const token = accessToken.value;
 
-    // ✅ 토큰 없으면 즉시 종료
     if (!token) {
       remainingTime.value = '정보 없음';
+      stopCountdown();
       return;
     }
 
@@ -38,64 +39,102 @@ export const useSessionStore = defineStore('session', () => {
       return;
     }
 
-    // ✅ 토큰 만료된 경우
     if (timeObj === '만료됨') {
       remainingTime.value = '만료됨';
-      modalMode.value = 'expired'; // ✅ 모드 전환
-      isExpireModalVisible.value = true; // 모달 표시
-
-      // if (router.currentRoute.value.path !== '/start') {
-      //   logout(); // 자동 로그아웃 + /start 이동
-      // }
-      logout();
+      modalMode.value = 'expired';
+      isExpireModalVisible.value = true;
+      stopCountdown();
+      // logout(); // 만료 시 자동 로그아웃 로직 (필요시 활성화)
       return;
     }
 
     const totalSeconds = timeObj.minutes * 60 + timeObj.seconds;
     remainingTime.value = `${String(timeObj.minutes).padStart(2, '0')}:${String(timeObj.seconds).padStart(2, '0')}`;
 
-    // ✅ 30초 이하 남으면 countdown 모드로 모달 표시
     if (totalSeconds <= 180 && !isExpireModalVisible.value) {
       modalMode.value = 'countdown';
       isExpireModalVisible.value = true;
     }
   };
 
+  const startCountdown = () => {
+    stopCountdown();
+    updateRemainingTime();
+    intervalId = setInterval(updateRemainingTime, 1000);
+  };
+
   const extendSession = async () => {
-    const accessToken = localStorage.getItem('accessToken');
-    console.log(accessToken);
     try {
-      const { data } = await refreshTokenApi(accessToken);
-      localStorage.setItem('accessToken', data);
+      const { data } = await refreshTokenApi(accessToken.value);
+
+      accessToken.value = data;
       isExpireModalVisible.value = false;
       startCountdown();
-      console.log('로그인 연장 성공:', data.success);
     } catch (error) {
       console.error('세션 연장 실패:', error);
+      logout();
     }
   };
 
   const logout = async () => {
     try {
-      await logoutApi();
+      if (accessToken.value) {
+        await logoutApi(accessToken.value);
+      }
     } catch (e) {
       console.warn('서버 로그아웃 실패', e);
     }
-    localStorage.removeItem('accessToken');
-    if (modalMode.value !== 'expired') {
-      isExpireModalVisible.value = false;
-    }
+
+    accessToken.value = null;
+    user.value = null;
     stopCountdown();
-    router.push('/start');
+
+    modalMode.value = 'expired'
+    isExpireModalVisible.value = false;
+    remainingTime.value = '정보 없음';
   };
 
+  const login = async (loginData) => {
+    const loginResponse = await loginApi(loginData.id, loginData.password);
+    accessToken.value = loginResponse.data.accessToken;
+    const userInfoResponse = await getMyInfoApi();
+    user.value = userInfoResponse.data;
+
+    startCountdown();
+
+    return user.value.userRole;
+  }
+
   return {
+
     isExpireModalVisible,
     remainingTime,
     modalMode,
     startCountdown,
     stopCountdown,
     extendSession,
-    logout
+    logout,
+    accessToken,
+    user,
+    isAuthenticated,
+    login,
   };
+}, {
+  persist: {
+    key: 'finsight-session',
+    serializer: {
+      serialize: (state) => {
+        if (state.accessToken) {
+          return JSON.stringify({ accessToken: state.accessToken });
+        }
+        return null;
+      },
+      deserialize: (value) => {
+        if (typeof value === 'string') {
+          return JSON.parse(value);
+        }
+        return {};
+      }
+    }
+  }
 });

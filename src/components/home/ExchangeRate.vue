@@ -34,7 +34,7 @@
   </div>
   <div class="date">
     <span>기준일:</span>
-    <span>{{ displayDate }}</span>
+    <span>{{ exchangeRateStore.displayDate }}</span>
   </div>
 </template>
 
@@ -45,7 +45,6 @@ import IconUp from '@/components/icons/IconUp.vue';
 import IconDown from '@/components/icons/IconDown.vue';
 
 const exchangeRateStore = useExchangeRateStore();
-
 
 const getDiffClass = diff => {
   if (diff > 0) return 'up';
