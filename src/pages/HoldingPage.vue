@@ -64,15 +64,38 @@ const processedProducts = computed(() => {
   
   // 예금 데이터 변환 (필요한 필드만)
   holdingData.value.depositHoldings.forEach((deposit, index) => {
+    const history = deposit.history?.[0];
+    
+    // contractDate와 contractMonths 계산
+    const contractDate = deposit.contractDate || history?.historyTradeDate;
+    const contractMonths = deposit.contractMonths || history?.contractMonths;
+    
+    // maturityDate 계산
+    let maturityDate = deposit.maturityDate;
+    if (!maturityDate && contractDate && contractMonths) {
+      try {
+        const contract = new Date(contractDate);
+        if (!isNaN(contract.getTime())) {
+          contract.setMonth(contract.getMonth() + contractMonths);
+          maturityDate = contract.toISOString();
+        }
+      } catch (error) {
+        console.error('Error calculating maturityDate:', error);
+      }
+    }
+
     products.push({
       id: `deposit_${index}`,
       productType: '예금',
       bankName: deposit.productCompanyName,
       productName: deposit.productName,
       value: deposit.currentValuation,
-      date: deposit.maturityDate ? new Date(deposit.maturityDate).toLocaleDateString('ko-KR').replace(/\.$/, '') : '만기일 없음',
+      date: maturityDate ? new Date(maturityDate).toLocaleDateString('ko-KR').replace(/\.$/, '') : '만기일 없음',
       productCode: deposit.productCode,
-      isWatched: deposit.isWatched
+      isWatched: deposit.isWatched,
+      contractDate: contractDate,
+      maturityDate: maturityDate,
+      contractMonths: contractMonths
     });
   });
 

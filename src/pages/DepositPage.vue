@@ -217,14 +217,71 @@ const debugInfo = computed(() => {
 const sellModalHoldingData = computed(() => {
   // holdings 객체에서 필요한 데이터를 추출하여 전달
   if (productInfo.value?.holdings) {
+    const holdings = productInfo.value.holdings;
+    const history = holdings.history?.[0];
+    
+    // contractDate와 contractMonths 계산
+    const contractDate = holdings.contractDate || history?.historyTradeDate;
+    const contractMonths = holdings.contractMonths || history?.contractMonths;
+    
+    // maturityDate 계산
+    let maturityDate = holdings.maturityDate;
+    if (!maturityDate && contractDate && contractMonths) {
+      try {
+        const contract = new Date(contractDate);
+        if (!isNaN(contract.getTime())) {
+          contract.setMonth(contract.getMonth() + contractMonths);
+          maturityDate = contract.toISOString();
+        }
+      } catch (error) {
+        console.error('Error calculating maturityDate:', error);
+      }
+    }
+
     return {
-      holdingsTotalPrice: productInfo.value.holdings.holdingsTotalPrice,
-      holdingsTotalQuantity: productInfo.value.holdings.holdingsTotalQuantity,
-      maturityDate: productInfo.value.holdings.maturityDate || productInfo.value.holding?.maturityDate,
-      contractDate: productInfo.value.holdings.contractDate || productInfo.value.holding?.contractDate
+      holdingsTotalPrice: holdings.holdingsTotalPrice,
+      holdingsTotalQuantity: holdings.holdingsTotalQuantity,
+      maturityDate,
+      contractDate,
+      contractMonths,
+      history: holdings.history || []
     };
   }
-  return productInfo.value?.holding || null;
+  
+  // holding 객체가 있는 경우
+  if (productInfo.value?.holding) {
+    const holding = productInfo.value.holding;
+    const history = holding.history?.[0];
+    
+    // contractDate와 contractMonths 계산
+    const contractDate = holding.contractDate || history?.historyTradeDate;
+    const contractMonths = holding.contractMonths || history?.contractMonths;
+    
+    // maturityDate 계산
+    let maturityDate = holding.maturityDate;
+    if (!maturityDate && contractDate && contractMonths) {
+      try {
+        const contract = new Date(contractDate);
+        if (!isNaN(contract.getTime())) {
+          contract.setMonth(contract.getMonth() + contractMonths);
+          maturityDate = contract.toISOString();
+        }
+      } catch (error) {
+        console.error('Error calculating maturityDate:', error);
+      }
+    }
+
+    return {
+      holdingsTotalPrice: holding.holdingsTotalPrice,
+      holdingsTotalQuantity: holding.holdingsTotalQuantity,
+      maturityDate,
+      contractDate,
+      contractMonths,
+      history: holding.history || []
+    };
+  }
+  
+  return null;
 });
 
 // 구매 버튼 클릭 처리

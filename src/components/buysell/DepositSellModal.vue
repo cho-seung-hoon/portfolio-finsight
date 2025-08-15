@@ -43,7 +43,7 @@
         <div class="info-row">
           <label>만기일</label>
           <div class="info-value">
-            {{ formatDate(holdingData?.maturityDate || productInfo?.holding?.maturityDate) }}
+            {{ formatDate(calculatedMaturityDate) }}
           </div>
         </div>
 
@@ -112,6 +112,46 @@ const holdingData = computed(() => {
   console.log('DepositSellModal - productInfo:', props.productInfo);
   console.log('DepositSellModal - holdingData:', props.productInfo?.holdingData);
   return props.productInfo?.holdingData || null;
+});
+
+// 체결일 계산 (이미 계산된 값 우선, 없으면 history에서 계산)
+const contractDate = computed(() => {
+  return props.productInfo?.contractDate || 
+         holdingData.value?.contractDate || 
+         holdingData.value?.history?.[0]?.historyTradeDate || 
+         props.productInfo?.holdings?.history?.[0]?.historyTradeDate || 
+         props.productInfo?.holding?.history?.[0]?.historyTradeDate || 
+         null;
+});
+
+// contract_months (백엔드에서 받은 실제 값 사용)
+const contractMonths = computed(() => {
+  return holdingData.value?.contractMonths || 
+         props.productInfo?.contractMonths || 
+         props.productInfo?.holding?.contractMonths;
+});
+
+// 만료일 계산 (이미 계산된 값 우선, 없으면 계산)
+const calculatedMaturityDate = computed(() => {
+  // 이미 계산된 maturityDate가 있으면 사용
+  if (props.productInfo?.maturityDate || holdingData.value?.maturityDate) {
+    return props.productInfo?.maturityDate || holdingData.value?.maturityDate;
+  }
+  
+  // contractDate가 있으면 contract_months를 더해서 계산
+  if (contractDate.value && contractMonths.value) {
+    try {
+      const contract = new Date(contractDate.value);
+      if (!isNaN(contract.getTime())) {
+        contract.setMonth(contract.getMonth() + contractMonths.value);
+        return contract.toISOString();
+      }
+    } catch (error) {
+      console.error('Error calculating maturityDate:', error);
+    }
+  }
+  
+  return null;
 });
 
 // 현재 날짜 포맷팅

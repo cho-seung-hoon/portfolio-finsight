@@ -107,6 +107,12 @@ export const useDepositStore = defineStore('deposit', () => {
     // 실제 전달된 productId 사용
     const productId = originalProductId;
 
+    // holdings 객체에 contractMonths 추가 (history에서 가져오기)
+    if (productDetail.holdings?.history?.[0]?.contractMonths) {
+      productDetail.holdings.contractMonths = productDetail.holdings.history[0].contractMonths;
+      console.log('Added contractMonths to holdings:', productDetail.holdings.contractMonths);
+    }
+
     // 금리 옵션 중 12개월 우선, 없으면 가장 긴 기간 선택
     const options = Array.isArray(productDetail.doption) ? productDetail.doption : [];
     const option12 = options.find(o => String(o.doptionSaveTrm) === '12');
@@ -290,6 +296,34 @@ export const useDepositStore = defineStore('deposit', () => {
     const holdingsTotalQuantity = new Decimal(holdingData.holdings_total_quantity || 1);
     const holdingsTotalPrice = new Decimal(holdingData.holdings_total_price || 0);
 
+    // 체결일 계산 (history의 첫 번째 데이터)
+    let contractDate = holdingData.contractDate;
+    if (!contractDate && holdingData.history && holdingData.history.length > 0) {
+      contractDate = holdingData.history[0].historyTradeDate;
+    }
+
+    // contract_months (백엔드에서 받은 실제 값 사용)
+    const contractMonths = holdingData.contractMonths;
+
+    // 만료일 계산 (체결일 + contract_months) - 유효성 검증 추가
+    let maturityDate = holdingData.maturityDate;
+    if (contractDate && contractMonths && !maturityDate) {
+      try {
+        const contract = new Date(contractDate);
+        // 유효한 날짜인지 확인
+        if (!isNaN(contract.getTime())) {
+          contract.setMonth(contract.getMonth() + contractMonths);
+          maturityDate = contract.toISOString();
+        } else {
+          console.warn('Invalid contractDate:', contractDate);
+          maturityDate = null;
+        }
+      } catch (error) {
+        console.error('Error calculating maturityDate:', error);
+        maturityDate = null;
+      }
+    }
+
     const result = [
       {
         type: 'holdingsummarydeposit',
@@ -297,9 +331,17 @@ export const useDepositStore = defineStore('deposit', () => {
         desc: {
           holdingsTotalPrice: holdingsTotalPrice.toNumber(),
           holdingsTotalQuantity: holdingsTotalQuantity.toNumber(),
-          contractDate: holdingData.contractDate || holdingData.history?.[0]?.historyTradeDate,
-          maturityDate: holdingData.maturityDate || holdingData.history?.[0]?.historyTradeDate
-        }
+          contractDate: contractDate,
+          maturityDate: maturityDate,
+          contractMonths: contractMonths,
+          history: holdingData.history
+        },
+        // DetailHoldingSummaryDeposit.vue에서 직접 접근할 수 있도록 최상위 레벨에 추가
+        contractDate: contractDate,
+        maturityDate: maturityDate,
+        contractMonths: contractMonths,
+        history: holdingData.history,
+        holdingsTotalPrice: holdingsTotalPrice.toNumber()
       }
     ];
 
@@ -379,28 +421,13 @@ export const useDepositStore = defineStore('deposit', () => {
       product.value.holdings?.holdingsStatus !== 'zero';
     
     if (hasValidHoldings) {
-      // holdingsummarydeposit 타입의 데이터 생성 (가입 직후와 동일한 구조)
-      const holdingSummaryData = {
-        type: 'holdingsummarydeposit',
-        title: '보유 현황',
-        desc: {
-          contractDate: product.value.holdings?.contractDate || product.value.holding?.contractDate,
-          maturityDate: product.value.holdings?.maturityDate || product.value.holding?.maturityDate,
-          holdingsTotalPrice: product.value.holdings?.holdingsTotalPrice || product.value.holding?.holdingsTotalPrice || 0,
-          // 가입 직후와 동일한 구조를 위해 추가 필드들
-          startDate: product.value.holdings?.contractDate || product.value.holding?.startDate,
-          period: product.value.holding?.period || null
-        }
-      };
-
-      // holdinghistorydeposit 타입의 데이터 생성 (예금 전용)
-      const holdingHistoryData = {
-        type: 'holdinghistorydeposit',
-        title: '투자 기록',
-        desc: product.value.holding?.history || product.value.holdings?.history || []
-      };
-
-      baseTabData.holding = [holdingSummaryData, holdingHistoryData];
+      // generateHoldingTab 함수를 사용하여 일관성 유지
+      const holdingTabData = generateHoldingTab(
+        product.value.holdings || product.value.holding, 
+        product.value
+      );
+      
+      baseTabData.holding = holdingTabData;
     }
 
     return baseTabData;

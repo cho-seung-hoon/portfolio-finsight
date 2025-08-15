@@ -179,25 +179,18 @@ const updateChart = () => {
 const fetchExchangeRate = async () => {
   try {
     const exchangeData = await exchangeRate();
-    
     if (exchangeData && exchangeData.length > 0) {
       const usdData = exchangeData.find(item => item.cur_unit === 'USD');
       if (usdData) {
         usdExchangeRate.value = parseFloat(usdData.deal_bas_r.replace(/,/g, ''));
       } else {
         console.log('USD 환율 데이터를 찾을 수 없음');
-        // 기본값 1300
-        usdExchangeRate.value = 1300;
       }
     } else {
       console.log('환율 데이터가 비어있음');
-      // 기본값 1300
-      usdExchangeRate.value = 1300;
     }
   } catch (error) {
     console.error('환율 데이터 가져오기 실패:', error);
-    // 기본값 1300
-    usdExchangeRate.value = 1300;
   }
 };
 

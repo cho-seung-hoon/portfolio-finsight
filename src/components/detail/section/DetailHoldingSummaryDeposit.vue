@@ -4,11 +4,11 @@
       <div class="summary-info">
         <div class="info-row">
           <span class="label">예금 체결일</span>
-          <span class="value">{{ formatDate(data.contractDate) }}</span>
+          <span class="value">{{ formatDate(calculatedContractDate) }}</span>
         </div>
         <div class="info-row">
           <span class="label">예금 만료일</span>
-          <span class="value">{{ formatDate(data.maturityDate) }}</span>
+          <span class="value">{{ formatDate(calculatedMaturityDate) }}</span>
         </div>
         <div class="info-row">
           <span class="label">예금액</span>
@@ -22,6 +22,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import Decimal from 'decimal.js';
 
 const props = defineProps({
@@ -36,6 +37,43 @@ const props = defineProps({
              (value.holdingsTotalPrice !== undefined && value.holdingsTotalPrice !== null);
     }
   }
+});
+
+// contract_months (백엔드에서 받은 실제 값 사용)
+const contractMonths = computed(() => {
+  return props.data?.contractMonths || props.data?.desc?.contractMonths;
+});
+
+// 체결일 계산 (이미 계산된 값 우선, 없으면 history에서 계산)
+const calculatedContractDate = computed(() => {
+  return props.data?.contractDate || 
+         props.data?.desc?.contractDate || 
+         props.data?.history?.[0]?.historyTradeDate || 
+         props.data?.desc?.history?.[0]?.historyTradeDate || 
+         null;
+});
+
+// 만료일 계산 (이미 계산된 값 우선, 없으면 계산)
+const calculatedMaturityDate = computed(() => {
+  // 이미 계산된 maturityDate가 있으면 사용
+  if (props.data?.maturityDate || props.data?.desc?.maturityDate) {
+    return props.data?.maturityDate || props.data?.desc?.maturityDate;
+  }
+  
+  // contractDate가 있으면 contract_months를 더해서 계산
+  if (calculatedContractDate.value && contractMonths.value) {
+    try {
+      const contract = new Date(calculatedContractDate.value);
+      if (!isNaN(contract.getTime())) {
+        contract.setMonth(contract.getMonth() + contractMonths.value);
+        return contract.toISOString();
+      }
+    } catch (error) {
+      console.error('Error calculating maturityDate:', error);
+    }
+  }
+  
+  return null;
 });
 
 // 날짜 포맷팅 함수
