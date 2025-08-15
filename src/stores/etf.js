@@ -3,9 +3,12 @@ import { ref, computed } from 'vue';
 import Decimal from 'decimal.js';
 import { useLoadingStore } from './loading';
 import { formatNumberWithComma } from '@/utils/numberUtils';
+import { useSessionStore } from '@/stores/session.js';
 
 // ETF 상품 관련 상태 및 로직을 관리하는 Pinia 스토어
 export const useEtfStore = defineStore('etf', () => {
+  const sessionStore = useSessionStore();
+
   // State
   const product = ref(null);
   const isLoading = ref(false);
@@ -124,7 +127,7 @@ export const useEtfStore = defineStore('etf', () => {
     loadingStore.resetLoading();
     loadingStore.startLoading('ETF 정보를 불러오는 중...');
     error.value = null;
-    const authToken = token || localStorage.getItem('accessToken');
+    const authToken = token || sessionStore.accessToken;
     try {
       const productDetail = await fetchProductDetail(productId, category, authToken);
       product.value = processEtfData(productDetail, productId);
@@ -507,7 +510,7 @@ export const useEtfStore = defineStore('etf', () => {
   const fetchYieldHistory = async (productId, token) => {
     if (isYieldHistoryLoaded.value) return;
     isYieldHistoryLoading.value = true;
-    const authToken = token || localStorage.getItem('accessToken');
+    const authToken = token || sessionStore.accessToken;
     try {
       const response = await fetch(`http://localhost:8080/etf/${productId}/history`, {
         headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' }

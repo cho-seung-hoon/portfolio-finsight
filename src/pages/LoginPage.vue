@@ -61,22 +61,18 @@
 </template>
 
 <script setup>
-import router from '@/router';
-import axios from 'axios';
-import { computed, reactive, ref } from 'vue';
-
+import { reactive, ref, computed } from 'vue'; // computed 임포트 추가
+import { useRouter } from 'vue-router'; // useRouter 임포트
 import IconLogo from '@/components/icons/IconLogo.vue';
-import { useSessionStore } from '@/stores/session'; // ✅ 추가
-import { loginApi } from '@/api/auth';
-import { getMyInfoApi } from '@/api/user';
+import { useSessionStore } from '@/stores/session'; // ✅ 통합된 sessionStore를 가져옵니다.
 
-const sessionStore = useSessionStore(); // ✅ 추가
+const router = useRouter();
+const sessionStore = useSessionStore(); // ✅ 통합된 sessionStore 사용
 
 const formData = reactive({
   id: '',
   password: ''
 });
-
 const errorMessage = ref('');
 
 const isFormValid = computed(() => {
@@ -95,43 +91,25 @@ const validateForm = () => {
   return true;
 };
 
+
 const handleLogin = async () => {
   errorMessage.value = '';
   if (!validateForm()) return;
 
   try {
-    const response = await loginApi(formData.id, formData.password);
+    // 스토어의 통합 액션을 호출하기만 하면 모든 과정이 알아서 처리됩니다.
+    const userRole = await sessionStore.login(formData);
 
-    const accessToken = response.data.accessToken;
-
-    // ✅ 로그인 직후 즉시 카운트다운 시작 (새로고침 없이 모달 동작)
-    sessionStore.startCountdown();
-
-    localStorage.setItem('accessToken', accessToken);
-    // router.push('/');
-
-    // ✅ 로그인 직후 즉시 카운트다운 시작 (새로고침 없이 모달 동작)
-    // sessionStore.startCountdown();
-
-    // === goToInvTestMainPage start 양지윤 ====================================== //
-    // ✅ 토큰을 Authorization 헤더에 담아 사용자 정보 요청
-    console.log('accessToken 입니다. :', accessToken);
-    const userInfoResponse = await getMyInfoApi();
-    const userRole = userInfoResponse.data.userRole;
-    localStorage.setItem('userRole', userRole);
-    console.log('userRole', userRole);
-
-    // ✅ 역할에 따라 라우팅
+    // 액션이 반환한 결과에 따라 페이지 이동만 처리합니다.
     if (userRole === 'COMPLETE') {
-      await router.push('/');
-      await router.push('/');
-      // await router.replace('/');
+      router.push('/');
     } else {
-      await router.push('/inv-type-main-page');
+      router.push('/inv-type-main-page');
     }
-    // === goToInvTestMainPage end 양지윤 ====================================== //
+
   } catch (error) {
-    console.log(error);
+    console.error('로그인 실패:', error);
+    errorMessage.value = '아이디 또는 비밀번호가 일치하지 않습니다.';
   }
 };
 

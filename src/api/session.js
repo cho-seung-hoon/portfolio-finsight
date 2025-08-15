@@ -8,6 +8,5 @@ export async function refreshTokenApi() {
 
 // 로그아웃
 export async function logoutApi(refreshToken) {
-  localStorage.removeItem('userRole');
   return apiClient.post('/users/logout', { refreshToken }); // 토큰 자동 포함
 }

@@ -3,9 +3,13 @@ import { ref, computed } from 'vue';
 import Decimal from 'decimal.js';
 import { useLoadingStore } from './loading';
 import { formatNumberWithComma } from '@/utils/numberUtils';
+import { useSessionStore } from '@/stores/session.js';
 
 // 예금 상품 관련 상태 및 로직을 관리하는 Pinia 스토어
 export const useDepositStore = defineStore('deposit', () => {
+
+  const sessionStore = useSessionStore();
+
   // State
   const product = ref(null);
   const isLoading = ref(false);
@@ -80,8 +84,8 @@ export const useDepositStore = defineStore('deposit', () => {
     loadingStore.startLoading('예금 정보를 불러오는 중...');
     error.value = null;
 
-    // 토큰이 전달되지 않았으면 localStorage에서 가져오기
-    const authToken = token || localStorage.getItem('accessToken');
+    // 토큰이 전달되지 않았으면 sessionStore에서 가져오기
+    const authToken = token || sessionStore.accessToken;
 
     console.log('Using token:', authToken ? 'Token exists' : 'No token');
 

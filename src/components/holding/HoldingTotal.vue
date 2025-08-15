@@ -168,12 +168,12 @@ const updateChart = () => {
     const overseasPercent = (calculatedForeignInvestment.value / total) * 100;
 
 
-
     depositEl.style.width = `${depositPercent}%`;
     domesticEl.style.width = `${domesticPercent}%`;
     overseasEl.style.width = `${overseasPercent}%`;
   }
 };
+
 
 // 환율 데이터 가져오기
 const fetchExchangeRate = async () => {

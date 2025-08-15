@@ -1,5 +1,9 @@
 import axios from 'axios';
 import Decimal from 'decimal.js';
+import apiClient from './index.js';
+import { useSessionStore } from '@/stores/session';
+
+const sessionStore = useSessionStore();
 
 // Decimal.js를 사용하여 decimal(15,2) 정밀도 보장
 function toDecimalSafe(value) {
@@ -123,7 +127,7 @@ function processDecimalResponse(responseData) {
 // 매수 함수
 export async function purchaseProduct(tradeData) {
   try {
-    const token = localStorage.getItem('accessToken');
+    const token = sessionStore.accessToken;
 
     if (!token) {
       console.error('인증 토큰이 없습니다.');
@@ -162,7 +166,7 @@ export async function purchaseProduct(tradeData) {
 // 매도 함수
 export async function sellProduct(tradeData) {
   try {
-    const token = localStorage.getItem('accessToken');
+    const token = sessionStore.accessToken;
 
     if (!token) {
       console.error('인증 토큰이 없습니다.');

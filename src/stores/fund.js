@@ -3,8 +3,12 @@ import { ref, computed } from 'vue';
 import Decimal from 'decimal.js';
 import { useLoadingStore } from './loading';
 import { formatNumberWithComma } from '@/utils/numberUtils';
+import { useSessionStore } from '@/stores/session.js';
 
 export const useFundStore = defineStore('fund', () => {
+
+  const sessionStore = useSessionStore();
+
   const product = ref(null);
   const isLoading = ref(false);
   const error = ref(null);
@@ -104,8 +108,8 @@ export const useFundStore = defineStore('fund', () => {
     loadingStore.startLoading('펀드 정보를 불러오는 중...');
     error.value = null;
 
-    // 토큰이 전달되지 않았으면 localStorage에서 가져오기
-    const authToken = token || localStorage.getItem('accessToken');
+    // 토큰이 전달되지 않았으면 sessionStore에서 가져오기
+    const authToken = token || sessionStore.accessToken;
 
     console.log('Using token:', authToken ? 'Token exists' : 'No token');
 
@@ -132,7 +136,7 @@ export const useFundStore = defineStore('fund', () => {
     }
 
     isYieldHistoryLoading.value = true;
-    const authToken = token || localStorage.getItem('accessToken');
+    const authToken = token || sessionStore.accessToken;
 
     try {
       const response = await fetch(`http://localhost:8080/fund/${productId}/history`, {
