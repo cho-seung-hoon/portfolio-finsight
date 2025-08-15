@@ -1,7 +1,12 @@
 import { useWebSocketStore } from '@/stores/websocket';
+import { ref } from 'vue';
 
 export function useProductSubscription() {
   const webSocketStore = useWebSocketStore();
+  
+  // 구독 상태 관리
+  const isSubscribed = ref(false);
+  const currentSubscription = ref(null);
 
   // 상품코드 정규화 함수
   const normalizeProductCode = code => {
@@ -58,6 +63,8 @@ export function useProductSubscription() {
       });
 
       if (subscription) {
+        isSubscribed.value = true;
+        currentSubscription.value = { code: productCode, subscription };
         console.log(`[SINGLE SUBSCRIBE SUCCESS] 상품 ${productCode}`);
         return { code: productCode, subscription };
       }
@@ -157,6 +164,8 @@ export function useProductSubscription() {
    */
   const unsubscribeFromSingleProduct = productCode => {
     webSocketStore.unsubscribe(`/topic/etf/${productCode}`);
+    isSubscribed.value = false;
+    currentSubscription.value = null;
     console.log(`[SINGLE UNSUBSCRIBE] 상품 ${productCode}`);
   };
 
@@ -165,6 +174,8 @@ export function useProductSubscription() {
    */
   const unsubscribeAll = () => {
     webSocketStore.unsubscribeAll();
+    isSubscribed.value = false;
+    currentSubscription.value = null;
     console.log('[UNSUBSCRIBE ALL]');
   };
 
@@ -183,6 +194,8 @@ export function useProductSubscription() {
   };
 
   return {
+    isSubscribed,
+    currentSubscription,
     subscribeToProducts,
     subscribeToSingleProduct,
     connectProductsToWebSocket,

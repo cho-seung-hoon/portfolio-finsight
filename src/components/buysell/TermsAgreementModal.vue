@@ -16,12 +16,10 @@
       </div>
 
       <div class="modal-body">
-        <!-- 상품 정보 -->
         <div class="product-info">
           <h3>{{ productName }}</h3>
         </div>
 
-        <!-- 약관 리스트 -->
         <div class="terms-section">
           <h4 class="terms-title">약관 동의</h4>
           <div class="terms-list">
@@ -50,7 +48,6 @@
             </div>
           </div>
 
-          <!-- 전체 동의 -->
           <div class="all-agree-section">
             <label class="term-checkbox all-agree">
               <input
@@ -63,7 +60,6 @@
           </div>
         </div>
 
-        <!-- 주요 안내사항 -->
         <div class="notice-section">
           <h4 class="notice-title">주요 안내사항</h4>
           <div class="notice-content">
@@ -94,7 +90,6 @@
     </div>
   </dialog>
 
-  <!-- 약관 상세 모달 -->
   <TermDetailModal
     v-if="selectedTerm"
     ref="termDetailModalRef"
@@ -129,8 +124,6 @@ const modalRef = ref(null);
 const selectedTerm = ref(null);
 const allAgreed = ref(false);
 const termDetailModalRef = ref(null);
-
-// 중복 close 이벤트 방지
 const isClosing = ref(false);
 
 const depositTerms = ref([
@@ -224,7 +217,6 @@ function toggleAllAgreement() {
 
 function showTermDetail(term) {
   selectedTerm.value = term;
-  // 약관 상세 모달이 렌더링된 후 열기
   nextTick(() => {
     if (termDetailModalRef.value) {
       termDetailModalRef.value.openModal();
@@ -232,7 +224,6 @@ function showTermDetail(term) {
   });
 }
 
-// 모달 열기
 const openModal = () => {
   resetAgreements();
   if (modalRef.value) {
@@ -240,7 +231,6 @@ const openModal = () => {
   }
 };
 
-// 모달 닫기
 const closeModal = () => {
   if (isClosing.value) return;
 
@@ -257,7 +247,6 @@ const closeModal = () => {
   }, 100);
 };
 
-// 외부에서 모달을 닫을 때 close 이벤트를 보내지 않는 메서드
 const closeModalSilently = () => {
   if (isClosing.value) return;
 
@@ -273,7 +262,6 @@ const closeModalSilently = () => {
   }, 100);
 };
 
-// 배경 클릭 처리
 const handleBackdropClick = event => {
   if (event.target === modalRef.value) {
     closeModal();
@@ -300,7 +288,6 @@ function resetAgreements() {
   allAgreed.value = false;
 }
 
-// 외부에서 모달 열기 메서드 노출
 defineExpose({
   openModal,
   closeModal,
@@ -326,7 +313,8 @@ defineExpose({
 }
 
 .modal::backdrop {
-  display: none;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
 }
 
 .modal-content {

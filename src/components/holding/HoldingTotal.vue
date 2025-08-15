@@ -2,14 +2,12 @@
   <div class="holding-total-box">
     <div class="total-title">투자 모아보기</div>
     
-    <!-- 차트 바 -->
     <div class="total-calc">
       <span class="total-deposit"></span>
       <span class="total-domestic"></span>
       <span class="total-overseas"></span>
     </div>
 
-    <!-- 정기예금 정보 -->
     <div class="total-info">
       <div class="total-info-icon deposit-icon">
         <img
@@ -27,7 +25,6 @@
       </div>
     </div>
 
-    <!-- 국내 투자 정보 -->
     <div class="total-info">
       <div class="total-info-icon domestic-icon">
         <img
@@ -45,7 +42,6 @@
       </div>
     </div>
 
-    <!-- 해외 투자 정보 -->
     <div class="total-info">
       <div class="total-info-icon overseas-icon">
         <img
@@ -70,7 +66,6 @@
 import { onMounted, watch, computed, ref } from 'vue';
 import { exchangeRate } from '@/api/exchangeRate';
 
-// Props 정의
 const props = defineProps({
   totalValuation: {
     type: Number,
@@ -94,30 +89,21 @@ const props = defineProps({
   }
 });
 
-// 환율 데이터
 const usdExchangeRate = ref(0);
 
-// 실제 국내 투자 평가액 계산 (국내 펀드 + 국내 ETF)
 const calculatedDomesticInvestment = computed(() => {
   return props.domesticInvestment;
 });
 
-// 실제 해외 투자 평가액 계산 (해외 펀드 + 해외 ETF)
 const calculatedForeignInvestment = computed(() => {
   return props.foreignInvestment;
 });
 
-// 투자 비율 계산 (예금 + 국내 + 해외)
 const investmentRatios = computed(() => {
-  const total = props.timeDeposit + props.domesticInvestment + props.foreignInvestment || 1; // 실제 총합
+  const total = props.timeDeposit + props.domesticInvestment + props.foreignInvestment || 1;
   
-  // 예금 비율
   const depositRatio = (props.timeDeposit / total) * 100;
-  
-  // 국내 투자 비율
   const domesticRatio = (calculatedDomesticInvestment.value / total) * 100;
-  
-  // 해외 투자 비율
   const foreignRatio = (calculatedForeignInvestment.value / total) * 100;
   
   return {
@@ -127,7 +113,6 @@ const investmentRatios = computed(() => {
   };
 });
 
-// 통화 포맷팅 함수
 const formatCurrency = (value) => {
   if (!value) return '0';
   return new Intl.NumberFormat('ko-KR', {
@@ -136,11 +121,9 @@ const formatCurrency = (value) => {
   }).format(value);
 };
 
-// 달러 포맷팅 함수
 const formatDollarAmount = (wonAmount) => {
   if (!wonAmount) return '';
   
-  // 환율이 없을 경우 기본값 사용 (1달러 = 1300원)
   const rate = usdExchangeRate.value || 1300;
   const dollarAmount = wonAmount / rate;
   
@@ -153,21 +136,17 @@ const formatDollarAmount = (wonAmount) => {
   return `$${dollarAmount.toFixed(2)}`;
 };
 
-// 차트 업데이트 함수
 const updateChart = () => {
-  const total = props.timeDeposit + props.domesticInvestment + props.foreignInvestment || 1; // 총합
+  const total = props.timeDeposit + props.domesticInvestment + props.foreignInvestment || 1;
   
   const depositEl = document.querySelector('.total-deposit');
   const domesticEl = document.querySelector('.total-domestic');
   const overseasEl = document.querySelector('.total-overseas');
 
   if (depositEl && domesticEl && overseasEl) {
-    // 실제 총합 대비 비율 계산
     const depositPercent = (props.timeDeposit / total) * 100;
     const domesticPercent = (calculatedDomesticInvestment.value / total) * 100;
     const overseasPercent = (calculatedForeignInvestment.value / total) * 100;
-
-
 
     depositEl.style.width = `${depositPercent}%`;
     domesticEl.style.width = `${domesticPercent}%`;
@@ -175,7 +154,6 @@ const updateChart = () => {
   }
 };
 
-// 환율 데이터 가져오기
 const fetchExchangeRate = async () => {
   try {
     const exchangeData = await exchangeRate();
@@ -194,7 +172,6 @@ const fetchExchangeRate = async () => {
   }
 };
 
-// props 변경 감지하여 차트 업데이트
 watch(() => [props.totalValuation, props.timeDeposit, props.domesticInvestment, props.foreignInvestment], () => {
   updateChart();
 }, { immediate: true });
@@ -312,7 +289,7 @@ onMounted(async () => {
 }
 
 .total-info-detail-item-2 {
-  font-size: var(--font-size-ms);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-light);
   color: var(--main02);
 }

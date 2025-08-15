@@ -48,7 +48,7 @@
             class="news-list-in-detail"
             :news-list="item.desc"
             :keyword="item.keyword || ''"
-            :color="item.color || '#007AFF'" />
+            :color="item.color || 'var(--text-blue)'" />
         </template>
         <template v-else-if="Array.isArray(item.desc)">
           <DetailTable :desc="item.desc" />
@@ -81,8 +81,6 @@ const props = defineProps({
   selectedTab: String,
   category : String
 });
-// 그래프 컴포넌트 import 예시 (실제 구현 필요)
-// import MyChartComponent from '@/components/common/MyChartComponent.vue';
 </script>
 
 <style scoped>
@@ -97,14 +95,14 @@ const props = defineProps({
   margin-bottom: 24px;
 }
 .section-title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   color: var(--black);
   margin-bottom: 8px;
   text-align: left;
 }
 .section-desc {
-  font-size: 16px;
+  font-size: var(--font-size-md);
   color: var(--main02);
   text-align: left;
 }
@@ -112,7 +110,7 @@ const props = defineProps({
   width: 100%;
   border-collapse: collapse;
   margin-top: 8px;
-  font-size: 15px;
+  font-size: var(--font-size-ms);
 }
 .section-desc th,
 .section-desc td {
@@ -137,7 +135,6 @@ const props = defineProps({
   box-sizing: border-box;
 }
 
-/* NewsList 컴포넌트 내부의 subItem-title 숨기기 */
 .news-list-in-detail :deep(.subItem-title) {
   display: none;
 }

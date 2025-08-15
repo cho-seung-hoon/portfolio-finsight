@@ -66,3 +66,29 @@ export function convertToKoreanNumber(value) {
   const num = parseNumberFromComma(value);
   return formatNumberAll(num instanceof Decimal ? num.toNumber() : num);
 }
+
+// 통화 포맷팅 함수
+export function formatCurrency(value) {
+  if (value === null || value === undefined || value === '') return '₩0';
+
+  // Decimal 객체인 경우 toNumber() 사용
+  if (value instanceof Decimal) {
+    return new Intl.NumberFormat('ko-KR', {
+      style: 'currency',
+      currency: 'KRW'
+    }).format(value.toNumber());
+  }
+
+  // 숫자가 아닌 경우 원본 반환
+  if (isNaN(value)) return value;
+
+  return new Intl.NumberFormat('ko-KR', {
+    style: 'currency',
+    currency: 'KRW'
+  }).format(value);
+}
+
+// 한국어 숫자 변환 함수 (getKoreanNumber 별칭)
+export function getKoreanNumber(value) {
+  return convertToKoreanNumber(value);
+}

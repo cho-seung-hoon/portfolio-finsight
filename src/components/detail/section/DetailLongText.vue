@@ -19,7 +19,7 @@ import { ref, computed, nextTick } from 'vue';
 
 const expanded = ref(false);
 const contentRef = ref(null);
-const maxCollapsedHeight = 90; // px
+const maxCollapsedHeight = 90;
 
 const contentStyle = computed(() => {
   return {
@@ -28,13 +28,12 @@ const contentStyle = computed(() => {
       : `${maxCollapsedHeight}px`,
     overflow: 'hidden',
     transition: 'max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.7s',
-    opacity: expanded.value ? 1 : 0.7 // 선택: 펼칠 때 살짝 fade-in 효과
+    opacity: expanded.value ? 1 : 0.7
   };
 });
 
 function toggle() {
   expanded.value = !expanded.value;
-  // 펼칠 때는 scrollHeight를 반영하기 위해 nextTick 사용
   if (expanded.value) {
     nextTick(() => {
       if (contentRef.value) {
@@ -51,7 +50,7 @@ function toggle() {
   border-radius: 20px;
   border: 1px solid var(--main02);
   padding: 16px 3vw 40px 3vw;
-  font-size: 14px;
+  font-size: var(--font-size-ms);
   line-height: 1.6;
   position: relative;
   box-sizing: border-box;
@@ -70,11 +69,11 @@ function toggle() {
   background: none;
   border: none;
   color: var(--main03);
-  font-size: 16px;
+  font-size: var(--font-size-md);
   cursor: pointer;
   padding: 0;
   font-family: inherit;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   letter-spacing: 0.5px;
 }
 </style>

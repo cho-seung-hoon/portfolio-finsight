@@ -6,31 +6,21 @@
         :key="index"
         class="history-item">
         <div class="history-header">
-          <span class="date">{{ formatDate(record.displayDate || record.historyTradeDate) }}</span>
+          <span class="date">{{ formatDate(record.historyTradeDate) }}</span>
           <span
             class="quantity"
-            :class="{ buy: record.isBuy, sell: record.isSell }">
+            :class="{ positive: record.historyQuantity > 0, negative: record.historyQuantity < 0 }">
             {{
               record.displayQuantity ||
-              (record.historyQuantity > 0 ? '+' : '-') +
+              (record.historyQuantity > 0 ? '+' : '') +
                 formatNumberWithComma(new Decimal(record.historyQuantity || 0).toNumber())
             }}주
           </span>
         </div>
         <div class="history-details">
-          <span class="price-per-unit"
-            >1주당
-            {{
-              formatNumberWithComma(
-                new Decimal(record.historyAmount || 0)
-                  .dividedBy(Math.abs(record.historyQuantity || 1))
-                  .toNumber()
-              )
-            }}원</span
-          >
           <span
             class="total-amount"
-            :class="{ buy: record.isBuy, sell: record.isSell }">
+            :class="{ positive: record.historyAmount > 0, negative: record.historyAmount < 0 }">
             {{
               record.displayAmount ||
               (record.historyAmount > 0 ? '+' : '') +
@@ -44,9 +34,9 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import Decimal from 'decimal.js';
 import { formatNumberWithComma } from '@/utils/numberUtils';
-import { computed } from 'vue';
 
 const props = defineProps({
   data: {
@@ -63,28 +53,40 @@ const props = defineProps({
   }
 });
 
-// 최신 기록 하나만 보여주기
 const latestRecord = computed(() => {
   if (!props.data || !Array.isArray(props.data) || props.data.length === 0) {
     return [];
   }
-  // 가장 최신 기록을 맨 위에 표시 (날짜 기준으로 정렬)
+  
+  console.log('DetailHoldingHistoryDeposit - props.data:', props.data);
+  
   const sortedData = [...props.data].sort((a, b) => {
-    const dateA = new Date(a.historyTradeDate || a.displayDate || 0);
-    const dateB = new Date(b.historyTradeDate || b.displayDate || 0);
-    return dateB - dateA; // 내림차순 (최신이 위)
+    const dateA = new Date(a.historyTradeDate || 0);
+    const dateB = new Date(b.historyTradeDate || 0);
+    return dateB - dateA;
   });
-  return [sortedData[0]]; // 최신 기록 하나만 반환
+  
+  console.log('DetailHoldingHistoryDeposit - sortedData:', sortedData);
+  console.log('DetailHoldingHistoryDeposit - latestRecord:', sortedData[0]);
+  
+  return [sortedData[0]];
 });
 
-// 날짜 포맷팅 함수
 const formatDate = (dateString) => {
   if (!dateString) return '-';
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}. ${month}. ${day}`;
+  
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '-';
+    
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}. ${month}. ${day}`;
+  } catch (error) {
+    console.error('Error formatting date:', error, 'dateString:', dateString);
+    return '-';
+  }
 };
 </script>
 
@@ -117,42 +119,38 @@ const formatDate = (dateString) => {
 
 .date {
   color: var(--black);
-  font-size: 16px;
-  font-weight: 500;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
 }
 
 .quantity {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
   text-align: right;
 }
 
 .history-details {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
 }
 
-.price-per-unit {
-  color: var(--main02);
-  font-size: 14px;
-  font-weight: 400;
-}
-
 .total-amount {
-  font-size: 14px;
-  font-weight: 400;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   text-align: right;
+  color: var(--main01);
 }
 
-/* Buy/Sell 색상 스타일 */
-.quantity.buy,
-.total-amount.buy {
-  color: #007aff; /* 파란색 */
+.quantity.positive,
+.total-amount.positive {
+  color: var(--text-blue);
+  font-weight: var(--font-weight-bold);
 }
 
-.quantity.sell,
-.total-amount.sell {
-  color: #ff3b30; /* 빨간색 */
+.quantity.negative,
+.total-amount.negative {
+  color: var(--text-red);
+  font-weight: var(--font-weight-bold);
 }
 </style>

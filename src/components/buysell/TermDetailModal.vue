@@ -16,7 +16,6 @@
       </div>
 
       <div class="modal-body">
-        <!-- PDF 뷰어 -->
         <div
           v-if="term.pdfUrl"
           class="pdf-viewer">
@@ -28,7 +27,6 @@
             title="약관 PDF">
           </iframe>
         </div>
-        <!-- 텍스트 내용 -->
         <div
           v-else
           class="term-content">
@@ -62,18 +60,15 @@ const emit = defineEmits(['close']);
 const modalRef = ref(null);
 const isClosing = ref(false);
 
-// 모달 열기
 const openModal = () => {
   if (modalRef.value) {
     modalRef.value.showModal();
-    // 모바일에서 body 스크롤 방지
     document.body.style.overflow = 'hidden';
     document.body.style.position = 'fixed';
     document.body.style.width = '100%';
   }
 };
 
-// 모달 닫기
 const closeModal = () => {
   if (isClosing.value) return;
 
@@ -82,26 +77,22 @@ const closeModal = () => {
   if (modalRef.value) {
     modalRef.value.close();
   }
-  // body 스크롤 복원
   document.body.style.overflow = '';
   document.body.style.position = '';
   document.body.style.width = '';
   emit('close');
 
-  // 100ms 후에 닫기 상태 초기화
   setTimeout(() => {
     isClosing.value = false;
   }, 100);
 };
 
-// 배경 클릭 처리
 const handleBackdropClick = event => {
   if (event.target === modalRef.value) {
     closeModal();
   }
 };
 
-// 외부에서 모달 열기 메서드 노출
 defineExpose({
   openModal,
   closeModal
@@ -130,7 +121,8 @@ defineExpose({
 }
 
 .modal::backdrop {
-  background: #000000;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
 }
 
 .modal-content {
@@ -212,7 +204,7 @@ defineExpose({
   margin: 0;
   width: 100%;
   box-sizing: border-box;
-  padding-bottom: 80px; /* 푸터 높이만큼 패딩 추가 */
+  padding-bottom: 80px;
   max-width: 100%;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;

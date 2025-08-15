@@ -2,13 +2,13 @@
   <div class="area-chart-wrapper">
     <div class="date-range-btns">
       <button
-        v-for="(label, idx) in rangeLabels"
-        :key="label"
+        v-for="(range, idx) in dateRanges"
+        :key="range.label"
         :class="{ active: selectedRangeIdx === idx }"
         type="button"
         @click.stop.prevent="selectRange(idx)"
       >
-        {{ label }}
+        {{ range.label }}
       </button>
     </div>
     <div ref="chartContainer" class="chart-container" />
@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue';
 import { createChart } from 'lightweight-charts';
 
 const props = defineProps({
@@ -24,118 +24,208 @@ const props = defineProps({
     type: Array,
     required: true
   },
-  category:String
+  category: {
+    type: String,
+    default: 'fund'
+  }
 });
 
-console.log("chart props date : " , props);
+// CSS 변수를 실제 색상 값으로 변환하는 함수
+const getComputedColor = (cssVariable) => {
+  if (typeof window === 'undefined') return '#000000'; // SSR 환경에서는 기본값 반환
+  
+  try {
+    const computedStyle = getComputedStyle(document.documentElement);
+    return computedStyle.getPropertyValue(cssVariable).trim() || '#000000';
+  } catch (error) {
+    console.warn(`Failed to get computed color for ${cssVariable}:`, error);
+    return '#000000';
+  }
+};
 
 const chartContainer = ref(null);
-let chart = null;
-let priceSeries = null; // 가격 데이터 시리즈 (Line)
-let yieldSeries = null; // 수익률 데이터 시리즈 (Area)
+const chart = ref(null);
+const aumSeries = ref(null);
+const yieldSeries = ref(null);
+const selectedRangeIdx = ref(0);
 
-const rangeLabels = ['1주', '2주', '1달', '3달'];
-const rangeDays = [7, 14, 30, 90];
-const selectedRangeIdx = ref(3); // 기본 선택을 '3달'로 설정
-
-// [핵심 수정 1] 데이터 정규화 함수 보강
-// 스토어에서 넘어오는 세 가지 다른 데이터 형식을 모두 처리하도록 수정합니다.
-const normalizedData = computed(() => {
-  if (!props.data || props.data.length === 0) return [];
-
-  if (props.category === 'fund') {
-    // Fund 데이터 처리
-    return props.data
-      .map(item => {
-        if (item.date && item['기준가'] !== undefined && item['수익률'] !== undefined) {
-          return {
-            time: new Date(item.date).getTime() / 1000,
-            price: Number(item['기준가']),
-            yield: Number(item['수익률'])
-          };
-        }
-        return null;
-      })
-      .filter(Boolean);
-  } else if (props.category === 'etf') {
-    // ETF 기존 처리 로직 유지
-    return props.data
-      .map(item => {
-        if (item.date && item.price) {
-          const firstPrice = props.data[0].price;
-          const yieldValue = (((item.price - firstPrice) / firstPrice) * 100);
-          return {
-            time: new Date(item.date).getTime() / 1000,
-            price: Number(item.price),
-            yield: Number(yieldValue.toFixed(1))
-          };
-        }
-        if (item.baseDate && item.etfNav !== undefined) {
-          const firstNav = props.data[0].etfNav;
-          const yieldValue = (((item.etfNav - firstNav) / firstNav) * 100);
-          return {
-            time: new Date(item.baseDate[0], item.baseDate[1] - 1, item.baseDate[2]).getTime() / 1000,
-            price: Number(item.etfNav),
-            yield: Number(yieldValue.toFixed(1))
-          };
-        }
-        // 실시간 웹소켓 데이터 처리 등 기타 필요한 로직 유지 가능
-        if (item.timestamp) {
-          return {
-            time: Math.floor(item.timestamp / 1000),
-            price: Number(item.current_price),
-            yield: Number(item.change_rate1s)
-          };
-        }
-        return null;
-      })
-      .filter(Boolean);
-  }
-  return [];
-});
+const dateRanges = [
+  { label: '1주', days: 7 },
+  { label: '1개월', days: 30 },
+  // { label: '3개월', days: 90 } // 잠시 사용 안함
+];
 
 const filteredData = computed(() => {
-  if (normalizedData.value.length === 0) return [];
-
-  // [핵심 수정] 중복된 타임스탬프 제거 로직 추가
-  // 1. 먼저 데이터를 시간순으로 정렬합니다.
-  const sorted = [...normalizedData.value].sort((a, b) => a.time - b.time);
-
-  // 2. Map을 사용하여 타임스탬프 중복을 제거합니다.
-  // 동일한 타임스탬프(key)가 여러 번 들어오면, Map은 마지막에 들어온 값으로 덮어쓰기 때문에
-  // 자연스럽게 가장 최신 데이터만 남게 됩니다.
-  const uniqueDataMap = new Map();
-  sorted.forEach(item => {
-    uniqueDataMap.set(item.time, item);
-  });
-
-  // 3. Map의 값들을 다시 배열로 변환하여 중복이 제거된 데이터 목록을 만듭니다.
-  const uniqueSortedData = Array.from(uniqueDataMap.values());
-
-  // 4. 날짜 범위에 따라 필터링합니다.
-  const days = rangeDays[selectedRangeIdx.value];
-  if (uniqueSortedData.length === 0) return [];
-
-  const endDate = uniqueSortedData[uniqueSortedData.length - 1].time;
-  const startDate = endDate - days * 24 * 60 * 60;
-
-  return uniqueSortedData.filter(d => d.time >= startDate);
+  try {
+    if (!props.data || props.data.length === 0) return [];
+    
+    if (props.category === 'etf') {
+      const selectedRange = dateRanges[selectedRangeIdx.value];
+      
+      const filtered = props.data
+        .filter(d => {
+          try {
+            const dataDate = new Date(d.time * 1000);
+            
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - (selectedRange.days + 2));
+            
+            return dataDate >= cutoffDate;
+          } catch (error) {
+            console.warn('Error processing ETF date:', error, d);
+            return false;
+          }
+        });
+      
+      const result = filtered
+        .filter(d => d && d.time && !isNaN(d.value))
+        .sort((a, b) => a.time - b.time);
+      
+      return result;
+    }
+    
+    const selectedRange = dateRanges[selectedRangeIdx.value];
+    let returnField;
+    
+    if (selectedRange.days === 7) {
+      returnField = 'weeklyReturn';
+    } else if (selectedRange.days === 30) {
+      returnField = 'monthlyReturn';
+    }
+    
+    return props.data
+      .filter(d => {
+        try {
+          let dataDate;
+          
+          if (d.baseDate && Array.isArray(d.baseDate)) {
+            dataDate = new Date(d.baseDate[0], d.baseDate[1] - 1, d.baseDate[2]);
+          } else if (d.baseDate) {
+            dataDate = new Date(d.baseDate);
+          } else if (d.date) {
+            dataDate = new Date(d.date);
+          } else if (d.timestamp) {
+            dataDate = new Date(d.timestamp);
+          } else {
+            dataDate = new Date();
+          }
+          
+          const cutoffDate = new Date();
+          cutoffDate.setDate(cutoffDate.getDate() - (selectedRange.days + 2));
+          return dataDate >= cutoffDate;
+        } catch (error) {
+          console.warn('Error processing date:', error, d);
+          return false;
+        }
+      })
+      .map(d => {
+        try {
+          let time, aum, yieldValue;
+          
+          if (d.baseDate && Array.isArray(d.baseDate)) {
+            time = new Date(d.baseDate[0], d.baseDate[1] - 1, d.baseDate[2]).getTime() / 1000;
+          } else if (d.baseDate) {
+            time = new Date(d.baseDate).getTime() / 1000;
+          } else if (d.date) {
+            time = new Date(d.date).getTime() / 1000;
+          } else if (d.timestamp) {
+            time = Math.floor(d.timestamp / 1000);
+          } else {
+            time = Math.floor(Date.now() / 1000);
+          }
+          
+          let aumValue = 0;
+          if (d.fundAum !== undefined && d.fundAum !== null) {
+            aumValue = Number(d.fundAum);
+          } else if (d.fund_aum !== undefined && d.fund_aum !== null) {
+            aumValue = Number(d.fund_aum);
+          } else if (d.aum !== undefined && d.aum !== null) {
+            aumValue = Number(d.aum);
+          } else if (d.fundNav !== undefined && d.fundNav !== null) {
+            aumValue = Number(d.fundNav);
+          }
+          
+          aum = aumValue;
+          
+          yieldValue = Number(d[returnField]) || 0;
+          
+          const result = { time, aum, yield: yieldValue };
+          
+          return result;
+        } catch (error) {
+          console.warn('Error processing fund data item:', error, d);
+          return null;
+        }
+      })
+      .filter(d => d && d.time && !isNaN(d.aum) && !isNaN(d.yield))
+      .sort((a, b) => a.time - b.time);
+  } catch (error) {
+    console.error('Error in filteredData computed:', error);
+    return [];
+  }
 });
 
 const updateChartSeries = () => {
-  if (!chart || !priceSeries || !yieldSeries) return;
-
-  const priceData = filteredData.value.map(d => ({ time: d.time, value: d.price }));
-  const yieldData = filteredData.value.map(d => ({ time: d.time, value: d.yield }));
-
-  // 데이터가 2개 이상 있어야 라인과 영역이 그려집니다.
-  if (priceData.length >= 2) {
-    priceSeries.setData(priceData);
-    yieldSeries.setData(yieldData);
+  if (!chart.value) {
+    console.warn('DetailAreaChart - Chart not initialized');
+    return;
   }
 
-  // 차트의 시간 축이 모든 데이터를 포함하도록 자동으로 조절합니다.
-  chart.timeScale().fitContent();
+  if (props.category === 'etf') {
+    if (!yieldSeries.value) return;
+
+    const yieldData = filteredData.value.map(d => ({ time: d.time, value: d.value }));
+
+    if (yieldData.length >= 2) {
+      try {
+        yieldSeries.value.setData(yieldData);
+        
+        chart.value.timeScale().fitContent();
+      } catch (error) {
+        console.error('Error updating ETF chart series:', error);
+      }
+    } else {
+      console.warn('DetailAreaChart - ETF: Not enough data to update chart. yieldData length:', yieldData.length);
+    }
+  } else {
+    if (!aumSeries.value || !yieldSeries.value) return;
+
+    const aumData = filteredData.value.map(d => ({ time: d.time, value: d.aum }));
+    const yieldData = filteredData.value.map(d => ({ time: d.time, value: d.yield }));
+
+    if (aumData.length >= 2) {
+      try {
+        aumSeries.value.setData(aumData);
+        
+        yieldSeries.value.setData(yieldData);
+        
+        if (aumData.length > 0) {
+          const maxAum = Math.max(...aumData.map(d => d.value));
+          const minAum = Math.min(...aumData.map(d => d.value));
+          
+          if (maxAum > 1000 && chart.value.rightPriceScale) {
+            try {
+              chart.value.rightPriceScale.applyOptions({
+                autoScale: true,
+                scaleMargins: {
+                  top: 0.1,
+                  bottom: 0.1
+                }
+              });
+            } catch (error) {
+              console.warn('Error applying fund rightPriceScale options:', error);
+            }
+          }
+        }
+        
+        chart.value.timeScale().fitContent();
+      } catch (error) {
+        console.error('Error updating fund chart series:', error);
+      }
+    } else {
+      console.warn('DetailAreaChart - Not enough data to update chart. aumData length:', aumData.length);
+    }
+  }
 };
 
 const selectRange = idx => {
@@ -143,69 +233,108 @@ const selectRange = idx => {
 };
 
 onMounted(() => {
-  // nextTick을 사용하여 DOM이 완전히 렌더링된 후 차트를 생성합니다.
   nextTick(() => {
-    if (!chartContainer.value) return;
+    try {
+      if (!chartContainer.value) return;
 
-    // [핵심 수정 2] 차트 옵션 추가 (특히, 좌/우 Y축 설정)
-    chart = createChart(chartContainer.value, {
-      layout: {
-        background: { color: 'transparent' },
-        textColor: '#333'
-      },
-      grid: {
-        vertLines: { style: 2, color: '#f0f0f0' },
-        horzLines: { style: 2, color: '#f0f0f0' }
-      },
-      rightPriceScale: { // 가격 축 (오른쪽)
-        visible: true,
-        borderColor: '#059669'
-      },
-      leftPriceScale: { // 수익률 축 (왼쪽)
-        visible: true,
-        borderColor: '#2563eb'
-      },
-      timeScale: {
-        borderColor: '#ccc',
-        timeVisible: true,
-        secondsVisible: false,
+      chart.value = createChart(chartContainer.value, {
+        layout: {
+          background: { color: 'transparent' },
+          textColor: getComputedColor('--main01')
+        },
+        grid: {
+          vertLines: { style: 2, color: getComputedColor('--main04') },
+          horzLines: { visible: false }
+        },
+        rightPriceScale: {
+          visible: props.category === 'fund',
+          borderColor: getComputedColor('--green01'),
+          autoScale: true
+        },
+        leftPriceScale: {
+          visible: true,
+          borderColor: getComputedColor('--text-blue'),
+          autoScale: true,
+          scaleMargins: {
+            top: 0.1,
+            bottom: 0.1,
+            left: 0,
+            right: 0.1
+          }
+        },
+        timeScale: {
+          borderColor: getComputedColor('--main03'),
+          timeVisible: true,
+          secondsVisible: false,
+          rightOffset: -1,
+          barSpacing: 3,
+          fixLeftEdge: true,
+          lockVisibleTimeRangeOnResize: true,
+          rightBarStaysOnScroll: true,
+          borderVisible: false,
+          visible: true,
+          tickMarkFormatter: (time) => {
+            const date = new Date(time * 1000);
+            return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+          }
+        },
+        crosshair: {
+          mode: 1
+        },
+        handleScroll: {
+          mouseWheel: false,
+          pressedMouseMove: false,
+          horzTouchDrag: false,
+          vertTouchDrag: false
+        },
+        handleScale: {
+          axisPressedMouseMove: false,
+          mouseWheel: false,
+          pinch: false
+        }
+      });
+
+      if (props.category === 'fund') {
+        aumSeries.value = chart.value.addLineSeries({
+          priceScaleId: 'right',
+          color: getComputedColor('--green01'),
+          lineWidth: 2
+        });
       }
-    });
 
-    // 가격 시리즈 (라인 차트, 오른쪽 축 사용)
-    priceSeries = chart.addLineSeries({
-      priceScaleId: 'right',
-      color: '#059669',
-      lineWidth: 2
-    });
+      yieldSeries.value = chart.value.addAreaSeries({
+        priceScaleId: 'left',
+        lineColor: getComputedColor('--text-blue'),
+        topColor: 'rgba(37, 99, 235, 0.4)',
+        bottomColor: 'rgba(37, 99, 235, 0)'
+      });
 
-    // 수익률 시리즈 (영역 차트, 왼쪽 축 사용)
-    yieldSeries = chart.addAreaSeries({
-      priceScaleId: 'left',
-      lineColor: '#2563eb',
-      topColor: 'rgba(37, 99, 235, 0.4)',
-      bottomColor: 'rgba(37, 99, 235, 0)'
-    });
-
-    // 데이터가 준비되면 차트를 그립니다.
-    updateChartSeries();
+      nextTick(() => {
+        updateChartSeries();
+      });
+    } catch (error) {
+      console.error('Error creating chart:', error);
+    }
   });
 });
 
-// [핵심 수정 3] 데이터 변경 감지 및 차트 업데이트
-// deep: true로 객체 내부의 변경까지 감지하고, immediate: true로 초기 데이터 로딩 시 바로 차트를 그립니다.
-watch(filteredData, updateChartSeries, { deep: true, immediate: true });
+watch(filteredData, () => {
+  try {
+    updateChartSeries();
+  } catch (error) {
+    console.error('Error in filteredData watcher:', error);
+  }
+}, { deep: true });
 
 onUnmounted(() => {
-  if (chart) {
-    chart.remove();
-    chart = null;
+  if (chart.value) {
+    chart.value.remove();
+    chart.value = null;
   }
 });
 </script>
 
 <style scoped>
-/* 스타일은 기존 코드와 동일하게 사용하시면 됩니다. */
 .chart-container {
   width: 100%;
   height: 320px;
@@ -225,7 +354,7 @@ onUnmounted(() => {
 }
 .date-range-btns button {
   background: var(--main03); color: var(--main01); border: none;
-  border-radius: 20px; padding: 6px 14px; font-size: 14px;
+  border-radius: 20px; padding: 6px 14px; font-size: var(--font-size-ms);
   font-weight: 500; cursor: pointer;
 }
 .date-range-btns button.active {

@@ -15,7 +15,6 @@ export const useFundStore = defineStore('fund', () => {
   const isYieldHistoryLoaded = ref(false);
   const isYieldHistoryLoading = ref(false);
 
-  // Mock 데이터 (API 호출 실패 시 사용)
   const mockProductData = {
     productCode: 'fund-001',
     productName: '미래에셋자산배분TINA펀드',
@@ -66,7 +65,6 @@ export const useFundStore = defineStore('fund', () => {
     holdings: null
   };
 
-  // API 호출 함수
   const fetchProductDetail = async (productId, category, token) => {
     try {
       const response = await fetch(`http://localhost:8080/products/${category}/${productId}`, {
@@ -81,14 +79,11 @@ export const useFundStore = defineStore('fund', () => {
       }
 
       const data = await response.json();
-      console.log('Product API Response:', data);
-      console.log('News data in API response:', data.fundNewsResponse);
       return data;
     } catch (error) {
       console.error('Product API Error:', error);
       console.log('Using mock data due to API failure');
 
-      // API 호출 실패 시 Mock 데이터 반환
       return {
         ...mockProductData,
         productCode: productId,
@@ -97,23 +92,16 @@ export const useFundStore = defineStore('fund', () => {
     }
   };
 
-  // Actions - fetchProduct 함수 수정
   async function fetchProduct(productId, category = 'fund', token) {
     isLoading.value = true;
     loadingStore.resetLoading();
     loadingStore.startLoading('펀드 정보를 불러오는 중...');
     error.value = null;
 
-    // 토큰이 전달되지 않았으면 localStorage에서 가져오기
     const authToken = token || localStorage.getItem('accessToken');
 
-    console.log('Using token:', authToken ? 'Token exists' : 'No token');
-
     try {
-      // 하나의 API로 모든 정보 가져오기
       const productDetail = await fetchProductDetail(productId, category, authToken);
-
-      // 데이터 가공
       product.value = processFundData(productDetail, productId);
     } catch (e) {
       error.value = `펀드 상품 정보를 불러오는 데 실패했습니다: ${e.message}`;
@@ -124,9 +112,7 @@ export const useFundStore = defineStore('fund', () => {
     }
   }
 
-  // 수익률 히스토리 API 호출 함수
   const fetchYieldHistory = async (productId, token) => {
-    // 이미 로드된 경우 다시 호출하지 않음
     if (isYieldHistoryLoaded.value) {
       return yieldHistory.value;
     }
@@ -147,28 +133,26 @@ export const useFundStore = defineStore('fund', () => {
       }
 
       const data = await response.json();
-      console.log('Yield History API Response:', data);
 
       yieldHistory.value = data;
       isYieldHistoryLoaded.value = true;
       return data;
     } catch (error) {
       console.error('Yield History API Error:', error);
-      // API 실패 시 Mock 데이터 반환
       const mockHistory = [
-        { baseDate: [2025, 7, 26], fundNav: 8890.74, fundAum: 5.46473268012e11 },
-        { baseDate: [2025, 7, 27], fundNav: 9003.48, fundAum: 4.95595010044e11 },
-        { baseDate: [2025, 7, 28], fundNav: 8989.9, fundAum: 5.51005951576e11 },
-        { baseDate: [2025, 7, 29], fundNav: 9132.97, fundAum: 5.19191373659e11 },
-        { baseDate: [2025, 7, 30], fundNav: 9048.18, fundAum: 5.14413114603e11 },
-        { baseDate: [2025, 7, 31], fundNav: 9216.91, fundAum: 4.91735513284e11 },
-        { baseDate: [2025, 8, 1], fundNav: 9286.14, fundAum: 5.07812423849e11 },
-        { baseDate: [2025, 8, 2], fundNav: 9133.04, fundAum: 4.89952020905e11 },
-        { baseDate: [2025, 8, 3], fundNav: 9187.8, fundAum: 4.97378695927e11 },
-        { baseDate: [2025, 8, 4], fundNav: 9225.21, fundAum: 4.53909698032e11 },
-        { baseDate: [2025, 8, 5], fundNav: 9154.27, fundAum: 5.18964582114e11 },
-        { baseDate: [2025, 8, 6], fundNav: 9009.25, fundAum: 4.90214161251e11 },
-        { baseDate: [2025, 8, 7], fundNav: 9093.08, fundAum: 4.50370703433e11 }
+        { baseDate: [2025, 7, 26], fundNav: 8890.74, fundAum: 5.46473268012e11, weeklyReturn: 2.5, monthlyReturn: 8.3, quarterlyReturn: 15.7 },
+        { baseDate: [2025, 7, 27], fundNav: 9003.48, fundAum: 4.95595010044e11, weeklyReturn: 2.8, monthlyReturn: 8.7, quarterlyReturn: 16.2 },
+        { baseDate: [2025, 7, 28], fundNav: 8989.9, fundAum: 5.51005951576e11, weeklyReturn: 2.6, monthlyReturn: 8.5, quarterlyReturn: 15.9 },
+        { baseDate: [2025, 7, 29], fundNav: 9132.97, fundAum: 5.19191373659e11, weeklyReturn: 3.1, monthlyReturn: 9.2, quarterlyReturn: 16.8 },
+        { baseDate: [2025, 7, 30], fundNav: 9048.18, fundAum: 5.14413114603e11, weeklyReturn: 2.9, monthlyReturn: 8.9, quarterlyReturn: 16.4 },
+        { baseDate: [2025, 7, 31], fundNav: 9216.91, fundAum: 4.91735513284e11, weeklyReturn: 3.4, monthlyReturn: 9.6, quarterlyReturn: 17.1 },
+        { baseDate: [2025, 8, 1], fundNav: 9286.14, fundAum: 5.07812423849e11, weeklyReturn: 3.7, monthlyReturn: 9.9, quarterlyReturn: 17.4 },
+        { baseDate: [2025, 8, 2], fundNav: 9133.04, fundAum: 4.89952020905e11, weeklyReturn: 3.2, monthlyReturn: 9.3, quarterlyReturn: 16.9 },
+        { baseDate: [2025, 8, 3], fundNav: 9187.8, fundAum: 4.97378695927e11, weeklyReturn: 3.5, monthlyReturn: 9.6, quarterlyReturn: 17.2 },
+        { baseDate: [2025, 8, 4], fundNav: 9225.21, fundAum: 4.53909698032e11, weeklyReturn: 3.8, monthlyReturn: 9.9, quarterlyReturn: 17.5 },
+        { baseDate: [2025, 8, 5], fundNav: 9154.27, fundAum: 5.18964582114e11, weeklyReturn: 3.3, monthlyReturn: 9.4, quarterlyReturn: 17.0 },
+        { baseDate: [2025, 8, 6], fundNav: 9009.25, fundAum: 4.90214161251e11, weeklyReturn: 2.7, monthlyReturn: 8.6, quarterlyReturn: 16.1 },
+        { baseDate: [2025, 8, 7], fundNav: 9093.08, fundAum: 4.50370703433e11, weeklyReturn: 3.0, monthlyReturn: 8.9, quarterlyReturn: 16.6 }
       ];
       yieldHistory.value = mockHistory;
       isYieldHistoryLoaded.value = true;
@@ -178,66 +162,47 @@ export const useFundStore = defineStore('fund', () => {
     }
   };
 
-  // 수익률 히스토리 초기화 함수 (페이지 새로고침 시 사용)
   const resetYieldHistory = () => {
     yieldHistory.value = null;
     isYieldHistoryLoaded.value = false;
     isYieldHistoryLoading.value = false;
   };
 
-  // 펀드 데이터 가공 함수
   const processFundData = (productDetail, originalProductId) => {
-    console.log('processFundData - productDetail:', productDetail);
-
     const productId = originalProductId;
 
     const result = {
-      // 기본 상품 정보 (API 응답)
       ...productDetail,
 
-      // UI용 데이터 가공
       info: generateInfoTab(productDetail),
       composition: generateCompositionTab(productDetail),
       pdf: generatePdfTab(productDetail),
-      yield: generateYieldTab(productDetail),
-      news: (() => {
-        console.log('Processing news data in processFundData');
-        const newsData = generateNewsTab(productDetail);
-        console.log('Generated news data:', newsData);
-        return newsData;
-      })(),
+      news: generateNewsTab(productDetail),
+      yield: generateYieldTab(productDetail, yieldHistory.value),
 
-      // 보유 내역 데이터 가공 (API 응답에서)
       holding: generateHoldingTab(productDetail.holdings, productDetail),
 
-      // 시세 데이터 가공
       price: generatePriceData(productDetail),
 
-      // 보유 여부 판단
       isHolding: !!productDetail.holdings,
       holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
       holdingsTotalQuantity: productDetail.holdings?.holdings_total_quantity || 0,
 
-      // 찜 여부 판단
       isWatched: productDetail.holdings?.isWatched ?? productDetail.holdings?.is_watched ?? false,
 
-      // DetailMainFund 컴포넌트용 데이터
       yield3Months: productDetail.fundPriceSummaryDto?.percentChangeFrom3MonthsAgo || 0,
       productCompanyName: productDetail.productCompanyName || '한국투자신탁운용',
       productName: productDetail.productName || '한국투자베트남그로스증권자투자신탁UH(주식)(A)',
       productCode: productDetail.productCode || productId,
       productRiskGrade: productDetail.productRiskGrade || 2,
-      // 현재가와 전일대비 정보 추가 (신규 네이밍 우선 사용)
       currentPrice: productDetail.fundPriceSummaryDto?.currentNav ?? 0,
       priceChange: productDetail.fundPriceSummaryDto?.changeFromYesterday ?? 0,
       priceChangePercent: productDetail.fundPriceSummaryDto?.percentChangeFromYesterday ?? 0
     };
 
-    console.log('Final processed Fund data:', result);
     return result;
   };
 
-  // 시세 데이터 가공 함수
   const generatePriceData = productDetail => {
     const priceSummary = productDetail.fundPriceSummaryDto;
     if (!priceSummary) {
@@ -261,14 +226,10 @@ export const useFundStore = defineStore('fund', () => {
     };
   };
 
-  // 뉴스 데이터 가공 함수
   const generateNewsTab = productDetail => {
-    console.log('generateNewsTab - productDetail:', productDetail);
     const newsData = productDetail.fundNewsResponse;
-    console.log('generateNewsTab - newsData:', newsData);
 
     if (!newsData || !newsData.length) {
-      console.log('No news data available');
       return [];
     }
 
@@ -280,13 +241,9 @@ export const useFundStore = defineStore('fund', () => {
           keyword: '펀드',
           color: '#34C759',
           desc: newsData.map(news => {
-            console.log('Processing news item:', news);
-
-            // 날짜 배열을 Date 객체로 변환
             const [year, month, day, hour, minute] = news.newsPublishedAt;
             const publishedDate = new Date(year, month - 1, day, hour, minute);
 
-            // DetailNewsList.vue 형식에 맞춰 데이터 변환
             const processedNews = {
               news_id: news.newsId,
               news_title: news.newsTitle,
@@ -297,7 +254,6 @@ export const useFundStore = defineStore('fund', () => {
               news_publisher: news.newsPublisher
             };
 
-            console.log('Processed news item:', processedNews);
             return processedNews;
           })
         }
@@ -308,28 +264,43 @@ export const useFundStore = defineStore('fund', () => {
     }
   };
 
-  // 수익률 데이터 가공 함수
   const generateYieldTab = (productDetail, history) => {
-    // 실제 API에서 받아온 히스토리 데이터 사용 (fallback 추가)
     const priceHistory = history || productDetail.priceHistory;
     if (!priceHistory || !priceHistory.length) {
       return [];
     }
 
-    // 새로운 데이터 구조에 맞게 처리 (baseDate, fundNav)
     const chartData = priceHistory.map(item => {
       const date = item.baseDate
         ? `${item.baseDate[0]}-${String(item.baseDate[1]).padStart(2, '0')}-${String(item.baseDate[2]).padStart(2, '0')}`
         : item.date;
       const price = item.fundNav || item.price;
-      const firstPrice = priceHistory[0].fundNav || priceHistory[0].price;
-      const yieldValue =
-        item.yield || parseFloat((((price - firstPrice) / firstPrice) * 100).toFixed(1));
+      
+      let yieldValue = 0;
+      if (item.weeklyReturn !== undefined) {
+        yieldValue = item.weeklyReturn;
+      } else if (item.monthlyReturn !== undefined) {
+        yieldValue = item.monthlyReturn;
+      } else if (item.quarterlyReturn !== undefined) {
+        yieldValue = item.quarterlyReturn;
+      } else if (item.yield !== undefined) {
+        yieldValue = item.yield;
+      } else {
+        const firstPrice = priceHistory[0].fundNav || priceHistory[0].price;
+        if (firstPrice && price !== 0) {
+          yieldValue = parseFloat((((price - firstPrice) / firstPrice) * 100).toFixed(1));
+        }
+      }
 
       return {
         date: date,
         수익률: yieldValue,
-        기준가: price
+        기준가: price,
+        weeklyReturn: item.weeklyReturn,
+        monthlyReturn: item.monthlyReturn,
+        quarterlyReturn: item.quarterlyReturn,
+        fundAum: item.fundAum,
+        baseDate: item.baseDate
       };
     });
 
@@ -360,7 +331,6 @@ export const useFundStore = defineStore('fund', () => {
     ];
   };
 
-  // 정보 탭 생성 함수
   const generateInfoTab = productDetail => {
     return [
       {
@@ -414,11 +384,9 @@ export const useFundStore = defineStore('fund', () => {
     ];
   };
 
-  // 구성 탭 생성 함수
   const generateCompositionTab = productDetail => {
     const result = [];
 
-    // 자산 배분 정보
     if (productDetail.fassetAllocation && productDetail.fassetAllocation.length > 0) {
       result.push({
         type: 'piechart',
@@ -430,7 +398,6 @@ export const useFundStore = defineStore('fund', () => {
       });
     }
 
-    // 주식 보유 정보
     if (productDetail.fstockHoldings && productDetail.fstockHoldings.length > 0) {
       result.push({
         type: 'table',
@@ -445,7 +412,6 @@ export const useFundStore = defineStore('fund', () => {
     return result;
   };
 
-  // PDF 탭 생성 함수
   const generatePdfTab = productDetail => {
     return [
       {
@@ -491,16 +457,11 @@ export const useFundStore = defineStore('fund', () => {
     ];
   };
 
-  // 보유 내역 탭 생성 함수
   const generateHoldingTab = (holdingData, productDetail) => {
-    console.log('generateHoldingTab - holdingData:', holdingData);
-
     if (!holdingData) {
-      console.log('No holding data available');
       return [];
     }
 
-    // 현재 시세로 평가액 계산 (Decimal 사용)
     const currentPrice = new Decimal(
       productDetail.fundPriceSummaryDto?.currentNav ??
         productDetail.fundPriceSummaryDto?.current_nav ??
@@ -538,7 +499,6 @@ export const useFundStore = defineStore('fund', () => {
       }
     ];
 
-    // holdingsTotalQuantity가 0보다 크고 holdingsStatus가 'zero'가 아닐 때만 투자 기록 추가
     if (
       holdingsTotalQuantity.gt(0) &&
       (holdingData.holdingsStatus ?? holdingData.holdings_status) !== 'zero'
@@ -548,48 +508,40 @@ export const useFundStore = defineStore('fund', () => {
         title: '투자 기록',
         desc:
           holdingData.history?.map(item => {
-            // 거래 타입에 따른 표시 형식 설정
             const isSell = item.historyTradeType === 'sell';
             const isBuy = item.historyTradeType === 'buy';
 
-            // 거래 수량에 부호 추가 (콤마 포함)
             const quantity = new Decimal(item.historyQuantity || 0);
             const displayQuantity = isSell
               ? `-${formatNumberWithComma(quantity.toNumber())}`
               : `+${formatNumberWithComma(quantity.toNumber())}`;
 
-            // 거래 금액에 부호 추가 (콤마 포함)
             const amount = new Decimal(item.historyAmount || 0);
             const displayAmount = isSell
               ? `-${formatNumberWithComma(amount.toNumber())}`
               : `+${formatNumberWithComma(amount.toNumber())}`;
 
-            // 날짜 형식 수정 (yyyy/mm/dd 오전 hh:mm:ss)
             const tradeDate = new Date(item.historyTradeDate);
             const year = tradeDate.getFullYear();
             const month = String(tradeDate.getMonth() + 1).padStart(2, '0');
             const day = String(tradeDate.getDate()).padStart(2, '0');
             const hours = tradeDate.getHours();
             const minutes = String(tradeDate.getMinutes()).padStart(2, '0');
-            const seconds = String(tradeDate.getSeconds()).padStart(2, '0');
+            const seconds = tradeDate.getSeconds();
             const ampm = hours < 12 ? '오전' : '오후';
             const displayHours = String(hours < 12 ? hours : hours - 12).padStart(2, '0');
             const displayDate = `${year}/${month}/${day} ${ampm} ${displayHours}:${minutes}:${seconds}`;
 
             return {
               ...item,
-              // 원본 데이터 유지
               historyQuantity: item.historyQuantity,
               historyAmount: item.historyAmount,
               historyTradeDate: item.historyTradeDate,
-              // 표시용 데이터 추가
               displayQuantity,
               displayAmount,
               displayDate,
-              // 스타일링을 위한 플래그
               isSell,
               isBuy,
-              // 색상 정보
               quantityColor: isSell ? '#FF3B30' : '#007AFF',
               amountColor: isSell ? '#FF3B30' : '#007AFF'
             };
@@ -597,57 +549,37 @@ export const useFundStore = defineStore('fund', () => {
       });
     }
 
-    console.log('Generated holding tab data:', result);
     return result;
   };
 
-  // tabData computed 수정
-  const tabData = computed(() => {
-    if (!product.value) return {};
-
-    const baseTabData = {
-      info: product.value.info,
-      yield: generateYieldTab(product.value, yieldHistory.value),
-      composition: product.value.composition,
-      news: product.value.news
-    };
-
-    // 보유 중인 상품이고 보유수량이 0보다 크고 holdingsStatus가 "zero"가 아닐 때만 holding 데이터 추가
-    if (product.value.isHolding && 
-        (product.value.holding || product.value.holdings) &&
-        (product.value.holdings?.holdingsTotalQuantity > 0 || product.value.holding?.holdingsTotalQuantity > 0) &&
-        (product.value.holdings?.holdingsStatus !== 'zero' || product.value.holding?.holdingsStatus !== 'zero')) {
-      
-      // holdingsummary 타입의 데이터 생성
-      const holdingSummaryData = {
-        type: 'holdingsummary',
-        title: '보유 현황',
-        desc: product.value.holding?.find(item => item.type === 'holdingsummary')?.desc || 
-              product.value.holdings?.find(item => item.type === 'holdingsummary')?.desc || {}
-      };
-
-      // holdinghistory 타입의 데이터 생성 (모든 투자 기록 표시)
-      const holdingHistoryData = {
-        type: 'holdinghistory',
-        title: '투자 기록',
-        desc: product.value.holding?.find(item => item.type === 'holdinghistory')?.desc || 
-              product.value.holdings?.find(item => item.type === 'holdinghistory')?.desc || []
-      };
-
-      baseTabData.holding = [holdingSummaryData, holdingHistoryData];
-    }
-
-    return baseTabData;
-  });
-
-  // Getters
   const productInfo = computed(() => product.value);
 
-  // 찜 여부 getter 추가
   const isWatched = computed(() => {
     const watched = product.value?.isWatched || false;
-    console.log('isWatched computed - value:', watched);
     return watched;
+  });
+
+  const tabs = computed(() => {
+    const hasValidHoldings = productInfo.value?.isHolding &&
+      (productInfo.value?.holdings || productInfo.value?.holding) &&
+      (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
+      (productInfo.value?.holdings?.holdingsStatus !== 'zero' || productInfo.value?.holding?.holdingsStatus !== 'zero');
+    
+    if (hasValidHoldings) {
+      return [
+        { key: 'holding', label: '보유기록' },
+        { key: 'info', label: '상품안내' },
+        { key: 'yield', label: '수익률' },
+        { key: 'composition', label: '구성종목' },
+        { key: 'news', label: '뉴스' }
+      ];
+    }
+    return [
+      { key: 'info', label: '상품안내' },
+      { key: 'yield', label: '수익률' },
+      { key: 'composition', label: '구성종목' },
+      { key: 'news', label: '뉴스' }
+    ];
   });
 
   return {
@@ -656,13 +588,17 @@ export const useFundStore = defineStore('fund', () => {
     error,
     fetchProduct,
     productInfo,
-    tabData,
     isWatched,
-    // 수익률 히스토리 관련
     yieldHistory,
     isYieldHistoryLoaded,
     isYieldHistoryLoading,
     fetchYieldHistory,
-    resetYieldHistory
+    resetYieldHistory,
+    generateYieldTab,
+    generateHoldingTab,
+    generateInfoTab,
+    generateCompositionTab,
+    generatePdfTab,
+    generateNewsTab
   };
 });
