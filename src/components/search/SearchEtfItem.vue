@@ -8,7 +8,6 @@
         ・
         {{ typeLabelMap[item.productType] ?? item.productType }}
       </div>
-
       <header class="etf-item-header">
         <div class="etf-item-title-left">
           <span class="product-name">{{ item.productName }}</span>
@@ -20,7 +19,11 @@
         </div>
         <IconHeartStroke class="heart-icon" />
       </header>
-
+    </section>
+    <section class="etf-item-content-section">
+      <div class="etf-item-product-code">
+        {{ item.productCode }}
+      </div>
       <div
         v-if="item.isPopularInUserGroup"
         class="user-group-popular-badge">
@@ -182,6 +185,18 @@ function getSegmentStyle(key) {
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
   color: var(--main02);
+}
+
+.etf-item-product-code {
+  display: inline-flex;
+  align-self: flex-start;
+  width: auto;
+  background-color: var(--main04);
+  color: var(--main02);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
 }
 
 .user-group-popular-badge {
