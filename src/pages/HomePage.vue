@@ -20,7 +20,8 @@
     <NewsProduct
       :keyword="selectKeyword"
       :color="selectColor"
-      :product-list="filteredProductList" />
+      :fund-list="filteredFundList"
+      :etf-list="filteredEtfList" />
   </div>
 </template>
 
@@ -37,19 +38,14 @@ const loadingStore = useLoadingStore();
 
 const chartData = ref([]);
 const newsListForKeyword = ref([]);
-const productListForKeyword = ref([]);
+const etfListForKeyword = ref([]);
+const fundListForKeyword = ref([]);
 const selectKeyword = ref(null);
 const selectColor = ref(null);
 
 
 async function initializePage() {
-  // 키워드 목록을 불러와서 차트 데이터만 설정하고 끝냅니다.
-  // 뉴스 목록을 미리 불러오거나, 색상을 임시로 설정하지 않습니다.
   await fetchAndSetKeywords();
-
-  // NewsChart가 스스로 렌더링을 마친 후,
-  // @initial-load 이벤트를 통해 '진짜' 키워드 정보(색상 포함)를
-  // 보내주면 그 때 handleKeywordClick이 호출될 것입니다.
 }
 
 async function handleKeywordClick(payload) {
@@ -65,7 +61,8 @@ async function loadNewsAndProductsByKeyword(keywordId) {
     if (responseData) {
       console.log("responseData", responseData);
       newsListForKeyword.value = responseData.newsList || [];
-      productListForKeyword.value = responseData.productList || [];
+      etfListForKeyword.value = responseData.etfList || [];
+      fundListForKeyword.value = responseData.fundList || [];
     }
   } catch (error) {
     console.error('Error loading news data by keyword:', error);
@@ -76,8 +73,8 @@ async function loadNewsAndProductsByKeyword(keywordId) {
 }
 
 const filteredNewsList = computed(() => newsListForKeyword.value);
-const filteredProductList = computed(() => productListForKeyword.value);
-
+const filteredEtfList = computed(() => etfListForKeyword.value);
+const filteredFundList = computed(() => fundListForKeyword.value);
 
 async function fetchAndSetKeywords() {
   loadingStore.startLoading('키워드를 불러오는 중...'); // 카운터 +1
