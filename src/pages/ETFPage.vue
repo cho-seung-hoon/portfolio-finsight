@@ -11,7 +11,9 @@
       <DetailMainEtf 
         :product-info="productInfo" 
         :realtime-data="realtimeData"
-        :change-rate-from-prev-day="productInfo?.price?.priceChangePercent || productInfo?.changeRateFromPrevDay" />
+        :change-rate-from-prev-day="productInfo?.price?.priceChangePercent || productInfo?.changeRateFromPrevDay"
+        :product-code="productInfo?.productCode"
+        :is-watched="productInfo?.isWatched || false" />
       <DetailTabs
         :tabs="tabs"
         :selected-tab="selectedTab"
@@ -379,15 +381,7 @@ const handleSellSubmit = async formData => {
   }
 };
 
-// 하트 토글 처리
-const handleHeartToggle = async isActive => {
-  try {
-    const message = isActive ? '찜 목록에 추가되었습니다.' : '찜 목록에서 제거되었습니다.';
-    showToast(message, 'success');
-  } catch (error) {
-    showToast('찜 상태 변경에 실패했습니다. 다시 시도해주세요.', 'error');
-  }
-};
+
 </script>
 
 <style scoped>

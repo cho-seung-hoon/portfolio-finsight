@@ -195,7 +195,7 @@ export const useFundStore = defineStore('fund', () => {
       holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
       holdingsTotalQuantity: productDetail.holdings?.holdings_total_quantity || 0,
 
-      isWatched: productDetail.holdings?.isWatched ?? productDetail.holdings?.is_watched ?? false,
+      userWatches: productDetail.userWatches ?? false,
 
       yield3Months: productDetail.fundPriceSummaryDto?.percentChangeFrom3MonthsAgo || 0,
       productCompanyName: productDetail.productCompanyName || '한국투자신탁운용',
@@ -562,7 +562,7 @@ export const useFundStore = defineStore('fund', () => {
   const productInfo = computed(() => product.value);
 
   const isWatched = computed(() => {
-    const watched = product.value?.isWatched || false;
+    const watched = product.value?.userWatches ?? false;
     return watched;
   });
 

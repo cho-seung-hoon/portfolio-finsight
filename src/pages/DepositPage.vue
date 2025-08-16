@@ -5,10 +5,13 @@
     <div v-if="error">{{ error }}</div>
     <div v-else-if="productInfo">
       <DetailMainDeposit
+        :product-info="productInfo"
         :bank="productInfo?.productCompanyName"
         :title="productInfo?.productName"
         :max-rate="productInfo?.doptionIntrRate2"
-        :base-rate="productInfo?.doptionIntrRate" />
+        :base-rate="productInfo?.doptionIntrRate"
+        :product-code="productInfo?.productCode"
+        :is-watched="productInfo?.isWatched || false" />
 
       <DetailTabs
         :tabs="tabs"

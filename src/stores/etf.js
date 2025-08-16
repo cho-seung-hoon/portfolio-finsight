@@ -127,6 +127,8 @@ export const useEtfStore = defineStore('etf', () => {
     const authToken = token || sessionStore.accessToken;
     try {
       const productDetail = await fetchProductDetail(productId, category, authToken);
+
+      
       product.value = processEtfData(productDetail, productId);
     } catch (e) {
       error.value = `ETF 상품 정보를 불러오는 데 실패했습니다: ${e.message}`;
@@ -150,7 +152,7 @@ export const useEtfStore = defineStore('etf', () => {
       isHolding: !!productDetail.holdings,
       holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
       holdingsTotalQuantity: productDetail.holdings?.holdings_total_quantity || 0,
-      isWatched: productDetail.holdings?.isWatched ?? productDetail.holdings?.is_watched ?? false,
+      userWatches: productDetail.userWatches ?? false,
       yield3Months: productDetail.etfPriceSummaryDto?.percentChangeFrom3MonthsAgo ?? 0,
       currentPrice: productDetail.currentPrice ? productDetail.currentPrice.toLocaleString() : '0',
       productCompanyName: productDetail.productCompanyName || 'TIGER',
@@ -498,7 +500,10 @@ export const useEtfStore = defineStore('etf', () => {
   });
 
   const productInfo = computed(() => product.value);
-  const isWatched = computed(() => product.value?.isWatched || false);
+  const isWatched = computed(() => {
+    const watched = product.value?.userWatches ?? false;
+    return watched;
+  });
 
   const fetchYieldHistory = async (productId, token) => {
     if (isYieldHistoryLoaded.value) return;

@@ -3,7 +3,10 @@
     <div class="product-bank">{{ bank }}</div>
     <div class="product-title-row">
       <div class="product-title">{{ title }}</div>
-      <HeartToggle @toggle="handleHeartToggle" />
+      <HeartToggle
+        :product-code="productCode || productInfo?.productCode"
+        category="deposit"
+        :user-watches="productInfo?.userWatches || false" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">
@@ -24,15 +27,17 @@
 <script setup>
 import HeartToggle from '@/components/common/HeartToggle.vue';
 
-defineProps({
+const props = defineProps({
   bank: String,
   title: String,
   maxRate: Number,
-  baseRate: Number
+  baseRate: Number,
+  productCode: String,
+  isWatched: Boolean,
+  productInfo: Object
 });
 
-const handleHeartToggle = isActive => {
-};
+
 </script>
 
 <style scoped>

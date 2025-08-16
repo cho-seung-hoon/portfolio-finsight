@@ -14,7 +14,11 @@
             보유중
           </span>
         </div>
-        <IconHeartStroke class="heart-icon" />
+        <HeartToggle
+          :product-code="item.productCode"
+          category="deposit"
+          :user-watches="item.userWatches || false"
+          @click.stop />
       </header>
 
       <div
@@ -37,7 +41,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import IconHeartStroke from '../icons/IconHeartStroke.vue';
+import HeartToggle from '../common/HeartToggle.vue';
 
 const props = defineProps({
   item: {

@@ -1,25 +1,62 @@
 <template>
-  <section class="list-watch-page-tab">
-    <button
-      v-for="tab in tabs"
-      :key="tab.value"
-      :class="['tab-btn', { active: selected === tab.value }]"
-      @click="selectTab(tab.value)">
-      {{ tab.label }}
-    </button>
-  </section>
-  <section class="list-watch-page-contents">
-    <DepositItem
-      v-for="item in deposits"
-      :key="item.product_code"
-      :item="item" />
-  </section>
+  <div class="list-watch-page-container">
+    <section class="list-watch-page-tab">
+      <button
+        v-for="tab in tabs"
+        :key="tab.value"
+        :class="['tab-btn', { active: selected === tab.value }]"
+        @click="selectTab(tab.value)">
+        {{ tab.label }}
+      </button>
+    </section>
+    
+    <section class="list-watch-page-contents">
+      <!-- 예금 목록 -->
+      <template v-if="selected === 'deposit'">
+        <DepositItem
+          v-for="item in deposits"
+          :key="item.productCode"
+          :item="item" />
+        <div v-if="deposits.length === 0" class="empty-state">
+          <img src="@/assets/cha4.png" alt="찜한 상품 없음" class="empty-image" />
+          <p class="empty-text">찜한 예금 상품이 없습니다.</p>
+        </div>
+      </template>
+      
+      <!-- 펀드 목록 -->
+      <template v-if="selected === 'fund'">
+        <FundItem
+          v-for="item in funds"
+          :key="item.productCode"
+          :item="item" />
+        <div v-if="funds.length === 0" class="empty-state">
+          <img src="@/assets/cha4.png" alt="찜한 상품 없음" class="empty-image" />
+          <p class="empty-text">찜한 펀드 상품이 없습니다.</p>
+        </div>
+      </template>
+      
+      <!-- ETF 목록 -->
+      <template v-if="selected === 'etf'">
+        <EtfItem
+          v-for="item in etfs"
+          :key="item.productCode"
+          :item="item" />
+        <div v-if="etfs.length === 0" class="empty-state">
+          <img src="@/assets/cha4.png" alt="찜한 상품 없음" class="empty-image" />
+          <p class="empty-text">찜한 ETF 상품이 없습니다.</p>
+        </div>
+      </template>
+    </section>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import DepositItem from '@/components/list/DepositItem.vue';
+import FundItem from '@/components/list/FundItem.vue';
+import EtfItem from '@/components/list/EtfItem.vue';
+import { getWatchDeposits, getWatchFunds, getWatchEtfs } from '@/api/watchApi';
 
 const tabs = [
   { label: '예금', value: 'deposit' },
@@ -28,86 +65,63 @@ const tabs = [
 ];
 
 const selected = ref('deposit');
+const deposits = ref([]);
+const funds = ref([]);
+const etfs = ref([]);
 
-const deposits = [
-  {
-    product_code: 'SH123',
-    product_name: '시그니처 정기예금',
-    company_name: '신한은행',
-    intr_rate: 1.2,
-    intr_rate2: 2.8
-  },
-  {
-    product_code: 'KB123',
-    product_name: '플러스 정기예금',
-    company_name: '국민은행',
-    intr_rate: 1.5,
-    intr_rate2: 3.0
-  },
-  {
-    product_code: 'HN234',
-    product_name: '안심정기예금',
-    company_name: '하나은행',
-    intr_rate: 1.4,
-    intr_rate2: 2.7
-  },
-  {
-    product_code: 'WR341',
-    product_name: '우리파워정기예금',
-    company_name: '우리은행',
-    intr_rate: 1.3,
-    intr_rate2: 2.9
-  },
-  {
-    product_code: 'IBK432',
-    product_name: 'i-ONE 정기예금',
-    company_name: '기업은행',
-    intr_rate: 1.6,
-    intr_rate2: 3.1
-  },
-  {
-    product_code: 'NH543',
-    product_name: 'NH프리미엄예금',
-    company_name: '농협은행',
-    intr_rate: 1.3,
-    intr_rate2: 2.6
-  },
-  {
-    product_code: 'CT654',
-    product_name: '더드림정기예금',
-    company_name: '씨티은행',
-    intr_rate: 1.7,
-    intr_rate2: 3.2
-  },
-  {
-    product_code: 'SC765',
-    product_name: '마이플랜정기예금',
-    company_name: 'SC제일은행',
-    intr_rate: 1.4,
-    intr_rate2: 2.5
-  },
-  {
-    product_code: 'DA876',
-    product_name: '다이렉트정기예금',
-    company_name: '대구은행',
-    intr_rate: 1.5,
-    intr_rate2: 3.0
-  },
-  {
-    product_code: 'BS987',
-    product_name: '부산e-정기예금',
-    company_name: '부산은행',
-    intr_rate: 1.6,
-    intr_rate2: 3.1
-  }
-];
-
-function selectTab(tab) {
+// 탭 선택 시 해당 데이터 로드
+async function selectTab(tab) {
   selected.value = tab;
+  await loadData();
 }
+
+// 데이터 로드
+async function loadData() {
+  try {
+    if (selected.value === 'deposit') {
+      deposits.value = await getWatchDeposits();
+      // 찜 목록이므로 모든 아이템의 userWatches를 true로 설정
+      deposits.value.forEach(item => {
+        item.userWatches = true;
+      });
+    } else if (selected.value === 'fund') {
+      funds.value = await getWatchFunds();
+      // 찜 목록이므로 모든 아이템의 userWatches를 true로 설정
+      funds.value.forEach(item => {
+        item.userWatches = true;
+      });
+    } else if (selected.value === 'etf') {
+      etfs.value = await getWatchEtfs();
+      // 찜 목록이므로 모든 아이템의 userWatches를 true로 설정
+      etfs.value.forEach(item => {
+        item.userWatches = true;
+      });
+    }
+  } catch (error) {
+    console.error('데이터 로드 실패:', error);
+  }
+}
+
+// 초기 데이터 로드
+onMounted(async () => {
+  await loadData();
+});
+
+// 페이지 떠날 때 정리
+onBeforeRouteLeave(() => {
+  // 필요한 정리 작업
+});
 </script>
 
 <style scoped>
+.list-watch-page-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 12px;
+  margin-bottom: 60px;
+}
+
 .list-watch-page-tab {
   display: flex;
   gap: 12px;
@@ -138,5 +152,31 @@ function selectTab(tab) {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  background: var(--main05);
+  border-radius: 12px;
+  border: 1px solid var(--main04);
+  gap: 16px;
+}
+
+.empty-image {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.empty-text {
+  color: var(--main02);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  margin: 0;
 }
 </style>

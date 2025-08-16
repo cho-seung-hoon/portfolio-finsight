@@ -12,7 +12,9 @@
         :price-arr="productInfo.priceArr"
         :current-price="productInfo.currentPrice"
         :price-change="productInfo.priceChange"
-        :price-change-percent="productInfo.priceChangePercent" />
+        :price-change-percent="productInfo.priceChangePercent"
+        :product-code="productInfo.productCode"
+        :is-watched="productInfo?.isWatched || false" />
 
       <DetailTabs
         :tabs="tabs"
@@ -324,6 +326,8 @@ const handleSellSubmit = async formData => {
     isTransactionInProgress.value = false;
   }
 };
+
+
 </script>
 
 <style scoped>

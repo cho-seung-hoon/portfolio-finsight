@@ -4,8 +4,9 @@
     <div class="product-title-row">
       <div class="product-title">{{ productInfo?.productName || title }}</div>
       <HeartToggle
-        :is-active="productInfo?.isWatched || isWatched"
-        @toggle="handleHeartToggle" />
+        :product-code="productInfo?.productCode || productCode"
+        category="etf"
+        :user-watches="productInfo?.userWatches || false" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">
@@ -42,10 +43,9 @@ const props = defineProps({
     default: false
   },
   realtimeData: Object,
-  changeRateFromPrevDay: [String, Number]
+  changeRateFromPrevDay: [String, Number],
+  productCode: String
 });
-
-const emit = defineEmits(['heart-toggle']);
 
 // 실시간 데이터 변경 감지
 watch(
@@ -115,9 +115,7 @@ const formattedCurrentPrice = computed(() => {
   return price + '원';
 });
 
-const handleHeartToggle = isActive => {
-  emit('heart-toggle', isActive);
-};
+
 </script>
 
 <style scoped>

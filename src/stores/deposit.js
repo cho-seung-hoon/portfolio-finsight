@@ -130,7 +130,7 @@ export const useDepositStore = defineStore('deposit', () => {
         return Number(q);
       })(),
 
-      isWatched: productDetail.holdings?.isWatched || false,
+      userWatches: productDetail.userWatches ?? false,
 
       productCompanyName: productDetail.productCompanyName || 'SH 수협은행',
       productName: productDetail.productName || 'SH 첫만남우대예금',
@@ -403,7 +403,7 @@ export const useDepositStore = defineStore('deposit', () => {
   const productInfo = computed(() => product.value);
 
   const isWatched = computed(() => {
-    const watched = product.value?.isWatched || false;
+    const watched = product.value?.userWatches ?? false;
     return watched;
   });
 

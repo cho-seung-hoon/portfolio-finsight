@@ -117,14 +117,6 @@ export async function purchaseProduct(tradeData) {
     }
 
     const body = normalizeTradePayload(tradeData);
-    
-    console.log('=== Purchase API Payload ===');
-    console.log('Original tradeData:', tradeData);
-    console.log('Normalized payload:', body);
-    console.log('Decimal precision - quantity:', body.quantity, 'amount:', body.amount, 'price:', body.price);
-    console.log('contractMonths value:', body.contractMonths);
-    console.log('period value:', body.period);
-    console.log('===========================');
 
     const response = await axios.post('http://localhost:8080/holdings/purchases', body, {
       headers: {
@@ -135,10 +127,8 @@ export async function purchaseProduct(tradeData) {
     
     const processedData = processDecimalResponse(response.data);
     
-    console.log('매수 성공:', processedData);
     return { success: true, data: processedData };
   } catch (error) {
-    console.error('매수 실패:', error.response?.data || error.message);
     return { success: false, error: error.response?.data || error.message };
   }
 }
@@ -153,14 +143,6 @@ export async function sellProduct(tradeData) {
     }
 
     const body = normalizeTradePayload(tradeData);
-    
-    console.log('=== Sell API Payload ===');
-    console.log('Original tradeData:', tradeData);
-    console.log('Normalized payload:', body);
-    console.log('Decimal precision - quantity:', body.quantity, 'amount:', body.amount, 'price:', body.price);
-    console.log('contractMonths value:', body.contractMonths);
-    console.log('period value:', body.period);
-    console.log('===========================');
 
     const response = await axios.post('http://localhost:8080/holdings/sales', body, {
       headers: {
