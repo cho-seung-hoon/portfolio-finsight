@@ -17,8 +17,24 @@ export const useSessionStore = defineStore('session', () => {
   const accessToken = ref(null);
   const user = ref(null);
 
-  const isAuthenticated = computed(() => !!accessToken.value);
+  const isAuthenticated = computed(() => {
+    const token = accessToken.value;
+    // 1. 토큰 문자열이 아예 없으면 당연히 false
+    if (!token) {
+      return false;
+    }
 
+    // 2. 토큰을 디코딩하여 만료 여부를 확인합니다.
+    const decodedResult = decodingJWT(token);
+
+    // 3. 디코딩 결과가 '만료됨'이거나 null이면 false
+    if (decodedResult === '만료됨' || decodedResult === null) {
+      return false;
+    }
+
+    // 4. 위 모든 관문을 통과해야만 진짜 로그인 상태(true)입니다.
+    return true;
+  });
   const stopCountdown = () => {
     if (intervalId) clearInterval(intervalId);
   };
