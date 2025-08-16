@@ -80,36 +80,24 @@ import DepositBuyModal from '@/components/buysell/DepositBuyModal.vue';
 import DepositSellModal from '@/components/buysell/DepositSellModal.vue';
 import ToastMessage from '@/components/common/ToastMessage.vue';
 
-
 const route = useRoute();
 const depositStore = useDepositStore();
 const { productInfo, error, isWatched } = storeToRefs(depositStore);
 
-// 모달 상태 관리
 const isModalOpen = ref(false);
-
-// 중복 매수 방지 플래그
 const isTransactionInProgress = ref(false);
-
-// 모달 refs
 const termsModalRef = ref(null);
 const buyModalRef = ref(null);
 const sellModalRef = ref(null);
-
-// 현재 거래 타입 (buy/sell)
 const currentTransactionType = ref('buy');
 
-// 모달 닫기 처리 중복 방지
 const isClosing = ref(false);
-
-// 토스트 설정
 const toastConfig = ref({
   show: false,
   message: '',
   type: 'success'
 });
 
-// 숫자형 최대 금액 계산 (Decimal, 문자열("만원") 모두 대응)
 const maxAmountNumber = computed(() => {
   const val = productInfo.value?.depositMaxLimit;
   if (val instanceof Decimal) return val.toNumber();
@@ -127,17 +115,12 @@ onMounted(() => {
   const productId = route.params.id;
   if (productId) {
     depositStore.fetchProduct(productId, 'deposit');
-  } else {
-    // 상품 ID가 URL에 없습니다.
   }
 });
 
-// 토스트 메시지 표시 함수
 const showToast = (message, type = 'success', timestamp = null) => {
-  // 기존 토스트를 먼저 숨김
   toastConfig.value.show = false;
 
-  // 다음 틱에서 새로운 토스트 표시
   nextTick(() => {
     toastConfig.value = {
       show: true,
@@ -148,7 +131,6 @@ const showToast = (message, type = 'success', timestamp = null) => {
   });
 };
 
-// 탭 관련 데이터
 const tabs = computed(() => {
   const hasValidHoldings = productInfo.value?.isHolding &&
     (productInfo.value?.holdings || productInfo.value?.holding) &&
@@ -198,38 +180,75 @@ const indicatorPosition = {
   notice: '294px'
 };
 
-// tabData를 computed로 변경하여 실제 API 데이터 사용
 const tabData = computed(() => {
   return depositStore.tabData;
 });
 
-// 디버깅용
-const debugInfo = computed(() => {
-  console.log('DepositPage - productInfo:', productInfo.value);
-  console.log('DepositPage - holding:', productInfo.value?.holding);
-  return {
-    productInfo: productInfo.value,
-    holding: productInfo.value?.holding
-  };
-});
-
-// DepositSellModal에 전달할 holdingData
 const sellModalHoldingData = computed(() => {
-  // holdings 객체에서 필요한 데이터를 추출하여 전달
   if (productInfo.value?.holdings) {
+    const holdings = productInfo.value.holdings;
+    const history = holdings.history?.[0];
+    
+    const contractDate = holdings.contractDate || history?.historyTradeDate;
+    const contractMonths = holdings.contractMonths || history?.contractMonths;
+    
+    let maturityDate = holdings.maturityDate;
+    if (!maturityDate && contractDate && contractMonths) {
+      try {
+        const contract = new Date(contractDate);
+        if (!isNaN(contract.getTime())) {
+          contract.setMonth(contract.getMonth() + contractMonths);
+          maturityDate = contract.toISOString();
+        }
+      } catch (error) {
+        console.error('Error calculating maturityDate:', error);
+      }
+    }
+
     return {
-      holdingsTotalPrice: productInfo.value.holdings.holdingsTotalPrice,
-      holdingsTotalQuantity: productInfo.value.holdings.holdingsTotalQuantity,
-      maturityDate: productInfo.value.holdings.maturityDate || productInfo.value.holding?.maturityDate,
-      contractDate: productInfo.value.holdings.contractDate || productInfo.value.holding?.contractDate
+      holdingsTotalPrice: holdings.holdingsTotalPrice,
+      holdingsTotalQuantity: holdings.holdingsTotalQuantity,
+      maturityDate,
+      contractDate,
+      contractMonths,
+      history: holdings.history || []
     };
   }
-  return productInfo.value?.holding || null;
+  
+  if (productInfo.value?.holding) {
+    const holding = productInfo.value.holding;
+    const history = holding.history?.[0];
+    
+    const contractDate = holding.contractDate || history?.historyTradeDate;
+    const contractMonths = holding.contractMonths || history?.contractMonths;
+    
+    let maturityDate = holding.maturityDate;
+    if (!maturityDate && contractDate && contractMonths) {
+      try {
+        const contract = new Date(contractDate);
+        if (!isNaN(contract.getTime())) {
+          contract.setMonth(contract.getMonth() + contractMonths);
+          maturityDate = contract.toISOString();
+        }
+      } catch (error) {
+        console.error('Error calculating maturityDate:', error);
+      }
+    }
+
+    return {
+      holdingsTotalPrice: holding.holdingsTotalPrice,
+      holdingsTotalQuantity: holding.holdingsTotalQuantity,
+      maturityDate,
+      contractDate,
+      contractMonths,
+      history: holding.history || []
+    };
+  }
+  
+  return null;
 });
 
-// 구매 버튼 클릭 처리
 const handleBuyClick = async data => {
-  // 중복 매수 방지
   if (isTransactionInProgress.value) {
     showToast('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.', 'warning');
     return;
@@ -241,9 +260,7 @@ const handleBuyClick = async data => {
   termsModalRef.value?.openModal();
 };
 
-// 판매 버튼 클릭 처리
 const handleSellClick = async data => {
-  // 중복 매수 방지
   if (isTransactionInProgress.value) {
     showToast('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.', 'warning');
     return;
@@ -252,11 +269,9 @@ const handleSellClick = async data => {
   currentTransactionType.value = 'sell';
   isModalOpen.value = true;
   await nextTick();
-  // 판매는 약관 동의 없이 바로 판매 모달 열기
   sellModalRef.value?.openModal();
 };
 
-// 모달 닫기 처리
 const handleModalClose = () => {
   if (isClosing.value) {
     return;
@@ -269,44 +284,32 @@ const handleModalClose = () => {
   sellModalRef.value?.closeModalSilently();
   showToast('거래가 취소', 'cancel');
 
-  // 거래 진행 중 플래그 해제
   isTransactionInProgress.value = false;
 
-  // 100ms 후에 닫기 상태 초기화
   setTimeout(() => {
     isClosing.value = false;
   }, 100);
 };
 
-// 약관 동의 확인 처리
 const handleTermsConfirm = async agreementData => {
-  // 거래 시작 플래그 설정
   isTransactionInProgress.value = true;
   
   if (currentTransactionType.value === 'buy') {
-    // 구매인 경우 상품 가입 모달로 이어짐
-    // 약관 동의 모달은 닫지만 전체 모달 상태는 유지
-    // isModalOpen은 그대로 유지하여 검정색 배경 유지
     termsModalRef.value?.closeModalSilently();
     await nextTick();
     buyModalRef.value?.openModal();
   } else {
-    // 판매인 경우 약관 동의 없이 바로 판매 모달 열기
     termsModalRef.value?.closeModalSilently();
     await nextTick();
     sellModalRef.value?.openModal();
   }
 };
 
-
-
-// 상품 데이터 새로고침 함수
 const refreshProductData = async () => {
   try {
     const productId = route.params.id;
     if (productId) {
       await depositStore.fetchProduct(productId, 'deposit');
-      // 새로고침 후 보유기록 탭이 있으면 해당 탭으로, 없으면 상품안내 탭으로
       if (productInfo.value?.isHolding && 
           (productInfo.value?.holdings || productInfo.value?.holding) && 
           (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) && 
@@ -321,14 +324,9 @@ const refreshProductData = async () => {
   }
 };
 
-
-
-// 구매 제출 처리
 const handleBuySubmit = async formData => {
   try {
-    // 모달에서 API 호출 결과를 받아서 처리
     if (formData.success) {
-      // 성공인 경우
       handleModalClose();
       const timestamp = new Date().toLocaleString('ko-KR', {
         year: 'numeric',
@@ -340,26 +338,20 @@ const handleBuySubmit = async formData => {
       });
       showToast('예금 가입이 완료되었습니다.', 'success', timestamp);
 
-      // 상품 데이터 새로고침
       await refreshProductData();
     } else {
-      // 실패인 경우
       showToast(`예금 가입에 실패했습니다: ${formData.error}`, 'error');
     }
   } catch (error) {
     showToast('예금 가입 처리 중 오류가 발생했습니다.', 'error');
   } finally {
-    // 거래 완료 플래그 해제
     isTransactionInProgress.value = false;
   }
 };
 
-// 판매 제출 처리
 const handleSellSubmit = async formData => {
   try {
-    // 모달에서 API 호출 결과를 받아서 처리
     if (formData.success) {
-      // 성공인 경우
       handleModalClose();
       const timestamp = new Date().toLocaleString('ko-KR', {
         year: 'numeric',
@@ -371,16 +363,13 @@ const handleSellSubmit = async formData => {
       });
       showToast('예금 해지가 완료되었습니다.', 'success', timestamp);
 
-      // 상품 데이터 새로고침
       await refreshProductData();
     } else {
-      // 실패인 경우
       showToast(`예금 해지에 실패했습니다: ${formData.error}`, 'error');
     }
   } catch (error) {
     showToast('예금 해지에 실패했습니다. 다시 시도해주세요.', 'error');
   } finally {
-    // 거래 완료 플래그 해제
     isTransactionInProgress.value = false;
   }
 };
@@ -402,7 +391,7 @@ const handleSellSubmit = async formData => {
   bottom: -20px;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
-  z-index: 10000;
-  pointer-events: none;
+  z-index: 1999;
+  pointer-events: auto;
 }
 </style>

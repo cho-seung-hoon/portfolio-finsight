@@ -17,7 +17,7 @@
           :value="quantity"
           :disabled="disabled"
           @input="$emit('update:quantity', $event.target.valueAsNumber)" />
-        <span style="font-size: 16px; color: #192440">주</span>
+        <span style="font-size: var(--font-size-md); color: var(--main01)">주</span>
       </div>
     </div>
     <div class="info-row">

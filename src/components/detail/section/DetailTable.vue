@@ -53,7 +53,7 @@ defineProps({
 
 .detail-table {
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: var(--font-size-ms);
   width: 100%;
   min-width: 280px;
   background: var(--white);
@@ -61,7 +61,7 @@ defineProps({
 
 .detail-table th,
 .detail-table td {
-  border: 1px solid #e8eaed;
+  border: 1px solid var(--main03);
   padding: 12px 16px;
   text-align: left;
   white-space: nowrap;
@@ -69,10 +69,10 @@ defineProps({
 }
 
 .detail-table th {
-  background-color: #e8ecff;
-  font-weight: 600;
-  color: var(--main01);
-  font-size: 13px;
+  background-color: var(--main01);
+  color: var(--white);
+  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-ms);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   position: sticky;
@@ -81,11 +81,12 @@ defineProps({
 }
 
 .detail-table tbody tr:nth-child(even) {
-  background-color: #fafbfc;
+  background-color: var(--main05);
 }
 
 .detail-table tbody tr:hover {
-  background-color: #f0f4ff;
+  background-color: var(--main01);
+  color: var(--white);
   transition: background-color 0.2s ease;
 }
 
@@ -96,14 +97,13 @@ defineProps({
 .no-data {
   text-align: center;
   padding: 24px;
-  color: #666;
-  font-size: 14px;
-  background: #f8f9fa;
+  color: var(--main02);
+  font-size: var(--font-size-ms);
+  background: var(--main05);
   border-radius: 8px;
   margin: 16px 0;
 }
 
-/* 모바일 최적화 */
 @media (max-width: 768px) {
   .table-container {
     margin: 12px 0 0 0;
@@ -111,7 +111,7 @@ defineProps({
   }
 
   .detail-table {
-    font-size: 13px;
+    font-size: var(--font-size-ms);
     min-width: 260px;
   }
 
@@ -121,13 +121,13 @@ defineProps({
   }
 
   .detail-table th {
-    font-size: 12px;
+    font-size: var(--font-size-sm);
     padding: 8px 12px;
   }
 
   .no-data {
     padding: 20px;
-    font-size: 13px;
+    font-size: var(--font-size-ms);
     margin: 12px 0;
   }
 }
@@ -139,7 +139,7 @@ defineProps({
   }
 
   .detail-table {
-    font-size: 12px;
+    font-size: var(--font-size-sm);
     min-width: 240px;
   }
 
@@ -149,18 +149,17 @@ defineProps({
   }
 
   .detail-table th {
-    font-size: 11px;
+    font-size: var(--font-size-sm);
     padding: 6px 10px;
   }
 
   .no-data {
     padding: 16px;
-    font-size: 12px;
+    font-size: var(--font-size-sm);
     margin: 8px 0;
   }
 }
 
-/* 터치 디바이스 최적화 */
 @media (hover: none) and (pointer: coarse) {
   .detail-table tbody tr {
     min-height: 44px;
@@ -172,7 +171,6 @@ defineProps({
   }
 }
 
-/* 긴 텍스트 처리 */
 .detail-table td {
   max-width: 200px;
   overflow: hidden;

@@ -18,13 +18,11 @@
 import { computed } from 'vue';
 
 const props = defineProps({
-  tabs: Array, // [{ key, label }]
+  tabs: Array,
   selectedTab: String
 });
 const emit = defineEmits(['update:selectedTab']);
 
-// 보유기록 탭이 있을 경우 최상단에 추가하는 로직은 상위에서 tabs 배열을 조작하여 넘겨주도록 안내
-// selectedTab이 'holding'일 때 DetailSection을 통해 holdingsummary와 holdinghistory 컴포넌트가 렌더링됩니다.
 const indicatorStyle = computed(() => {
   const idx = props.tabs.findIndex(tab => tab.key === props.selectedTab);
   const width = 100 / props.tabs.length;
@@ -50,8 +48,8 @@ const indicatorStyle = computed(() => {
 .tab {
   flex: 1;
   text-align: center;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
   color: var(--main02);
   padding: 20px 0 16px 0;
   cursor: pointer;
@@ -61,7 +59,7 @@ const indicatorStyle = computed(() => {
 }
 .tab.active {
   color: var(--main01);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 .tab-indicator {
   position: absolute;

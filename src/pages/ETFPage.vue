@@ -8,7 +8,10 @@
     <div
       v-else-if="productInfo"
       class="etf-content">
-      <DetailMainEtf :product-info="productInfo" />
+      <DetailMainEtf 
+        :product-info="productInfo" 
+        :realtime-data="realtimeData"
+        :change-rate-from-prev-day="productInfo?.price?.priceChangePercent || productInfo?.changeRateFromPrevDay" />
       <DetailTabs
         :tabs="tabs"
         :selected-tab="selectedTab"
@@ -51,8 +54,8 @@ import { ref, onMounted, computed, watch, nextTick, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useEtfStore } from '@/stores/etf';
 import { purchaseProduct, sellProduct } from '@/api/tradeApi';
-import { useProductSubscription } from '@/composables/useProductSubscription';
 import { storeToRefs } from 'pinia';
+import { useProductSubscription } from '@/composables/useProductSubscription';
 
 import DetailMainEtf from '@/components/detail/DetailMainEtf.vue';
 import DetailTabs from '@/components/detail/DetailTabs.vue';
@@ -62,19 +65,11 @@ import FundEtfBuyModal from '@/components/buysell/FundEtfBuyModal.vue';
 import FundEtfSellModal from '@/components/buysell/FundEtfSellModal.vue';
 import ToastMessage from '@/components/common/ToastMessage.vue';
 
-
 const route = useRoute();
 
 const etfStore = useEtfStore();
 const { productInfo, error, isYieldHistoryLoaded, isYieldHistoryLoading } =
   storeToRefs(etfStore);
-
-// 웹소켓 구독 관련
-const { subscribeToSingleProduct, unsubscribeFromSingleProduct, isConnected } =
-  useProductSubscription();
-const isWebSocketConnected = ref(false);
-const currentSubscription = ref(null);
-const isSubscribed = ref(false); // 구독 상태 추적
 
 // 모달 상태 관리
 const isModalOpen = ref(false);
@@ -89,6 +84,17 @@ const isClosing = ref(false);
 // 거래 진행 중 플래그 (중복 거래 방지)
 const isTransactionInProgress = ref(false);
 
+// 실시간 웹소켓 데이터
+const realtimeData = ref(null);
+
+// 웹소켓 구독 상태
+const {
+  isSubscribed,
+  currentSubscription,
+  subscribeToSingleProduct,
+  unsubscribeFromSingleProduct
+} = useProductSubscription();
+
 // 토스트 설정
 const toastConfig = ref({
   show: false,
@@ -100,40 +106,33 @@ onMounted(() => {
   const productId = route.params.id;
   if (productId) {
     etfStore.fetchProduct(productId);
-    // 페이지 새로고침 시 수익률 히스토리 초기화
-    etfStore.resetYieldHistory();
-  } else {
-    // 상품 ID가 URL에 없습니다.
+    etfStore.fetchYieldHistory(productId);
   }
-});
-
-// 웹소켓 연결 상태 모니터링
-watch(isConnected, connected => {
-  isWebSocketConnected.value = connected;
 });
 
 // 상품 정보가 로드되면 웹소켓 구독 시작
 watch(
   productInfo,
-  async newProductInfo => {
-    if (newProductInfo?.productCode && !isSubscribed.value) {
+  async (newProductInfo, oldProductInfo) => {
+    if (newProductInfo && newProductInfo.productCode && !isSubscribed.value) {
       console.log('[ETF DETAIL] 웹소켓 구독 시작');
-      await startWebSocketSubscription(newProductInfo.productCode);
+      try {
+        await startWebSocketSubscription(newProductInfo.productCode);
+      } catch (error) {
+        console.error('[ETF DETAIL] 웹소켓 구독 실패:', error);
+      }
     }
-  },
-  { immediate: true }
+  }
 );
 
-// 웹소켓 구독 시작 (함수 선언으로 호이스팅 보장)
+// 웹소켓 구독 시작
 async function startWebSocketSubscription(productCode) {
   try {
-    // 이미 구독 중이면 중복 구독 방지
     if (isSubscribed.value) {
       console.log(`[ETF DETAIL] 이미 구독 중: ${productCode}`);
       return;
     }
 
-    // 새로운 구독 시작
     const subscription = await subscribeToSingleProduct(productCode, handleWebSocketData);
     if (subscription) {
       currentSubscription.value = subscription;
@@ -149,8 +148,11 @@ async function startWebSocketSubscription(productCode) {
 const handleWebSocketData = (data, productCode) => {
   console.log(`[ETF DETAIL] 웹소켓 데이터 수신:`, data);
 
-  // 실시간 데이터로 store 업데이트
   if (data) {
+    // 실시간 데이터를 저장하여 DetailMainEtf에 전달
+    realtimeData.value = data;
+    
+    // 스토어에도 업데이트
     etfStore.updateRealtimeData(data);
   }
 };
@@ -167,10 +169,8 @@ onUnmounted(() => {
 
 // 토스트 메시지 표시 함수
 const showToast = (message, type = 'success', timestamp = null) => {
-  // 기존 토스트를 먼저 숨김
   toastConfig.value.show = false;
 
-  // 다음 틱에서 새로운 토스트 표시
   nextTick(() => {
     toastConfig.value = {
       show: true,
@@ -182,21 +182,33 @@ const showToast = (message, type = 'success', timestamp = null) => {
 };
 
 const tabs = computed(() => {
-  if (
-    productInfo.value?.isHolding &&
-    productInfo.value?.holding &&
-    productInfo.value?.holding.length > 0 &&
-    productInfo.value?.holdingsTotalQuantity > 0
-  ) {
+  // productInfo가 아직 로드되지 않았으면 기본 탭만 반환
+  if (!productInfo.value) {
     return [
-      { key: 'holding', label: '보유기록' },
       { key: 'info', label: '상품안내' },
       { key: 'yield', label: '수익률' },
       { key: 'composition', label: '구성종목' },
       { key: 'news', label: '뉴스' }
     ];
   }
+
+  // productInfo.value가 존재하는지 확인
+  if (!productInfo.value.isHolding || 
+      !productInfo.value.holding || 
+      !Array.isArray(productInfo.value.holding) ||
+      productInfo.value.holding.length === 0 ||
+      !productInfo.value.holdingsTotalQuantity ||
+      productInfo.value.holdingsTotalQuantity <= 0) {
+    return [
+      { key: 'info', label: '상품안내' },
+      { key: 'yield', label: '수익률' },
+      { key: 'composition', label: '구성종목' },
+      { key: 'news', label: '뉴스' }
+    ];
+  }
+
   return [
+    { key: 'holding', label: '보유기록' },
     { key: 'info', label: '상품안내' },
     { key: 'yield', label: '수익률' },
     { key: 'composition', label: '구성종목' },
@@ -212,7 +224,6 @@ const selectTab = async tab => {
 
   selectedTab.value = tab;
 
-  // 수익률 탭을 처음 클릭할 때만 API 호출
   if (tab === 'yield' && !isYieldHistoryLoaded.value && !isYieldHistoryLoading.value) {
     const productId = route.params.id;
     console.log('Fetching yield history for productId:', productId);
@@ -231,22 +242,23 @@ const selectTab = async tab => {
 watch(
   productInfo,
   (newProductInfo, oldProductInfo) => {
-    // 보유 중인 상품이고 보유수량이 0보다 크고 holdingsStatus가 "zero"가 아닐 때만 holding으로 변경
-    if (
-      newProductInfo?.isHolding &&
-      (newProductInfo?.holdings || newProductInfo?.holding) &&
-      (newProductInfo?.holdings?.holdingsTotalQuantity > 0 || newProductInfo?.holding?.holdingsTotalQuantity > 0) &&
-      (newProductInfo?.holdings?.holdingsStatus !== 'zero' || newProductInfo?.holding?.holdingsStatus !== 'zero') &&
-      (!oldProductInfo || !oldProductInfo.isHolding) &&
-      selectedTab.value === 'info'
-    ) {
+    if (!newProductInfo || 
+        !newProductInfo.isHolding ||
+        !newProductInfo.holding ||
+        !Array.isArray(newProductInfo.holding) ||
+        newProductInfo.holding.length === 0 ||
+        !newProductInfo.holdingsTotalQuantity ||
+        newProductInfo.holdingsTotalQuantity <= 0) {
+      return;
+    }
+
+    if ((!oldProductInfo || !oldProductInfo.isHolding) &&
+        selectedTab.value === 'info') {
       selectedTab.value = 'holding';
     }
-  },
-  { immediate: true }
+  }
 );
 
-// tabData를 computed로 변경하여 productId를 전달
 const tabData = computed(() => {
   return etfStore.tabData;
 });
@@ -283,10 +295,8 @@ const handleModalClose = () => {
   sellModalRef.value?.closeModal();
   showToast('거래가 취소되었습니다.', 'cancel');
 
-  // 거래 진행 중 플래그 초기화
   isTransactionInProgress.value = false;
 
-  // 100ms 후에 닫기 상태 초기화
   setTimeout(() => {
     isClosing.value = false;
   }, 100);
@@ -298,7 +308,7 @@ const refreshProductData = async () => {
     const productId = route.params.id;
     if (productId) {
       await etfStore.fetchProduct(productId);
-      // 새로고침 후 보유기록 탭이 있으면 해당 탭으로, 없으면 상품안내 탭으로
+      await etfStore.fetchYieldHistory(productId);
       if (productInfo.value?.isHolding && 
           (productInfo.value?.holdings || productInfo.value?.holding) && 
           (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) && 
@@ -316,12 +326,9 @@ const refreshProductData = async () => {
 // 구매 제출 처리
 const handleBuySubmit = async formData => {
   try {
-    // 거래 진행 중 플래그 설정
     isTransactionInProgress.value = true;
     
-    // 모달에서 API 호출 결과를 받아서 처리
     if (formData.success) {
-      // 성공인 경우
       handleModalClose();
       const timestamp = new Date().toLocaleString('ko-KR', {
         year: 'numeric',
@@ -333,16 +340,13 @@ const handleBuySubmit = async formData => {
       });
       showToast('ETF 구매가 완료되었습니다.', 'success', timestamp);
 
-      // 상품 데이터 새로고침
       await refreshProductData();
     } else {
-      // 실패인 경우
       showToast(`ETF 구매에 실패했습니다: ${formData.error}`, 'error');
     }
   } catch (error) {
     showToast('ETF 구매 처리 중 오류가 발생했습니다.', 'error');
   } finally {
-    // 거래 진행 중 플래그 초기화
     isTransactionInProgress.value = false;
   }
 };
@@ -350,12 +354,9 @@ const handleBuySubmit = async formData => {
 // 판매 제출 처리
 const handleSellSubmit = async formData => {
   try {
-    // 거래 진행 중 플래그 설정
     isTransactionInProgress.value = true;
     
-    // 모달에서 API 호출 결과를 받아서 처리
     if (formData.success) {
-      // 성공인 경우
       handleModalClose();
       const timestamp = new Date().toLocaleString('ko-KR', {
         year: 'numeric',
@@ -367,16 +368,13 @@ const handleSellSubmit = async formData => {
       });
       showToast('ETF 판매가 완료되었습니다.', 'success', timestamp);
 
-      // 상품 데이터 새로고침
       await refreshProductData();
     } else {
-      // 실패인 경우
       showToast(`ETF 판매에 실패했습니다: ${formData.error}`, 'error');
     }
   } catch (error) {
     showToast('ETF 판매 처리 중 오류가 발생했습니다.', 'error');
   } finally {
-    // 거래 진행 중 플래그 초기화
     isTransactionInProgress.value = false;
   }
 };
@@ -384,14 +382,10 @@ const handleSellSubmit = async formData => {
 // 하트 토글 처리
 const handleHeartToggle = async isActive => {
   try {
-    // TODO: API 호출하여 찜 상태 변경
-    // await etfStore.toggleWatch(productInfo.value.productCode, isActive);
-
     const message = isActive ? '찜 목록에 추가되었습니다.' : '찜 목록에서 제거되었습니다.';
     showToast(message, 'success');
   } catch (error) {
     showToast('찜 상태 변경에 실패했습니다. 다시 시도해주세요.', 'error');
-    showToast('ETF 매도에 실패했습니다. 다시 시도해주세요.', 'error');
   }
 };
 </script>
@@ -410,6 +404,6 @@ const handleHeartToggle = async isActive => {
   text-align: center;
   padding: 40px;
   color: var(--error);
-  font-size: 16px;
+  font-size: var(--font-size-md);
 }
 </style>

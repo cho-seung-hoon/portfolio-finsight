@@ -92,13 +92,13 @@ const props = defineProps({
 
 .date {
   color: var(--black);
-  font-size: 16px;
-  font-weight: 500;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
 }
 
 .quantity {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
   text-align: right;
 }
 
@@ -110,24 +110,23 @@ const props = defineProps({
 
 .price-per-unit {
   color: var(--main02);
-  font-size: 14px;
-  font-weight: 400;
+  font-size: var(--font-size-ms);
+  font-weight: var(--font-weight-regular);
 }
 
 .total-amount {
-  font-size: 14px;
-  font-weight: 400;
+  font-size: var(--font-size-ms);
+  font-weight: var(--font-weight-regular);
   text-align: right;
 }
 
-/* Buy/Sell 색상 스타일 */
 .quantity.buy,
 .total-amount.buy {
-  color: #007aff; /* 파란색 */
+  color: var(--text-blue);
 }
 
 .quantity.sell,
 .total-amount.sell {
-  color: #ff3b30; /* 빨간색 */
+  color: var(--text-red);
 }
 </style>

@@ -86,19 +86,19 @@ const props = defineProps({
 
 .label {
   color: var(--main02);
-  font-size: 16px;
-  font-weight: 400;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
 }
 
 .value {
   color: var(--black);
-  font-size: 16px;
-  font-weight: 500;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
   text-align: right;
 }
 
 .current-value {
   color: var(--sub01);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 </style>

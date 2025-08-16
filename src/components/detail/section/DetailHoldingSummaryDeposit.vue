@@ -4,16 +4,16 @@
       <div class="summary-info">
         <div class="info-row">
           <span class="label">예금 체결일</span>
-          <span class="value">{{ formatDate(data.contractDate) }}</span>
+          <span class="value">{{ formatDate(calculatedContractDate) }}</span>
         </div>
         <div class="info-row">
           <span class="label">예금 만료일</span>
-          <span class="value">{{ formatDate(data.maturityDate) }}</span>
+          <span class="value">{{ formatDate(calculatedMaturityDate) }}</span>
         </div>
         <div class="info-row">
           <span class="label">예금액</span>
           <span class="value current-value"
-            >{{ new Decimal(data.holdingsTotalPrice || 0).toNumber().toLocaleString() }}원</span
+            >{{ formatCurrency(calculatedAmount) }}</span
           >
         </div>
       </div>
@@ -22,6 +22,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import Decimal from 'decimal.js';
 
 const props = defineProps({
@@ -29,16 +30,64 @@ const props = defineProps({
     type: Object,
     required: true,
     validator: value => {
-      // contractDate와 maturityDate는 undefined일 수 있음 (해지된 상품 등)
-      // holdingsTotalPrice는 0을 포함한 모든 숫자값 허용
       return value && 
-             typeof value === 'object' && 
-             (value.holdingsTotalPrice !== undefined && value.holdingsTotalPrice !== null);
+             typeof value === 'object';
     }
   }
 });
 
-// 날짜 포맷팅 함수
+const contractMonths = computed(() => {
+  return props.data?.contractMonths || props.data?.desc?.contractMonths;
+});
+
+const calculatedContractDate = computed(() => {
+  return props.data?.contractDate || 
+         props.data?.desc?.contractDate || 
+         props.data?.history?.[0]?.historyTradeDate || 
+         props.data?.desc?.history?.[0]?.historyTradeDate || 
+         null;
+});
+
+const calculatedMaturityDate = computed(() => {
+  if (props.data?.maturityDate || props.data?.desc?.maturityDate) {
+    return props.data?.maturityDate || props.data?.desc?.maturityDate;
+  }
+  
+  if (calculatedContractDate.value && contractMonths.value) {
+    try {
+      const contract = new Date(calculatedContractDate.value);
+      if (!isNaN(contract.getTime())) {
+        contract.setMonth(contract.getMonth() + contractMonths.value);
+        return contract.toISOString();
+      }
+    } catch (error) {
+      console.error('Error calculating maturityDate:', error);
+    }
+  }
+  
+  return null;
+});
+
+const calculatedAmount = computed(() => {
+  // 여러 경로에서 예금액을 찾아보기
+  const amount = props.data?.holdingsTotalPrice || 0;
+                  // props.data?.desc?.holdingsTotalPrice ||;
+                  // props.data?.holdingsTotalPrice || 0;
+  return amount;
+});
+
+const formatCurrency = (amount) => {
+  if (!amount || amount === 0) return '0원';
+  
+  try {
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return new Intl.NumberFormat('ko-KR').format(numAmount) + '원';
+  } catch (error) {
+    console.error('Error formatting currency:', error);
+    return '0원';
+  }
+};
+
 const formatDate = (dateString) => {
   if (!dateString) return '-';
   const date = new Date(dateString);
@@ -76,19 +125,19 @@ const formatDate = (dateString) => {
 
 .label {
   color: var(--main02);
-  font-size: 16px;
-  font-weight: 400;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
 }
 
 .value {
-  color: var(--black);
-  font-size: 16px;
-  font-weight: 500;
+  color: var(--main01);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
   text-align: right;
 }
 
 .current-value {
   color: var(--sub01);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 </style>

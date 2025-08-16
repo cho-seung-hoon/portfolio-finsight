@@ -32,7 +32,6 @@ defineProps({
 });
 
 const handleHeartToggle = isActive => {
-  // 하트 상태 변경 처리 (필요시 추가 로직 구현)
 };
 </script>
 
@@ -52,14 +51,14 @@ const handleHeartToggle = isActive => {
   justify-content: space-between;
 }
 .product-title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-bold);
   color: var(--main05);
 }
 
 .product-bank {
-  font-size: 18px;
-  font-weight: 500;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
   color: var(--main05);
   margin-bottom: 4px;
 }
@@ -80,21 +79,21 @@ const handleHeartToggle = isActive => {
 .rate-divider {
   width: 1px;
   height: 48px;
-  background: #e0e0e0;
+  background: var(--main03);
   margin: 0 30px;
 }
 .rate-label {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--main02);
   margin-bottom: 2px;
 }
 .rate-value {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   color: var(--main01);
 }
 .rate-desc {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--main02);
 }
 </style>

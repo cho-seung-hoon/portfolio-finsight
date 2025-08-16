@@ -28,27 +28,48 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import HeartToggle from '@/components/common/HeartToggle.vue';
 
 const props = defineProps({
-  productInfo: Object, // 새로운 구조: productInfo 객체
-  // 기존 개별 props (하위 호환성을 위해 유지)
+  productInfo: Object,
   bank: String,
   title: String,
-  yield: [String, Number], // 수익률 (3개월 고정)
-  currentPrice: String, // 현재 시세
+  yield: [String, Number],
+  currentPrice: String,
   isWatched: {
     type: Boolean,
     default: false
-  }
+  },
+  realtimeData: Object,
+  changeRateFromPrevDay: [String, Number]
 });
 
 const emit = defineEmits(['heart-toggle']);
 
+// 실시간 데이터 변경 감지
+watch(
+  () => props.realtimeData,
+  (newData) => {
+    if (newData) {
+      console.log('DetailMainEtf - 실시간 데이터 업데이트:', newData);
+    }
+  },
+  { deep: true }
+);
+
 const yieldValue = computed(() => {
-  // productInfo가 있으면 productInfo에서 가져오고, 없으면 기존 props 사용
-  // 전일 대비 수익률은 서버에서 내려주는 changeRateFromPrevDay 사용
+  if (props.changeRateFromPrevDay !== undefined && props.changeRateFromPrevDay !== null) {
+    const changeRate = Number(props.changeRateFromPrevDay);
+    if (!isNaN(changeRate)) {
+      return changeRate;
+    }
+  }
+  
+  if (props.realtimeData?.changeRateFromPrevDay !== undefined) {
+    return Number(props.realtimeData.changeRateFromPrevDay);
+  }
+  
   const yieldData =
     props.productInfo?.price?.priceChangePercent ?? props.productInfo?.changeRateFromPrevDay;
 
@@ -75,17 +96,22 @@ const yieldChangeColor = computed(() => {
 });
 
 const formattedCurrentPrice = computed(() => {
-  // productInfo가 있으면 productInfo에서 가져오고, 없으면 기존 props 사용
+  if (props.realtimeData?.currentPrice !== undefined) {
+    const price = props.realtimeData.currentPrice;
+    if (typeof price === 'number') {
+      return new Intl.NumberFormat('ko-KR').format(price) + '원';
+    }
+    return price + '원';
+  }
+  
   const price = props.productInfo?.price?.currentPrice ?? props.productInfo?.currentPrice;
 
   if (!price) return '-';
 
-  // 숫자인 경우 포맷팅
   if (typeof price === 'number') {
     return new Intl.NumberFormat('ko-KR').format(price) + '원';
   }
 
-  // 문자열인 경우 그대로 사용
   return price + '원';
 });
 
@@ -110,14 +136,14 @@ const handleHeartToggle = isActive => {
   justify-content: space-between;
 }
 .product-title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-bold);
   color: var(--main05);
 }
 
 .product-bank {
-  font-size: 18px;
-  font-weight: 500;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
   color: var(--main05);
   margin-bottom: 4px;
 }
@@ -138,17 +164,17 @@ const handleHeartToggle = isActive => {
 .rate-divider {
   width: 1px;
   height: 48px;
-  background: #e0e0e0;
+  background: var(--main03);
   margin: 0 30px;
 }
 .rate-label {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--main02);
   margin-bottom: 2px;
 }
 .rate-value {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   color: var(--main01);
 }
 .up {

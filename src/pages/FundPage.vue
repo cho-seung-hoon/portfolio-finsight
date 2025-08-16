@@ -105,19 +105,14 @@ onMounted(() => {
   const productId = route.params.id;
   if (productId) {
     fundStore.fetchProduct(productId);
-    // 페이지 새로고침 시 수익률 히스토리 초기화
     fundStore.resetYieldHistory();
-  } else {
-    // 상품 ID가 URL에 없습니다.
   }
 });
 
 // 토스트 메시지 표시 함수
 const showToast = (message, type = 'success', timestamp = null) => {
-  // 기존 토스트를 먼저 숨김
   toastConfig.value.show = false;
 
-  // 다음 틱에서 새로운 토스트 표시
   nextTick(() => {
     toastConfig.value = {
       show: true,
@@ -129,12 +124,12 @@ const showToast = (message, type = 'success', timestamp = null) => {
 };
 
 const tabs = computed(() => {
-  if (
-    productInfo.value?.isHolding &&
-    productInfo.value?.holding &&
-    productInfo.value?.holding.length > 0 &&
-    productInfo.value?.holdingsTotalQuantity > 0
-  ) {
+  const hasValidHoldings = productInfo.value?.isHolding &&
+    (productInfo.value?.holdings || productInfo.value?.holding) &&
+    (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
+    (productInfo.value?.holdings?.holdingsStatus !== 'zero' || productInfo.value?.holding?.holdingsStatus !== 'zero');
+  
+  if (hasValidHoldings) {
     return [
       { key: 'holding', label: '보유기록' },
       { key: 'info', label: '상품안내' },
@@ -148,7 +143,7 @@ const tabs = computed(() => {
     { key: 'yield', label: '수익률' },
     { key: 'composition', label: '구성종목' },
     { key: 'news', label: '뉴스' }
-    ];
+  ];
 });
 
 const selectedTab = ref('info');
@@ -159,7 +154,6 @@ const selectTab = async tab => {
 
   selectedTab.value = tab;
 
-  // 수익률 탭을 처음 클릭할 때만 API 호출
   if (tab === 'yield' && !isYieldHistoryLoaded.value && !isYieldHistoryLoading.value) {
     const productId = route.params.id;
     console.log('Fetching yield history for productId:', productId);
@@ -178,7 +172,6 @@ const selectTab = async tab => {
 watch(
   productInfo,
   (newProductInfo, oldProductInfo) => {
-    // 보유 중인 상품이고 보유수량이 0보다 크고 holdingsStatus가 "zero"가 아닐 때만 holding으로 변경
     if (
       newProductInfo?.isHolding &&
       (newProductInfo?.holdings || newProductInfo?.holding) &&
@@ -193,9 +186,28 @@ watch(
   { immediate: true }
 );
 
-// tabData를 computed로 변경하여 productId를 전달
 const tabData = computed(() => {
-  return fundStore.tabData;
+  if (!fundStore.product) return {};
+
+  const baseTabData = {
+    info: fundStore.generateInfoTab(fundStore.product),
+    yield: fundStore.generateYieldTab(fundStore.product, fundStore.yieldHistory),
+    composition: fundStore.generateCompositionTab(fundStore.product),
+    news: fundStore.generateNewsTab(fundStore.product)
+  };
+
+  if (fundStore.product.isHolding && 
+      (fundStore.product.holding || fundStore.product.holdings) &&
+      (fundStore.product.holdings?.holdingsTotalQuantity > 0 || fundStore.product.holding?.holdingsTotalQuantity > 0) &&
+      (fundStore.product.holdings?.holdingsStatus !== 'zero' || fundStore.product.holding?.holdingsStatus !== 'zero')) {
+    
+    const holdingData = fundStore.generateHoldingTab(fundStore.product.holdings, fundStore.product);
+    if (holdingData && holdingData.length > 0) {
+      baseTabData.holding = holdingData;
+    }
+  }
+
+  return baseTabData;
 });
 
 // 구매 버튼 클릭 처리
@@ -230,10 +242,8 @@ const handleModalClose = () => {
   sellModalRef.value?.closeModal();
   showToast('거래가 취소되었습니다.', 'cancel');
 
-  // 거래 진행 중 플래그 초기화
   isTransactionInProgress.value = false;
 
-  // 100ms 후에 닫기 상태 초기화
   setTimeout(() => {
     isClosing.value = false;
   }, 100);
@@ -245,7 +255,6 @@ const refreshProductData = async () => {
     const productId = route.params.id;
     if (productId) {
       await fundStore.fetchProduct(productId);
-      // 새로고침 후 보유기록 탭이 있으면 해당 탭으로, 없으면 상품안내 탭으로
       if (productInfo.value?.isHolding && 
           (productInfo.value?.holdings || productInfo.value?.holding) && 
           (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) && 
@@ -263,12 +272,9 @@ const refreshProductData = async () => {
 // 구매 제출 처리
 const handleBuySubmit = async formData => {
   try {
-    // 거래 진행 중 플래그 설정
     isTransactionInProgress.value = true;
     
-    // 모달에서 API 호출 결과를 받아서 처리
     if (formData.success) {
-      // 성공인 경우
       handleModalClose();
       const timestamp = new Date().toLocaleString('ko-KR', {
         year: 'numeric',
@@ -280,16 +286,13 @@ const handleBuySubmit = async formData => {
       });
       showToast('펀드 구매가 완료되었습니다.', 'success', timestamp);
 
-      // 상품 데이터 새로고침
       await refreshProductData();
     } else {
-      // 실패인 경우
       showToast(`펀드 구매에 실패했습니다: ${formData.error}`, 'error');
     }
   } catch (error) {
     showToast('펀드 구매 처리 중 오류가 발생했습니다.', 'error');
   } finally {
-    // 거래 진행 중 플래그 초기화
     isTransactionInProgress.value = false;
   }
 };
@@ -297,12 +300,9 @@ const handleBuySubmit = async formData => {
 // 판매 제출 처리
 const handleSellSubmit = async formData => {
   try {
-    // 거래 진행 중 플래그 설정
     isTransactionInProgress.value = true;
     
-    // 모달에서 API 호출 결과를 받아서 처리
     if (formData.success) {
-      // 성공인 경우
       handleModalClose();
       const timestamp = new Date().toLocaleString('ko-KR', {
         year: 'numeric',
@@ -314,16 +314,13 @@ const handleSellSubmit = async formData => {
       });
       showToast('펀드 판매가 완료되었습니다.', 'success', timestamp);
 
-      // 상품 데이터 새로고침
       await refreshProductData();
     } else {
-      // 실패인 경우
       showToast(`펀드 판매에 실패했습니다: ${formData.error}`, 'error');
     }
   } catch (error) {
     showToast('펀드 판매 처리 중 오류가 발생했습니다.', 'error');
   } finally {
-    // 거래 진행 중 플래그 초기화
     isTransactionInProgress.value = false;
   }
 };
@@ -345,7 +342,7 @@ const handleSellSubmit = async formData => {
   bottom: -20px;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
-  z-index: 999;
-  pointer-events: none;
+  z-index: 1999;
+  pointer-events: auto;
 }
 </style>

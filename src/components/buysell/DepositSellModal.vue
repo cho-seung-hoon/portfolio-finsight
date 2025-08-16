@@ -16,12 +16,10 @@
       </div>
 
       <div class="modal-body">
-        <!-- 상품 정보 -->
         <div class="product-info">
           <h3>{{ productInfo?.productName || '상품명' }}</h3>
         </div>
 
-        <!-- 현재 예치금액 -->
         <div class="info-row">
           <label>현재 예치금액</label>
           <div class="info-value-wrapper">
@@ -39,28 +37,12 @@
           </div>
         </div>
 
-        <!-- 만기일 -->
         <div class="info-row">
           <label>만기일</label>
           <div class="info-value">
-            {{ formatDate(holdingData?.maturityDate || productInfo?.holding?.maturityDate) }}
+            {{ formatDate(calculatedMaturityDate) }}
           </div>
         </div>
-
-
-
-        <!-- 해지 시 수령금액 예상 -->
-        <!-- <div class="info-row highlight">
-          <label>해지 시 수령금액 예상</label>
-          <div class="info-value-wrapper">
-            <div class="info-value">{{ formatCurrency(estimatedAmount) }}</div>
-            <div
-              class="korean-number"
-              v-if="estimatedAmount && getKoreanNumber(estimatedAmount)">
-              {{ getKoreanNumber(estimatedAmount) }}
-            </div>
-          </div>
-        </div> -->
       </div>
 
       <div class="modal-footer">
@@ -100,21 +82,50 @@ const props = defineProps({
 const emit = defineEmits(['close', 'submit']);
 
 const modalRef = ref(null);
-
-// 중복 close 이벤트 방지
 const isClosing = ref(false);
-
-// 로딩 상태 관리
 const isSubmitting = ref(false);
 
-// 보유 데이터
 const holdingData = computed(() => {
   console.log('DepositSellModal - productInfo:', props.productInfo);
   console.log('DepositSellModal - holdingData:', props.productInfo?.holdingData);
   return props.productInfo?.holdingData || null;
 });
 
-// 현재 날짜 포맷팅
+const contractDate = computed(() => {
+  return props.productInfo?.contractDate || 
+         holdingData.value?.contractDate || 
+         holdingData.value?.history?.[0]?.historyTradeDate || 
+         props.productInfo?.holdings?.history?.[0]?.historyTradeDate || 
+         props.productInfo?.holding?.history?.[0]?.historyTradeDate || 
+         null;
+});
+
+const contractMonths = computed(() => {
+  return holdingData.value?.contractMonths || 
+         props.productInfo?.contractMonths || 
+         props.productInfo?.holding?.contractMonths;
+});
+
+const calculatedMaturityDate = computed(() => {
+  if (props.productInfo?.maturityDate || holdingData.value?.maturityDate) {
+    return props.productInfo?.maturityDate || holdingData.value?.maturityDate;
+  }
+  
+  if (contractDate.value && contractMonths.value) {
+    try {
+      const contract = new Date(contractDate.value);
+      if (!isNaN(contract.getTime())) {
+        contract.setMonth(contract.getMonth() + contractMonths.value);
+        return contract.toISOString();
+      }
+    } catch (error) {
+      console.error('Error calculating maturityDate:', error);
+    }
+  }
+  
+  return null;
+});
+
 const currentDateTime = computed(() => {
   const now = new Date();
   const year = now.getFullYear();
@@ -123,20 +134,15 @@ const currentDateTime = computed(() => {
   return `${year}.${month}.${day}`;
 });
 
-
-// 통화 포맷팅
 const formatCurrency = amount => {
-  // 숫자가 아닌 값이나 빈 값 처리
   if (!amount || amount === '') return '0 원';
 
-  // 이미 "원"이 포함된 문자열인 경우 숫자 부분만 추출
   if (typeof amount === 'string' && amount.includes('원')) {
     const numericPart = amount.replace(/[^0-9,]/g, '');
     const cleanNumber = parseNumberFromComma(numericPart);
     return new Intl.NumberFormat('ko-KR').format(cleanNumber.toNumber()) + ' 원';
   }
 
-  // 일반적인 숫자 처리
   try {
     const decimalAmount = new Decimal(amount);
     return new Intl.NumberFormat('ko-KR').format(decimalAmount.toNumber()) + ' 원';
@@ -146,7 +152,6 @@ const formatCurrency = amount => {
   }
 };
 
-// 날짜 포맷팅
 const formatDate = dateString => {
   if (!dateString) return '-';
   const date = new Date(dateString);
@@ -156,14 +161,12 @@ const formatDate = dateString => {
   return `${year}.${month}.${day}`;
 };
 
-// 모달 열기
 const openModal = () => {
   if (modalRef.value) {
     modalRef.value.showModal();
   }
 };
 
-// 모달 닫기
 const closeModal = () => {
   if (isClosing.value) return;
 
@@ -174,13 +177,11 @@ const closeModal = () => {
   }
   emit('close');
 
-  // 100ms 후에 닫기 상태 초기화
   setTimeout(() => {
     isClosing.value = false;
   }, 100);
 };
 
-// 외부에서 모달을 닫을 때 close 이벤트를 보내지 않는 메서드
 const closeModalSilently = () => {
   if (isClosing.value) return;
 
@@ -190,20 +191,17 @@ const closeModalSilently = () => {
     modalRef.value.close();
   }
 
-  // 100ms 후에 닫기 상태 초기화
   setTimeout(() => {
     isClosing.value = false;
   }, 100);
 };
 
-// 배경 클릭 처리
 const handleBackdropClick = event => {
   if (event.target === modalRef.value) {
     closeModal();
   }
 };
 
-// 제출 처리
 const handleSubmit = async () => {
   if (isSubmitting.value) return;
   
@@ -221,7 +219,6 @@ const handleSubmit = async () => {
     const result = await sellProduct(tradeData);
     if (result.success) {
       console.log('예금 해지 성공:', result.data);
-      // API 호출 결과를 포함하여 부모에게 전달
       emit('submit', {
         success: true,
         data: result.data,
@@ -231,7 +228,6 @@ const handleSubmit = async () => {
       closeModal();
     } else {
       console.error('예금 해지 실패:', result.error);
-      // 실패 결과도 부모에게 전달
       emit('submit', {
         success: false,
         error: result.error
@@ -239,7 +235,6 @@ const handleSubmit = async () => {
     }
   } catch (error) {
     console.error('예금 해지 중 오류 발생:', error);
-    // 에러 결과도 부모에게 전달
     emit('submit', {
       success: false,
       error: error.message || '알 수 없는 오류가 발생했습니다.'
@@ -249,24 +244,20 @@ const handleSubmit = async () => {
   }
 };
 
-// 한글 숫자 변환 함수
 const getKoreanNumber = value => {
   return convertToKoreanNumber(value);
 };
 
-// 외부에서 모달 열기 메서드 노출
 defineExpose({
   openModal,
   closeModal,
   closeModalSilently
 });
 
-// 모달이 닫힐 때 폼 초기화 (일관성을 위해 추가)
 watch(
   () => modalRef.value?.open,
   isOpen => {
     if (!isOpen) {
-      // 현재는 읽기 전용이지만, 향후 입력 필드가 추가될 수 있으므로 초기화 로직 유지
     }
   }
 );
@@ -289,7 +280,8 @@ watch(
 }
 
 .modal::backdrop {
-  display: none;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
 }
 
 .modal-content {

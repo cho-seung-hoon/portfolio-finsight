@@ -140,7 +140,6 @@ const mainItem = computed(() => {
   if (selectedIndex.value !== null && standardizedData.value[selectedIndex.value]) {
     return standardizedData.value[selectedIndex.value];
   }
-  // 기본값: 가장 큰 비중
   return standardizedData.value.reduce((a, b) => (a.value > b.value ? a : b));
 });
 
@@ -329,7 +328,7 @@ const chartOptions = computed(() => ({
 
 .pie-table {
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: var(--font-size-ms);
   width: 100%;
   min-width: 280px;
   background: var(--white);
@@ -351,10 +350,10 @@ const chartOptions = computed(() => ({
 }
 
 .pie-table th {
-  background-color: #e8ecff;
-  font-weight: 600;
-  color: var(--main01);
-  font-size: 13px;
+  background-color: var(--main01);
+  color: var(--white) !important;
+  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-ms);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   position: sticky;
@@ -363,11 +362,12 @@ const chartOptions = computed(() => ({
 }
 
 .pie-table tbody tr:nth-child(even) {
-  background-color: #fafbfc;
+  background-color: var(--main05);
 }
 
 .pie-table tbody tr:hover {
-  background-color: #f0f4ff;
+  background-color: var(--main01);
+  color: var(--white);
   transition: background-color 0.2s ease;
 }
 
@@ -375,7 +375,6 @@ const chartOptions = computed(() => ({
   transition: all 0.2s ease;
 }
 
-/* 모바일 최적화 */
 @media (max-width: 768px) {
   .donut-chart-wrapper {
     max-width: 280px;
@@ -391,7 +390,7 @@ const chartOptions = computed(() => ({
   }
 
   .pie-table {
-    font-size: 13px;
+    font-size: var(--font-size-ms);
     min-width: 260px;
   }
 
@@ -406,7 +405,7 @@ const chartOptions = computed(() => ({
   }
 
   .pie-table th {
-    font-size: 12px;
+    font-size: var(--font-size-sm);
     padding: 8px 12px;
   }
 }
@@ -426,7 +425,7 @@ const chartOptions = computed(() => ({
   }
 
   .pie-table {
-    font-size: 12px;
+    font-size: var(--font-size-sm);
     min-width: 240px;
   }
 
@@ -441,12 +440,11 @@ const chartOptions = computed(() => ({
   }
 
   .pie-table th {
-    font-size: 11px;
+    font-size: var(--font-size-sm);
     padding: 6px 10px;
   }
 }
 
-/* 터치 디바이스 최적화 */
 @media (hover: none) and (pointer: coarse) {
   .donut-chart-wrapper {
     touch-action: manipulation;

@@ -16,12 +16,10 @@
       </div>
 
       <div class="modal-body">
-        <!-- 상품 정보 -->
         <div class="product-info">
           <h3>{{ productInfo?.productName || '상품명' }}</h3>
         </div>
 
-        <!-- 기간 선택 -->
         <div class="form-group">
           <label for="contractMonths">기간</label>
           <select
@@ -39,7 +37,6 @@
           </select>
         </div>
         
-        <!-- 예금액 입력 -->
         <div class="form-group">
           <label for="amount">예금액</label>
           <input
@@ -93,9 +90,7 @@
 </template>
 
 <script setup>
-// import { ref, computed, onMounted, watch } from 'vue';
 import { ref, computed, watch } from 'vue';
-// import { useBuyStore } from '@/stores/buy';
 import {
   formatInputNumber,
   parseNumberFromComma,
@@ -122,10 +117,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'submit']);
 
 const modalRef = ref(null);
-// const buyStore = useBuyStore();
-
-// 중복 close 이벤트 방지
-const isClosing = ref(false);
+const isClosing = ref(null);
 
 // 로딩 상태 관리
 const isSubmitting = ref(false);
@@ -135,7 +127,6 @@ const formData = ref({
   amount: ''
 });
 
-// 사용 가능한 기간 옵션 (상품 정보에서 가져오거나 기본값 사용)
 const availablePeriods = computed(() => {
   if (props.productInfo?.doption && props.productInfo.doption.length > 0) {
     return props.productInfo.doption.map(option => ({
@@ -152,7 +143,6 @@ const availablePeriods = computed(() => {
   ];
 });
 
-// 최소/최대 금액 (상품 정보에서 가져오거나 props에서 가져오기)
 const minAmount = computed(() => {
   return props.productInfo?.depositMinLimit || props.minAmount || 100000;
 });
@@ -161,7 +151,6 @@ const maxAmount = computed(() => {
   return props.productInfo?.depositMaxLimit || props.maxAmount || 10000000;
 });
 
-// 폼 유효성 검사
 const isFormValid = computed(() => {
   const amount = parseNumberFromComma(formData.value.amount);
   return (
@@ -172,7 +161,6 @@ const isFormValid = computed(() => {
   );
 });
 
-// 통화 포맷팅
 const formatCurrency = amount => {
   // 숫자가 아닌 값이나 빈 값 처리
   if (!amount || amount === '') return '0 원';
@@ -194,7 +182,6 @@ const formatCurrency = amount => {
   }
 };
 
-// 폼 초기화 함수
 const resetForm = () => {
   formData.value = {
     contractMonths: '',
@@ -202,7 +189,6 @@ const resetForm = () => {
   };
 };
 
-// 모달 열기
 const openModal = () => {
   resetForm(); // 모달 열기 전에 폼 초기화
   if (modalRef.value) {
@@ -210,7 +196,6 @@ const openModal = () => {
   }
 };
 
-// 모달 닫기
 const closeModal = () => {
   if (isClosing.value) return;
 
@@ -227,7 +212,6 @@ const closeModal = () => {
   }, 100);
 };
 
-// 외부에서 모달을 닫을 때 close 이벤트를 보내지 않는 메서드
 const closeModalSilently = () => {
   if (isClosing.value) return;
 
@@ -243,18 +227,16 @@ const closeModalSilently = () => {
   }, 100);
 };
 
-// 배경 클릭 처리
 const handleBackdropClick = event => {
   if (event.target === modalRef.value) {
     closeModal();
   }
 };
 
-// 제출 처리
 const handleSubmit = async () => {
   if (!isFormValid.value) return;
 
-  isSubmitting.value = true; // 로딩 시작
+  isSubmitting.value = true;
 
   // 현재 날짜를 동적으로 생성
   const today = new Date();
@@ -273,7 +255,6 @@ const handleSubmit = async () => {
     const result = await purchaseProduct(tradeData);
     if (result.success) {
       console.log('예금 가입 성공:', result.data);
-      // API 호출 결과를 포함하여 부모에게 전달
       emit('submit', {
         success: true,
         data: result.data,
@@ -284,7 +265,6 @@ const handleSubmit = async () => {
       closeModal();
     } else {
       console.error('예금 가입 실패:', result.error);
-      // 실패 결과도 부모에게 전달
       emit('submit', {
         success: false,
         error: result.error
@@ -292,17 +272,15 @@ const handleSubmit = async () => {
     }
   } catch (error) {
     console.error('예금 가입 중 오류 발생:', error);
-    // 에러 결과도 부모에게 전달
     emit('submit', {
       success: false,
       error: error.message || '알 수 없는 오류가 발생했습니다.'
     });
   } finally {
-    isSubmitting.value = false; // 로딩 종료
+    isSubmitting.value = false;
   }
 };
 
-// 입력값 처리 함수
 const handleAmountInput = event => {
   if (!event || !event.target) return;
   let value = event.target.value;
@@ -322,27 +300,22 @@ const handleAmountInput = event => {
   formData.value.amount = formattedValue;
 };
 
-// 한글 숫자 변환 함수
 const getKoreanNumber = value => {
   return convertToKoreanNumber(value);
 };
 
-// 외부에서 모달 열기 메서드 노출
 defineExpose({
   openModal,
   closeModal,
   closeModalSilently
 });
 
-// 모달이 열릴 때와 닫힐 때 폼 초기화
 watch(
   () => modalRef.value?.open,
   isOpen => {
     if (!isOpen) {
-      // 모달이 닫힐 때 폼 초기화
       resetForm();
     } else {
-      // 모달이 열릴 때 최소 금액을 기본값으로 설정
       formData.value.amount = formatInputNumber(String(minAmount.value));
     }
   }
@@ -366,7 +339,8 @@ watch(
 }
 
 .modal::backdrop {
-  display: none;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
 }
 
 .modal-content {

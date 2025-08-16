@@ -5,11 +5,9 @@ import { useLoadingStore } from './loading';
 import { formatNumberWithComma } from '@/utils/numberUtils';
 import { useSessionStore } from '@/stores/session.js';
 
-// ETF 상품 관련 상태 및 로직을 관리하는 Pinia 스토어
 export const useEtfStore = defineStore('etf', () => {
   const sessionStore = useSessionStore();
 
-  // State
   const product = ref(null);
   const isLoading = ref(false);
   const error = ref(null);
@@ -22,7 +20,6 @@ export const useEtfStore = defineStore('etf', () => {
   const isYieldHistoryLoaded = ref(false);
   const isYieldHistoryLoading = ref(false);
 
-  // Mock 데이터 (API 호출 실패 시 사용)
   const mockProductData = {
     productCode: 'etf-001',
     productName: 'TIGER 미국S&P500',
@@ -141,9 +138,6 @@ export const useEtfStore = defineStore('etf', () => {
   }
 
   const processEtfData = (productDetail, originalProductId) => {
-    // 디버깅용 console.log는 유지하거나 필요에 따라 제거하세요.
-    // console.log('processEtfData - productDetail:', productDetail);
-
     const result = {
       ...productDetail,
       info: generateInfoTab(productDetail),
@@ -171,7 +165,6 @@ export const useEtfStore = defineStore('etf', () => {
   };
 
   const generatePriceData = productDetail => {
-    // ETF도 카멜케이스만 사용
     const priceSummary = productDetail.etfPriceSummaryDto || productDetail.priceSummary;
     if (!priceSummary) {
       return {
@@ -229,19 +222,28 @@ export const useEtfStore = defineStore('etf', () => {
   };
 
   const generateYieldTab = productDetail => {
-    const priceHistory = yieldHistory.value || productDetail.priceHistory;
-    if (!priceHistory || !priceHistory.length) return [];
-    const chartData = priceHistory.map(item => {
-      const date = item.baseDate
-        ? `${item.baseDate[0]}-${String(item.baseDate[1]).padStart(2, '0')}-${String(item.baseDate[2]).padStart(2, '0')}`
-        : item.date;
-      const price = item.etfNav || item.price;
-      const firstPrice = priceHistory[0].etfNav || priceHistory[0].price;
-      const yieldValue = item.yield || (((price - firstPrice) / firstPrice) * 100).toFixed(1);
-      return { date: date, 수익률: yieldValue };
+    if (!yieldHistory.value || yieldHistory.value.length === 0) return [];
+    
+    const chartDataForChart = yieldHistory.value.map(item => {
+      let time;
+      if (item.baseDate && Array.isArray(item.baseDate)) {
+        time = new Date(item.baseDate[0], item.baseDate[1] - 1, item.baseDate[2]).getTime() / 1000;
+      } else if (item.baseDate) {
+        time = new Date(item.baseDate).getTime() / 1000;
+      } else {
+        time = Date.now() / 1000;
+      }
+      
+      const value = Number(item.etfNav) || 0;
+      
+      return { 
+        time: time, 
+        value: value 
+      };
     });
+    
     return [
-      { type: 'areachart', title: '수익률 추이', desc: chartData },
+      { type: 'areachart', title: 'ETF NAV 추이', desc: chartDataForChart },
       {
         type: 'text',
         title: '상장일',
@@ -468,22 +470,14 @@ export const useEtfStore = defineStore('etf', () => {
       info: product.value.info,
       composition: product.value.composition,
       news: product.value.news,
-      yield: [
-        {
-          type: 'areachart',
-          title: '수익률 추이',
-          desc: chartData.value // chartData와 직접 연결
-        },
-        ...product.value.yield.slice(1) // 기존의 상장일, 총보수 등 정보 유지
-      ]
+      yield: generateYieldTab(product.value)
     };
-    // 보유 중인 상품이고 보유수량이 0보다 크고 holdingsStatus가 "zero"가 아닐 때만 holding 데이터 추가
+    
     if (product.value.isHolding && 
         (product.value.holding || product.value.holdings) &&
         (product.value.holdings?.holdingsTotalQuantity > 0 || product.value.holding?.holdingsTotalQuantity > 0) &&
         (product.value.holdings?.holdingsStatus !== 'zero' || product.value.holding?.holdingsStatus !== 'zero')) {
       
-      // holdingsummary 타입의 데이터 생성
       const holdingSummaryData = {
         type: 'holdingsummary',
         title: '보유 현황',
@@ -491,7 +485,6 @@ export const useEtfStore = defineStore('etf', () => {
               product.value.holdings?.find(item => item.type === 'holdingsummary')?.desc || {}
       };
 
-      // holdinghistory 타입의 데이터 생성 (모든 투자 기록 표시)
       const holdingHistoryData = {
         type: 'holdinghistory',
         title: '투자 기록',
@@ -516,13 +509,11 @@ export const useEtfStore = defineStore('etf', () => {
         headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' }
       });
       if (!response.ok) throw new Error('수익률 히스토리 로딩 실패');
-      chartData.value = await response.json();
+      yieldHistory.value = await response.json();
     } catch (error) {
       console.error('Yield History API Error:', error);
-      chartData.value = [
-        { baseDate: [2025, 6, 19], etfNav: 12451.92 },
-        { baseDate: [2025, 6, 20], etfNav: 12640.32 }
-      ];
+      // 실시간 웹소켓 데이터가 없을 때는 빈 배열로 시작
+      yieldHistory.value = [];
     } finally {
       isYieldHistoryLoaded.value = true;
       isYieldHistoryLoading.value = false;
@@ -536,57 +527,32 @@ export const useEtfStore = defineStore('etf', () => {
     isYieldHistoryLoading.value = false;
   };
 
-  // [핵심 수정] 실시간 웹소켓 데이터 업데이트 함수
   const updateRealtimeData = realtimeData => {
     if (!product.value || !realtimeData) return;
 
-    if (realtimeData && realtimeData.timestamp) {
-      chartData.value = [...chartData.value, realtimeData];
+    console.log('ETF updateRealtimeData - 웹소켓 데이터 처리:', realtimeData);
+    
+    if (realtimeData.currentPrice !== undefined) {
+      product.value.currentPrice = realtimeData.currentPrice;
     }
-
-    const newPrice = realtimeData?.currentPrice;
-
-    // [설명] 새로운 가격 정보가 있을 때만 가격 관련 상태를 '직접' 수정합니다.
-    // 이렇게 하면 Vue는 정확히 변경된 부분만 감지하여 불필요한 재계산을 방지합니다.
-    if (newPrice !== undefined) {
-      // 1. 최상위 현재가 정보 업데이트
-      product.value.currentPrice = newPrice;
-
-      // 2. price 객체 내부 정보 업데이트
-      if (product.value.price) {
-        product.value.price.currentPrice = newPrice;
-
-        // [수정 후] 서버가 보내준 계산된 값을 그대로 사용 (카멜케이스 고정)
-        product.value.price.priceChange =
-          realtimeData.changeFromPrevDay ?? product.value.price.priceChange;
-        product.value.price.priceChangePercent =
-          realtimeData.changeRateFromPrevDay ?? product.value.price.priceChangePercent;
-      }
-
-      // 3. 보유 내역이 있는 경우, 평가액과 손익 정보 업데이트
-      if (product.value.isHolding && product.value.holding?.length > 0) {
-        const holdingSummary = product.value.holding.find(item => item.type === 'holdingsummary');
-        if (holdingSummary) {
-          const desc = holdingSummary.desc;
-          const holdingsTotalQuantity = new Decimal(desc.holdingsTotalQuantity || 0);
-          const holdingsTotalPrice = new Decimal(desc.holdingsTotalPrice || 0);
-
-          const currentTotalValue = holdingsTotalQuantity.mul(newPrice);
-          const profitLoss = currentTotalValue.sub(holdingsTotalPrice);
-
-          // 보유 현황(desc) 객체 내부의 값들을 직접 수정
-          desc.currentPricePerUnit = newPrice;
-          desc.currentTotalValue = currentTotalValue.toNumber();
-          desc.profitLoss = profitLoss.toNumber();
-          if (holdingsTotalPrice.gt(0)) {
-            desc.profitLossPercent = profitLoss.div(holdingsTotalPrice).mul(100).toFixed(2);
-          }
-        }
-      }
+    if (realtimeData.currentVolume !== undefined) {
+      product.value.currentVolume = realtimeData.currentVolume;
     }
-
-    // [설명] 기타 실시간 정보가 있다면 동일한 방식으로 직접 수정할 수 있습니다.
-    // product.value.volume = realtimeData?.current_volume ?? product.value.volume;
+    if (realtimeData.changeFromPrevDay !== undefined) {
+      product.value.changeFromPrevDay = realtimeData.changeFromPrevDay;
+    }
+    
+    if (realtimeData.return1Week !== undefined) {
+      product.value.return1Week = realtimeData.return1Week;
+    }
+    if (realtimeData.return1Month !== undefined) {
+      product.value.return1Month = realtimeData.return1Month;
+    }
+    if (realtimeData.return3Months !== undefined) {
+      product.value.return3Months = realtimeData.return3Months;
+    }
+    
+    console.log('ETF 실시간 데이터 업데이트 완료');
   };
 
   return {

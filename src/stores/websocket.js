@@ -7,19 +7,16 @@ import { useSessionStore } from '@/stores/session.js';
 export const useWebSocketStore = defineStore('websocket', () => {
   const sessionStore = useSessionStore();
 
-  // State
   const client = ref(null);
   const isConnected = ref(false);
   const subscriptions = ref(new Map());
   const connectionAttempts = ref(0);
   const maxReconnectAttempts = 5;
   const isConnecting = ref(false);
-  const connectionPromise = ref(null); // 연결 진행 중인 Promise 저장
+  const connectionPromise = ref(null);
 
-  // Getters
   const getConnectionStatus = () => isConnected.value;
 
-  // WebSocket 연결
   const connect = () => {
     const token = sessionStore.accessToken;
 
@@ -33,7 +30,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
       return Promise.resolve();
     }
 
-    // 이미 연결 중이라면 기존 Promise 반환
     if (isConnecting.value && connectionPromise.value) {
       console.log('웹소켓 연결 중입니다. 기존 연결 대기 중...');
       return connectionPromise.value;
@@ -94,7 +90,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
     });
   };
 
-  // 연결 종료
   const disconnect = () => {
     if (client.value) {
       unsubscribeAll();
@@ -108,7 +103,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
     }
   };
 
-  // 일반 구독
   const subscribe = (topic, callback, options = {}) => {
     if (!isConnected.value) {
       console.warn('웹소켓이 연결되지 않았습니다. 먼저 연결해주세요.');
@@ -121,8 +115,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
         message => {
           if (message.body) {
             const data = JSON.parse(message.body);
-            // 카멜케이스 웹소켓 페이로드: ProductWebSocketDTO 기준
-            // { productCode, currentPrice, currentVolume, return3Months, changeFromPrevDay, changeRateFromPrevDay, changeRate1s, timestamp }
             callback(data);
           }
         },
@@ -138,7 +130,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
     }
   };
 
-  // 단일 구독 해제
   const unsubscribe = topic => {
     const subscriptionInfo = subscriptions.value.get(topic);
 
@@ -149,7 +140,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
     }
   };
 
-  // 전체 구독 해제
   const unsubscribeAll = () => {
     subscriptions.value.forEach((subscriptionInfo, topic) => {
       if (subscriptionInfo.subscription) {
@@ -160,15 +150,12 @@ export const useWebSocketStore = defineStore('websocket', () => {
     console.log('모든 구독 해제 완료');
   };
 
-  // ETF 전용 구독 (연결 상태 확인 후 구독)
   const subscribeToEtf = async (productCode, callback) => {
     try {
-      // 연결이 안 되어 있다면 연결 시도
       if (!isConnected.value) {
         console.log('웹소켓 연결이 안 되어 있습니다. 연결을 시도합니다.');
         await ensureConnection();
         
-        // 연결 완료까지 대기
         if (!isConnected.value) {
           console.error('웹소켓 연결에 실패했습니다.');
           return null;
@@ -182,7 +169,6 @@ export const useWebSocketStore = defineStore('websocket', () => {
     }
   };
 
-  // 구독 시도 시 연결 상태 확인 및 대기
   const ensureConnection = async () => {
     if (isConnected.value) {
       return Promise.resolve();
@@ -196,14 +182,9 @@ export const useWebSocketStore = defineStore('websocket', () => {
   };
 
   return {
-    // State
     isConnected,
     subscriptions,
-
-    // Getters
     getConnectionStatus,
-
-    // Actions
     connect,
     disconnect,
     subscribe,

@@ -16,12 +16,10 @@
       </div>
 
       <div class="modal-body">
-        <!-- 상품 정보 -->
         <div class="product-info">
           <h3>{{ productInfo?.productName || '상품명' }}</h3>
         </div>
 
-        <!-- 한 주당 가격 -->
         <div class="info-row">
           <label>한 주당 가격</label>
           <div class="info-value-wrapper">
@@ -36,7 +34,6 @@
           </div>
         </div>
 
-        <!-- 구매량 입력 -->
         <div class="form-group">
           <label for="quantity">구매량</label>
           <input
@@ -64,7 +61,6 @@
           <div class="input-hint">최소 1주 이상 입력해주세요. (최대 10억원까지 구매 가능)</div>
         </div>
 
-        <!-- 예상 구매 금액 -->
         <div class="info-row highlight">
           <label>예상 구매 금액</label>
           <div class="info-value-wrapper">
@@ -108,7 +104,7 @@ const props = defineProps({
   },
   productType: {
     type: String,
-    default: 'ETF', // 'ETF' 또는 'FUND'
+    default: 'ETF',
     validator: value => ['ETF', 'FUND'].includes(value)
   },
   isLoading: {
@@ -120,18 +116,13 @@ const props = defineProps({
 const emit = defineEmits(['close', 'submit']);
 
 const modalRef = ref(null);
-
-// 중복 close 이벤트 방지
 const isClosing = ref(false);
-
-// 제출 중 중복 클릭 방지
 const isSubmitting = ref(false);
 
 const formData = ref({
   quantity: ''
 });
 
-// 오늘 날짜 포맷팅
 const todayDate = computed(() => {
   const today = new Date();
   const year = today.getFullYear();
@@ -140,24 +131,20 @@ const todayDate = computed(() => {
   return `${year}.${month}.${day}`;
 });
 
-// 총 구매 금액 계산
 const totalAmount = computed(() => {
   const price = getCurrentPrice() || 0;
   const quantity = parseNumberFromComma(formData.value.quantity) || 0;
   const calculatedAmount = new Decimal(price).times(quantity);
 
-  // 10억 제한 (1,000,000,000원)
   const maxAllowedAmount = new Decimal(1000000000);
   return calculatedAmount.gt(maxAllowedAmount) ? maxAllowedAmount : calculatedAmount;
 });
 
-// 폼 유효성 검사
 const isFormValid = computed(() => {
   const quantity = parseNumberFromComma(formData.value.quantity);
   const price = getCurrentPrice() || 0;
   const totalAmountValue = new Decimal(quantity).times(price);
 
-  // 10억 제한 확인
   if (totalAmountValue.gt(1000000000)) {
     return false;
   }
@@ -165,19 +152,15 @@ const isFormValid = computed(() => {
   return formData.value.quantity && quantity > 0;
 });
 
-// 통화 포맷팅
 const formatCurrency = amount => {
-  // 숫자가 아닌 값이나 빈 값 처리
   if (!amount || amount === '') return '0 원';
 
-  // 이미 "원"이 포함된 문자열인 경우 숫자 부분만 추출
   if (typeof amount === 'string' && amount.includes('원')) {
     const numericPart = amount.replace(/[^0-9,]/g, '');
     const cleanNumber = parseNumberFromComma(numericPart);
     return new Intl.NumberFormat('ko-KR').format(cleanNumber.toNumber()) + ' 원';
   }
 
-  // 일반적인 숫자 처리
   try {
     const decimalAmount = amount instanceof Decimal ? amount : new Decimal(amount || 0);
     return new Intl.NumberFormat('ko-KR').format(decimalAmount.toNumber()) + ' 원';
@@ -187,17 +170,14 @@ const formatCurrency = amount => {
   }
 };
 
-// 폼 초기화 함수
 const resetForm = () => {
   formData.value = {
     quantity: ''
   };
 };
 
-// 모달 열기
 const openModal = () => {
-  resetForm(); // 모달 열기 전에 폼 초기화
-  // 약간의 지연 후 모달 열기 (폼 초기화가 완료되도록)
+  resetForm();
   setTimeout(() => {
     if (modalRef.value) {
       modalRef.value.showModal();
@@ -205,7 +185,6 @@ const openModal = () => {
   }, 10);
 };
 
-// 모달 닫기
 const closeModal = () => {
   if (isClosing.value) return;
 
@@ -216,27 +195,23 @@ const closeModal = () => {
   }
   emit('close');
 
-  // 100ms 후에 닫기 상태 초기화
   setTimeout(() => {
     isClosing.value = false;
   }, 100);
 };
 
-// 배경 클릭 처리
 const handleBackdropClick = event => {
   if (event.target === modalRef.value) {
     closeModal();
   }
 };
 
-// 제출 처리
 const handleSubmit = async () => {
   if (!isFormValid.value || isSubmitting.value) return;
   isSubmitting.value = true;
 
-  // 현재 날짜를 동적으로 생성
   const today = new Date();
-  const buyDate = today.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+  const buyDate = today.toISOString().split('T')[0];
 
   const tradeData = {
     productCode: props.productInfo?.productCode,
@@ -251,7 +226,6 @@ const handleSubmit = async () => {
     const result = await purchaseProduct(tradeData);
     if (result.success) {
       console.log('매수 성공:', result.data);
-      // API 호출 결과를 포함하여 부모에게 전달
       emit('submit', {
         success: true,
         data: result.data,
@@ -264,7 +238,6 @@ const handleSubmit = async () => {
       closeModal();
     } else {
       console.error('매수 실패:', result.error);
-      // 실패 결과도 부모에게 전달
       emit('submit', {
         success: false,
         error: result.error
@@ -272,7 +245,6 @@ const handleSubmit = async () => {
     }
   } catch (error) {
     console.error('매수 중 오류 발생:', error);
-    // 오류 결과도 부모에게 전달
     emit('submit', {
       success: false,
       error: error.message
@@ -282,18 +254,15 @@ const handleSubmit = async () => {
   }
 };
 
-// 입력값 처리 함수
 const handleQuantityInput = event => {
   if (!event || !event.target) return;
   let value = event.target.value;
 
-  // 숫자와 쉼표만 허용
   value = value.replace(/[^0-9,]/g, '');
 
   let numValue = parseNumberFromComma(value);
   const price = getCurrentPrice() || 0;
 
-  // 10억 제한 확인
   const maxQuantityFor10Billion = new Decimal(1000000000).dividedBy(price).floor();
   if (new Decimal(numValue).gt(maxQuantityFor10Billion)) {
     numValue = maxQuantityFor10Billion.toNumber();
@@ -304,12 +273,9 @@ const handleQuantityInput = event => {
   formData.value.quantity = formattedValue;
 };
 
-// 한글 숫자 변환 함수
 const getKoreanNumber = value => {
-  // value가 null, undefined, 빈 문자열인 경우 빈 문자열 반환
   if (!value) return '';
 
-  // Decimal 객체인 경우 toNumber() 사용
   if (value instanceof Decimal) {
     return convertToKoreanNumber(value.toNumber());
   }
@@ -317,14 +283,7 @@ const getKoreanNumber = value => {
   return convertToKoreanNumber(value);
 };
 
-// 현재 가격 가져오기
 const getCurrentPrice = () => {
-  // productInfo에서 현재 가격을 가져오는 우선순위
-  // 1. currentPrice (웹소켓 실시간 데이터)
-  // 2. fundPriceSummaryDto.current_nav (Fund API)
-  // 3. etfPriceSummaryDto.current_price (ETF API)
-  // 4. price.currentPrice (기존 구조)
-
   if (props.productInfo?.currentPrice) {
     return props.productInfo.currentPrice;
   }
@@ -344,18 +303,15 @@ const getCurrentPrice = () => {
   return 0;
 };
 
-// 외부에서 모달 열기 메서드 노출
 defineExpose({
   openModal,
   closeModal
 });
 
-// 모달이 닫힐 때 폼 초기화
 watch(
   () => modalRef.value?.open,
   isOpen => {
     if (!isOpen) {
-      // 모달이 닫힐 때 폼 초기화
       resetForm();
     }
   }
@@ -379,7 +335,8 @@ watch(
 }
 
 .modal::backdrop {
-  display: none;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
 }
 
 .modal-content {
