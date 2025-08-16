@@ -24,7 +24,7 @@ import EmptyLayout from './components/layouts/EmptyLayout.vue';
 import HeaderLayout from './components/layouts/HeaderLayout.vue';
 import { useSessionStore } from '@/stores/session';
 import SessionExpireModal from '@/components/common/SessionExpireModal.vue';
-
+import { getMyInfoApi } from '@/api/user'; // user API 임포트
 const layouts = {
   DefaultLayout,
   EmptyLayout,
@@ -37,10 +37,28 @@ const layoutComponent = computed(() => layouts[route.meta.layout || 'DefaultLayo
 
 const sessionStore = useSessionStore();
 
-onMounted(() => {
-  if (localStorage.getItem('accessToken')) sessionStore.startCountdown();
-});
+onMounted(async () => {
+  // ✅ Pinia 스토어를 상태의 기준으로 삼습니다.
+  if (sessionStore.isAuthenticated) {
+    // 1. 토큰이 있으면 타이머를 시작합니다.
+    sessionStore.startCountdown();
 
+    // 2. 만약 사용자 정보가 없다면, API를 호출하여 다시 채워줍니다.
+    if (!sessionStore.user) {
+      try {
+        const userInfoResponse = await getMyInfoApi();
+        const userData = userInfoResponse.data;
+        sessionStore.$patch({
+          user: userData
+        });
+      } catch (error) {
+        console.error('사용자 정보 자동 갱신 실패:', error);
+        // 정보를 가져오다 실패하면, 유효하지 않은 토큰일 수 있으므로 로그아웃 처리
+        sessionStore.logout();
+      }
+    }
+  }
+});
 onUnmounted(() => sessionStore.stopCountdown());
 </script>
 

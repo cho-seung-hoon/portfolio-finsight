@@ -3,8 +3,12 @@ import { ref, computed } from 'vue';
 import Decimal from 'decimal.js';
 import { useLoadingStore } from './loading';
 import { formatNumberWithComma } from '@/utils/numberUtils';
+import { useSessionStore } from '@/stores/session.js';
 
 export const useDepositStore = defineStore('deposit', () => {
+
+  const sessionStore = useSessionStore();
+
   const product = ref(null);
   const isLoading = ref(false);
   const error = ref(null);
@@ -70,7 +74,10 @@ export const useDepositStore = defineStore('deposit', () => {
     loadingStore.startLoading('예금 정보를 불러오는 중...');
     error.value = null;
 
-    const authToken = token || localStorage.getItem('accessToken');
+    // 토큰이 전달되지 않았으면 sessionStore에서 가져오기
+    const authToken = token || sessionStore.accessToken;
+
+    console.log('Using token:', authToken ? 'Token exists' : 'No token');
 
     try {
       const productDetail = await fetchProductDetail(productId, category, authToken);

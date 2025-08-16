@@ -3,8 +3,11 @@ import { ref, computed } from 'vue';
 import Decimal from 'decimal.js';
 import { useLoadingStore } from './loading';
 import { formatNumberWithComma } from '@/utils/numberUtils';
+import { useSessionStore } from '@/stores/session.js';
 
 export const useEtfStore = defineStore('etf', () => {
+  const sessionStore = useSessionStore();
+
   const product = ref(null);
   const isLoading = ref(false);
   const error = ref(null);
@@ -121,7 +124,7 @@ export const useEtfStore = defineStore('etf', () => {
     loadingStore.resetLoading();
     loadingStore.startLoading('ETF 정보를 불러오는 중...');
     error.value = null;
-    const authToken = token || localStorage.getItem('accessToken');
+    const authToken = token || sessionStore.accessToken;
     try {
       const productDetail = await fetchProductDetail(productId, category, authToken);
       product.value = processEtfData(productDetail, productId);
@@ -500,7 +503,7 @@ export const useEtfStore = defineStore('etf', () => {
   const fetchYieldHistory = async (productId, token) => {
     if (isYieldHistoryLoaded.value) return;
     isYieldHistoryLoading.value = true;
-    const authToken = token || localStorage.getItem('accessToken');
+    const authToken = token || sessionStore.accessToken;
     try {
       const response = await fetch(`http://localhost:8080/etf/${productId}/history`, {
         headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' }

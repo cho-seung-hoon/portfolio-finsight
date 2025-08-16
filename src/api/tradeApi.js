@@ -1,5 +1,9 @@
 import axios from 'axios';
 import Decimal from 'decimal.js';
+import apiClient from './index.js';
+import { useSessionStore } from '@/stores/session';
+
+const sessionStore = useSessionStore();
 
 function toDecimalSafe(value) {
   try {
@@ -105,7 +109,7 @@ function processDecimalResponse(responseData) {
 
 export async function purchaseProduct(tradeData) {
   try {
-    const token = localStorage.getItem('accessToken');
+    const token = sessionStore.accessToken;
 
     if (!token) {
       console.error('인증 토큰이 없습니다.');
@@ -141,7 +145,7 @@ export async function purchaseProduct(tradeData) {
 
 export async function sellProduct(tradeData) {
   try {
-    const token = localStorage.getItem('accessToken');
+    const token = sessionStore.accessToken;
 
     if (!token) {
       console.error('인증 토큰이 없습니다.');

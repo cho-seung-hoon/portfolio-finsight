@@ -130,6 +130,8 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { fetchUserInfoApi, updateUserInfoApi, deleteUserApi } from '@/api/user';
+import { useSessionStore } from '@/stores/session';
+import { storeToRefs } from 'pinia';
 import { useEmailStore } from '@/stores/emailStore';
 
 import InputWithIcon from '@/components/signUpPage/InputWithIcon.vue';
@@ -137,18 +139,8 @@ import VerificationCodeInput from '@/components/signUpPage/VerificationCodeInput
 import ValidationMessage from '@/components/signUpPage/ValidationMessage.vue';
 import BaseModal from '@/components/common/BaseModal.vue';
 
-const UserInfoA = ref({ userId: '', userName: '' });
-const getUserInfo = async () => {
-  const token = localStorage.getItem('accessToken');
-  try {
-
-    const response = await fetchUserInfoApi();
-    UserInfoA.value = response.data;
-  } catch (e) {
-    console.error('유저 정보 불러오기 실패:', e);
-  }
-};
-onMounted(getUserInfo);
+const sessionStore = useSessionStore();
+const { user: UserInfoA } = storeToRefs(sessionStore);
 
 const form = reactive({
   password: '',
@@ -156,6 +148,7 @@ const form = reactive({
   email: '',
   code: ''
 });
+
 const errors = reactive({
   password: '',
   confirmPassword: '',
@@ -240,7 +233,6 @@ const handleEdit = async () => {
 
   let isValid = true;
   const payload = {};
-  const token = localStorage.getItem('accessToken');
 
   if (form.password || form.confirmPassword) {
     if (!validatePassword()) isValid = false;
@@ -273,18 +265,12 @@ const handleEdit = async () => {
 };
 
 const handleDelete = async () => {
-  const token = localStorage.getItem('accessToken');
-  if (!token) {
-    modalMessage.value = '로그인 정보가 없습니다.';
-    showModal.value = true;
-    return;
-  }
-
   try {
-
     await deleteUserApi();
-    localStorage.removeItem('accessToken');
+
+    await sessionStore.logout();
     showDeleteSuccessModal.value = true;
+
   } catch (error) {
     modalMessage.value = '회원 탈퇴 중 오류가 발생했습니다.';
     showModal.value = true;

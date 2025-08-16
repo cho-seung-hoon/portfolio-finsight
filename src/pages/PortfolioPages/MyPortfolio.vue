@@ -165,7 +165,6 @@ const UserInfoA = ref({
   userName: ''
 });
 const getUserInfo = async () => {
-  const token = localStorage.getItem('accessToken');
   try {
     const response = await fetchUserInfoApi();
     UserInfoA.value = response.data;
@@ -212,7 +211,6 @@ const getProfileClass = type => {
 const investmentProfileType = ref('');
 const rawProfileType = ref('');
 const getUserType = async () => {
-  const token = localStorage.getItem('accessToken');
   try {
     const response = await getInvestmentProfileApi();
     const type = response.data.investmentProfileType;
@@ -261,7 +259,6 @@ const foreignEquity3 = ref(null);
 const foreignBond4 = ref(null);
 
 const getMp = async () => {
-  const token = localStorage.getItem('accessToken');
   try {
     const response = await getMyPortfolioApi();
     console.log('------ 국내 펀드/ETF ------');
@@ -303,7 +300,6 @@ const getMp = async () => {
 };
 
 const getDepositPrice = async () => {
-  const token = localStorage.getItem('accessToken');
   try {
     const response = await getDepositHoldingsApi();
     depositPrice.value = response.data.depositPrice;

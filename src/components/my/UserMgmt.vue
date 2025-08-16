@@ -29,22 +29,20 @@ import { logoutApi } from '@/api/session';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import BaseModal from '../common/BaseModal.vue';
-
+import { useSessionStore } from "@/stores/session"
 const showModal = ref(false);
 
 const router = useRouter();
+const sessionStore = useSessionStore();
 
 const logout = async () => {
-  const accessToken = localStorage.getItem('accessToken');
-  const refreshToken = localStorage.getItem('refreshToken');
-
   try {
-    await logoutApi(refreshToken); // ✅ API 호출
+    // ✅ 모든 복잡한 로직은 스토어의 logout 액션에 맡깁니다.
+    await sessionStore.logout();
 
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-
+    // 로그아웃 액션이 성공적으로 끝나면 모달을 띄웁니다.
     showModal.value = true;
+
   } catch (error) {
     console.error('로그아웃 실패:', error);
     alert('로그아웃 중 오류가 발생했습니다.');
@@ -53,6 +51,7 @@ const logout = async () => {
 
 const closeModal = () => {
   showModal.value = false;
+  localStorage.removeItem('finsight-session');
   router.push('/start');
 };
 </script>

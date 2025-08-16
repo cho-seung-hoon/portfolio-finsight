@@ -161,7 +161,6 @@ const UserInfoA = ref({
   userName: ''
 });
 const getUserInfo = async () => {
-  const token = localStorage.getItem('accessToken');
   try {
     const response = await fetchUserInfoApi();
     UserInfoA.value = response.data;
@@ -208,7 +207,6 @@ const getProfileClass = type => {
 const investmentProfileType = ref('');
 const rawProfileType = ref('');
 const getUserType = async () => {
-  const token = localStorage.getItem('accessToken');
   try {
     const response = await fetchInvestmentProfileApi();
     const type = response.data.investmentProfileType;

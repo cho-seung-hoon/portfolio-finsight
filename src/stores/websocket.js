@@ -2,8 +2,11 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
+import { useSessionStore } from '@/stores/session.js';
 
 export const useWebSocketStore = defineStore('websocket', () => {
+  const sessionStore = useSessionStore();
+
   const client = ref(null);
   const isConnected = ref(false);
   const subscriptions = ref(new Map());
@@ -15,7 +18,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const getConnectionStatus = () => isConnected.value;
 
   const connect = () => {
-    const token = localStorage.getItem('accessToken');
+    const token = sessionStore.accessToken;
 
     if (!token) {
       console.warn('토큰이 없어 웹소켓 연결을 건너뜁니다.');

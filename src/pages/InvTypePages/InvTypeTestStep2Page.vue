@@ -594,12 +594,14 @@ import { ref, reactive, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import BaseModal from '@/components/common/BaseModal.vue';
 import axios from 'axios';
+import { useSessionStore } from '@/stores/session';
 
 const router = useRouter();
+const sessionStore = useSessionStore();
 
 // API 함수들 - 컴포넌트 내부에 정의
 const insertInvestmentProfileApi = (investmentProfileType) => {
-  const accessToken = localStorage.getItem('accessToken');
+  const accessToken = sessionStore.accessToken;
   return axios.put('http://localhost:8080/users/invt',
   // return axios.put('/users/invt', 
     { investmentProfileType },
@@ -608,7 +610,7 @@ const insertInvestmentProfileApi = (investmentProfileType) => {
 };
 
 const updateInvestmentProfileApi = (investmentProfileType) => {
-  const accessToken = localStorage.getItem('accessToken');
+  const accessToken = sessionStore.accessToken;
   // return axios.put('/users/invt/update', 
   return axios.put('http://localhost:8080/users/invt',
     { investmentProfileType },

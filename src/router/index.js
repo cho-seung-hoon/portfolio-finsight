@@ -8,7 +8,7 @@ import productRoutes from '@/router/productRoutes.js';
 import { useHeaderStore } from '@/stores/header.js';
 import { useWebSocketStore } from '@/stores/websocket.js';
 import { fetchUserInfoApi } from '@/api/user';
-
+import { useSessionStore } from '@/stores/session';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -60,9 +60,10 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const headerStore = useHeaderStore();
   const webSocketStore = useWebSocketStore();
+  const sessionStore = useSessionStore();
   const headerMeta = to.meta.header;
   const requiresAuth = to.meta.requiresAuth;
-  const isLoggedIn = !!localStorage.getItem('accessToken');
+  const isLoggedIn = sessionStore.isAuthenticated;
 
   const publicPaths = ['/start', '/login', '/signup'];
   const isPublic = publicPaths.includes(to.path);
@@ -79,7 +80,6 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.name === 'home' && isLoggedIn) {
     try {
-      const accessToken = localStorage.getItem('accessToken');
       const response = await fetchUserInfoApi();
       const userName = response.data.userName;
       console.log(userName);
