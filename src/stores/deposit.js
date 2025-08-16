@@ -27,7 +27,7 @@ export const useDepositStore = defineStore('deposit', () => {
     depositJoinDeny: '서민전용',
     depositEtcNote: '상품 가입 전 반드시 상품설명서 및 약관을 확인하시기 바랍니다.',
     depositOption: '자동 만기관리, 분할인출 가능',
-    doption: [
+    doptionVO: [
       {
         doptionId: 1,
         doptionSaveTrm: '12',
@@ -77,8 +77,6 @@ export const useDepositStore = defineStore('deposit', () => {
     // 토큰이 전달되지 않았으면 sessionStore에서 가져오기
     const authToken = token || sessionStore.accessToken;
 
-    console.log('Using token:', authToken ? 'Token exists' : 'No token');
-
     try {
       const productDetail = await fetchProductDetail(productId, category, authToken);
       product.value = processDepositData(productDetail, productId);
@@ -98,10 +96,12 @@ export const useDepositStore = defineStore('deposit', () => {
       productDetail.holdings.contractMonths = productDetail.holdings.history[0].contractMonths;
     }
 
-    const options = Array.isArray(productDetail.doption) ? productDetail.doption : [];
+    const options = Array.isArray(productDetail.doptionVO) ? productDetail.doptionVO : [];
+    
     const option12 = options.find(o => String(o.doptionSaveTrm) === '12');
     const selectedOption =
       option12 || options.sort((a, b) => Number(b.doptionSaveTrm) - Number(a.doptionSaveTrm))[0];
+    
     const baseRateStr = selectedOption ? `연 ${selectedOption.doptionIntrRate}%` : '-';
     const maxRateStr = selectedOption ? `연 ${selectedOption.doptionIntrRate2}%` : '-';
 
@@ -140,7 +140,7 @@ export const useDepositStore = defineStore('deposit', () => {
       baseRate: baseRateStr,
       maxRate: maxRateStr
     };
-
+    
     return result;
   };
 
@@ -194,14 +194,17 @@ export const useDepositStore = defineStore('deposit', () => {
   };
 
   const generateRateTab = productDetail => {
-    const doption = productDetail.doption;
-    if (!doption || !doption.length) return [];
+    const doptionVO = productDetail.doptionVO;
+    
+    if (!doptionVO || !doptionVO.length) {
+      return [];
+    }
 
-    const option12 = doption.find(o => String(o.doptionSaveTrm) === '12');
+    const option12 = doptionVO.find(o => String(o.doptionSaveTrm) === '12');
     const selected =
       option12 ||
-      [...doption].sort((a, b) => Number(b.doptionSaveTrm) - Number(a.doptionSaveTrm))[0];
-
+      [...doptionVO].sort((a, b) => Number(b.doptionSaveTrm) - Number(a.doptionSaveTrm))[0];
+    
     return [
       {
         type: 'text',
@@ -227,17 +230,17 @@ export const useDepositStore = defineStore('deposit', () => {
         type: 'text',
         title: '이자 계산 방식',
         desc: selected.doptionIntrRateTypeNm || '단리'
+      },
+      {
+        type: 'longtext',
+        title: '이자지급',
+        desc: '만기일시지급식 : 만기(후) 또는 중도해지 요청시 이자를 지급월이자지급식 : 만기이자를 매월 지급하며 중도해지 요청 시 중도해지금리로 계산하여 지급하고 매월 지급한 이자는 환입※ 만기전 해지할 경우 약정 금리보다 낮은 중도해지금리가 적용됩니다.'
       }
     ];
   };
 
   const generateNoticeTab = productDetail => {
     return [
-      {
-        type: 'longtext',
-        title: '이자지급',
-        desc: '만기일시지급식 : 만기(후) 또는 중도해지 요청시 이자를 지급월이자지급식 : 만기이자를 매월 지급하며 중도해지 요청 시 중도해지금리로 계산하여 지급하고 매월 지급한 이자는 환입※ 만기전 해지할 경우 약정 금리보다 낮은 중도해지금리가 적용됩니다.'
-      },
       {
         type: 'longtext',
         title: '유의사항',
@@ -401,7 +404,6 @@ export const useDepositStore = defineStore('deposit', () => {
 
   const isWatched = computed(() => {
     const watched = product.value?.isWatched || false;
-    console.log('isWatched computed - value:', watched);
     return watched;
   });
 
