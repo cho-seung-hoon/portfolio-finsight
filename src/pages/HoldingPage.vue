@@ -36,10 +36,12 @@ import HoldingList from '@/components/holding/HoldingList.vue';
 import MiniMy from '@/components/home/MiniMy.vue';
 import { useLoadingStore } from '@/stores/loading';
 import { useWebSocketStore } from '@/stores/websocket';
+import { useSessionStore } from '@/stores/session.js';
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const webSocketStore = useWebSocketStore();
+const sessionStore = useSessionStore();
 
 const holdingData = ref({
   totalValuation: 0,
@@ -194,11 +196,19 @@ const holdingTotalData = computed(() => {
 });
 
 const isMounted = ref(true);
+const hasWebSocketSubscriptions = ref(false);
+const receivedFirstMessage = ref(false);
 
 const handleEtfRealtimeData = (data, productCode) => {
   if (!isMounted.value) return;
   
   console.log(`[ETF 실시간] ${productCode}:`, data);
+  
+  if (!receivedFirstMessage.value) {
+    receivedFirstMessage.value = true;
+    console.log('[웹소켓] 첫 메시지 수신, 로딩 종료');
+    loadingStore.stopLoading();
+  }
   
   const etfIndex = holdingData.value.etfHoldings.findIndex(
     etf => etf.productCode === productCode
@@ -238,6 +248,8 @@ const startEtfWebSocketSubscriptions = async () => {
       await webSocketStore.ensureConnection();
     }
 
+    let subscriptionCount = 0;
+    
     for (const etf of holdingData.value.etfHoldings) {
       if (etf.productCode) {
         const subscription = await webSocketStore.subscribeToEtf(
@@ -250,14 +262,28 @@ const startEtfWebSocketSubscriptions = async () => {
         );
         
         if (subscription) {
+          subscriptionCount++;
           console.log(`[ETF 구독] ${etf.productName} (${etf.productCode}) 구독 성공`);
         } else {
           console.warn(`[ETF 구독] ${etf.productName} (${etf.productCode}) 구독 실패`);
         }
       }
     }
+    
+    // 구독이 하나라도 있으면 웹소켓 구독 상태를 true로 설정
+    hasWebSocketSubscriptions.value = subscriptionCount > 0;
+    
+    // 구독이 없으면 바로 로딩 종료
+    if (subscriptionCount === 0) {
+      console.log('[웹소켓] 구독할 ETF가 없음, 로딩 종료');
+      loadingStore.stopLoading();
+    } else {
+      console.log(`[웹소켓] ${subscriptionCount}개 ETF 구독 완료, 첫 메시지 대기 중...`);
+    }
+    
   } catch (error) {
     console.error('[ETF 웹소켓] 구독 실패:', error);
+    loadingStore.stopLoading();
   }
 };
 
@@ -265,9 +291,10 @@ const loadHoldingData = async () => {
   loadingStore.startLoading('보유 내역을 불러오는 중...');
 
   try {
-    const token = localStorage.getItem('accessToken');
+    const token = sessionStore.accessToken;
     if (token) {
       try {
+        console.log('[API] 보유 내역 API 호출 시작...');
         const response = await fetch('http://localhost:8080/holdings/details', {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -275,15 +302,23 @@ const loadHoldingData = async () => {
           }
         });
         
+        console.log('[API] 응답 상태:', response.status, response.statusText);
+        
         if (response.ok) {
           const apiData = await response.json();
+          console.log('[API] 실제 보유 내역 데이터:', apiData);
+          console.log('[API] etfHoldings 타입:', typeof apiData.etfHoldings);
+          console.log('[API] etfHoldings 길이:', apiData.etfHoldings?.length);
+          console.log('[API] etfHoldings 내용:', apiData.etfHoldings);
+          
           holdingData.value = apiData;
           console.log('[API] 실제 보유 내역 데이터 로드 성공');
         } else {
           throw new Error(`API 응답 오류: ${response.status}`);
         }
       } catch (apiError) {
-        console.warn('[API] 실제 API 호출 실패, Mock 데이터 사용:', apiError);
+        console.error('[API] 실제 API 호출 실패:', apiError);
+        console.log('[API] Mock 데이터 사용으로 전환');
         loadMockData();
       }
     } else {
@@ -292,12 +327,12 @@ const loadHoldingData = async () => {
     }
     
     console.log('[웹소켓] 연결 상태:', webSocketStore.isConnected);
+    console.log('[웹소켓] 현재 holdingData 상태:', holdingData.value);
     await startEtfWebSocketSubscriptions();
     
   } catch (error) {
     console.error('보유 내역 로드 실패, Mock 데이터 사용 :', error);
     loadMockData();
-  } finally {
     loadingStore.stopLoading();
   }
 };
