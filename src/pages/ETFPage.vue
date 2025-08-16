@@ -105,10 +105,11 @@ const toastConfig = ref({
 });
 
 onMounted(() => {
-  const productId = route.params.id;
-  if (productId) {
-    etfStore.fetchProduct(productId);
-    etfStore.fetchYieldHistory(productId);
+  const productCode = route.params.productCode;
+  if (productCode) {
+    console.log('[ETF DETAIL] 상품 코드:', productCode);
+    etfStore.fetchProduct(productCode);
+    etfStore.fetchYieldHistory(productCode);
   }
 });
 
@@ -227,11 +228,11 @@ const selectTab = async tab => {
   selectedTab.value = tab;
 
   if (tab === 'yield' && !isYieldHistoryLoaded.value && !isYieldHistoryLoading.value) {
-    const productId = route.params.id;
-    console.log('Fetching yield history for productId:', productId);
-    if (productId) {
+    const productCode = route.params.productCode;
+    console.log('Fetching yield history for productCode:', productCode);
+    if (productCode) {
       try {
-        await etfStore.fetchYieldHistory(productId);
+        await etfStore.fetchYieldHistory(productCode);
         console.log('Yield history fetched successfully');
       } catch (error) {
         console.error('Failed to fetch yield history:', error);

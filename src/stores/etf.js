@@ -102,16 +102,26 @@ export const useEtfStore = defineStore('etf', () => {
 
   const fetchProductDetail = async (productId, category, token) => {
     try {
-      const response = await fetch(`http://localhost:8080/products/${category}/${productId}`, {
+      const endpoint = category === 'etf' 
+        ? `http://localhost:8080/etf/${productId}`
+        : `http://localhost:8080/products/${category}/${productId}`;
+        
+      console.log(`[ETF API] ${endpoint} 호출`);
+      
+      const response = await fetch(endpoint, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
+      
       if (!response.ok) {
-        throw new Error('상품 상세 정보를 불러오는데 실패했습니다.');
+        throw new Error(`상품 상세 정보를 불러오는데 실패했습니다. (${response.status})`);
       }
-      return await response.json();
+      
+      const data = await response.json();
+      console.log('[ETF API] 응답 데이터:', data);
+      return data;
     } catch (error) {
       console.error('Product API Error:', error);
       console.log('Using mock data due to API failure');

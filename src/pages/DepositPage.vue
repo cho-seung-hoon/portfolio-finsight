@@ -115,9 +115,10 @@ const maxAmountNumber = computed(() => {
 });
 
 onMounted(() => {
-  const productId = route.params.id;
-  if (productId) {
-    depositStore.fetchProduct(productId, 'deposit');
+  const productCode = route.params.productCode;
+  if (productCode) {
+    console.log('[DEPOSIT DETAIL] 상품 코드:', productCode);
+    depositStore.fetchProduct(productCode, 'deposit');
   }
 });
 
@@ -310,9 +311,9 @@ const handleTermsConfirm = async agreementData => {
 
 const refreshProductData = async () => {
   try {
-    const productId = route.params.id;
-    if (productId) {
-      await depositStore.fetchProduct(productId, 'deposit');
+    const productCode = route.params.productCode;
+    if (productCode) {
+      await depositStore.fetchProduct(productCode, 'deposit');
       if (productInfo.value?.isHolding && 
           (productInfo.value?.holdings || productInfo.value?.holding) && 
           (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) && 

@@ -104,9 +104,10 @@ const toastConfig = ref({
 });
 
 onMounted(() => {
-  const productId = route.params.id;
-  if (productId) {
-    fundStore.fetchProduct(productId);
+  const productCode = route.params.productCode;
+  if (productCode) {
+    console.log('[FUND DETAIL] 상품 코드:', productCode);
+    fundStore.fetchProduct(productCode);
     fundStore.resetYieldHistory();
   }
 });
@@ -157,11 +158,11 @@ const selectTab = async tab => {
   selectedTab.value = tab;
 
   if (tab === 'yield' && !isYieldHistoryLoaded.value && !isYieldHistoryLoading.value) {
-    const productId = route.params.id;
-    console.log('Fetching yield history for productId:', productId);
-    if (productId) {
+    const productCode = route.params.productCode;
+    console.log('Fetching yield history for productCode:', productCode);
+    if (productCode) {
       try {
-        await fundStore.fetchYieldHistory(productId);
+        await fundStore.fetchYieldHistory(productCode);
         console.log('Yield history fetched successfully');
       } catch (error) {
         console.error('Failed to fetch yield history:', error);
@@ -254,9 +255,9 @@ const handleModalClose = () => {
 // 상품 데이터 새로고침 함수
 const refreshProductData = async () => {
   try {
-    const productId = route.params.id;
-    if (productId) {
-      await fundStore.fetchProduct(productId);
+    const productCode = route.params.productCode;
+    if (productCode) {
+      await fundStore.fetchProduct(productCode);
       if (productInfo.value?.isHolding && 
           (productInfo.value?.holdings || productInfo.value?.holding) && 
           (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) && 

@@ -1,5 +1,11 @@
 import apiClient from './index.js';
 
+// 찜한 상품 미리보기 (통합)
+export const getWatchPreview = async () => {
+  const response = await apiClient.get('/watch/preview');
+  return response.data;
+};
+
 // 찜한 상품 목록 조회
 export const getWatchDeposits = async () => {
   const response = await apiClient.get('/watch/deposit');
