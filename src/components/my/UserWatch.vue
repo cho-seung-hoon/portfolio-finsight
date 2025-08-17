@@ -146,7 +146,6 @@ const handleEtfRealtimeData = (data, productCode) => {
       ...etf,
       currentPrice: data.currentPrice,
       changeRateFromPrevDay: data.changeRateFromPrevDay,
-      changeFromPrevDay: data.changeFromPrevDay,
       lastUpdate: data.timestamp
     };
     
@@ -197,30 +196,14 @@ const fetchWishlistData = async () => {
     
     const transformedData = [];
     
-    if (data.deposits && data.deposits.length > 0) {
-      data.deposits.forEach(item => {
-        transformedData.push({
-          ...item,
-          category: 'deposit'
-        });
-      });
-    }
-    
-    if (data.funds && data.funds.length > 0) {
-      data.funds.forEach(item => {
-        transformedData.push({
-          ...item,
-          category: 'fund'
-        });
-      });
-    }
-    
-    if (data.etfs && data.etfs.length > 0) {
-      data.etfs.forEach(item => {
-        transformedData.push({
-          ...item,
-          category: 'etf'
-        });
+    if (data.watchItems && data.watchItems.length > 0) {
+      data.watchItems.forEach(watchItem => {
+        const item = {
+          ...watchItem.detail,
+          category: watchItem.productCategory,
+          watchListId: watchItem.watchListId
+        };
+        transformedData.push(item);
       });
     }
     

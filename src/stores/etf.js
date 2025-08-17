@@ -102,9 +102,7 @@ export const useEtfStore = defineStore('etf', () => {
 
   const fetchProductDetail = async (productId, category, token) => {
     try {
-      const endpoint = category === 'etf' 
-        ? `http://localhost:8080/etf/${productId}`
-        : `http://localhost:8080/products/${category}/${productId}`;
+      const endpoint = `http://localhost:8080/products/${category}/${productId}`;
         
       console.log(`[ETF API] ${endpoint} 호출`);
       
