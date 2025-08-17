@@ -4,6 +4,7 @@ import Decimal from 'decimal.js';
 import { useLoadingStore } from './loading';
 import { formatNumberWithComma } from '@/utils/numberUtils';
 import { useSessionStore } from '@/stores/session.js';
+import { getProductDetail, getEtfHistory } from '@/api/productApi';
 
 export const useEtfStore = defineStore('etf', () => {
   const sessionStore = useSessionStore();
@@ -102,22 +103,9 @@ export const useEtfStore = defineStore('etf', () => {
 
   const fetchProductDetail = async (productId, category, token) => {
     try {
-      const endpoint = `http://localhost:8080/products/${category}/${productId}`;
+      console.log(`[ETF API] ${category}/${productId} 호출`);
 
-      console.log(`[ETF API] ${endpoint} 호출`);
-
-      const response = await fetch(endpoint, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`상품 상세 정보를 불러오는데 실패했습니다. (${response.status})`);
-      }
-
-      const data = await response.json();
+      const data = await getProductDetail(category, productId);
       console.log('[ETF API] 응답 데이터:', data);
       return data;
     } catch (error) {
@@ -486,13 +474,9 @@ export const useEtfStore = defineStore('etf', () => {
   const fetchYieldHistory = async (productId, token) => {
     if (isYieldHistoryLoaded.value) return;
     isYieldHistoryLoading.value = true;
-    const authToken = token || sessionStore.accessToken;
     try {
-      const response = await fetch(`http://localhost:8080/etf/${productId}/history`, {
-        headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' }
-      });
-      if (!response.ok) throw new Error('수익률 히스토리 로딩 실패');
-      yieldHistory.value = await response.json();
+      const data = await getEtfHistory(productId);
+      yieldHistory.value = data;
     } catch (error) {
       console.error('Yield History API Error:', error);
       // 실시간 웹소켓 데이터가 없을 때는 빈 배열로 시작

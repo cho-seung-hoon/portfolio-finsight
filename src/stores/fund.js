@@ -4,6 +4,7 @@ import Decimal from 'decimal.js';
 import { useLoadingStore } from './loading';
 import { formatNumberWithComma } from '@/utils/numberUtils';
 import { useSessionStore } from '@/stores/session.js';
+import { getProductDetail, getFundHistory } from '@/api/productApi';
 
 export const useFundStore = defineStore('fund', () => {
   const sessionStore = useSessionStore();
@@ -70,18 +71,7 @@ export const useFundStore = defineStore('fund', () => {
 
   const fetchProductDetail = async (productId, category, token) => {
     try {
-      const response = await fetch(`http://localhost:8080/products/${category}/${productId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('상품 상세 정보를 불러오는데 실패했습니다.');
-      }
-
-      const data = await response.json();
+      const data = await getProductDetail(category, productId);
       return data;
     } catch (error) {
       console.error('Product API Error:', error);
@@ -124,21 +114,9 @@ export const useFundStore = defineStore('fund', () => {
     }
 
     isYieldHistoryLoading.value = true;
-    const authToken = token || sessionStore.accessToken;
 
     try {
-      const response = await fetch(`http://localhost:8080/fund/${productId}/history`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('수익률 히스토리를 불러오는데 실패했습니다.');
-      }
-
-      const data = await response.json();
+      const data = await getFundHistory(productId);
 
       yieldHistory.value = data;
       isYieldHistoryLoaded.value = true;

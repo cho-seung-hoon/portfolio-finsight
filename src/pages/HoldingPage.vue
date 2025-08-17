@@ -36,6 +36,7 @@ import MiniMy from '@/components/home/MiniMy.vue';
 import { useLoadingStore } from '@/stores/loading';
 import { useWebSocketStore } from '@/stores/websocket';
 import { useSessionStore } from '@/stores/session.js';
+import { holdingsApi } from '@/api/holdings';
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
@@ -294,27 +295,14 @@ const loadHoldingData = async () => {
     if (token) {
       try {
         console.log('[API] 보유 내역 API 호출 시작...');
-        const response = await fetch('http://localhost:8080/holdings/details', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        const apiData = await holdingsApi.getHoldingsDetails();
+        console.log('[API] 실제 보유 내역 데이터:', apiData);
+        console.log('[API] etfHoldings 타입:', typeof apiData.etfHoldings);
+        console.log('[API] etfHoldings 길이:', apiData.etfHoldings?.length);
+        console.log('[API] etfHoldings 내용:', apiData.etfHoldings);
 
-        console.log('[API] 응답 상태:', response.status, response.statusText);
-
-        if (response.ok) {
-          const apiData = await response.json();
-          console.log('[API] 실제 보유 내역 데이터:', apiData);
-          console.log('[API] etfHoldings 타입:', typeof apiData.etfHoldings);
-          console.log('[API] etfHoldings 길이:', apiData.etfHoldings?.length);
-          console.log('[API] etfHoldings 내용:', apiData.etfHoldings);
-
-          holdingData.value = apiData;
-          console.log('[API] 실제 보유 내역 데이터 로드 성공');
-        } else {
-          throw new Error(`API 응답 오류: ${response.status}`);
-        }
+        holdingData.value = apiData;
+        console.log('[API] 실제 보유 내역 데이터 로드 성공');
       } catch (apiError) {
         console.error('[API] 실제 API 호출 실패:', apiError);
         console.log('[API] Mock 데이터 사용으로 전환');
