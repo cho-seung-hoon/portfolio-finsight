@@ -8,10 +8,12 @@
     <div
       v-else-if="productInfo"
       class="etf-content">
-      <DetailMainEtf 
-        :product-info="productInfo" 
+      <DetailMainEtf
+        :product-info="productInfo"
         :realtime-data="realtimeData"
-        :change-rate-from-prev-day="productInfo?.price?.priceChangePercent || productInfo?.changeRateFromPrevDay"
+        :change-rate-from-prev-day="
+          productInfo?.price?.priceChangePercent || productInfo?.changeRateFromPrevDay
+        "
         :product-code="productInfo?.productCode"
         :is-watched="productInfo?.isWatched || false" />
       <DetailTabs
@@ -21,7 +23,8 @@
       <DetailSection
         :tab-data="tabData"
         :selected-tab="selectedTab"
-        category="etf" />
+        category="etf"
+        :realtime-data="realtimeData" />
       <DetailActionButton
         :product-info="productInfo"
         @buy-click="handleBuyClick"
@@ -55,7 +58,6 @@
 import { ref, onMounted, computed, watch, nextTick, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useEtfStore } from '@/stores/etf';
-import { purchaseProduct, sellProduct } from '@/api/tradeApi';
 import { storeToRefs } from 'pinia';
 import { useProductSubscription } from '@/composables/useProductSubscription';
 
@@ -70,8 +72,7 @@ import ToastMessage from '@/components/common/ToastMessage.vue';
 const route = useRoute();
 
 const etfStore = useEtfStore();
-const { productInfo, error, isYieldHistoryLoaded, isYieldHistoryLoading } =
-  storeToRefs(etfStore);
+const { productInfo, error, isYieldHistoryLoaded, isYieldHistoryLoading } = storeToRefs(etfStore);
 
 // 모달 상태 관리
 const isModalOpen = ref(false);
@@ -113,34 +114,26 @@ onMounted(() => {
   }
 });
 
-// 상품 정보가 로드되면 웹소켓 구독 시작
-watch(
-  productInfo,
-  async (newProductInfo, oldProductInfo) => {
-    if (newProductInfo && newProductInfo.productCode && !isSubscribed.value) {
-      console.log('[ETF DETAIL] 웹소켓 구독 시작');
-      try {
-        await startWebSocketSubscription(newProductInfo.productCode);
-      } catch (error) {
-        console.error('[ETF DETAIL] 웹소켓 구독 실패:', error);
-      }
+// 상품 정보 로드 시 웹소켓 구독 시작
+watch(productInfo, async newProductInfo => {
+  if (newProductInfo?.productCode && !isSubscribed.value) {
+    try {
+      await startWebSocketSubscription(newProductInfo.productCode);
+    } catch (error) {
+      console.error('[ETF DETAIL] 웹소켓 구독 실패:', error);
     }
   }
-);
+});
 
 // 웹소켓 구독 시작
 async function startWebSocketSubscription(productCode) {
   try {
-    if (isSubscribed.value) {
-      console.log(`[ETF DETAIL] 이미 구독 중: ${productCode}`);
-      return;
-    }
+    if (isSubscribed.value) return;
 
     const subscription = await subscribeToSingleProduct(productCode, handleWebSocketData);
     if (subscription) {
       currentSubscription.value = subscription;
       isSubscribed.value = true;
-      console.log(`[ETF DETAIL] 상품 ${productCode} 웹소켓 구독 시작`);
     }
   } catch (error) {
     console.error(`[ETF DETAIL] 웹소켓 구독 실패:`, error);
@@ -148,14 +141,9 @@ async function startWebSocketSubscription(productCode) {
 }
 
 // 웹소켓 데이터 처리
-const handleWebSocketData = (data, productCode) => {
-  console.log(`[ETF DETAIL] 웹소켓 데이터 수신:`, data);
-
+const handleWebSocketData = data => {
   if (data) {
-    // 실시간 데이터를 저장하여 DetailMainEtf에 전달
     realtimeData.value = data;
-    
-    // 스토어에도 업데이트
     etfStore.updateRealtimeData(data);
   }
 };
@@ -166,7 +154,6 @@ onUnmounted(() => {
     unsubscribeFromSingleProduct(currentSubscription.value.code);
     isSubscribed.value = false;
     currentSubscription.value = null;
-    console.log(`[ETF DETAIL] 웹소켓 구독 해제`);
   }
 });
 
@@ -185,7 +172,6 @@ const showToast = (message, type = 'success', timestamp = null) => {
 };
 
 const tabs = computed(() => {
-  // productInfo가 아직 로드되지 않았으면 기본 탭만 반환
   if (!productInfo.value) {
     return [
       { key: 'info', label: '상품안내' },
@@ -195,14 +181,15 @@ const tabs = computed(() => {
     ];
   }
 
-  // productInfo.value가 존재하는지 확인
-  if (!productInfo.value.isHolding || 
-      !productInfo.value.holding || 
-      !Array.isArray(productInfo.value.holding) ||
-      productInfo.value.holding.length === 0 ||
-      !productInfo.value.holdingsTotalQuantity ||
-      productInfo.value.holdingsTotalQuantity <= 0) {
+  // 보유 수량이 있으면 보유기록 탭 추가
+  const hasHoldings =
+    productInfo.value.isHolding &&
+    productInfo.value.holding?.length > 0 &&
+    productInfo.value.holdingsTotalQuantity > 0;
+
+  if (hasHoldings) {
     return [
+      { key: 'holding', label: '보유기록' },
       { key: 'info', label: '상품안내' },
       { key: 'yield', label: '수익률' },
       { key: 'composition', label: '구성종목' },
@@ -211,7 +198,6 @@ const tabs = computed(() => {
   }
 
   return [
-    { key: 'holding', label: '보유기록' },
     { key: 'info', label: '상품안내' },
     { key: 'yield', label: '수익률' },
     { key: 'composition', label: '구성종목' },
@@ -241,26 +227,19 @@ const selectTab = async tab => {
   }
 };
 
-// productInfo가 변경될 때 보유기록 탭이 있으면 자동으로 첫 번째 탭 선택
-watch(
-  productInfo,
-  (newProductInfo, oldProductInfo) => {
-    if (!newProductInfo || 
-        !newProductInfo.isHolding ||
-        !newProductInfo.holding ||
-        !Array.isArray(newProductInfo.holding) ||
-        newProductInfo.holding.length === 0 ||
-        !newProductInfo.holdingsTotalQuantity ||
-        newProductInfo.holdingsTotalQuantity <= 0) {
-      return;
-    }
+// 보유기록이 생기면 자동으로 보유기록 탭 선택
+watch(productInfo, (newProductInfo, oldProductInfo) => {
+  const hasNewHoldings =
+    newProductInfo?.isHolding &&
+    newProductInfo.holding?.length > 0 &&
+    newProductInfo.holdingsTotalQuantity > 0;
 
-    if ((!oldProductInfo || !oldProductInfo.isHolding) &&
-        selectedTab.value === 'info') {
-      selectedTab.value = 'holding';
-    }
+  const hadOldHoldings = oldProductInfo?.isHolding;
+
+  if (hasNewHoldings && !hadOldHoldings && selectedTab.value === 'info') {
+    selectedTab.value = 'holding';
   }
-);
+});
 
 const tabData = computed(() => {
   return etfStore.tabData;
@@ -305,21 +284,20 @@ const handleModalClose = () => {
   }, 100);
 };
 
-// 상품 데이터 새로고침 함수
+// 상품 데이터 새로고침
 const refreshProductData = async () => {
   try {
     const productId = route.params.id;
     if (productId) {
       await etfStore.fetchProduct(productId);
       await etfStore.fetchYieldHistory(productId);
-      if (productInfo.value?.isHolding && 
-          (productInfo.value?.holdings || productInfo.value?.holding) && 
-          (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) && 
-          (productInfo.value?.holdings?.holdingsStatus !== 'zero' || productInfo.value?.holding?.holdingsStatus !== 'zero')) {
-        selectedTab.value = 'holding';
-      } else {
-        selectedTab.value = 'info';
-      }
+
+      // 보유 수량에 따라 탭 선택
+      const hasHoldings =
+        productInfo.value?.isHolding &&
+        (productInfo.value?.holdings || productInfo.value?.holding)?.holdingsTotalQuantity > 0;
+
+      selectedTab.value = hasHoldings ? 'holding' : 'info';
     }
   } catch (error) {
     console.error('상품 데이터 새로고침 중 오류 발생:', error);
@@ -330,7 +308,7 @@ const refreshProductData = async () => {
 const handleBuySubmit = async formData => {
   try {
     isTransactionInProgress.value = true;
-    
+
     if (formData.success) {
       handleModalClose();
       const timestamp = new Date().toLocaleString('ko-KR', {
@@ -358,7 +336,7 @@ const handleBuySubmit = async formData => {
 const handleSellSubmit = async formData => {
   try {
     isTransactionInProgress.value = true;
-    
+
     if (formData.success) {
       handleModalClose();
       const timestamp = new Date().toLocaleString('ko-KR', {
@@ -381,8 +359,6 @@ const handleSellSubmit = async formData => {
     isTransactionInProgress.value = false;
   }
 };
-
-
 </script>
 
 <style scoped>

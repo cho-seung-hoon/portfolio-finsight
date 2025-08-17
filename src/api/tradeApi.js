@@ -69,7 +69,7 @@ function normalizeTradePayload(raw) {
     startDate,
     start_date: startDate,
 
-    contractMonths,
+    contractMonths
   };
 
   Object.keys(body).forEach(k => {
@@ -82,24 +82,24 @@ function normalizeTradePayload(raw) {
 function processDecimalResponse(responseData) {
   try {
     if (!responseData) return responseData;
-    
+
     const processed = { ...responseData };
-    
+
     if (processed.history && Array.isArray(processed.history)) {
       processed.history = processed.history.map(item => ({
         ...item,
         historyQuantity: roundToDecimal(item.historyQuantity).toNumber(),
-        historyAmount: roundToDecimal(item.historyAmount).toNumber(),
+        historyAmount: roundToDecimal(item.historyAmount).toNumber()
       }));
     }
-    
+
     const numericFields = ['quantity', 'amount', 'price', 'totalQuantity', 'totalAmount'];
     numericFields.forEach(field => {
       if (processed[field] !== undefined) {
         processed[field] = roundToDecimal(processed[field]).toNumber();
       }
     });
-    
+
     return processed;
   } catch (error) {
     console.error('응답 데이터 처리 중 오류:', error);
@@ -124,9 +124,9 @@ export async function purchaseProduct(tradeData) {
         'Content-Type': 'application/json'
       }
     });
-    
+
     const processedData = processDecimalResponse(response.data);
-    
+
     return { success: true, data: processedData };
   } catch (error) {
     return { success: false, error: error.response?.data || error.message };
@@ -150,9 +150,9 @@ export async function sellProduct(tradeData) {
         'Content-Type': 'application/json'
       }
     });
-    
+
     const processedData = processDecimalResponse(response.data);
-    
+
     console.log('매도 성공:', processedData);
     return { success: true, data: processedData };
   } catch (error) {

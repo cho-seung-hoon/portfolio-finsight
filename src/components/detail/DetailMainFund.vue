@@ -114,7 +114,6 @@ const priceChangeColor = computed(() => {
   if (priceChange.value < 0) return 'down';
   return '';
 });
-
 </script>
 
 <style scoped>

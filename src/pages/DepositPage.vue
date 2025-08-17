@@ -136,11 +136,13 @@ const showToast = (message, type = 'success', timestamp = null) => {
 };
 
 const tabs = computed(() => {
-  const hasValidHoldings = productInfo.value?.isHolding &&
+  const hasValidHoldings =
+    productInfo.value?.isHolding &&
     (productInfo.value?.holdings || productInfo.value?.holding) &&
-    (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
+    (productInfo.value?.holdings?.holdingsTotalQuantity > 0 ||
+      productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
     productInfo.value?.holdings?.holdingsStatus !== 'zero';
-  
+
   if (hasValidHoldings) {
     return [
       { key: 'holding', label: '보유기록' },
@@ -164,11 +166,13 @@ const selectTab = tab => {
 watch(
   productInfo,
   newProductInfo => {
-    const hasValidHoldings = newProductInfo?.isHolding &&
+    const hasValidHoldings =
+      newProductInfo?.isHolding &&
       (newProductInfo?.holdings || newProductInfo?.holding) &&
-      (newProductInfo?.holdings?.holdingsTotalQuantity > 0 || newProductInfo?.holding?.holdingsTotalQuantity > 0) &&
+      (newProductInfo?.holdings?.holdingsTotalQuantity > 0 ||
+        newProductInfo?.holding?.holdingsTotalQuantity > 0) &&
       newProductInfo?.holdings?.holdingsStatus !== 'zero';
-    
+
     if (hasValidHoldings) {
       selectedTab.value = 'holding';
     } else if (!newProductInfo?.isHolding) {
@@ -192,10 +196,10 @@ const sellModalHoldingData = computed(() => {
   if (productInfo.value?.holdings) {
     const holdings = productInfo.value.holdings;
     const history = holdings.history?.[0];
-    
+
     const contractDate = holdings.contractDate || history?.historyTradeDate;
     const contractMonths = holdings.contractMonths || history?.contractMonths;
-    
+
     let maturityDate = holdings.maturityDate;
     if (!maturityDate && contractDate && contractMonths) {
       try {
@@ -218,14 +222,14 @@ const sellModalHoldingData = computed(() => {
       history: holdings.history || []
     };
   }
-  
+
   if (productInfo.value?.holding) {
     const holding = productInfo.value.holding;
     const history = holding.history?.[0];
-    
+
     const contractDate = holding.contractDate || history?.historyTradeDate;
     const contractMonths = holding.contractMonths || history?.contractMonths;
-    
+
     let maturityDate = holding.maturityDate;
     if (!maturityDate && contractDate && contractMonths) {
       try {
@@ -248,7 +252,7 @@ const sellModalHoldingData = computed(() => {
       history: holding.history || []
     };
   }
-  
+
   return null;
 });
 
@@ -257,7 +261,7 @@ const handleBuyClick = async data => {
     showToast('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.', 'warning');
     return;
   }
-  
+
   currentTransactionType.value = 'buy';
   isModalOpen.value = true;
   await nextTick();
@@ -269,7 +273,7 @@ const handleSellClick = async data => {
     showToast('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.', 'warning');
     return;
   }
-  
+
   currentTransactionType.value = 'sell';
   isModalOpen.value = true;
   await nextTick();
@@ -297,7 +301,7 @@ const handleModalClose = () => {
 
 const handleTermsConfirm = async agreementData => {
   isTransactionInProgress.value = true;
-  
+
   if (currentTransactionType.value === 'buy') {
     termsModalRef.value?.closeModalSilently();
     await nextTick();
@@ -314,10 +318,13 @@ const refreshProductData = async () => {
     const productCode = route.params.productCode;
     if (productCode) {
       await depositStore.fetchProduct(productCode, 'deposit');
-      if (productInfo.value?.isHolding && 
-          (productInfo.value?.holdings || productInfo.value?.holding) && 
-          (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) && 
-          productInfo.value?.holdings?.holdingsStatus !== 'zero') {
+      if (
+        productInfo.value?.isHolding &&
+        (productInfo.value?.holdings || productInfo.value?.holding) &&
+        (productInfo.value?.holdings?.holdingsTotalQuantity > 0 ||
+          productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
+        productInfo.value?.holdings?.holdingsStatus !== 'zero'
+      ) {
         selectedTab.value = 'holding';
       } else {
         selectedTab.value = 'info';

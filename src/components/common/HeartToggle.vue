@@ -1,7 +1,13 @@
 <template>
-  <div class="heart-toggle" @click="toggleHeart">
-    <IconFullHeart v-if="isLiked" class="heart-icon filled" />
-    <IconEmptyHeart v-else class="heart-icon stroke" />
+  <div
+    class="heart-toggle"
+    @click="toggleHeart">
+    <IconFullHeart
+      v-if="isLiked"
+      class="heart-icon filled" />
+    <IconEmptyHeart
+      v-else
+      class="heart-icon stroke" />
   </div>
 </template>
 
@@ -20,7 +26,7 @@ const props = defineProps({
   category: {
     type: String,
     required: true,
-    validator: (value) => ['deposit', 'fund', 'etf'].includes(value)
+    validator: value => ['deposit', 'fund', 'etf'].includes(value)
   },
   userWatches: {
     type: Boolean,
@@ -35,9 +41,13 @@ const toastStore = useToastStore();
 const isLiked = ref(props.userWatches);
 
 // userWatches가 변경되면 내부 상태도 업데이트 (즉시 실행)
-watch(() => props.userWatches, (newValue) => {
-  isLiked.value = newValue;
-}, { immediate: true });
+watch(
+  () => props.userWatches,
+  newValue => {
+    isLiked.value = newValue;
+  },
+  { immediate: true }
+);
 
 async function toggleHeart() {
   try {
@@ -52,22 +62,22 @@ async function toggleHeart() {
         productCode: props.productCode,
         productCategory: props.category
       };
-      
+
       await addToWatch(watchData);
       isLiked.value = true;
       toastStore.success('관심 상품으로 추가되었습니다.');
     }
-    
+
     // 부모에게 상태 변경 알림
-    emit('toggle', { 
-      productCode: props.productCode, 
-      category: props.category, 
-      liked: isLiked.value 
+    emit('toggle', {
+      productCode: props.productCode,
+      category: props.category,
+      liked: isLiked.value
     });
   } catch (error) {
     // 에러 발생 시 원래 상태로 되돌리기
     isLiked.value = !isLiked.value;
-    
+
     // 에러 토스트 표시
     if (error.response?.status === 401) {
       toastStore.error('로그인이 필요합니다.');

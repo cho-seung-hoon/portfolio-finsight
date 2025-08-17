@@ -34,7 +34,10 @@
         </template>
         <template v-else-if="item.type === 'areachart' && Array.isArray(item.desc)">
           <div style="margin-bottom: 32px">
-            <DetailAreaChart :data="item.desc" :category="category" />
+            <DetailAreaChart 
+              :data="item.desc" 
+              :category="category" 
+              :realtime-data="realtimeData" />
           </div>
         </template>
         <template v-else-if="item.type === 'pdf' && Array.isArray(item.desc)">
@@ -79,7 +82,8 @@ import DetailNewsList from './section/DetailNewsList.vue';
 const props = defineProps({
   tabData: Object,
   selectedTab: String,
-  category : String
+  category: String,
+  realtimeData: Object
 });
 </script>
 

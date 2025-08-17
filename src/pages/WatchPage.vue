@@ -9,7 +9,7 @@
         {{ tab.label }}
       </button>
     </section>
-    
+
     <section class="list-watch-page-contents">
       <!-- 예금 목록 -->
       <template v-if="selected === 'deposit'">
@@ -17,32 +17,47 @@
           v-for="item in deposits"
           :key="item.productCode"
           :item="item" />
-        <div v-if="deposits.length === 0" class="empty-state">
-          <img src="@/assets/cha4.png" alt="찜한 상품 없음" class="empty-image" />
+        <div
+          v-if="deposits.length === 0"
+          class="empty-state">
+          <img
+            src="@/assets/cha4.png"
+            alt="찜한 상품 없음"
+            class="empty-image" />
           <p class="empty-text">찜한 예금 상품이 없습니다.</p>
         </div>
       </template>
-      
+
       <!-- 펀드 목록 -->
       <template v-if="selected === 'fund'">
         <FundItem
           v-for="item in funds"
           :key="item.productCode"
           :item="item" />
-        <div v-if="funds.length === 0" class="empty-state">
-          <img src="@/assets/cha4.png" alt="찜한 상품 없음" class="empty-image" />
+        <div
+          v-if="funds.length === 0"
+          class="empty-state">
+          <img
+            src="@/assets/cha4.png"
+            alt="찜한 상품 없음"
+            class="empty-image" />
           <p class="empty-text">찜한 펀드 상품이 없습니다.</p>
         </div>
       </template>
-      
+
       <!-- ETF 목록 -->
       <template v-if="selected === 'etf'">
         <EtfItem
           v-for="item in etfs"
           :key="item.productCode"
           :item="item" />
-        <div v-if="etfs.length === 0" class="empty-state">
-          <img src="@/assets/cha4.png" alt="찜한 상품 없음" class="empty-image" />
+        <div
+          v-if="etfs.length === 0"
+          class="empty-state">
+          <img
+            src="@/assets/cha4.png"
+            alt="찜한 상품 없음"
+            class="empty-image" />
           <p class="empty-text">찜한 ETF 상품이 없습니다.</p>
         </div>
       </template>
@@ -58,10 +73,7 @@ import FundItem from '@/components/list/FundItem.vue';
 import EtfItem from '@/components/list/EtfItem.vue';
 import { getWatchDeposits, getWatchFunds, getWatchEtfs } from '@/api/watchApi';
 import { useWebSocketStore } from '@/stores/websocket';
-import { 
-  subscribeToEtfPrice, 
-  unsubscribeAll 
-} from '@/utils/websocketUtils';
+import { subscribeToEtfPrice, unsubscribeAll } from '@/utils/websocketUtils';
 
 const tabs = [
   { label: '예금', value: 'deposit' },
@@ -88,7 +100,7 @@ async function selectTab(tab) {
 const handleEtfRealtimeData = (data, productCode) => {
   if (etfMap.value.has(productCode)) {
     const etf = etfMap.value.get(productCode);
-    
+
     const updatedEtf = {
       ...etf,
       currentPrice: data.currentPrice,
@@ -100,9 +112,9 @@ const handleEtfRealtimeData = (data, productCode) => {
       changeRateFromPrevDay: data.changeRateFromPrevDay,
       lastUpdate: data.timestamp
     };
-    
+
     etfMap.value.set(productCode, updatedEtf);
-    
+
     const etfIndex = etfs.value.findIndex(item => item.productCode === productCode);
     if (etfIndex !== -1) {
       etfs.value[etfIndex] = updatedEtf;
@@ -114,14 +126,13 @@ const handleEtfRealtimeData = (data, productCode) => {
 const startEtfWebSocketSubscriptions = async () => {
   try {
     unsubscribeFromEtfs();
-    
+
     for (const etf of etfs.value) {
       if (etf.productCode) {
-        const subscription = await subscribeToEtfPrice(
-          etf.productCode, 
-          (data) => handleEtfRealtimeData(data, etf.productCode)
+        const subscription = await subscribeToEtfPrice(etf.productCode, data =>
+          handleEtfRealtimeData(data, etf.productCode)
         );
-        
+
         if (subscription) {
           subscribedCodes.value.add(etf.productCode);
         }
@@ -158,7 +169,7 @@ async function loadData() {
         ...item,
         userWatches: true
       }));
-      
+
       if (etfs.value.length > 0) {
         etfMap.value.clear();
         etfs.value.forEach(etf => {

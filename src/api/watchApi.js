@@ -23,7 +23,7 @@ export const getWatchEtfs = async () => {
 };
 
 // 찜한 상품 등록
-export const addToWatch = async (watchListDTO) => {
+export const addToWatch = async watchListDTO => {
   const response = await apiClient.post('/watch', watchListDTO);
   return response.data;
 };

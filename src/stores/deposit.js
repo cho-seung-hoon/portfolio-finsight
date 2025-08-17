@@ -6,7 +6,6 @@ import { formatNumberWithComma } from '@/utils/numberUtils';
 import { useSessionStore } from '@/stores/session.js';
 
 export const useDepositStore = defineStore('deposit', () => {
-
   const sessionStore = useSessionStore();
 
   const product = ref(null);
@@ -97,11 +96,11 @@ export const useDepositStore = defineStore('deposit', () => {
     }
 
     const options = Array.isArray(productDetail.doptionVO) ? productDetail.doptionVO : [];
-    
+
     const option12 = options.find(o => String(o.doptionSaveTrm) === '12');
     const selectedOption =
       option12 || options.sort((a, b) => Number(b.doptionSaveTrm) - Number(a.doptionSaveTrm))[0];
-    
+
     const baseRateStr = selectedOption ? `연 ${selectedOption.doptionIntrRate}%` : '-';
     const maxRateStr = selectedOption ? `연 ${selectedOption.doptionIntrRate2}%` : '-';
 
@@ -140,7 +139,7 @@ export const useDepositStore = defineStore('deposit', () => {
       baseRate: baseRateStr,
       maxRate: maxRateStr
     };
-    
+
     return result;
   };
 
@@ -195,7 +194,7 @@ export const useDepositStore = defineStore('deposit', () => {
 
   const generateRateTab = productDetail => {
     const doptionVO = productDetail.doptionVO;
-    
+
     if (!doptionVO || !doptionVO.length) {
       return [];
     }
@@ -204,7 +203,7 @@ export const useDepositStore = defineStore('deposit', () => {
     const selected =
       option12 ||
       [...doptionVO].sort((a, b) => Number(b.doptionSaveTrm) - Number(a.doptionSaveTrm))[0];
-    
+
     return [
       {
         type: 'text',
@@ -265,11 +264,20 @@ export const useDepositStore = defineStore('deposit', () => {
     let holdingsTotalPrice = new Decimal(0);
     if (holdingData.holdingsTotalPrice !== undefined && holdingData.holdingsTotalPrice !== null) {
       holdingsTotalPrice = new Decimal(holdingData.holdingsTotalPrice);
-    } else if (holdingData.holdings_total_price !== undefined && holdingData.holdings_total_price !== null) {
+    } else if (
+      holdingData.holdings_total_price !== undefined &&
+      holdingData.holdings_total_price !== null
+    ) {
       holdingsTotalPrice = new Decimal(holdingData.holdings_total_price);
-    } else if (holdingData.holdingsTotalAmount !== undefined && holdingData.holdingsTotalAmount !== null) {
+    } else if (
+      holdingData.holdingsTotalAmount !== undefined &&
+      holdingData.holdingsTotalAmount !== null
+    ) {
       holdingsTotalPrice = new Decimal(holdingData.holdingsTotalAmount);
-    } else if (holdingData.holdings_total_amount !== undefined && holdingData.holdings_total_amount !== null) {
+    } else if (
+      holdingData.holdings_total_amount !== undefined &&
+      holdingData.holdings_total_amount !== null
+    ) {
       holdingsTotalPrice = new Decimal(holdingData.holdings_total_amount);
     } else if (holdingData.history && holdingData.history.length > 0) {
       // history에서 총 금액 계산
@@ -284,7 +292,9 @@ export const useDepositStore = defineStore('deposit', () => {
       holdingsTotalPrice = totalAmount;
     }
 
-    const holdingsTotalQuantity = new Decimal(holdingData.holdingsTotalQuantity || holdingData.holdings_total_quantity || 1);
+    const holdingsTotalQuantity = new Decimal(
+      holdingData.holdingsTotalQuantity || holdingData.holdings_total_quantity || 1
+    );
 
     let contractDate = holdingData.contractDate;
     if (!contractDate && holdingData.history && holdingData.history.length > 0) {
@@ -383,17 +393,19 @@ export const useDepositStore = defineStore('deposit', () => {
       notice: product.value.notice
     };
 
-    const hasValidHoldings = product.value.isHolding && 
+    const hasValidHoldings =
+      product.value.isHolding &&
       (product.value.holding || product.value.holdings) &&
-      (product.value.holdings?.holdingsTotalQuantity > 0 || product.value.holding?.holdingsTotalQuantity > 0) &&
+      (product.value.holdings?.holdingsTotalQuantity > 0 ||
+        product.value.holding?.holdingsTotalQuantity > 0) &&
       product.value.holdings?.holdingsStatus !== 'zero';
-    
+
     if (hasValidHoldings) {
       const holdingTabData = generateHoldingTab(
-        product.value.holdings || product.value.holding, 
+        product.value.holdings || product.value.holding,
         product.value
       );
-      
+
       baseTabData.holding = holdingTabData;
     }
 

@@ -6,7 +6,6 @@ import { formatNumberWithComma } from '@/utils/numberUtils';
 import { useSessionStore } from '@/stores/session.js';
 
 export const useFundStore = defineStore('fund', () => {
-
   const sessionStore = useSessionStore();
 
   const product = ref(null);
@@ -147,19 +146,110 @@ export const useFundStore = defineStore('fund', () => {
     } catch (error) {
       console.error('Yield History API Error:', error);
       const mockHistory = [
-        { baseDate: [2025, 7, 26], fundNav: 8890.74, fundAum: 5.46473268012e11, weeklyReturn: 2.5, monthlyReturn: 8.3, quarterlyReturn: 15.7 },
-        { baseDate: [2025, 7, 27], fundNav: 9003.48, fundAum: 4.95595010044e11, weeklyReturn: 2.8, monthlyReturn: 8.7, quarterlyReturn: 16.2 },
-        { baseDate: [2025, 7, 28], fundNav: 8989.9, fundAum: 5.51005951576e11, weeklyReturn: 2.6, monthlyReturn: 8.5, quarterlyReturn: 15.9 },
-        { baseDate: [2025, 7, 29], fundNav: 9132.97, fundAum: 5.19191373659e11, weeklyReturn: 3.1, monthlyReturn: 9.2, quarterlyReturn: 16.8 },
-        { baseDate: [2025, 7, 30], fundNav: 9048.18, fundAum: 5.14413114603e11, weeklyReturn: 2.9, monthlyReturn: 8.9, quarterlyReturn: 16.4 },
-        { baseDate: [2025, 7, 31], fundNav: 9216.91, fundAum: 4.91735513284e11, weeklyReturn: 3.4, monthlyReturn: 9.6, quarterlyReturn: 17.1 },
-        { baseDate: [2025, 8, 1], fundNav: 9286.14, fundAum: 5.07812423849e11, weeklyReturn: 3.7, monthlyReturn: 9.9, quarterlyReturn: 17.4 },
-        { baseDate: [2025, 8, 2], fundNav: 9133.04, fundAum: 4.89952020905e11, weeklyReturn: 3.2, monthlyReturn: 9.3, quarterlyReturn: 16.9 },
-        { baseDate: [2025, 8, 3], fundNav: 9187.8, fundAum: 4.97378695927e11, weeklyReturn: 3.5, monthlyReturn: 9.6, quarterlyReturn: 17.2 },
-        { baseDate: [2025, 8, 4], fundNav: 9225.21, fundAum: 4.53909698032e11, weeklyReturn: 3.8, monthlyReturn: 9.9, quarterlyReturn: 17.5 },
-        { baseDate: [2025, 8, 5], fundNav: 9154.27, fundAum: 5.18964582114e11, weeklyReturn: 3.3, monthlyReturn: 9.4, quarterlyReturn: 17.0 },
-        { baseDate: [2025, 8, 6], fundNav: 9009.25, fundAum: 4.90214161251e11, weeklyReturn: 2.7, monthlyReturn: 8.6, quarterlyReturn: 16.1 },
-        { baseDate: [2025, 8, 7], fundNav: 9093.08, fundAum: 4.50370703433e11, weeklyReturn: 3.0, monthlyReturn: 8.9, quarterlyReturn: 16.6 }
+        {
+          baseDate: [2025, 7, 26],
+          fundNav: 8890.74,
+          fundAum: 5.46473268012e11,
+          weeklyReturn: 2.5,
+          monthlyReturn: 8.3,
+          quarterlyReturn: 15.7
+        },
+        {
+          baseDate: [2025, 7, 27],
+          fundNav: 9003.48,
+          fundAum: 4.95595010044e11,
+          weeklyReturn: 2.8,
+          monthlyReturn: 8.7,
+          quarterlyReturn: 16.2
+        },
+        {
+          baseDate: [2025, 7, 28],
+          fundNav: 8989.9,
+          fundAum: 5.51005951576e11,
+          weeklyReturn: 2.6,
+          monthlyReturn: 8.5,
+          quarterlyReturn: 15.9
+        },
+        {
+          baseDate: [2025, 7, 29],
+          fundNav: 9132.97,
+          fundAum: 5.19191373659e11,
+          weeklyReturn: 3.1,
+          monthlyReturn: 9.2,
+          quarterlyReturn: 16.8
+        },
+        {
+          baseDate: [2025, 7, 30],
+          fundNav: 9048.18,
+          fundAum: 5.14413114603e11,
+          weeklyReturn: 2.9,
+          monthlyReturn: 8.9,
+          quarterlyReturn: 16.4
+        },
+        {
+          baseDate: [2025, 7, 31],
+          fundNav: 9216.91,
+          fundAum: 4.91735513284e11,
+          weeklyReturn: 3.4,
+          monthlyReturn: 9.6,
+          quarterlyReturn: 17.1
+        },
+        {
+          baseDate: [2025, 8, 1],
+          fundNav: 9286.14,
+          fundAum: 5.07812423849e11,
+          weeklyReturn: 3.7,
+          monthlyReturn: 9.9,
+          quarterlyReturn: 17.4
+        },
+        {
+          baseDate: [2025, 8, 2],
+          fundNav: 9133.04,
+          fundAum: 4.89952020905e11,
+          weeklyReturn: 3.2,
+          monthlyReturn: 9.3,
+          quarterlyReturn: 16.9
+        },
+        {
+          baseDate: [2025, 8, 3],
+          fundNav: 9187.8,
+          fundAum: 4.97378695927e11,
+          weeklyReturn: 3.5,
+          monthlyReturn: 9.6,
+          quarterlyReturn: 17.2
+        },
+        {
+          baseDate: [2025, 8, 4],
+          fundNav: 9225.21,
+          fundAum: 4.53909698032e11,
+          weeklyReturn: 3.8,
+          monthlyReturn: 9.9,
+          quarterlyReturn: 17.5
+        },
+        {
+          baseDate: [2025, 8, 5],
+          fundNav: 9154.27,
+          fundAum: 5.18964582114e11,
+          weeklyReturn: 3.3,
+          monthlyReturn: 9.4,
+          quarterlyReturn: 17.0
+        },
+        {
+          baseDate: [2025, 8, 6],
+          fundNav: 9009.25,
+          fundAum: 4.90214161251e11,
+          weeklyReturn: 2.7,
+          monthlyReturn: 8.6,
+          quarterlyReturn: 16.1
+        },
+        {
+          baseDate: [2025, 8, 7],
+          fundNav: 9093.08,
+          fundAum: 4.50370703433e11,
+          weeklyReturn: 3.0,
+          monthlyReturn: 8.9,
+          quarterlyReturn: 16.6
+        }
       ];
       yieldHistory.value = mockHistory;
       isYieldHistoryLoaded.value = true;
@@ -235,10 +325,7 @@ export const useFundStore = defineStore('fund', () => {
 
   const generateNewsTab = productDetail => {
     const newsData = productDetail.fundNewsResponse;
-
-    if (!newsData || !newsData.length) {
-      return [];
-    }
+    if (!newsData || !newsData.length) return [];
 
     try {
       return [
@@ -251,7 +338,7 @@ export const useFundStore = defineStore('fund', () => {
             const [year, month, day, hour, minute] = news.newsPublishedAt;
             const publishedDate = new Date(year, month - 1, day, hour, minute);
 
-            const processedNews = {
+            return {
               news_id: news.newsId,
               news_title: news.newsTitle,
               news_content_url: news.newsContentUrl,
@@ -260,8 +347,6 @@ export const useFundStore = defineStore('fund', () => {
               news_sentiment: news.newsSentiment,
               news_publisher: news.newsPublisher
             };
-
-            return processedNews;
           })
         }
       ];
@@ -273,48 +358,20 @@ export const useFundStore = defineStore('fund', () => {
 
   const generateYieldTab = (productDetail, history) => {
     const priceHistory = history || productDetail.priceHistory;
-    if (!priceHistory || !priceHistory.length) {
-      return [];
-    }
+    if (!priceHistory || !priceHistory.length) return [];
 
-    const chartData = priceHistory.map(item => {
-      const date = item.baseDate
-        ? `${item.baseDate[0]}-${String(item.baseDate[1]).padStart(2, '0')}-${String(item.baseDate[2]).padStart(2, '0')}`
-        : item.date;
-      const price = item.fundNav || item.price;
-      
-      let yieldValue = 0;
-      if (item.weeklyReturn !== undefined) {
-        yieldValue = item.weeklyReturn;
-      } else if (item.monthlyReturn !== undefined) {
-        yieldValue = item.monthlyReturn;
-      } else if (item.quarterlyReturn !== undefined) {
-        yieldValue = item.quarterlyReturn;
-      } else if (item.yield !== undefined) {
-        yieldValue = item.yield;
-      } else {
-        const firstPrice = priceHistory[0].fundNav || priceHistory[0].price;
-        if (firstPrice && price !== 0) {
-          yieldValue = parseFloat((((price - firstPrice) / firstPrice) * 100).toFixed(1));
-        }
-      }
-
-      return {
-        date: date,
-        수익률: yieldValue,
-        기준가: price,
-        weeklyReturn: item.weeklyReturn,
-        monthlyReturn: item.monthlyReturn,
-        quarterlyReturn: item.quarterlyReturn,
-        fundAum: item.fundAum,
-        baseDate: item.baseDate
-      };
-    });
+    const chartData = priceHistory.map(item => ({
+      weeklyReturn: item.weeklyReturn,
+      monthlyReturn: item.monthlyReturn,
+      quarterlyReturn: item.quarterlyReturn,
+      fundAum: item.fundAum,
+      baseDate: item.baseDate
+    }));
 
     return [
       {
         type: 'areachart',
-        title: '수익률/기준가 추이',
+        title: '수익률/운용규모 그래프',
         desc: chartData
       },
       {
@@ -465,15 +522,9 @@ export const useFundStore = defineStore('fund', () => {
   };
 
   const generateHoldingTab = (holdingData, productDetail) => {
-    if (!holdingData) {
-      return [];
-    }
+    if (!holdingData) return [];
 
-    const currentPrice = new Decimal(
-      productDetail.fundPriceSummaryDto?.currentNav ??
-        productDetail.fundPriceSummaryDto?.current_nav ??
-        0
-    );
+    const currentPrice = new Decimal(productDetail.fundPriceSummaryDto?.currentNav ?? 0);
     const holdingsTotalQuantity = new Decimal(
       holdingData.holdingsTotalQuantity ?? holdingData.holdings_total_quantity ?? 0
     );
@@ -506,27 +557,15 @@ export const useFundStore = defineStore('fund', () => {
       }
     ];
 
-    if (
-      holdingsTotalQuantity.gt(0) &&
-      (holdingData.holdingsStatus ?? holdingData.holdings_status) !== 'zero'
-    ) {
+    if (holdingsTotalQuantity.gt(0)) {
       result.push({
         type: 'holdinghistory',
         title: '투자 기록',
         desc:
           holdingData.history?.map(item => {
             const isSell = item.historyTradeType === 'sell';
-            const isBuy = item.historyTradeType === 'buy';
-
             const quantity = new Decimal(item.historyQuantity || 0);
-            const displayQuantity = isSell
-              ? `-${formatNumberWithComma(quantity.toNumber())}`
-              : `+${formatNumberWithComma(quantity.toNumber())}`;
-
             const amount = new Decimal(item.historyAmount || 0);
-            const displayAmount = isSell
-              ? `-${formatNumberWithComma(amount.toNumber())}`
-              : `+${formatNumberWithComma(amount.toNumber())}`;
 
             const tradeDate = new Date(item.historyTradeDate);
             const year = tradeDate.getFullYear();
@@ -541,14 +580,15 @@ export const useFundStore = defineStore('fund', () => {
 
             return {
               ...item,
-              historyQuantity: item.historyQuantity,
-              historyAmount: item.historyAmount,
-              historyTradeDate: item.historyTradeDate,
-              displayQuantity,
-              displayAmount,
+              displayQuantity: isSell
+                ? `-${formatNumberWithComma(quantity.toNumber())}`
+                : `+${formatNumberWithComma(quantity.toNumber())}`,
+              displayAmount: isSell
+                ? `-${formatNumberWithComma(amount.toNumber())}`
+                : `+${formatNumberWithComma(amount.toNumber())}`,
               displayDate,
               isSell,
-              isBuy,
+              isBuy: !isSell,
               quantityColor: isSell ? '#FF3B30' : '#007AFF',
               amountColor: isSell ? '#FF3B30' : '#007AFF'
             };
@@ -567,12 +607,11 @@ export const useFundStore = defineStore('fund', () => {
   });
 
   const tabs = computed(() => {
-    const hasValidHoldings = productInfo.value?.isHolding &&
-      (productInfo.value?.holdings || productInfo.value?.holding) &&
-      (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
-      (productInfo.value?.holdings?.holdingsStatus !== 'zero' || productInfo.value?.holding?.holdingsStatus !== 'zero');
-    
-    if (hasValidHoldings) {
+    const hasHoldings =
+      productInfo.value?.isHolding &&
+      (productInfo.value?.holdings || productInfo.value?.holding)?.holdingsTotalQuantity > 0;
+
+    if (hasHoldings) {
       return [
         { key: 'holding', label: '보유기록' },
         { key: 'info', label: '상품안내' },

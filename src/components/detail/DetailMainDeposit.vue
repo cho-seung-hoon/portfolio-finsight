@@ -36,8 +36,6 @@ const props = defineProps({
   isWatched: Boolean,
   productInfo: Object
 });
-
-
 </script>
 
 <style scoped>
