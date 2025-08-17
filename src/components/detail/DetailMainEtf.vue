@@ -4,8 +4,9 @@
     <div class="product-title-row">
       <div class="product-title">{{ productInfo?.productName || title }}</div>
       <HeartToggle
-        :is-active="productInfo?.isWatched || isWatched"
-        @toggle="handleHeartToggle" />
+        :product-code="productInfo?.productCode || productCode"
+        category="etf"
+        :user-watches="productInfo?.userWatches || false" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">
@@ -42,46 +43,26 @@ const props = defineProps({
     default: false
   },
   realtimeData: Object,
-  changeRateFromPrevDay: [String, Number]
+  changeRateFromPrevDay: [String, Number],
+  productCode: String
 });
 
-const emit = defineEmits(['heart-toggle']);
-
-// 실시간 데이터 변경 감지
-watch(
-  () => props.realtimeData,
-  (newData) => {
-    if (newData) {
-      console.log('DetailMainEtf - 실시간 데이터 업데이트:', newData);
-    }
-  },
-  { deep: true }
-);
-
 const yieldValue = computed(() => {
+  // 전일대비 수익률 우선순위: props > realtimeData > productInfo
   if (props.changeRateFromPrevDay !== undefined && props.changeRateFromPrevDay !== null) {
     const changeRate = Number(props.changeRateFromPrevDay);
-    if (!isNaN(changeRate)) {
-      return changeRate;
-    }
+    if (!isNaN(changeRate)) return changeRate;
   }
-  
+
   if (props.realtimeData?.changeRateFromPrevDay !== undefined) {
     return Number(props.realtimeData.changeRateFromPrevDay);
   }
-  
+
   const yieldData =
     props.productInfo?.price?.priceChangePercent ?? props.productInfo?.changeRateFromPrevDay;
-
   if (!yieldData) return 0;
 
-  if (typeof yieldData === 'string') {
-    return parseFloat(yieldData);
-  } else if (typeof yieldData === 'number') {
-    return yieldData;
-  } else {
-    return 0;
-  }
+  return typeof yieldData === 'string' ? parseFloat(yieldData) : yieldData;
 });
 
 const formattedYield = computed(() => {
@@ -96,28 +77,17 @@ const yieldChangeColor = computed(() => {
 });
 
 const formattedCurrentPrice = computed(() => {
-  if (props.realtimeData?.currentPrice !== undefined) {
-    const price = props.realtimeData.currentPrice;
-    if (typeof price === 'number') {
-      return new Intl.NumberFormat('ko-KR').format(price) + '원';
-    }
-    return price + '원';
-  }
-  
-  const price = props.productInfo?.price?.currentPrice ?? props.productInfo?.currentPrice;
-
+  // 실시간 데이터 우선, 없으면 상품 정보에서 가격 가져오기
+  const price =
+    props.realtimeData?.currentPrice ??
+    props.productInfo?.price?.currentPrice ??
+    props.productInfo?.currentPrice;
   if (!price) return '-';
 
-  if (typeof price === 'number') {
-    return new Intl.NumberFormat('ko-KR').format(price) + '원';
-  }
-
-  return price + '원';
+  return typeof price === 'number'
+    ? new Intl.NumberFormat('ko-KR').format(price) + '원'
+    : price + '원';
 });
-
-const handleHeartToggle = isActive => {
-  emit('heart-toggle', isActive);
-};
 </script>
 
 <style scoped>

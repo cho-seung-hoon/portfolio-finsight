@@ -3,7 +3,10 @@
     <div class="product-bank">{{ bank }}</div>
     <div class="product-title-row">
       <div class="product-title">{{ title }}</div>
-      <HeartToggle @toggle="handleHeartToggle" />
+      <HeartToggle
+        :product-code="productCode || productInfo?.productCode"
+        category="fund"
+        :user-watches="productInfo?.userWatches || false" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">
@@ -42,7 +45,10 @@ const props = defineProps({
   yield: [String, Number],
   currentPrice: [Number, String],
   priceChange: [Number, String],
-  priceChangePercent: [Number, String]
+  priceChangePercent: [Number, String],
+  productCode: String,
+  isWatched: Boolean,
+  productInfo: Object
 });
 
 const yieldMonths = computed(() => {
@@ -108,9 +114,6 @@ const priceChangeColor = computed(() => {
   if (priceChange.value < 0) return 'down';
   return '';
 });
-
-const handleHeartToggle = isActive => {
-};
 </script>
 
 <style scoped>

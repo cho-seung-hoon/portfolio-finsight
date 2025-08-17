@@ -36,7 +36,7 @@
             </option>
           </select>
         </div>
-        
+
         <div class="form-group">
           <label for="amount">예금액</label>
           <input

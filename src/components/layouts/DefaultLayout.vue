@@ -31,6 +31,13 @@
       class="loading"
       v-if="loadingStore.isLoading"
       :text="loadingStore.loadingText" />
+    
+    <!-- 토스트 메시지 -->
+    <ToastMessage
+      v-if="toastStore.isVisible"
+      :message="toastStore.message"
+      :type="toastStore.type"
+      :duration="toastStore.duration" />
   </div>
 </template>
 
@@ -38,11 +45,14 @@
 import Header from './Header.vue';
 import NavBar from './NavBar.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
+import ToastMessage from '@/components/common/ToastMessage.vue';
 import { onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { useLoadingStore } from '@/stores/loading';
+import { useToastStore } from '@/stores/toast';
 
 const loadingStore = useLoadingStore();
+const toastStore = useToastStore();
 
 const isModalVisible = ref(false);
 const openModal = () => {

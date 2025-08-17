@@ -52,14 +52,14 @@ const isHolding = computed(() => {
 
 const hasValidHoldings = computed(() => {
   if (!isHolding.value) return false;
-  
-  const holdingsTotalQuantity = 
+
+  const holdingsTotalQuantity =
     props.productInfo?.holdingsTotalQuantity ||
     props.productInfo?.holdings?.holdingsTotalQuantity ||
     0;
-  
+
   const holdingsStatus = props.productInfo?.holdings?.holdingsStatus;
-  
+
   return holdingsTotalQuantity > 0 && holdingsStatus !== 'zero';
 });
 
@@ -75,7 +75,7 @@ const canSell = computed(() => {
   if (category.value === 'deposit') {
     return hasValidHoldings.value;
   }
-  
+
   const holdingsTotalQuantity =
     props.productInfo?.holdingsTotalQuantity ||
     props.productInfo?.holdings?.holdingsTotalQuantity ||

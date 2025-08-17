@@ -1,23 +1,86 @@
 <template>
   <div class="area-chart-wrapper">
-    <div class="date-range-btns">
+    <div
+      v-if="category === 'fund'"
+      class="date-range-btns">
       <button
         v-for="(range, idx) in dateRanges"
         :key="range.label"
         :class="{ active: selectedRangeIdx === idx }"
         type="button"
-        @click.stop.prevent="selectRange(idx)"
-      >
+        @click.stop.prevent="selectRange(idx)">
         {{ range.label }}
       </button>
     </div>
-    <div ref="chartContainer" class="chart-container" />
+
+    <div
+      v-if="category === 'etf' || category === 'fund'"
+      class="chart-caption">
+      <div
+        v-if="category === 'etf'"
+        class="caption-item">
+        <div class="caption-color etf-price-color"></div>
+        <span>시세</span>
+      </div>
+      <div
+        v-if="category === 'etf'"
+        class="caption-item">
+        <div class="caption-color etf-volume-color"></div>
+        <span>거래량</span>
+      </div>
+
+      <div
+        v-if="category === 'fund'"
+        class="caption-item">
+        <div class="caption-color aum-color"></div>
+        <span>운용규모</span>
+      </div>
+      <div
+        v-if="category === 'fund'"
+        class="caption-item">
+        <div class="caption-color return-color"></div>
+        <span>수익률</span>
+      </div>
+    </div>
+
+    <div
+      ref="chartContainer"
+      class="chart-container" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick, computed, watch } from 'vue';
 import { createChart } from 'lightweight-charts';
+
+// 상수
+const CHART_COLORS = {
+  ETF: {
+    PRICE: '#4CAF50',
+    PRICE_ALPHA: 'rgba(76, 175, 80, 0.3)',
+    PRICE_TRANSPARENT: 'rgba(76, 175, 80, 0.0)',
+    VOLUME: 'rgba(255, 152, 0, 0.8)',
+    VOLUME_AXIS: '#FF9800'
+  },
+  FUND: {
+    AUM: '#10B981',
+    AUM_ALPHA: 'rgba(16, 185, 129, 0.3)',
+    AUM_TRANSPARENT: 'rgba(16, 185, 129, 0.0)',
+    RETURN: '#2196F3',
+    RETURN_ALPHA: 'rgba(33, 150, 243, 0.3)',
+    RETURN_TRANSPARENT: 'rgba(33, 150, 243, 0.0)'
+  }
+};
+
+const CHART_CONFIG = {
+  HEIGHT: 320,
+  MARGINS: {
+    ETF_PRICE: { top: 0.8, bottom: 0.2 },
+    ETF_VOLUME: { top: 0.8, bottom: 0 },
+    FUND_AUM: { top: 0.3, bottom: 0 },
+    FUND_RETURN: { top: 0.1, bottom: 0 }
+  }
+};
 
 const props = defineProps({
   data: {
@@ -27,209 +90,404 @@ const props = defineProps({
   category: {
     type: String,
     default: 'fund'
+  },
+  realtimeData: {
+    type: Object,
+    default: null
   }
 });
-
-// CSS 변수를 실제 색상 값으로 변환하는 함수
-const getComputedColor = (cssVariable) => {
-  if (typeof window === 'undefined') return '#000000'; // SSR 환경에서는 기본값 반환
-  
-  try {
-    const computedStyle = getComputedStyle(document.documentElement);
-    return computedStyle.getPropertyValue(cssVariable).trim() || '#000000';
-  } catch (error) {
-    console.warn(`Failed to get computed color for ${cssVariable}:`, error);
-    return '#000000';
-  }
-};
 
 const chartContainer = ref(null);
 const chart = ref(null);
-const aumSeries = ref(null);
-const yieldSeries = ref(null);
 const selectedRangeIdx = ref(0);
+const etfPriceSeries = ref(null);
+const etfVolumeSeries = ref(null);
+const aumSeries = ref(null);
+const returnSeries = ref(null);
 
-const dateRanges = [
-  { label: '1주', days: 7 },
-  { label: '1개월', days: 30 },
-  // { label: '3개월', days: 90 } // 잠시 사용 안함
-];
+const dateRanges = computed(() => {
+  if (props.category === 'etf') return [];
 
-const filteredData = computed(() => {
-  try {
-    if (!props.data || props.data.length === 0) return [];
-    
-    if (props.category === 'etf') {
-      const selectedRange = dateRanges[selectedRangeIdx.value];
-      
-      const filtered = props.data
-        .filter(d => {
-          try {
-            const dataDate = new Date(d.time * 1000);
-            
-            const cutoffDate = new Date();
-            cutoffDate.setDate(cutoffDate.getDate() - (selectedRange.days + 2));
-            
-            return dataDate >= cutoffDate;
-          } catch (error) {
-            console.warn('Error processing ETF date:', error, d);
-            return false;
-          }
-        });
-      
-      const result = filtered
-        .filter(d => d && d.time && !isNaN(d.value))
-        .sort((a, b) => a.time - b.time);
-      
-      return result;
-    }
-    
-    const selectedRange = dateRanges[selectedRangeIdx.value];
+  return [
+    { label: '1주', days: 7 },
+    { label: '1개월', days: 30 },
+    { label: '3개월', days: 90 }
+  ];
+});
+
+const processChartData = computed(() => {
+  console.log('들어온 원본 데이터:', props.data);
+
+  if (props.category === 'etf') {
+    const etfData = props.data
+      .sort((a, b) => {
+        const timeA = a.timestamp || a.time || 0;
+        const timeB = b.timestamp || b.time || 0;
+        return timeA - timeB;
+      })
+      .slice(-60)
+      .map(item => {
+        let time;
+        if (item.timestamp) {
+          time = Math.floor(item.timestamp / 1000);
+        } else if (item.time) {
+          time = item.time;
+        } else {
+          time = Date.now() / 1000;
+        }
+
+        let price;
+        if (item.currentPrice !== undefined) {
+          price = Number(item.currentPrice) || 0;
+        } else if (item.price !== undefined) {
+          price = Number(item.price) || 0;
+        } else {
+          price = 0;
+        }
+
+        let volume;
+        if (item.currentVolume !== undefined) {
+          volume = Number(item.currentVolume) || 0;
+        } else if (item.volume !== undefined) {
+          volume = Number(item.volume) || 0;
+        } else {
+          volume = 0;
+        }
+
+        return {
+          time: time,
+          price: price,
+          volume: volume,
+          originalData: item
+        };
+      });
+
+    console.log('ETF 처리 결과 개수:', etfData.length);
+    console.log('ETF 처리 결과:', etfData);
+    return etfData;
+  } else {
+    const selectedRange = dateRanges.value[selectedRangeIdx.value];
+
     let returnField;
-    
+    let daysToFilter;
+
     if (selectedRange.days === 7) {
       returnField = 'weeklyReturn';
+      daysToFilter = 7;
     } else if (selectedRange.days === 30) {
       returnField = 'monthlyReturn';
+      daysToFilter = 30;
+    } else {
+      returnField = 'quarterlyReturn';
+      daysToFilter = 90;
     }
-    
-    return props.data
-      .filter(d => {
-        try {
-          let dataDate;
-          
-          if (d.baseDate && Array.isArray(d.baseDate)) {
-            dataDate = new Date(d.baseDate[0], d.baseDate[1] - 1, d.baseDate[2]);
-          } else if (d.baseDate) {
-            dataDate = new Date(d.baseDate);
-          } else if (d.date) {
-            dataDate = new Date(d.date);
-          } else if (d.timestamp) {
-            dataDate = new Date(d.timestamp);
-          } else {
-            dataDate = new Date();
-          }
-          
-          const cutoffDate = new Date();
-          cutoffDate.setDate(cutoffDate.getDate() - (selectedRange.days + 2));
-          return dataDate >= cutoffDate;
-        } catch (error) {
-          console.warn('Error processing date:', error, d);
-          return false;
-        }
-      })
-      .map(d => {
-        try {
-          let time, aum, yieldValue;
-          
-          if (d.baseDate && Array.isArray(d.baseDate)) {
-            time = new Date(d.baseDate[0], d.baseDate[1] - 1, d.baseDate[2]).getTime() / 1000;
-          } else if (d.baseDate) {
-            time = new Date(d.baseDate).getTime() / 1000;
-          } else if (d.date) {
-            time = new Date(d.date).getTime() / 1000;
-          } else if (d.timestamp) {
-            time = Math.floor(d.timestamp / 1000);
-          } else {
-            time = Math.floor(Date.now() / 1000);
-          }
-          
-          let aumValue = 0;
-          if (d.fundAum !== undefined && d.fundAum !== null) {
-            aumValue = Number(d.fundAum);
-          } else if (d.fund_aum !== undefined && d.fund_aum !== null) {
-            aumValue = Number(d.fund_aum);
-          } else if (d.aum !== undefined && d.aum !== null) {
-            aumValue = Number(d.aum);
-          } else if (d.fundNav !== undefined && d.fundNav !== null) {
-            aumValue = Number(d.fundNav);
-          }
-          
-          aum = aumValue;
-          
-          yieldValue = Number(d[returnField]) || 0;
-          
-          const result = { time, aum, yield: yieldValue };
-          
-          return result;
-        } catch (error) {
-          console.warn('Error processing fund data item:', error, d);
-          return null;
-        }
-      })
-      .filter(d => d && d.time && !isNaN(d.aum) && !isNaN(d.yield))
-      .sort((a, b) => a.time - b.time);
-  } catch (error) {
-    console.error('Error in filteredData computed:', error);
-    return [];
+
+    const sortedData = props.data.sort((a, b) => new Date(a.baseDate) - new Date(b.baseDate));
+
+    let filteredData;
+    if (selectedRange.days === 7) {
+      filteredData = sortedData.slice(-7);
+    } else if (selectedRange.days === 30) {
+      filteredData = sortedData.slice(-30);
+    } else {
+      filteredData = sortedData.slice(-90);
+    }
+
+    const result = {
+      aum: filteredData.map(item => ({
+        time: Math.floor(new Date(item.baseDate).getTime() / 1000),
+        value: Number(item.fundAum) || 0,
+        originalData: item
+      })),
+      returns: filteredData.map(item => ({
+        time: Math.floor(new Date(item.baseDate).getTime() / 1000),
+        value: Number(item[returnField]) || 0,
+        originalData: item
+      }))
+    };
+
+    console.log('Fund 처리 결과:', result);
+    return result;
   }
 });
 
+const etfChartData = computed(() => (props.category === 'etf' ? processChartData.value : []));
+
+const fundChartData = computed(() =>
+  props.category === 'fund' ? processChartData.value : { aum: [], returns: [] }
+);
+
 const updateChartSeries = () => {
-  if (!chart.value) {
-    console.warn('DetailAreaChart - Chart not initialized');
-    return;
-  }
+  try {
+    if (!chart.value) return;
 
-  if (props.category === 'etf') {
-    if (!yieldSeries.value) return;
+    if (props.category === 'etf') {
+      if (etfPriceSeries.value) {
+        const etfPriceData = etfChartData.value.slice(-60).map(item => ({
+          time: item.time,
+          value: item.price
+        }));
 
-    const yieldData = filteredData.value.map(d => ({ time: d.time, value: d.value }));
+        const etfVolumeData = etfChartData.value.slice(-60).map(item => ({
+          time: item.time,
+          value: item.volume
+        }));
 
-    if (yieldData.length >= 2) {
-      try {
-        yieldSeries.value.setData(yieldData);
-        
-        chart.value.timeScale().fitContent();
-      } catch (error) {
-        console.error('Error updating ETF chart series:', error);
-      }
-    } else {
-      console.warn('DetailAreaChart - ETF: Not enough data to update chart. yieldData length:', yieldData.length);
-    }
-  } else {
-    if (!aumSeries.value || !yieldSeries.value) return;
+        etfPriceSeries.value.setData(etfPriceData);
 
-    const aumData = filteredData.value.map(d => ({ time: d.time, value: d.aum }));
-    const yieldData = filteredData.value.map(d => ({ time: d.time, value: d.yield }));
-
-    if (aumData.length >= 2) {
-      try {
-        aumSeries.value.setData(aumData);
-        
-        yieldSeries.value.setData(yieldData);
-        
-        if (aumData.length > 0) {
-          const maxAum = Math.max(...aumData.map(d => d.value));
-          const minAum = Math.min(...aumData.map(d => d.value));
-          
-          if (maxAum > 1000 && chart.value.rightPriceScale) {
-            try {
-              chart.value.rightPriceScale.applyOptions({
-                autoScale: true,
-                scaleMargins: {
-                  top: 0.1,
-                  bottom: 0.1
-                }
-              });
-            } catch (error) {
-              console.warn('Error applying fund rightPriceScale options:', error);
-            }
-          }
+        if (etfVolumeSeries.value) {
+          etfVolumeSeries.value.setData(etfVolumeData);
         }
-        
-        chart.value.timeScale().fitContent();
-      } catch (error) {
-        console.error('Error updating fund chart series:', error);
+
+        if (etfChartData.value.length > 60) {
+          const recentData = etfChartData.value.slice(-60);
+          chart.value.timeScale().setVisibleRange({
+            from: recentData[0]?.time,
+            to: recentData[recentData.length - 1]?.time
+          });
+        } else {
+          chart.value.timeScale().setVisibleRange({
+            from: etfChartData.value[0]?.time,
+            to: etfChartData.value[etfChartData.value.length - 1]?.time
+          });
+        }
+
+        if (etfPriceData.length > 0) {
+          const prices = etfPriceData.map(item => item.value);
+          const minPrice = Math.min(...prices);
+          const maxPrice = Math.max(...prices);
+          const priceRange = maxPrice - minPrice;
+
+          const padding = priceRange * 0.01;
+          const minValue = minPrice - padding;
+          const maxValue = maxPrice + padding;
+
+          chart.value.priceScale('left').applyOptions({
+            autoScale: false,
+            minValue: minValue,
+            maxValue: maxValue,
+            entireTextOnly: false,
+            scaleMargins: {
+              top: 0.3,
+              bottom: 0.3
+            }
+          });
+        }
       }
     } else {
-      console.warn('DetailAreaChart - Not enough data to update chart. aumData length:', aumData.length);
+      if (aumSeries.value && returnSeries.value) {
+        console.log('Fund 차트에 전달되는 AUM 데이터:', fundChartData.value.aum);
+        console.log('Fund 차트에 전달되는 Returns 데이터:', fundChartData.value.returns);
+        aumSeries.value.setData(fundChartData.value.aum);
+        returnSeries.value.setData(fundChartData.value.returns);
+
+        chart.value.timeScale().fitContent();
+
+        chart.value.priceScale('left').applyOptions({
+          autoScale: true
+        });
+
+        chart.value.timeScale().setVisibleRange({
+          from: fundChartData.value.returns[0]?.time,
+          to: fundChartData.value.returns[fundChartData.value.returns.length - 1]?.time
+        });
+      }
     }
+  } catch (error) {
+    console.error('Error updating chart series:', error);
   }
 };
 
+// ETF 차트 생성 함수
+const createEtfChart = () => {
+  etfPriceSeries.value = chart.value.addAreaSeries({
+    lineColor: CHART_COLORS.ETF.PRICE,
+    topColor: CHART_COLORS.ETF.PRICE_ALPHA,
+    bottomColor: CHART_COLORS.ETF.PRICE_TRANSPARENT,
+    lineWidth: 2,
+    crosshairMarkerVisible: false,
+    lastValueVisible: false,
+    priceLineVisible: false,
+    priceScaleId: 'left',
+    scaleMargins: CHART_CONFIG.MARGINS.ETF_PRICE
+  });
+
+  chart.value.priceScale('left').applyOptions({
+    visible: true,
+    borderColor: CHART_COLORS.ETF.PRICE,
+    textColor: CHART_COLORS.ETF.PRICE,
+    autoScale: false,
+    scaleMargins: CHART_CONFIG.MARGINS.ETF_PRICE,
+    entireTextOnly: false,
+    ticksVisible: true,
+    borderVisible: true
+  });
+
+  etfVolumeSeries.value = chart.value.addHistogramSeries({
+    color: CHART_COLORS.ETF.VOLUME,
+    priceFormat: { type: 'volume' },
+    priceScaleId: 'right',
+    scaleMargins: CHART_CONFIG.MARGINS.ETF_VOLUME
+  });
+
+  chart.value.priceScale('right').applyOptions({
+    visible: true,
+    borderColor: CHART_COLORS.ETF.VOLUME_AXIS,
+    textColor: CHART_COLORS.ETF.VOLUME_AXIS,
+    autoScale: true,
+    scaleMargins: CHART_CONFIG.MARGINS.ETF_VOLUME
+  });
+
+  const etfPriceData = etfChartData.value.slice(-60).map(item => ({
+    time: item.time,
+    value: item.price
+  }));
+
+  const etfVolumeData = etfChartData.value.slice(-60).map(item => ({
+    time: item.time,
+    value: item.volume
+  }));
+
+  etfPriceSeries.value.setData(etfPriceData);
+  etfVolumeSeries.value.setData(etfVolumeData);
+
+  if (etfPriceData.length > 0) {
+    const prices = etfPriceData.map(item => item.value);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    const priceRange = maxPrice - minPrice;
+
+    chart.value.priceScale('left').applyOptions({
+      autoScale: false,
+      minValue: minPrice,
+      maxValue: maxPrice
+    });
+  }
+};
+
+const createChartOptions = () => {
+  const chartOptions = {
+    layout: {
+      background: { color: 'transparent' },
+      textColor: '#333333'
+    },
+    grid: {
+      vertLines: { style: 2, color: '#E5E7EB' },
+      horzLines: { visible: false }
+    },
+    leftPriceScale: {
+      visible: true,
+      borderColor: CHART_COLORS.ETF.PRICE,
+      textColor: CHART_COLORS.ETF.PRICE,
+      autoScale: true,
+      scaleMargins: CHART_CONFIG.MARGINS.ETF_PRICE
+    },
+    timeScale: {
+      borderColor: '#D1D5DB',
+      timeVisible: true,
+      secondsVisible: true,
+      rightOffset: -1,
+      barSpacing: 3,
+      fixLeftEdge: true,
+      lockVisibleTimeRangeOnResize: true,
+      rightBarStaysOnScroll: false,
+      borderVisible: false,
+      visible: true,
+      scrollBehavior: 'smooth',
+      scrollable: false,
+      tickMarkFormatter: time => {
+        const date = new Date(time * 1000);
+        if (props.category === 'etf') {
+          return date.toLocaleTimeString('ko-KR', {
+            minute: '2-digit',
+            second: '2-digit'
+          });
+        }
+        return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+      }
+    },
+    crosshair: {
+      mode: 1
+    },
+    handleScroll: {
+      mouseWheel: false,
+      pressedMouseMove: false,
+      horzTouchDrag: false,
+      vertTouchDrag: false
+    },
+    handleScale: {
+      axisPressedMouseMove: false,
+      mouseWheel: false,
+      pinch: false
+    }
+  };
+
+  if (props.category === 'etf' || props.category === 'fund') {
+    chartOptions.rightPriceScale = {
+      visible: true,
+      borderColor: props.category === 'etf' ? CHART_COLORS.ETF.VOLUME_AXIS : CHART_COLORS.FUND.AUM,
+      textColor: props.category === 'etf' ? CHART_COLORS.ETF.VOLUME_AXIS : CHART_COLORS.FUND.AUM,
+      autoScale: true
+    };
+  }
+
+  return chartOptions;
+};
+
+const createFundChart = () => {
+  aumSeries.value = chart.value.addAreaSeries({
+    lineColor: CHART_COLORS.FUND.AUM,
+    topColor: CHART_COLORS.FUND.AUM_ALPHA,
+    bottomColor: CHART_COLORS.FUND.AUM_TRANSPARENT,
+    lineWidth: 2,
+    crosshairMarkerVisible: false,
+    lastValueVisible: false,
+    priceLineVisible: false,
+    priceScaleId: 'right'
+  });
+
+  returnSeries.value = chart.value.addAreaSeries({
+    lineColor: CHART_COLORS.FUND.RETURN,
+    topColor: CHART_COLORS.FUND.RETURN_ALPHA,
+    bottomColor: CHART_COLORS.FUND.RETURN_TRANSPARENT,
+    lineWidth: 2,
+    crosshairMarkerVisible: false,
+    lastValueVisible: false,
+    priceLineVisible: false,
+    priceScaleId: 'left'
+  });
+
+  chart.value.priceScale('right').applyOptions({
+    visible: true,
+    borderColor: CHART_COLORS.FUND.AUM,
+    textColor: CHART_COLORS.FUND.AUM,
+    autoScale: true,
+    scaleMargins: CHART_CONFIG.MARGINS.FUND_AUM
+  });
+
+  chart.value.priceScale('left').applyOptions({
+    visible: true,
+    borderColor: CHART_COLORS.FUND.RETURN,
+    textColor: CHART_COLORS.FUND.RETURN,
+    autoScale: true,
+    entireTextOnly: false,
+    scaleMargins: CHART_CONFIG.MARGINS.FUND_RETURN
+  });
+
+  aumSeries.value.setData(fundChartData.value.aum);
+  returnSeries.value.setData(fundChartData.value.returns);
+
+  chart.value.timeScale().fitContent();
+};
+
 const selectRange = idx => {
+  if (props.category !== 'fund') return;
+
   selectedRangeIdx.value = idx;
+
+  nextTick(() => {
+    updateChartSeries();
+  });
 };
 
 onMounted(() => {
@@ -237,77 +495,15 @@ onMounted(() => {
     try {
       if (!chartContainer.value) return;
 
-      chart.value = createChart(chartContainer.value, {
-        layout: {
-          background: { color: 'transparent' },
-          textColor: getComputedColor('--main01')
-        },
-        grid: {
-          vertLines: { style: 2, color: getComputedColor('--main04') },
-          horzLines: { visible: false }
-        },
-        rightPriceScale: {
-          visible: props.category === 'fund',
-          borderColor: getComputedColor('--green01'),
-          autoScale: true
-        },
-        leftPriceScale: {
-          visible: true,
-          borderColor: getComputedColor('--text-blue'),
-          autoScale: true,
-          scaleMargins: {
-            top: 0.1,
-            bottom: 0.1,
-            left: 0,
-            right: 0.1
-          }
-        },
-        timeScale: {
-          borderColor: getComputedColor('--main03'),
-          timeVisible: true,
-          secondsVisible: false,
-          rightOffset: -1,
-          barSpacing: 3,
-          fixLeftEdge: true,
-          lockVisibleTimeRangeOnResize: true,
-          rightBarStaysOnScroll: true,
-          borderVisible: false,
-          visible: true,
-          tickMarkFormatter: (time) => {
-            const date = new Date(time * 1000);
-            return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
-          }
-        },
-        crosshair: {
-          mode: 1
-        },
-        handleScroll: {
-          mouseWheel: false,
-          pressedMouseMove: false,
-          horzTouchDrag: false,
-          vertTouchDrag: false
-        },
-        handleScale: {
-          axisPressedMouseMove: false,
-          mouseWheel: false,
-          pinch: false
-        }
-      });
+      const chartOptions = createChartOptions();
 
-      if (props.category === 'fund') {
-        aumSeries.value = chart.value.addLineSeries({
-          priceScaleId: 'right',
-          color: getComputedColor('--green01'),
-          lineWidth: 2
-        });
+      chart.value = createChart(chartContainer.value, chartOptions);
+
+      if (props.category === 'etf') {
+        createEtfChart();
+      } else {
+        createFundChart();
       }
-
-      yieldSeries.value = chart.value.addAreaSeries({
-        priceScaleId: 'left',
-        lineColor: getComputedColor('--text-blue'),
-        topColor: 'rgba(37, 99, 235, 0.4)',
-        bottomColor: 'rgba(37, 99, 235, 0)'
-      });
 
       nextTick(() => {
         updateChartSeries();
@@ -318,13 +514,88 @@ onMounted(() => {
   });
 });
 
-watch(filteredData, () => {
-  try {
-    updateChartSeries();
-  } catch (error) {
-    console.error('Error in filteredData watcher:', error);
+watch(
+  processChartData,
+  () => {
+    try {
+      updateChartSeries();
+    } catch (error) {
+      console.error('Error in processChartData watcher:', error);
+    }
+  },
+  { deep: true }
+);
+
+watch(
+  () => props.realtimeData,
+  newRealtimeData => {
+    if (props.category === 'etf' && newRealtimeData && chart.value) {
+      try {
+        if (
+          newRealtimeData.timestamp &&
+          newRealtimeData.currentPrice !== undefined &&
+          newRealtimeData.currentVolume !== undefined
+        ) {
+          const newTime = Math.floor(newRealtimeData.timestamp / 1000);
+          const newPrice = Number(newRealtimeData.currentPrice) || 0;
+          const newVolume = Number(newRealtimeData.currentVolume) || 0;
+
+          console.log('변환된 실시간 데이터:', {
+            time: newTime,
+            price: newPrice,
+            volume: newVolume
+          });
+
+          if (etfPriceSeries.value) {
+            etfPriceSeries.value.update({
+              time: newTime,
+              value: newPrice
+            });
+          }
+
+          if (etfVolumeSeries.value) {
+            etfVolumeSeries.value.update({
+              time: newTime,
+              value: newVolume
+            });
+          }
+
+          const currentVisibleRange = chart.value.timeScale().getVisibleRange();
+          if (currentVisibleRange && currentVisibleRange.from && currentVisibleRange.to) {
+            const timeRange = currentVisibleRange.to - currentVisibleRange.from;
+            if (timeRange > 60) {
+              const newFrom = currentVisibleRange.to - 60;
+              chart.value.timeScale().setVisibleRange({
+                from: newFrom,
+                to: currentVisibleRange.to
+              });
+            }
+          } else {
+            const newTo = Math.floor(Date.now() / 1000);
+            const newFrom = newTo - 60;
+            chart.value.timeScale().setVisibleRange({
+              from: newFrom,
+              to: newTo
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error updating realtime data:', error);
+      }
+    }
+  },
+  { deep: true }
+);
+
+watch(selectedRangeIdx, () => {
+  if (props.category === 'fund') {
+    try {
+      updateChartSeries();
+    } catch (error) {
+      console.error('Error in selectedRangeIdx watcher:', error);
+    }
   }
-}, { deep: true });
+});
 
 onUnmounted(() => {
   if (chart.value) {
@@ -338,13 +609,16 @@ onUnmounted(() => {
 .chart-container {
   width: 100%;
   height: 320px;
+  box-sizing: border-box;
 }
+
 .area-chart-wrapper {
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 0 8px;
+  padding: 0;
+  overflow: visible;
+  box-sizing: border-box;
 }
+
 .date-range-btns {
   display: flex;
   gap: 6px;
@@ -352,12 +626,60 @@ onUnmounted(() => {
   justify-content: flex-end;
   flex-wrap: wrap;
 }
+
 .date-range-btns button {
-  background: var(--main03); color: var(--main01); border: none;
-  border-radius: 20px; padding: 6px 14px; font-size: var(--font-size-ms);
-  font-weight: 500; cursor: pointer;
+  background: var(--main03);
+  color: var(--main01);
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: var(--font-size-ms);
+  font-weight: 500;
+  cursor: pointer;
 }
+
 .date-range-btns button.active {
-  background: var(--main01); color: var(--white);
+  background: var(--main01);
+  color: var(--white);
+}
+
+.chart-caption {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background-color: #f3f4f6;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.caption-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.caption-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.aum-color {
+  background-color: #10b981; /* AUM 색상 */
+}
+
+.return-color {
+  background-color: #2196f3; /* 수익률 색상 */
+}
+
+.etf-price-color {
+  background-color: #4caf50; /* ETF 가격 색상 */
+}
+
+.etf-volume-color {
+  background-color: rgba(255, 152, 0, 0.8); /* ETF 거래량 색상 (투명도 포함) */
 }
 </style>

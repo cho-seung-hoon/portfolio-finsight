@@ -1,7 +1,7 @@
 <template>
   <div class="holding-box">
     <div class="minimy">
-      <MiniMy 
+      <MiniMy
         :total-valuation="miniMyData.currentTotal"
         :message="holdingData.message"
         :change="miniMyData.change"
@@ -15,16 +15,15 @@
     </div>
   </div>
   <div class="holding-box">
-         <HoldingTotal 
-       :total-valuation="holdingTotalData.totalValuation"
-       :time-deposit="holdingTotalData.timeDeposit"
-       :domestic-investment="holdingTotalData.domesticInvestment"
-       :foreign-investment="holdingTotalData.foreignInvestment"
-       :message="holdingData.message" />
+    <HoldingTotal
+      :total-valuation="holdingTotalData.totalValuation"
+      :time-deposit="holdingTotalData.timeDeposit"
+      :domestic-investment="holdingTotalData.domesticInvestment"
+      :foreign-investment="holdingTotalData.foreignInvestment"
+      :message="holdingData.message" />
   </div>
   <div class="holding-box">
-    <HoldingList 
-      :products="processedProducts" />
+    <HoldingList :products="processedProducts" />
   </div>
 </template>
 
@@ -37,6 +36,7 @@ import MiniMy from '@/components/home/MiniMy.vue';
 import { useLoadingStore } from '@/stores/loading';
 import { useWebSocketStore } from '@/stores/websocket';
 import { useSessionStore } from '@/stores/session.js';
+import { holdingsApi } from '@/api/holdings';
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
@@ -60,13 +60,13 @@ const goToPortfolio = () => {
 
 const processedProducts = computed(() => {
   const products = [];
-  
+
   holdingData.value.depositHoldings.forEach((deposit, index) => {
     const history = deposit.history?.[0];
-    
+
     const contractDate = deposit.contractDate || history?.historyTradeDate;
     const contractMonths = deposit.contractMonths || history?.contractMonths;
-    
+
     let maturityDate = deposit.maturityDate;
     if (!maturityDate && contractDate && contractMonths) {
       try {
@@ -86,7 +86,9 @@ const processedProducts = computed(() => {
       bankName: deposit.productCompanyName,
       productName: deposit.productName,
       value: deposit.currentValuation,
-      date: maturityDate ? new Date(maturityDate).toLocaleDateString('ko-KR').replace(/\.$/, '') : '만기일 없음',
+      date: maturityDate
+        ? new Date(maturityDate).toLocaleDateString('ko-KR').replace(/\.$/, '')
+        : '만기일 없음',
       productCode: deposit.productCode,
       isWatched: deposit.isWatched,
       contractDate: contractDate,
@@ -133,7 +135,7 @@ const processedProducts = computed(() => {
 const calculatedInvestmentAmounts = computed(() => {
   let domesticTotal = 0;
   let foreignTotal = 0;
-  
+
   holdingData.value.fundHoldings.forEach(fund => {
     if (fund.productCountry === '국내') {
       domesticTotal += fund.currentValuation;
@@ -141,7 +143,7 @@ const calculatedInvestmentAmounts = computed(() => {
       foreignTotal += fund.currentValuation;
     }
   });
-  
+
   holdingData.value.etfHoldings.forEach(etf => {
     if (etf.productCountry === '국내') {
       domesticTotal += etf.currentValuation;
@@ -149,7 +151,7 @@ const calculatedInvestmentAmounts = computed(() => {
       foreignTotal += etf.currentValuation;
     }
   });
-  
+
   return {
     domestic: domesticTotal,
     foreign: foreignTotal
@@ -157,8 +159,9 @@ const calculatedInvestmentAmounts = computed(() => {
 });
 
 const miniMyData = computed(() => {
-  const currentInvestmentTotal = calculatedInvestmentAmounts.value.domestic + calculatedInvestmentAmounts.value.foreign;
-  
+  const currentInvestmentTotal =
+    calculatedInvestmentAmounts.value.domestic + calculatedInvestmentAmounts.value.foreign;
+
   let previousInvestmentTotal = 0;
   holdingData.value.fundHoldings.forEach(fund => {
     if (fund.previousDayPrice) {
@@ -170,15 +173,15 @@ const miniMyData = computed(() => {
       previousInvestmentTotal += etf.previousDayPrice * etf.currentHoldings;
     }
   });
-  
+
   let change = 0;
   let changePercent = 0;
-  
+
   if (previousInvestmentTotal > 0) {
     change = currentInvestmentTotal - previousInvestmentTotal;
     changePercent = (change / previousInvestmentTotal) * 100;
   }
-  
+
   return {
     currentTotal: currentInvestmentTotal,
     change: change,
@@ -188,7 +191,10 @@ const miniMyData = computed(() => {
 
 const holdingTotalData = computed(() => {
   return {
-    totalValuation: holdingData.value.timeDeposit + calculatedInvestmentAmounts.value.domestic + calculatedInvestmentAmounts.value.foreign,
+    totalValuation:
+      holdingData.value.timeDeposit +
+      calculatedInvestmentAmounts.value.domestic +
+      calculatedInvestmentAmounts.value.foreign,
     timeDeposit: holdingData.value.timeDeposit,
     domesticInvestment: calculatedInvestmentAmounts.value.domestic,
     foreignInvestment: calculatedInvestmentAmounts.value.foreign
@@ -201,42 +207,40 @@ const receivedFirstMessage = ref(false);
 
 const handleEtfRealtimeData = (data, productCode) => {
   if (!isMounted.value) return;
-  
+
   console.log(`[ETF 실시간] ${productCode}:`, data);
-  
+
   if (!receivedFirstMessage.value) {
     receivedFirstMessage.value = true;
     console.log('[웹소켓] 첫 메시지 수신, 로딩 종료');
     loadingStore.stopLoading();
   }
-  
-  const etfIndex = holdingData.value.etfHoldings.findIndex(
-    etf => etf.productCode === productCode
-  );
-  
+
+  const etfIndex = holdingData.value.etfHoldings.findIndex(etf => etf.productCode === productCode);
+
   if (etfIndex !== -1) {
     const etf = holdingData.value.etfHoldings[etfIndex];
-    
+
     if (data.currentPrice !== undefined) {
       etf.currentValuation = Number((data.currentPrice * etf.currentHoldings).toFixed(2));
     }
-    
+
     if (data.changeFromPrevDay !== undefined) {
       etf.priceChange = Number(data.changeFromPrevDay.toFixed(2));
       etf.totalPriceChange = Number((data.changeFromPrevDay * etf.currentHoldings).toFixed(2));
     }
-    
+
     if (data.changeRateFromPrevDay !== undefined) {
       etf.priceChangePercent = data.changeRateFromPrevDay;
     }
-    
+
     console.log(`[ETF 업데이트] ${productCode}:`, {
       currentValuation: etf.currentValuation,
       priceChange: etf.priceChange,
       priceChangePercent: etf.priceChangePercent,
       totalPriceChange: etf.totalPriceChange
     });
-    
+
     holdingData.value.etfHoldings = [...holdingData.value.etfHoldings];
   }
 };
@@ -249,18 +253,15 @@ const startEtfWebSocketSubscriptions = async () => {
     }
 
     let subscriptionCount = 0;
-    
+
     for (const etf of holdingData.value.etfHoldings) {
       if (etf.productCode) {
-        const subscription = await webSocketStore.subscribeToEtf(
-          etf.productCode, 
-          (data) => {
-            if (isMounted.value) {
-              handleEtfRealtimeData(data, etf.productCode);
-            }
+        const subscription = await webSocketStore.subscribeToEtf(etf.productCode, data => {
+          if (isMounted.value) {
+            handleEtfRealtimeData(data, etf.productCode);
           }
-        );
-        
+        });
+
         if (subscription) {
           subscriptionCount++;
           console.log(`[ETF 구독] ${etf.productName} (${etf.productCode}) 구독 성공`);
@@ -269,10 +270,10 @@ const startEtfWebSocketSubscriptions = async () => {
         }
       }
     }
-    
+
     // 구독이 하나라도 있으면 웹소켓 구독 상태를 true로 설정
     hasWebSocketSubscriptions.value = subscriptionCount > 0;
-    
+
     // 구독이 없으면 바로 로딩 종료
     if (subscriptionCount === 0) {
       console.log('[웹소켓] 구독할 ETF가 없음, 로딩 종료');
@@ -280,7 +281,6 @@ const startEtfWebSocketSubscriptions = async () => {
     } else {
       console.log(`[웹소켓] ${subscriptionCount}개 ETF 구독 완료, 첫 메시지 대기 중...`);
     }
-    
   } catch (error) {
     console.error('[ETF 웹소켓] 구독 실패:', error);
     loadingStore.stopLoading();
@@ -295,27 +295,14 @@ const loadHoldingData = async () => {
     if (token) {
       try {
         console.log('[API] 보유 내역 API 호출 시작...');
-        const response = await fetch('http://localhost:8080/holdings/details', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        console.log('[API] 응답 상태:', response.status, response.statusText);
-        
-        if (response.ok) {
-          const apiData = await response.json();
-          console.log('[API] 실제 보유 내역 데이터:', apiData);
-          console.log('[API] etfHoldings 타입:', typeof apiData.etfHoldings);
-          console.log('[API] etfHoldings 길이:', apiData.etfHoldings?.length);
-          console.log('[API] etfHoldings 내용:', apiData.etfHoldings);
-          
-          holdingData.value = apiData;
-          console.log('[API] 실제 보유 내역 데이터 로드 성공');
-        } else {
-          throw new Error(`API 응답 오류: ${response.status}`);
-        }
+        const apiData = await holdingsApi.getHoldingsDetails();
+        console.log('[API] 실제 보유 내역 데이터:', apiData);
+        console.log('[API] etfHoldings 타입:', typeof apiData.etfHoldings);
+        console.log('[API] etfHoldings 길이:', apiData.etfHoldings?.length);
+        console.log('[API] etfHoldings 내용:', apiData.etfHoldings);
+
+        holdingData.value = apiData;
+        console.log('[API] 실제 보유 내역 데이터 로드 성공');
       } catch (apiError) {
         console.error('[API] 실제 API 호출 실패:', apiError);
         console.log('[API] Mock 데이터 사용으로 전환');
@@ -325,11 +312,10 @@ const loadHoldingData = async () => {
       console.log('[MOCK] 토큰 없음, Mock 데이터 사용');
       loadMockData();
     }
-    
+
     console.log('[웹소켓] 연결 상태:', webSocketStore.isConnected);
     console.log('[웹소켓] 현재 holdingData 상태:', holdingData.value);
     await startEtfWebSocketSubscriptions();
-    
   } catch (error) {
     console.error('보유 내역 로드 실패, Mock 데이터 사용 :', error);
     loadMockData();
@@ -346,7 +332,7 @@ const loadMockData = () => {
 
 onMounted(async () => {
   loadingStore.resetLoading();
-  
+
   await loadHoldingData();
 });
 

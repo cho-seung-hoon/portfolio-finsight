@@ -16,45 +16,66 @@
       <div class="subItem-header">
         <div
           class="product-type-badge"
-          :class="getProductTypeClass(item.type)">
-          {{ getProductTypeText(item.type) }}
+          :class="getProductTypeClass(item.category)">
+          {{ getProductTypeText(item.category) }}
         </div>
         <button
           class="wishlist-btn active"
           @click.stop="toggleWishlist(item)"></button>
       </div>
 
-      <div class="subItem-title">{{ item.name }}</div>
+      <div class="subItem-title">{{ truncateProductName(item.productName) }}</div>
 
       <div class="subItem-content">
+        <!-- 예금 -->
         <div
-          v-if="item.type == 'deposit'"
+          v-if="item.category === 'deposit'"
           class="amount-info">
-          <span
-            class="amount-value"
-            :class="getAmountClass(item.type)">
-            {{ formatAmount(item.joinDate) }}년
-          </span>
-          <span
-            class="amount-per"
-            :class="getAmountClass(item.type)">
-            {{ formatAmount(item.interestRate) }} %
-          </span>
+          <span class="amount-value">(최고금리) 1년</span>
+          <span class="amount-per">{{ item.depositIntrRate2 }}%</span>
         </div>
 
-        <!-- 펀드/ETF의 경우 수익률 표시 -->
+        <!-- 펀드 -->
         <div
-          v-if="item.type !== 'deposit' && item.returnRate"
+          v-if="item.category === 'fund'"
           class="return-rate">
-          <div
-            class="amount-value-fundNEtf"
-            :class="getAmountClass(item.type)">
-            {{ formatAmount(item.amount) }} 원
+          <div :class="getReturnRateClass(item.percentChangeFromYesterday || 0)">
+            <span class="change-label">(전일대비)</span>
+            {{ item.percentChangeFromYesterday ? 
+              (item.percentChangeFromYesterday > 0 ? '+' : '') + item.percentChangeFromYesterday.toFixed(2) + '%' : 
+              '수익률 정보 준비중' 
+            }}
           </div>
-          <div :class="getReturnRateClass(item.returnRate)">
-            {{ item.returnRate > 0 ? '+' : '' }}{{ item.returnRate.toFixed(2) }}%
+          <div class="amount-value-fundNEtf">
+            {{ item.currentNav ? `${item.currentNav.toLocaleString()}원` : '가격 정보 준비중' }}
           </div>
         </div>
+
+        <!-- ETF -->
+        <div
+          v-if="item.category === 'etf'"
+          class="return-rate">
+          <div :class="getReturnRateClass(item.changeRateFromPrevDay || 0)">
+            <span class="change-label">(전일대비)</span>
+            {{ item.changeRateFromPrevDay ? 
+              (item.changeRateFromPrevDay > 0 ? '+' : '') + item.changeRateFromPrevDay.toFixed(2) + '%' : 
+              '수익률 정보 준비중' 
+            }}
+          </div>
+          <div class="amount-value-fundNEtf">
+            {{ item.currentPrice ? `${item.currentPrice.toLocaleString()}원` : '가격 정보 준비중' }}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 더보기 아이템 -->
+    <div
+      class="subItem more-item"
+      @click="goToWatchPage">
+      <div class="more-item-content">
+        <div class="more-icon">+</div>
+        <div class="more-text">더보기</div>
       </div>
     </div>
   </div>
@@ -62,63 +83,19 @@
 
 <script setup>
 import router from '@/router';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { getWatchPreview } from '@/api/watchApi';
+import { 
+  subscribeToEtfPrice, 
+  unsubscribeAll 
+} from '@/utils/websocketUtils';
 
 const wishlistData = ref([]);
 
-// 찜한 상품 데이터 (실제로는 API에서 가져올 데이터)
-const mockWishlistData = [
-  {
-    id: 1,
-    type: 'deposit',
-    name: 'SH 첫만남우대예금',
-    joinDate: '1',
-    interestRate: 3.5,
-    bank: 'SH수협은행'
-  },
-  {
-    id: 2,
-    type: 'deposit',
-    name: '정기예금 특판',
-    joinDate: '2',
-    interestRate: 4.2,
-    bank: '국민은행'
-  },
-  {
-    id: 3,
-    type: 'fund',
-    name: '삼성 글로벌 펀드',
-    amount: 2500000, // 평가 금액
-    returnRate: 8.5,
-    company: '삼성자산운용'
-  },
-  {
-    id: 4,
-    type: 'fund',
-    name: '미래에셋 코리아 펀드',
-    amount: 1800000,
-    returnRate: -2.3,
-    company: '미래에셋자산운용'
-  },
-  {
-    id: 5,
-    type: 'etf',
-    name: 'KODEX 200',
-    amount: 3200000, // 평가 금액
-    returnRate: 12.7,
-    company: '삼성자산운용'
-  },
-  {
-    id: 6,
-    type: 'etf',
-    name: 'TIGER 미국S&P500',
-    amount: 4500000,
-    returnRate: 15.2,
-    company: 'mirae에셋자산운용'
-  }
-];
+// 웹소켓 구독 관리
+const etfMap = ref(new Map());
+const subscribedCodes = ref(new Set());
 
-// 컴포넌트 메서드들
 const getProductTypeText = type => {
   const typeMap = {
     deposit: '예금',
@@ -129,57 +106,143 @@ const getProductTypeText = type => {
 };
 
 const getProductTypeClass = type => {
+  if (!type) return 'product-type-unknown';
   return `product-type-${type}`;
 };
 
-const getAmountLabel = type => {
-  if (type === 'deposit') {
-    return '가입금액';
-  } else {
-    return '평가금액';
-  }
-};
-
-const getAmountClass = type => {
-  return type === 'deposit' ? 'deposit-amount' : 'evaluation-amount';
-};
-
-const formatAmount = amount => {
-  return new Intl.NumberFormat('ko-KR').format(amount);
-};
-
-const getReturnRateClass = returnRate => {
-  if (returnRate > 0) {
+const getReturnRateClass = rate => {
+  if (rate > 0) {
     return 'return-rate-positive';
-  } else if (returnRate < 0) {
+  } else if (rate < 0) {
     return 'return-rate-negative';
   } else {
     return 'return-rate-neutral';
   }
 };
 
-const toggleWishlist = item => {
-  // 찜하기 토글 로직
-  console.log('찜하기 토글:', item.name);
-  // 실제로는 API 호출하여 찜하기 상태 변경
+const truncateProductName = (name, maxLength = 15) => {
+  if (name && name.length > maxLength) {
+    return name.substring(0, maxLength) + '...';
+  }
+  return name;
 };
 
 const goToProductDetail = item => {
-  // 상품 상세 페이지로 이동
-  console.log('상품 상세로 이동:', item);
-  // 실제로는 라우터를 사용하여 페이지 이동
+  if (item.category === 'deposit') {
+    router.push(`/deposit/${item.productCode}`);
+  } else if (item.category === 'fund') {
+    router.push(`/fund/${item.productCode}`);
+  } else if (item.category === 'etf') {
+    router.push(`/etf/${item.productCode}`);
+  }
+};
+
+// ETF 실시간 데이터 처리
+const handleEtfRealtimeData = (data, productCode) => {
+  if (etfMap.value.has(productCode)) {
+    const etf = etfMap.value.get(productCode);
+    
+    const updatedEtf = {
+      ...etf,
+      currentPrice: data.currentPrice,
+      changeRateFromPrevDay: data.changeRateFromPrevDay,
+      lastUpdate: data.timestamp
+    };
+    
+    etfMap.value.set(productCode, updatedEtf);
+    
+    const etfIndex = wishlistData.value.findIndex(item => 
+      item.category === 'etf' && item.productCode === productCode
+    );
+    if (etfIndex !== -1) {
+      wishlistData.value[etfIndex] = updatedEtf;
+    }
+  }
+};
+
+// ETF 웹소켓 구독 시작
+const startEtfWebSocketSubscriptions = async () => {
+  try {
+    unsubscribeFromEtfs();
+    
+    const etfItems = wishlistData.value.filter(item => item.category === 'etf');
+    
+    for (const etfItem of etfItems) {
+      if (etfItem.productCode) {
+        const subscription = await subscribeToEtfPrice(
+          etfItem.productCode, 
+          (data) => handleEtfRealtimeData(data, etfItem.productCode)
+        );
+        
+        if (subscription) {
+          subscribedCodes.value.add(etfItem.productCode);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('ETF 구독 실패:', error);
+  }
+};
+
+// ETF 웹소켓 구독 해제
+const unsubscribeFromEtfs = () => {
+  unsubscribeAll();
+  subscribedCodes.value.clear();
 };
 
 const fetchWishlistData = async () => {
   try {
-    // 실제로는 API에서 찜한 상품 데이터를 가져옴
-    // const data = await getWishlistProducts()
-
-    // 목업 데이터 사용
-    wishlistData.value = mockWishlistData;
-    console.log('찜한 상품 데이터:', wishlistData.value);
+    const data = await getWatchPreview();
+    
+    const transformedData = [];
+    
+    if (data.watchItems && data.watchItems.length > 0) {
+      data.watchItems.forEach(watchItem => {
+        const item = {
+          ...watchItem.detail,
+          category: watchItem.productCategory,
+          watchListId: watchItem.watchListId
+        };
+        transformedData.push(item);
+      });
+    }
+    
+    if (transformedData.length === 0) {
+      transformedData.push({
+        productCode: '248270',
+        productName: 'TIGER S&P글로벌헬스케어',
+        category: 'etf',
+        currentPrice: 8785.19,
+        changeRateFromPrevDay: -1.37
+      });
+    }
+    
+    wishlistData.value = transformedData;
+    
+    const etfItems = transformedData.filter(item => item.category === 'etf');
+    if (etfItems.length > 0) {
+      etfMap.value.clear();
+      etfItems.forEach(etf => {
+        if (etf.productCode) {
+          etfMap.value.set(etf.productCode, etf);
+        }
+      });
+      await startEtfWebSocketSubscriptions();
+    } else {
+      unsubscribeFromEtfs();
+    }
   } catch (error) {
     console.error('찜한 상품 데이터 로딩 실패:', error);
+    wishlistData.value = [{
+      productCode: '248270',
+      productName: 'TIGER S&P글로벌헬스케어',
+      category: 'etf',
+      currentPrice: 8785.19,
+      changeRateFromPrevDay: -1.37
+    }];
+    
+    etfMap.value.set('248270', wishlistData.value[0]);
+    await startEtfWebSocketSubscriptions();
   }
 };
 
@@ -190,21 +253,13 @@ const goToWatchPage = () => {
 onMounted(() => {
   fetchWishlistData();
 });
+
+onBeforeUnmount(() => {
+  unsubscribeFromEtfs();
+});
 </script>
 
 <style scoped>
-:root {
-  --white: #ffffff;
-  --main02: #6b7280;
-  --main04: #e5e7eb;
-  --font-size-xs: 10px;
-  --font-size-sm: 12px;
-  --font-size-md: 14px;
-  --font-size-lg: 16px;
-  --font-weight-medium: 500;
-  --font-weight-semi-bold: 600;
-  --font-weight-bold: 700;
-}
 .wishlist-container {
   margin: 20px 0;
 }
@@ -240,7 +295,7 @@ onMounted(() => {
 }
 
 .more-button:hover {
-  background-color: #f3f4f6;
+  background-color: var(--main04);
   color: var(--main01);
 }
 
@@ -271,6 +326,10 @@ onMounted(() => {
   margin-right: 0;
 }
 
+.subItem:hover {
+  background-color: var(--main04);
+}
+
 .subItem-header {
   display: flex;
   justify-content: space-between;
@@ -284,21 +343,29 @@ onMounted(() => {
   padding: 4px 8px;
   border-radius: 12px;
   text-transform: uppercase;
+  text-align: left;
 }
 
 .product-type-deposit {
   background-color: var(--main04);
-  color: #757c8c;
+  color: var(--main02);
 }
 
 .product-type-fund {
   background-color: var(--main04);
-  color: #757c8c;
+  color: var(--main02);
 }
 
 .product-type-etf {
   background-color: var(--main04);
-  color: #757c8c;
+  color: var(--main02);
+  font-weight: var(--font-weight-semi-bold);
+}
+
+.product-type-unknown {
+  background-color: var(--sub02);
+  color: var(--orange01);
+  font-weight: var(--font-weight-semi-bold);
 }
 
 .wishlist-btn {
@@ -311,7 +378,7 @@ onMounted(() => {
 }
 
 .wishlist-btn:hover {
-  background-color: #f3f4f6;
+  background-color: var(--main04);
 }
 
 .wishlist-btn.active .heart-icon {
@@ -332,21 +399,26 @@ onMounted(() => {
   font-weight: var(--font-weight-semi-bold);
   margin-bottom: 12px;
   line-height: 1.3;
+  height: 2.6em;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-align: left;
 }
 
 .subItem-content {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  justify-content: space-between;
+  min-height: 40px;
 }
 
 .amount-info {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  text-align: right;
 }
 
 .amount-label {
@@ -358,31 +430,76 @@ onMounted(() => {
 .amount-value {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
+  color: var(--main02);
 }
 .amount-per {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
 }
 .amount-value-fundNEtf {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
 }
 
 .return-rate {
-  text-align: left;
+  text-align: right;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semi-bold);
 }
 
+.return-rate > div:last-child {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+}
+
 .return-rate-positive {
-  color: #dc2626;
+  color: var(--red01);
 }
 
 .return-rate-negative {
-  color: #2563eb;
+  color: var(--newsPositive);
 }
 
 .return-rate-neutral {
+  color: var(--main02);
+}
+
+.change-label {
+  color: var(--main02);
+  font-size: 9px;
+  font-weight: var(--font-weight-medium);
+  margin-right: 4px;
+  opacity: 0.8;
+}
+
+.more-item {
+  background-color: var(--white);
+  border: 1px solid var(--main04);
+}
+
+.more-item:hover {
+  background-color: var(--main04);
+  border-color: var(--main02);
+}
+
+.more-item-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 8px;
+}
+
+.more-icon {
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  color: var(--main02);
+}
+
+.more-text {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   color: var(--main02);
 }
 </style>

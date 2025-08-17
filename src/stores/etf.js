@@ -4,6 +4,7 @@ import Decimal from 'decimal.js';
 import { useLoadingStore } from './loading';
 import { formatNumberWithComma } from '@/utils/numberUtils';
 import { useSessionStore } from '@/stores/session.js';
+import { getProductDetail, getEtfHistory } from '@/api/productApi';
 
 export const useEtfStore = defineStore('etf', () => {
   const sessionStore = useSessionStore();
@@ -102,16 +103,11 @@ export const useEtfStore = defineStore('etf', () => {
 
   const fetchProductDetail = async (productId, category, token) => {
     try {
-      const response = await fetch(`http://localhost:8080/products/${category}/${productId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) {
-        throw new Error('상품 상세 정보를 불러오는데 실패했습니다.');
-      }
-      return await response.json();
+      console.log(`[ETF API] ${category}/${productId} 호출`);
+
+      const data = await getProductDetail(category, productId);
+      console.log('[ETF API] 응답 데이터:', data);
+      return data;
     } catch (error) {
       console.error('Product API Error:', error);
       console.log('Using mock data due to API failure');
@@ -127,6 +123,7 @@ export const useEtfStore = defineStore('etf', () => {
     const authToken = token || sessionStore.accessToken;
     try {
       const productDetail = await fetchProductDetail(productId, category, authToken);
+
       product.value = processEtfData(productDetail, productId);
     } catch (e) {
       error.value = `ETF 상품 정보를 불러오는 데 실패했습니다: ${e.message}`;
@@ -150,7 +147,7 @@ export const useEtfStore = defineStore('etf', () => {
       isHolding: !!productDetail.holdings,
       holdingQuantity: productDetail.holdings?.holdings_total_quantity || 0,
       holdingsTotalQuantity: productDetail.holdings?.holdings_total_quantity || 0,
-      isWatched: productDetail.holdings?.isWatched ?? productDetail.holdings?.is_watched ?? false,
+      userWatches: productDetail.userWatches ?? false,
       yield3Months: productDetail.etfPriceSummaryDto?.percentChangeFrom3MonthsAgo ?? 0,
       currentPrice: productDetail.currentPrice ? productDetail.currentPrice.toLocaleString() : '0',
       productCompanyName: productDetail.productCompanyName || 'TIGER',
@@ -223,41 +220,14 @@ export const useEtfStore = defineStore('etf', () => {
 
   const generateYieldTab = productDetail => {
     if (!yieldHistory.value || yieldHistory.value.length === 0) return [];
-    
-    const chartDataForChart = yieldHistory.value.map(item => {
-      let time;
-      if (item.baseDate && Array.isArray(item.baseDate)) {
-        time = new Date(item.baseDate[0], item.baseDate[1] - 1, item.baseDate[2]).getTime() / 1000;
-      } else if (item.baseDate) {
-        time = new Date(item.baseDate).getTime() / 1000;
-      } else {
-        time = Date.now() / 1000;
-      }
-      
-      const value = Number(item.etfNav) || 0;
-      
-      return { 
-        time: time, 
-        value: value 
-      };
-    });
-    
-    return [
-      { type: 'areachart', title: 'ETF NAV 추이', desc: chartDataForChart },
-      {
-        type: 'text',
-        title: '상장일',
-        desc: Array.isArray(productDetail.etfListingDate)
-          ? `${productDetail.etfListingDate[0]}-${String(productDetail.etfListingDate[1]).padStart(2, '0')}-${String(productDetail.etfListingDate[2]).padStart(2, '0')}`
-          : productDetail.etfListingDate || '2021-06-10'
-      },
-      { type: 'text', title: '총보수', desc: `${productDetail.etfTotalExpenseRatio || 0.5}%` },
-      {
-        type: 'text',
-        title: '기초지수',
-        desc: productDetail.etfBenchmarkIndex || 'iSelect 비메모리반도체 지수(시장가격지수)'
-      }
-    ];
+
+    const chartDataForChart = yieldHistory.value.map(item => ({
+      time: Math.floor(item.timestamp / 1000),
+      price: Number(item.currentPrice) || 0,
+      volume: Number(item.currentVolume) || 0
+    }));
+
+    return [{ type: 'areachart', title: 'ETF 가격/거래량 그래프', desc: chartDataForChart }];
   };
 
   const generateInfoTab = productDetail => {
@@ -472,44 +442,41 @@ export const useEtfStore = defineStore('etf', () => {
       news: product.value.news,
       yield: generateYieldTab(product.value)
     };
-    
-    if (product.value.isHolding && 
-        (product.value.holding || product.value.holdings) &&
-        (product.value.holdings?.holdingsTotalQuantity > 0 || product.value.holding?.holdingsTotalQuantity > 0) &&
-        (product.value.holdings?.holdingsStatus !== 'zero' || product.value.holding?.holdingsStatus !== 'zero')) {
-      
-      const holdingSummaryData = {
-        type: 'holdingsummary',
-        title: '보유 현황',
-        desc: product.value.holding?.find(item => item.type === 'holdingsummary')?.desc || 
-              product.value.holdings?.find(item => item.type === 'holdingsummary')?.desc || {}
-      };
 
-      const holdingHistoryData = {
-        type: 'holdinghistory',
-        title: '투자 기록',
-        desc: product.value.holding?.find(item => item.type === 'holdinghistory')?.desc || 
-              product.value.holdings?.find(item => item.type === 'holdinghistory')?.desc || []
-      };
-
-      baseTabData.holding = [holdingSummaryData, holdingHistoryData];
+    // 보유 수량이 있으면 보유기록 탭 추가
+    if (
+      product.value.isHolding &&
+      (product.value.holding || product.value.holdings)?.holdingsTotalQuantity > 0
+    ) {
+      const holdingData = product.value.holding || product.value.holdings;
+      baseTabData.holding = [
+        {
+          type: 'holdingsummary',
+          title: '보유 현황',
+          desc: holdingData.find(item => item.type === 'holdingsummary')?.desc || {}
+        },
+        {
+          type: 'holdinghistory',
+          title: '투자 기록',
+          desc: holdingData.find(item => item.type === 'holdinghistory')?.desc || []
+        }
+      ];
     }
     return baseTabData;
   });
 
   const productInfo = computed(() => product.value);
-  const isWatched = computed(() => product.value?.isWatched || false);
+  const isWatched = computed(() => {
+    const watched = product.value?.userWatches ?? false;
+    return watched;
+  });
 
   const fetchYieldHistory = async (productId, token) => {
     if (isYieldHistoryLoaded.value) return;
     isYieldHistoryLoading.value = true;
-    const authToken = token || sessionStore.accessToken;
     try {
-      const response = await fetch(`http://localhost:8080/etf/${productId}/history`, {
-        headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' }
-      });
-      if (!response.ok) throw new Error('수익률 히스토리 로딩 실패');
-      yieldHistory.value = await response.json();
+      const data = await getEtfHistory(productId);
+      yieldHistory.value = data;
     } catch (error) {
       console.error('Yield History API Error:', error);
       // 실시간 웹소켓 데이터가 없을 때는 빈 배열로 시작
@@ -530,8 +497,6 @@ export const useEtfStore = defineStore('etf', () => {
   const updateRealtimeData = realtimeData => {
     if (!product.value || !realtimeData) return;
 
-    console.log('ETF updateRealtimeData - 웹소켓 데이터 처리:', realtimeData);
-    
     if (realtimeData.currentPrice !== undefined) {
       product.value.currentPrice = realtimeData.currentPrice;
     }
@@ -541,7 +506,6 @@ export const useEtfStore = defineStore('etf', () => {
     if (realtimeData.changeFromPrevDay !== undefined) {
       product.value.changeFromPrevDay = realtimeData.changeFromPrevDay;
     }
-    
     if (realtimeData.return1Week !== undefined) {
       product.value.return1Week = realtimeData.return1Week;
     }
@@ -551,8 +515,6 @@ export const useEtfStore = defineStore('etf', () => {
     if (realtimeData.return3Months !== undefined) {
       product.value.return3Months = realtimeData.return3Months;
     }
-    
-    console.log('ETF 실시간 데이터 업데이트 완료');
   };
 
   return {

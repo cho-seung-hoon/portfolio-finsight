@@ -1,6 +1,6 @@
 const productRoutes = [
   {
-    path: '/deposit/:id',
+    path: '/deposit/:productCode',
     name: 'DepositDetail',
     component: () => import('../pages/DepositPage.vue'),
     meta: {
@@ -14,7 +14,7 @@ const productRoutes = [
     }
   },
   {
-    path: '/etf/:id',
+    path: '/etf/:productCode',
     name: 'ETFDetail',
     component: () => import('../pages/ETFPage.vue'),
     meta: {
@@ -28,7 +28,7 @@ const productRoutes = [
     }
   },
   {
-    path: '/fund/:id',
+    path: '/fund/:productCode',
     name: 'FundDetail',
     component: () => import('@/pages/FundPage.vue'),
     meta: {

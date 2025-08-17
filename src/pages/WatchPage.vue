@@ -1,25 +1,79 @@
 <template>
-  <section class="list-watch-page-tab">
-    <button
-      v-for="tab in tabs"
-      :key="tab.value"
-      :class="['tab-btn', { active: selected === tab.value }]"
-      @click="selectTab(tab.value)">
-      {{ tab.label }}
-    </button>
-  </section>
-  <section class="list-watch-page-contents">
-    <DepositItem
-      v-for="item in deposits"
-      :key="item.product_code"
-      :item="item" />
-  </section>
+  <div class="list-watch-page-container">
+    <section class="list-watch-page-tab">
+      <button
+        v-for="tab in tabs"
+        :key="tab.value"
+        :class="['tab-btn', { active: selected === tab.value }]"
+        @click="selectTab(tab.value)">
+        {{ tab.label }}
+      </button>
+    </section>
+
+    <section class="list-watch-page-contents">
+      <!-- 예금 목록 -->
+      <template v-if="selected === 'deposit'">
+        <DepositItem
+          v-for="item in deposits"
+          :key="item.productCode"
+          :item="item" />
+        <div
+          v-if="deposits.length === 0"
+          class="empty-state">
+          <img
+            src="@/assets/cha4.png"
+            alt="찜한 상품 없음"
+            class="empty-image" />
+          <p class="empty-text">찜한 예금 상품이 없습니다.</p>
+        </div>
+      </template>
+
+      <!-- 펀드 목록 -->
+      <template v-if="selected === 'fund'">
+        <FundItem
+          v-for="item in funds"
+          :key="item.productCode"
+          :item="item" />
+        <div
+          v-if="funds.length === 0"
+          class="empty-state">
+          <img
+            src="@/assets/cha4.png"
+            alt="찜한 상품 없음"
+            class="empty-image" />
+          <p class="empty-text">찜한 펀드 상품이 없습니다.</p>
+        </div>
+      </template>
+
+      <!-- ETF 목록 -->
+      <template v-if="selected === 'etf'">
+        <EtfItem
+          v-for="item in etfs"
+          :key="item.productCode"
+          :item="item" />
+        <div
+          v-if="etfs.length === 0"
+          class="empty-state">
+          <img
+            src="@/assets/cha4.png"
+            alt="찜한 상품 없음"
+            class="empty-image" />
+          <p class="empty-text">찜한 ETF 상품이 없습니다.</p>
+        </div>
+      </template>
+    </section>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import DepositItem from '@/components/list/DepositItem.vue';
+import FundItem from '@/components/list/FundItem.vue';
+import EtfItem from '@/components/list/EtfItem.vue';
+import { getWatchDeposits, getWatchFunds, getWatchEtfs } from '@/api/watchApi';
+import { useWebSocketStore } from '@/stores/websocket';
+import { subscribeToEtfPrice, unsubscribeAll } from '@/utils/websocketUtils';
 
 const tabs = [
   { label: '예금', value: 'deposit' },
@@ -28,86 +82,129 @@ const tabs = [
 ];
 
 const selected = ref('deposit');
+const deposits = ref([]);
+const funds = ref([]);
+const etfs = ref([]);
 
-const deposits = [
-  {
-    product_code: 'SH123',
-    product_name: '시그니처 정기예금',
-    company_name: '신한은행',
-    intr_rate: 1.2,
-    intr_rate2: 2.8
-  },
-  {
-    product_code: 'KB123',
-    product_name: '플러스 정기예금',
-    company_name: '국민은행',
-    intr_rate: 1.5,
-    intr_rate2: 3.0
-  },
-  {
-    product_code: 'HN234',
-    product_name: '안심정기예금',
-    company_name: '하나은행',
-    intr_rate: 1.4,
-    intr_rate2: 2.7
-  },
-  {
-    product_code: 'WR341',
-    product_name: '우리파워정기예금',
-    company_name: '우리은행',
-    intr_rate: 1.3,
-    intr_rate2: 2.9
-  },
-  {
-    product_code: 'IBK432',
-    product_name: 'i-ONE 정기예금',
-    company_name: '기업은행',
-    intr_rate: 1.6,
-    intr_rate2: 3.1
-  },
-  {
-    product_code: 'NH543',
-    product_name: 'NH프리미엄예금',
-    company_name: '농협은행',
-    intr_rate: 1.3,
-    intr_rate2: 2.6
-  },
-  {
-    product_code: 'CT654',
-    product_name: '더드림정기예금',
-    company_name: '씨티은행',
-    intr_rate: 1.7,
-    intr_rate2: 3.2
-  },
-  {
-    product_code: 'SC765',
-    product_name: '마이플랜정기예금',
-    company_name: 'SC제일은행',
-    intr_rate: 1.4,
-    intr_rate2: 2.5
-  },
-  {
-    product_code: 'DA876',
-    product_name: '다이렉트정기예금',
-    company_name: '대구은행',
-    intr_rate: 1.5,
-    intr_rate2: 3.0
-  },
-  {
-    product_code: 'BS987',
-    product_name: '부산e-정기예금',
-    company_name: '부산은행',
-    intr_rate: 1.6,
-    intr_rate2: 3.1
-  }
-];
+// 웹소켓 구독 관리
+const etfMap = ref(new Map());
+const subscribedCodes = ref(new Set());
 
-function selectTab(tab) {
+async function selectTab(tab) {
+  unsubscribeFromEtfs();
   selected.value = tab;
+  await loadData();
 }
+
+// ETF 실시간 데이터 처리
+const handleEtfRealtimeData = (data, productCode) => {
+  if (etfMap.value.has(productCode)) {
+    const etf = etfMap.value.get(productCode);
+
+    const updatedEtf = {
+      ...etf,
+      currentPrice: data.currentPrice,
+      changeRate: data.changeRate1s,
+      currentVolume: data.currentVolume,
+      volume: data.currentVolume,
+      return3Months: data.return3Months,
+      changeFromPrevDay: data.changeFromPrevDay,
+      changeRateFromPrevDay: data.changeRateFromPrevDay,
+      lastUpdate: data.timestamp
+    };
+
+    etfMap.value.set(productCode, updatedEtf);
+
+    const etfIndex = etfs.value.findIndex(item => item.productCode === productCode);
+    if (etfIndex !== -1) {
+      etfs.value[etfIndex] = updatedEtf;
+    }
+  }
+};
+
+// ETF 웹소켓 구독 시작
+const startEtfWebSocketSubscriptions = async () => {
+  try {
+    unsubscribeFromEtfs();
+
+    for (const etf of etfs.value) {
+      if (etf.productCode) {
+        const subscription = await subscribeToEtfPrice(etf.productCode, data =>
+          handleEtfRealtimeData(data, etf.productCode)
+        );
+
+        if (subscription) {
+          subscribedCodes.value.add(etf.productCode);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('ETF 구독 실패:', error);
+  }
+};
+
+// ETF 웹소켓 구독 해제
+const unsubscribeFromEtfs = () => {
+  unsubscribeAll();
+  subscribedCodes.value.clear();
+};
+
+async function loadData() {
+  try {
+    if (selected.value === 'deposit') {
+      const rawDeposits = await getWatchDeposits();
+      deposits.value = rawDeposits.map(item => ({
+        ...item,
+        userWatches: true
+      }));
+    } else if (selected.value === 'fund') {
+      const rawFunds = await getWatchFunds();
+      funds.value = rawFunds.map(item => ({
+        ...item,
+        userWatches: true
+      }));
+    } else if (selected.value === 'etf') {
+      const rawEtfs = await getWatchEtfs();
+      etfs.value = rawEtfs.map(item => ({
+        ...item,
+        userWatches: true
+      }));
+
+      if (etfs.value.length > 0) {
+        etfMap.value.clear();
+        etfs.value.forEach(etf => {
+          if (etf.productCode) {
+            etfMap.value.set(etf.productCode, etf);
+          }
+        });
+        await startEtfWebSocketSubscriptions();
+      } else {
+        unsubscribeFromEtfs();
+      }
+    }
+  } catch (error) {
+    console.error('데이터 로드 실패:', error);
+  }
+}
+
+onMounted(async () => {
+  await loadData();
+});
+
+onBeforeUnmount(() => {
+  unsubscribeFromEtfs();
+});
 </script>
 
 <style scoped>
+.list-watch-page-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 12px;
+  margin-bottom: 60px;
+}
+
 .list-watch-page-tab {
   display: flex;
   gap: 12px;
@@ -138,5 +235,31 @@ function selectTab(tab) {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  background: var(--main05);
+  border-radius: 12px;
+  border: 1px solid var(--main04);
+  gap: 16px;
+}
+
+.empty-image {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.empty-text {
+  color: var(--main02);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  margin: 0;
 }
 </style>

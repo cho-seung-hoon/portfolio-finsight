@@ -24,15 +24,26 @@
           <label>현재 예치금액</label>
           <div class="info-value-wrapper">
             <div class="info-value">
-              {{ formatCurrency(holdingData?.holdingsTotalPrice || productInfo?.holding?.holdingsTotalPrice || 0) }}
+              {{
+                formatCurrency(
+                  holdingData?.holdingsTotalPrice || productInfo?.holding?.holdingsTotalPrice || 0
+                )
+              }}
             </div>
             <div
               v-if="
-                (holdingData?.holdingsTotalPrice || productInfo?.holding?.holdingsTotalPrice) && 
-                getKoreanNumber(holdingData?.holdingsTotalPrice || productInfo?.holding?.holdingsTotalPrice)
+                (holdingData?.holdingsTotalPrice || productInfo?.holding?.holdingsTotalPrice) &&
+                getKoreanNumber(
+                  holdingData?.holdingsTotalPrice || productInfo?.holding?.holdingsTotalPrice
+                )
               "
               class="korean-number">
-              {{ getKoreanNumber(holdingData?.holdingsTotalPrice || productInfo?.holding?.holdingsTotalPrice) }} 원
+              {{
+                getKoreanNumber(
+                  holdingData?.holdingsTotalPrice || productInfo?.holding?.holdingsTotalPrice
+                )
+              }}
+              원
             </div>
           </div>
         </div>
@@ -92,25 +103,29 @@ const holdingData = computed(() => {
 });
 
 const contractDate = computed(() => {
-  return props.productInfo?.contractDate || 
-         holdingData.value?.contractDate || 
-         holdingData.value?.history?.[0]?.historyTradeDate || 
-         props.productInfo?.holdings?.history?.[0]?.historyTradeDate || 
-         props.productInfo?.holding?.history?.[0]?.historyTradeDate || 
-         null;
+  return (
+    props.productInfo?.contractDate ||
+    holdingData.value?.contractDate ||
+    holdingData.value?.history?.[0]?.historyTradeDate ||
+    props.productInfo?.holdings?.history?.[0]?.historyTradeDate ||
+    props.productInfo?.holding?.history?.[0]?.historyTradeDate ||
+    null
+  );
 });
 
 const contractMonths = computed(() => {
-  return holdingData.value?.contractMonths || 
-         props.productInfo?.contractMonths || 
-         props.productInfo?.holding?.contractMonths;
+  return (
+    holdingData.value?.contractMonths ||
+    props.productInfo?.contractMonths ||
+    props.productInfo?.holding?.contractMonths
+  );
 });
 
 const calculatedMaturityDate = computed(() => {
   if (props.productInfo?.maturityDate || holdingData.value?.maturityDate) {
     return props.productInfo?.maturityDate || holdingData.value?.maturityDate;
   }
-  
+
   if (contractDate.value && contractMonths.value) {
     try {
       const contract = new Date(contractDate.value);
@@ -122,7 +137,7 @@ const calculatedMaturityDate = computed(() => {
       console.error('Error calculating maturityDate:', error);
     }
   }
-  
+
   return null;
 });
 
@@ -204,9 +219,9 @@ const handleBackdropClick = event => {
 
 const handleSubmit = async () => {
   if (isSubmitting.value) return;
-  
+
   isSubmitting.value = true;
-  
+
   const tradeData = {
     productCode: props.productInfo?.productCode,
     productCategory: 'deposit',

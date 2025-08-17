@@ -1,7 +1,7 @@
 <template>
   <Transition name="toast">
     <div
-      v-if="isVisible"
+      v-if="props.isVisible"
       class="toast-message"
       :class="type">
       <div class="toast-content">
@@ -28,7 +28,6 @@
 </template>
 
 <script setup>
-import { ref, watch, onUnmounted } from 'vue';
 import IconCheck from '@/components/icons/IconCheck.vue';
 
 const props = defineProps({
@@ -38,59 +37,16 @@ const props = defineProps({
   },
   type: {
     type: String,
-    default: 'success', // 'success', 'error', 'cancel', 'remove'
-    validator: value => ['success', 'error', 'cancel', 'remove'].includes(value)
-  },
-  duration: {
-    type: Number,
-    default: 3000 // 3초
+    default: 'success', // 'success', 'error', 'warning', 'info', 'remove'
+    validator: value => ['success', 'error', 'warning', 'info', 'remove'].includes(value)
   },
   timestamp: {
     type: String,
     default: null
-  }
-});
-
-const isVisible = ref(false);
-
-const show = () => {
-  isVisible.value = true;
-  if (props.duration > 0) {
-    window.toastTimer = setTimeout(() => {
-      hide();
-    }, props.duration);
-  }
-};
-
-const hide = () => {
-  isVisible.value = false;
-};
-
-// 외부에서 호출할 수 있도록 expose
-defineExpose({
-  show,
-  hide
-});
-
-// props가 변경될 때마다 토스트 표시
-watch(
-  () => [props.message, props.type, props.timestamp],
-  () => {
-    if (props.message) {
-      // 기존 타이머가 있다면 클리어
-      if (window.toastTimer) {
-        clearTimeout(window.toastTimer);
-      }
-      show();
-    }
   },
-  { immediate: true }
-);
-
-// 컴포넌트가 언마운트될 때 타이머 정리
-onUnmounted(() => {
-  if (window.toastTimer) {
-    clearTimeout(window.toastTimer);
+  isVisible: {
+    type: Boolean,
+    default: true
   }
 });
 </script>

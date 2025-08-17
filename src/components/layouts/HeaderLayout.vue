@@ -28,6 +28,15 @@
       v-if="loadingStore.isLoading"
       :text="loadingStore.loadingText" />
 
+    <!-- 토스트 메시지 -->
+    <ToastMessage
+      v-if="toastStore.isVisible"
+      :key="toastStore.message + (toastStore.timestamp || '')"
+      :message="toastStore.message"
+      :type="toastStore.type"
+      :timestamp="toastStore.timestamp"
+      :duration="3000" />
+
     <!-- ✅ 토큰 만료 5분전 팝업 기능 -->
     <!-- <div
       v-if="isModalVisible"
@@ -49,8 +58,10 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useHeaderStore } from '@/stores/header';
 import Header from './Header.vue';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
+import ToastMessage from '@/components/common/ToastMessage.vue';
 import { useRoute } from 'vue-router';
 import { useLoadingStore } from '@/stores/loading';
+import { useToastStore } from '@/stores/toast';
 
 const isModalVisible = ref(false);
 const hasShownExpireWarning = ref(false);
@@ -64,6 +75,7 @@ const closeModal = () => {
 
 const headerStore = useHeaderStore();
 const loadingStore = useLoadingStore();
+const toastStore = useToastStore();
 
 const stickyHeader = computed(() => headerStore.stickyHeader);
 

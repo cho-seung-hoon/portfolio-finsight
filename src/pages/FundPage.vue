@@ -12,7 +12,9 @@
         :price-arr="productInfo.priceArr"
         :current-price="productInfo.currentPrice"
         :price-change="productInfo.priceChange"
-        :price-change-percent="productInfo.priceChangePercent" />
+        :price-change-percent="productInfo.priceChangePercent"
+        :product-code="productInfo.productCode"
+        :is-watched="productInfo?.isWatched || false" />
 
       <DetailTabs
         :tabs="tabs"
@@ -78,8 +80,7 @@ import ToastMessage from '@/components/common/ToastMessage.vue';
 const route = useRoute();
 
 const fundStore = useFundStore();
-const { productInfo, error, isYieldHistoryLoaded, isYieldHistoryLoading } =
-  storeToRefs(fundStore);
+const { productInfo, error, isYieldHistoryLoaded, isYieldHistoryLoading } = storeToRefs(fundStore);
 
 // 모달 상태 관리
 const isModalOpen = ref(false);
@@ -102,9 +103,10 @@ const toastConfig = ref({
 });
 
 onMounted(() => {
-  const productId = route.params.id;
-  if (productId) {
-    fundStore.fetchProduct(productId);
+  const productCode = route.params.productCode;
+  if (productCode) {
+    console.log('[FUND DETAIL] 상품 코드:', productCode);
+    fundStore.fetchProduct(productCode);
     fundStore.resetYieldHistory();
   }
 });
@@ -124,11 +126,14 @@ const showToast = (message, type = 'success', timestamp = null) => {
 };
 
 const tabs = computed(() => {
-  const hasValidHoldings = productInfo.value?.isHolding &&
+  const hasValidHoldings =
+    productInfo.value?.isHolding &&
     (productInfo.value?.holdings || productInfo.value?.holding) &&
-    (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
-    (productInfo.value?.holdings?.holdingsStatus !== 'zero' || productInfo.value?.holding?.holdingsStatus !== 'zero');
-  
+    (productInfo.value?.holdings?.holdingsTotalQuantity > 0 ||
+      productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
+    (productInfo.value?.holdings?.holdingsStatus !== 'zero' ||
+      productInfo.value?.holding?.holdingsStatus !== 'zero');
+
   if (hasValidHoldings) {
     return [
       { key: 'holding', label: '보유기록' },
@@ -155,11 +160,11 @@ const selectTab = async tab => {
   selectedTab.value = tab;
 
   if (tab === 'yield' && !isYieldHistoryLoaded.value && !isYieldHistoryLoading.value) {
-    const productId = route.params.id;
-    console.log('Fetching yield history for productId:', productId);
-    if (productId) {
+    const productCode = route.params.productCode;
+    console.log('Fetching yield history for productCode:', productCode);
+    if (productCode) {
       try {
-        await fundStore.fetchYieldHistory(productId);
+        await fundStore.fetchYieldHistory(productCode);
         console.log('Yield history fetched successfully');
       } catch (error) {
         console.error('Failed to fetch yield history:', error);
@@ -175,8 +180,10 @@ watch(
     if (
       newProductInfo?.isHolding &&
       (newProductInfo?.holdings || newProductInfo?.holding) &&
-      (newProductInfo?.holdings?.holdingsTotalQuantity > 0 || newProductInfo?.holding?.holdingsTotalQuantity > 0) &&
-      (newProductInfo?.holdings?.holdingsStatus !== 'zero' || newProductInfo?.holding?.holdingsStatus !== 'zero') &&
+      (newProductInfo?.holdings?.holdingsTotalQuantity > 0 ||
+        newProductInfo?.holding?.holdingsTotalQuantity > 0) &&
+      (newProductInfo?.holdings?.holdingsStatus !== 'zero' ||
+        newProductInfo?.holding?.holdingsStatus !== 'zero') &&
       (!oldProductInfo || !oldProductInfo.isHolding) &&
       selectedTab.value === 'info'
     ) {
@@ -196,11 +203,14 @@ const tabData = computed(() => {
     news: fundStore.generateNewsTab(fundStore.product)
   };
 
-  if (fundStore.product.isHolding && 
-      (fundStore.product.holding || fundStore.product.holdings) &&
-      (fundStore.product.holdings?.holdingsTotalQuantity > 0 || fundStore.product.holding?.holdingsTotalQuantity > 0) &&
-      (fundStore.product.holdings?.holdingsStatus !== 'zero' || fundStore.product.holding?.holdingsStatus !== 'zero')) {
-    
+  if (
+    fundStore.product.isHolding &&
+    (fundStore.product.holding || fundStore.product.holdings) &&
+    (fundStore.product.holdings?.holdingsTotalQuantity > 0 ||
+      fundStore.product.holding?.holdingsTotalQuantity > 0) &&
+    (fundStore.product.holdings?.holdingsStatus !== 'zero' ||
+      fundStore.product.holding?.holdingsStatus !== 'zero')
+  ) {
     const holdingData = fundStore.generateHoldingTab(fundStore.product.holdings, fundStore.product);
     if (holdingData && holdingData.length > 0) {
       baseTabData.holding = holdingData;
@@ -252,13 +262,17 @@ const handleModalClose = () => {
 // 상품 데이터 새로고침 함수
 const refreshProductData = async () => {
   try {
-    const productId = route.params.id;
-    if (productId) {
-      await fundStore.fetchProduct(productId);
-      if (productInfo.value?.isHolding && 
-          (productInfo.value?.holdings || productInfo.value?.holding) && 
-          (productInfo.value?.holdings?.holdingsTotalQuantity > 0 || productInfo.value?.holding?.holdingsTotalQuantity > 0) && 
-          (productInfo.value?.holdings?.holdingsStatus !== 'zero' || productInfo.value?.holding?.holdingsStatus !== 'zero')) {
+    const productCode = route.params.productCode;
+    if (productCode) {
+      await fundStore.fetchProduct(productCode);
+      if (
+        productInfo.value?.isHolding &&
+        (productInfo.value?.holdings || productInfo.value?.holding) &&
+        (productInfo.value?.holdings?.holdingsTotalQuantity > 0 ||
+          productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
+        (productInfo.value?.holdings?.holdingsStatus !== 'zero' ||
+          productInfo.value?.holding?.holdingsStatus !== 'zero')
+      ) {
         selectedTab.value = 'holding';
       } else {
         selectedTab.value = 'info';
@@ -273,7 +287,7 @@ const refreshProductData = async () => {
 const handleBuySubmit = async formData => {
   try {
     isTransactionInProgress.value = true;
-    
+
     if (formData.success) {
       handleModalClose();
       const timestamp = new Date().toLocaleString('ko-KR', {
@@ -301,7 +315,7 @@ const handleBuySubmit = async formData => {
 const handleSellSubmit = async formData => {
   try {
     isTransactionInProgress.value = true;
-    
+
     if (formData.success) {
       handleModalClose();
       const timestamp = new Date().toLocaleString('ko-KR', {
