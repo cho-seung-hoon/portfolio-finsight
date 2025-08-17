@@ -239,22 +239,7 @@ export const useEtfStore = defineStore('etf', () => {
       volume: Number(item.currentVolume) || 0
     }));
 
-    return [
-      { type: 'areachart', title: 'ETF 가격/거래량 그래프', desc: chartDataForChart },
-      {
-        type: 'text',
-        title: '상장일',
-        desc: Array.isArray(productDetail.etfListingDate)
-          ? `${productDetail.etfListingDate[0]}-${String(productDetail.etfListingDate[1]).padStart(2, '0')}-${String(productDetail.etfListingDate[2]).padStart(2, '0')}`
-          : productDetail.etfListingDate || '2021-06-10'
-      },
-      { type: 'text', title: '총보수', desc: `${productDetail.etfTotalExpenseRatio || 0.5}%` },
-      {
-        type: 'text',
-        title: '기초지수',
-        desc: productDetail.etfTotalExpenseRatio || 'iSelect 비메모리반도체 지수(시장가격지수)'
-      }
-    ];
+    return [{ type: 'areachart', title: 'ETF 가격/거래량 그래프', desc: chartDataForChart }];
   };
 
   const generateInfoTab = productDetail => {

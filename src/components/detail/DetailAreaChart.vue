@@ -531,9 +531,6 @@ watch(
   newRealtimeData => {
     if (props.category === 'etf' && newRealtimeData && chart.value) {
       try {
-        console.log('=== 웹소켓 실시간 데이터 감지 ===');
-        console.log('새로운 실시간 데이터:', newRealtimeData);
-
         if (
           newRealtimeData.timestamp &&
           newRealtimeData.currentPrice !== undefined &&
@@ -554,7 +551,6 @@ watch(
               time: newTime,
               value: newPrice
             });
-            console.log('가격 시리즈 업데이트 완료');
           }
 
           if (etfVolumeSeries.value) {
@@ -562,7 +558,6 @@ watch(
               time: newTime,
               value: newVolume
             });
-            console.log('거래량 시리즈 업데이트 완료');
           }
 
           const currentVisibleRange = chart.value.timeScale().getVisibleRange();
@@ -574,10 +569,6 @@ watch(
                 from: newFrom,
                 to: currentVisibleRange.to
               });
-              console.log('실시간 업데이트 시 시간축 범위 조정:', {
-                from: new Date(newFrom * 1000).toLocaleTimeString(),
-                to: new Date(currentVisibleRange.to * 1000).toLocaleTimeString()
-              });
             }
           } else {
             const newTo = Math.floor(Date.now() / 1000);
@@ -586,14 +577,7 @@ watch(
               from: newFrom,
               to: newTo
             });
-            console.log('초기 시간축 범위 설정:', {
-              from: new Date(newFrom * 1000).toLocaleTimeString(),
-              to: new Date(newTo * 1000).toLocaleTimeString()
-            });
           }
-
-          const timeScaleInfo = chart.value.timeScale().getVisibleRange();
-          console.log('차트 상태 - timeScale visibleRange:', timeScaleInfo);
         }
       } catch (error) {
         console.error('Error updating realtime data:', error);

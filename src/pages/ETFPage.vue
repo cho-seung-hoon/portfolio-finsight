@@ -184,8 +184,7 @@ const tabs = computed(() => {
   // 보유 수량이 있으면 보유기록 탭 추가
   const hasHoldings =
     productInfo.value.isHolding &&
-    productInfo.value.holding?.length > 0 &&
-    productInfo.value.holdingsTotalQuantity > 0;
+    (productInfo.value.holdings || productInfo.value.holding)?.holdingsTotalQuantity > 0;
 
   if (hasHoldings) {
     return [
@@ -231,8 +230,7 @@ const selectTab = async tab => {
 watch(productInfo, (newProductInfo, oldProductInfo) => {
   const hasNewHoldings =
     newProductInfo?.isHolding &&
-    newProductInfo.holding?.length > 0 &&
-    newProductInfo.holdingsTotalQuantity > 0;
+    (newProductInfo.holdings || newProductInfo.holding)?.holdingsTotalQuantity > 0;
 
   const hadOldHoldings = oldProductInfo?.isHolding;
 
@@ -242,7 +240,41 @@ watch(productInfo, (newProductInfo, oldProductInfo) => {
 });
 
 const tabData = computed(() => {
-  return etfStore.tabData;
+  if (!etfStore.product) return {};
+
+  const baseTabData = {
+    info: etfStore.product.info,
+    yield: etfStore.product.yield,
+    composition: etfStore.product.composition,
+    news: etfStore.product.news
+  };
+
+  if (
+    etfStore.product.isHolding &&
+    (etfStore.product.holding || etfStore.product.holdings) &&
+    (etfStore.product.holdings?.holdingsTotalQuantity > 0 ||
+      etfStore.product.holding?.holdingsTotalQuantity > 0) &&
+    (etfStore.product.holdings?.holdingsStatus !== 'zero' ||
+      etfStore.product.holding?.holdingsStatus !== 'zero')
+  ) {
+    const holdingData = etfStore.product.holding || etfStore.product.holdings;
+    if (holdingData && holdingData.length > 0) {
+      baseTabData.holding = [
+        {
+          type: 'holdingsummary',
+          title: '보유 현황',
+          desc: holdingData.find(item => item.type === 'holdingsummary')?.desc || {}
+        },
+        {
+          type: 'holdinghistory',
+          title: '투자 기록',
+          desc: holdingData.find(item => item.type === 'holdinghistory')?.desc || []
+        }
+      ];
+    }
+  }
+
+  return baseTabData;
 });
 
 // 구매 버튼 클릭 처리
@@ -287,10 +319,10 @@ const handleModalClose = () => {
 // 상품 데이터 새로고침
 const refreshProductData = async () => {
   try {
-    const productId = route.params.id;
-    if (productId) {
-      await etfStore.fetchProduct(productId);
-      await etfStore.fetchYieldHistory(productId);
+    const productCode = route.params.productCode;
+    if (productCode) {
+      await etfStore.fetchProduct(productCode);
+      await etfStore.fetchYieldHistory(productCode);
 
       // 보유 수량에 따라 탭 선택
       const hasHoldings =

@@ -155,7 +155,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
       if (!isConnected.value) {
         console.log('웹소켓 연결이 안 되어 있습니다. 연결을 시도합니다.');
         await ensureConnection();
-        
+
         if (!isConnected.value) {
           console.error('웹소켓 연결에 실패했습니다.');
           return null;

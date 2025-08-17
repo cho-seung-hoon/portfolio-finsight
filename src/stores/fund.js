@@ -39,7 +39,7 @@ export const useFundStore = defineStore('fund', () => {
     fundEstablishedDate: '2020-01-01',
     fundPriceSummaryDto: {
       currentNav: 1414.27,
-      currentAum: 2.5e11,
+      currentAum: 2.5,
       changeFromYesterday: 40.55,
       percentChangeFromYesterday: 2.95,
       percentChangeFrom3MonthsAgo: 25.97
@@ -373,25 +373,7 @@ export const useFundStore = defineStore('fund', () => {
         type: 'areachart',
         title: '수익률/운용규모 그래프',
         desc: chartData
-      },
-      {
-        type: 'text',
-        title: '설정일',
-        desc: Array.isArray(productDetail.fundEstablishedDate)
-          ? `${productDetail.fundEstablishedDate[0]}-${String(productDetail.fundEstablishedDate[1]).padStart(2, '0')}-${String(productDetail.fundEstablishedDate[2]).padStart(2, '0')}`
-          : productDetail.fundEstablishedDate || '2016.02.17'
-      },
-      {
-        type: 'text',
-        title: '총보수',
-        desc: productDetail.fundFeeTotalExpenseRatio || '연 1.8280%'
-      },
-      {
-        type: 'text',
-        title: '설정수수료',
-        desc: productDetail.fundFeeFrontEndLoad || '납입금액의 1.000%'
-      },
-      { type: 'text', title: '환매수수료', desc: productDetail.fundFeeRedemption || '수수료 없음' }
+      }
     ];
   };
 
@@ -425,7 +407,26 @@ export const useFundStore = defineStore('fund', () => {
       {
         type: 'text',
         title: '순자산 총액',
-        desc: productDetail.currentAum ? `${(productDetail.currentAum / 1e8).toFixed(2)}억원` : '—'
+        desc: (() => {
+          const currentAum = productDetail.fundPriceSummaryDto?.currentAum;
+
+          if (currentAum !== null && currentAum !== undefined && currentAum !== 0) {
+            // currentAum이 이미 억 단위인지 확인
+            let result;
+            if (currentAum >= 1000) {
+              // 1000 이상이면 억 단위로 표시
+              result = `${(currentAum / 100).toFixed(2)}억원`;
+            } else if (currentAum >= 1) {
+              // 1 이상이면 억 단위로 표시
+              result = `${currentAum.toFixed(2)}억원`;
+            } else {
+              // 1 미만이면 원 단위로 표시
+              result = `${(currentAum * 100000000).toLocaleString()}원`;
+            }
+            return result;
+          }
+          return '—';
+        })()
       },
       {
         type: 'text',
