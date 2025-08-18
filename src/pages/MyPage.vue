@@ -77,7 +77,9 @@ onMounted(async () => {
   margin-left: -20px;
   width: calc(100% + 40px);
 }
-
+.subItem-watch{
+  margin-bottom:10px;
+}
 .subItem-user {
   margin-top: auto;
   padding-bottom: 40px;

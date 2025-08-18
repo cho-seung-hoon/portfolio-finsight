@@ -1,6 +1,6 @@
 <template>
   <div class="wishlist-header">
-    <h3 class="wishlist-title">찜한 상품</h3>
+    <div class="wishlist-title">찜한 상품</div>
     <button
       class="more-button"
       @click="goToWatchPage">
@@ -267,7 +267,7 @@ onBeforeUnmount(() => {
 }
 
 .wishlist-title {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   color: var(--main01);
   margin: 0;
@@ -332,7 +332,7 @@ onBeforeUnmount(() => {
 }
 
 .product-type-badge {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semi-bold);
   padding: 4px 8px;
   border-radius: 12px;
@@ -460,7 +460,7 @@ onBeforeUnmount(() => {
 
 .change-label {
   color: var(--main02);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: var(--font-weight-medium);
   margin-right: 4px;
   opacity: 0.8;
