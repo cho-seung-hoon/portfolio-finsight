@@ -1,18 +1,12 @@
 <template>
   <div class="holding-total-box">
     <div class="total-title">투자 모아보기</div>
-    
-    <div class="total-calc">
-      <span class="total-deposit"></span>
-      <span class="total-domestic"></span>
-      <span class="total-overseas"></span>
-    </div>
 
     <div class="total-info">
-      <div class="total-info-icon deposit-icon">
-        <img
-          src="@/assets/logo.svg"
-          alt="로고" />
+      <div class="total-info-icon deposit-icon" :style="{ borderColor: rankedColors.deposit }">
+        <div class="iconIn" :style="{ color: rankedColors.deposit }">
+          <IconMoney/>
+        </div>
       </div>
       <div class="total-info-detail">
         <div class="total-info-detail-item">
@@ -26,10 +20,10 @@
     </div>
 
     <div class="total-info">
-      <div class="total-info-icon domestic-icon">
-        <img
-          src="@/assets/logo.svg"
-          alt="로고" />
+      <div class="total-info-icon domestic-icon" :style="{ borderColor: rankedColors.domestic }">
+        <div class="iconIn" :style="{ color: rankedColors.domestic }">
+          <IconWon/>
+        </div>
       </div>
       <div class="total-info-detail">
         <div class="total-info-detail-item">
@@ -43,10 +37,10 @@
     </div>
 
     <div class="total-info">
-      <div class="total-info-icon overseas-icon">
-        <img
-          src="@/assets/logo.svg"
-          alt="로고" />
+      <div class="total-info-icon overseas-icon" :style="{ borderColor: rankedColors.foreign }">
+        <div class="iconIn" :style="{ color: rankedColors.foreign }">
+          <IconGlobe/>
+        </div>
       </div>
       <div class="total-info-detail">
         <div class="total-info-detail-item">
@@ -63,8 +57,11 @@
 </template>
 
 <script setup>
-import { onMounted, watch, computed, ref } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import { exchangeRate } from '@/api/exchangeRate';
+import IconMoney from '@/components/icons/IconMoney.vue';
+import IconWon from '@/components/icons/IconWon.vue';
+import IconGlobe from '@/components/icons/IconGlobe.vue';
 
 const props = defineProps({
   totalValuation: {
@@ -101,17 +98,44 @@ const calculatedForeignInvestment = computed(() => {
 
 const investmentRatios = computed(() => {
   const total = props.timeDeposit + props.domesticInvestment + props.foreignInvestment || 1;
-  
+
   const depositRatio = (props.timeDeposit / total) * 100;
   const domesticRatio = (calculatedDomesticInvestment.value / total) * 100;
   const foreignRatio = (calculatedForeignInvestment.value / total) * 100;
-  
+
   return {
     deposit: depositRatio.toFixed(1),
     domestic: domesticRatio.toFixed(1),
     foreign: foreignRatio.toFixed(1)
   };
 });
+
+// 비중에 따라 동적으로 색상을 할당하는 computed 속성
+const rankedColors = computed(() => {
+  // 1. 색상 정의 (진한색, 중간색, 연한색)
+  const darkColor = '#fa8772';   // --sub01 원색
+  const mediumColor = '#fca796'; // 중간 밝기
+  const lightColor = '#fdc7bb';  // 가장 밝은 색
+
+  // 2. 투자 항목과 비율을 배열로 만듭니다.
+  const investments = [
+    { name: 'deposit', ratio: parseFloat(investmentRatios.value.deposit) },
+    { name: 'domestic', ratio: parseFloat(investmentRatios.value.domestic) },
+    { name: 'foreign', ratio: parseFloat(investmentRatios.value.foreign) },
+  ];
+
+  // 3. 비율이 높은 순서대로 정렬합니다.
+  investments.sort((a, b) => b.ratio - a.ratio);
+
+  // 4. 순위에 따라 색상을 매핑하는 객체를 생성합니다.
+  const colors = {};
+  colors[investments[0].name] = darkColor;   // 1위: 진한색
+  colors[investments[1].name] = mediumColor; // 2위: 중간색
+  colors[investments[2].name] = lightColor;  // 3위: 연한색
+
+  return colors;
+});
+
 
 const formatCurrency = (value) => {
   if (!value) return '0';
@@ -123,35 +147,17 @@ const formatCurrency = (value) => {
 
 const formatDollarAmount = (wonAmount) => {
   if (!wonAmount) return '';
-  
+
   const rate = usdExchangeRate.value || 1300;
   const dollarAmount = wonAmount / rate;
-  
+
   console.log('달러 변환:', {
     wonAmount,
     exchangeRate: rate,
     dollarAmount: dollarAmount.toFixed(2)
   });
-  
+
   return `$${dollarAmount.toFixed(2)}`;
-};
-
-const updateChart = () => {
-  const total = props.timeDeposit + props.domesticInvestment + props.foreignInvestment || 1;
-  
-  const depositEl = document.querySelector('.total-deposit');
-  const domesticEl = document.querySelector('.total-domestic');
-  const overseasEl = document.querySelector('.total-overseas');
-
-  if (depositEl && domesticEl && overseasEl) {
-    const depositPercent = (props.timeDeposit / total) * 100;
-    const domesticPercent = (calculatedDomesticInvestment.value / total) * 100;
-    const overseasPercent = (calculatedForeignInvestment.value / total) * 100;
-
-    depositEl.style.width = `${depositPercent}%`;
-    domesticEl.style.width = `${domesticPercent}%`;
-    overseasEl.style.width = `${overseasPercent}%`;
-  }
 };
 
 const fetchExchangeRate = async () => {
@@ -172,16 +178,10 @@ const fetchExchangeRate = async () => {
   }
 };
 
-watch(() => [props.totalValuation, props.timeDeposit, props.domesticInvestment, props.foreignInvestment], () => {
-  updateChart();
-}, { immediate: true });
-
 onMounted(async () => {
-  updateChart();
   await fetchExchangeRate();
 });
 </script>
-
 <style scoped>
 .holding-total-box {
   border-radius: 8px;
@@ -193,43 +193,16 @@ onMounted(async () => {
 }
 
 .total-title {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
   color: var(--main01);
-  margin-bottom: var(--font-size-lg);
-}
-
-.total-calc {
-  display: flex;
-  height: 30px;
-  background-color: var(--main03);
-  margin: var(--font-size-lg) 10px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.total-deposit {
-  background-color: var(--orange01);
-  display: block;
-  height: 100%;
-}
-
-.total-domestic {
-  background-color: var(--mint01);
-  display: block;
-  height: 100%;
-}
-
-.total-overseas {
-  background-color: var(--yellow01);
-  display: block;
-  height: 100%;
+  margin:5px 0;
 }
 
 .total-info {
   display: flex;
   width: 100%;
-  margin-top: var(--font-size-lg);
+  margin-top: 5px;
   align-items: center;
   padding: 12px 0;
   border-bottom: 1px solid var(--main04);
@@ -243,30 +216,23 @@ onMounted(async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 50px;
-  height: 50px;
-  background-color: var(--main04);
+  width: 45px;
+  height: 45px;
+  background-color: var(--main05);
   border-radius: 50px;
   flex-shrink: 0;
+  border: 2px solid;
 }
 
-.deposit-icon {
-  border: 2px solid var(--orange01);
+.iconIn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-
-.domestic-icon {
-  border: 2px solid var(--mint01);
-}
-
-.overseas-icon {
-  border: 2px solid var(--yellow01);
-}
-
-.total-info-icon img {
+.iconIn svg{
   width: 30px;
   height: 30px;
 }
-
 .total-info-detail {
   display: flex;
   flex-direction: column;

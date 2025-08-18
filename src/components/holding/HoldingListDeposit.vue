@@ -56,7 +56,7 @@ const handleClick = () => {
   display: flex;
   padding: var(--font-size-md) 0;
   background-color: var(--white);
-  border-bottom: 1px solid var(--main04);
+  /*border-bottom: 1px solid var(--main04);*/
   cursor: pointer;
 }
 
