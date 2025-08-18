@@ -72,7 +72,7 @@ const currentParams = () => ({
   is_matched: getFinFilters().isMatched
 });
 
-const { list, loading, sentinelEl, reset, observe } = useInfiniteScroll(
+const { list, loading, sentinelEl, reset } = useInfiniteScroll(
   async ({ limit, offset }) => {
     const { sort, country, type, is_matched } = currentParams();
     return await getEtfs(sort, country, type, is_matched, limit, offset);
@@ -173,7 +173,6 @@ onMounted(async () => {
   });
 
   await reset();
-  observe();
 
   window.addEventListener('isMatchedChanged', handleMatchedChange);
 });
