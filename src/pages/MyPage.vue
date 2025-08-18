@@ -61,15 +61,19 @@ onMounted(async () => {
   width: calc(100% + 40px);
   overflow: hidden;
   z-index: 0;
+
 }
 
 .bg-image {
+  border: none;
+  outline: none;
   display: block;
   width: 100%;
   height: 100%;
 }
 
 .subItem-info {
+  margin-top: -1px;
   margin-left: -20px;
   width: calc(100% + 40px);
 }

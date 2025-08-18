@@ -90,6 +90,7 @@ const goToUserInfoEdit = () => {
   width: 100%;
   padding: 20px;
   background-color: var(--main01);
+  border-top: none;
 }
 
 .subItem {

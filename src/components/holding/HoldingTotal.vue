@@ -184,9 +184,9 @@ onMounted(async () => {
 
 <style scoped>
 .holding-total-box {
-  border-radius: 12px;
+  border-radius: 8px;
   background-color: var(--white);
-  padding: var(--font-size-lg) 28px;
+  padding: 15px 20px;
   width: 100%;
   border: 1px solid var(--main04);
   box-sizing: border-box;

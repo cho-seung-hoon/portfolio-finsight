@@ -81,19 +81,19 @@ const formatCurrency = (value) => {
   padding: 20px;
   background-color: var(--white);
   position: relative;
-  border-radius: 8px;
+  border-radius: 0 0 8px 8px;
   border: 1px solid var(--main04);
 }
 
 .subTitle {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
   color: var(--main02);
   margin-bottom: 12px;
 }
 
 .valuation {
-  font-size: var(--font-size-xxl);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
 }
 
@@ -106,10 +106,12 @@ const formatCurrency = (value) => {
 }
 
 .change-amount {
+  font-size: var(--font-size-ms);
   font-weight: var(--font-weight-medium);
 }
 
 .change-percent {
+  font-size: var(--font-size-ms);
   font-weight: var(--font-weight-light);
 }
 
@@ -130,8 +132,8 @@ const formatCurrency = (value) => {
   background-color: var(--main01);
   padding: 15px;
   margin-top: 20px;
-  border-radius: 16px;
-  z-index: 2;
+  border-radius: 8px;
+  z-index: 1;
   overflow: visible; /* 캐릭터가 튀어나올 수 있게 */
 }
 
