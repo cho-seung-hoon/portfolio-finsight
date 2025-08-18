@@ -60,14 +60,14 @@ const props = defineProps({
 }
 
 .product-bank {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
   color: var(--main05);
   margin-bottom: 4px;
 }
 .rate-box {
   background: var(--main05);
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 16px 30px;
   display: flex;
   justify-content: space-between;

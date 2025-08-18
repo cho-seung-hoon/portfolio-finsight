@@ -89,17 +89,18 @@ const props = defineProps({
 
 <style scoped>
 .section {
-  padding: 32px 32px 80px 32px;
-  background: var(--main05);
+  padding: 28px;
+  background: var(--off-white);
   width: calc(100% + 40px);
   margin-left: -20px;
   margin-right: -20px;
 }
+
 .section-row {
   margin-bottom: 24px;
 }
 .section-title {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
   color: var(--black);
   margin-bottom: 8px;

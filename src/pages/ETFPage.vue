@@ -1,5 +1,6 @@
 <template>
-  <div class="etf-page">
+  <div class="page-container"
+       :class="{ 'modal-open': isModalOpen }">
     <div
       v-if="error"
       class="error-message">
@@ -7,7 +8,7 @@
     </div>
     <div
       v-else-if="productInfo"
-      class="etf-content">
+      class="in-container">
       <DetailMainEtf
         :product-info="productInfo"
         :realtime-data="realtimeData"
@@ -21,14 +22,17 @@
         :selected-tab="selectedTab"
         @update:selected-tab="selectTab" />
       <DetailSection
+        class="detail-section"
         :tab-data="tabData"
         :selected-tab="selectedTab"
         category="etf"
         :realtime-data="realtimeData" />
-      <DetailActionButton
-        :product-info="productInfo"
-        @buy-click="handleBuyClick"
-        @sell-click="handleSellClick" />
+      <div class="button-container">
+        <DetailActionButton
+          :product-info="productInfo"
+          @buy-click="handleBuyClick"
+          @sell-click="handleSellClick" />
+      </div>
     </div>
 
     <!-- 모달 컴포넌트들 -->
@@ -394,19 +398,61 @@ const handleSellSubmit = async formData => {
 </script>
 
 <style scoped>
-.etf-page {
-  min-height: 100vh;
-  background: var(--main05);
+.page-container {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
-.etf-content {
-  position: relative;
+.page-container.modal-open::before {
+  content: '';
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 50;
+  pointer-events: auto;
 }
 
-.error-message {
-  text-align: center;
-  padding: 40px;
-  color: var(--error);
-  font-size: var(--font-size-md);
+.in-container{
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-bottom:110px;
+}
+
+.detail-section{
+  flex: 1;
+}
+
+.button-container {
+  position:absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 90px; /* 기존 CSS와 동일하게 맞춤 */
+  background-color: var(--off-white);
+  padding: 16px 20px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  z-index: 5;
+}
+
+.button-container::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(
+    to bottom,
+    rgb(from var(--off-white) r g b / 0),
+    rgb(from var(--off-white) r g b / 0.85),
+    var(--off-white)
+  );
+  pointer-events: none;
 }
 </style>

@@ -11,6 +11,7 @@
 
     <div class="news-list">
       <NewsListItem
+        class="news-list-item"
         v-for="(news, index) in displayedNews"
         :key="news.news_id"
         :title="news.news_title"
@@ -148,6 +149,9 @@ const formatDateForNewsItem = isoString => {
   margin-top: 10px;
 }
 
+.news-list-item{
+  padding: 10px;
+}
 .load-more-container {
   margin-top: 16px;
   text-align: center;
@@ -203,7 +207,7 @@ const formatDateForNewsItem = isoString => {
 }
 
 .news-count {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--main02);
   font-weight: normal;
 }

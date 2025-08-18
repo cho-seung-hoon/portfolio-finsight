@@ -105,9 +105,9 @@ const formatDate = (dateString) => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 16px;
+  padding: 20px;
   background-color: var(--white);
-  border: 1px solid var(--main03);
+  border: 1px solid var(--main04);
   border-radius: 8px;
 }
 
@@ -125,7 +125,7 @@ const formatDate = (dateString) => {
 
 .quantity {
   font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-bold);
   text-align: right;
 }
 
@@ -136,8 +136,8 @@ const formatDate = (dateString) => {
 }
 
 .total-amount {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
   text-align: right;
   color: var(--main01);
 }
@@ -145,12 +145,10 @@ const formatDate = (dateString) => {
 .quantity.positive,
 .total-amount.positive {
   color: var(--text-blue);
-  font-weight: var(--font-weight-bold);
 }
 
 .quantity.negative,
 .total-amount.negative {
   color: var(--text-red);
-  font-weight: var(--font-weight-bold);
 }
 </style>

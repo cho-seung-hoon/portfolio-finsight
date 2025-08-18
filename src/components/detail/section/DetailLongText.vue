@@ -46,10 +46,10 @@ function toggle() {
 
 <style scoped>
 .long-text-container {
-  background: transparent;
-  border-radius: 20px;
-  border: 1px solid var(--main02);
-  padding: 16px 3vw 40px 3vw;
+  background: var(--white);
+  border-radius: 8px;
+  border: 1px solid var(--main04);
+  padding: 16px 15px 50px 15px;
   font-size: var(--font-size-ms);
   line-height: 1.6;
   position: relative;
@@ -60,6 +60,7 @@ function toggle() {
 }
 .long-text-content {
   white-space: pre-line;
+  color:var(--black);
 }
 .toggle-btn {
   position: absolute;
@@ -69,11 +70,11 @@ function toggle() {
   background: none;
   border: none;
   color: var(--main03);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-ms);
   cursor: pointer;
-  padding: 0;
+
   font-family: inherit;
-  font-weight: var(--font-weight-medium);
-  letter-spacing: 0.5px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 1px;
 }
 </style>

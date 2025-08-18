@@ -105,7 +105,7 @@ const formatDate = (dateString) => {
 
 .summary-card {
   background-color: var(--white);
-  border: 1px solid var(--main03);
+  border: 1px solid var(--main04);
   border-radius: 8px;
   padding: 20px;
 }
