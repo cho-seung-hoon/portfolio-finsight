@@ -13,23 +13,23 @@
     </div>
     <br />
     <div class="subItem">
-      <img
-        src="@/assets/logo.svg"
-        alt="임시 이미지" />
+      <div class="subIcon">
+        <IconMail/>
+      </div>
       <div class="info">이메일</div>
       <div class="infoValue">{{ userInfo.userEmail }}</div>
     </div>
     <div class="subItem">
-      <img
-        src="@/assets/logo.svg"
-        alt="임시 이미지" />
+      <div class="subIcon">
+        <IconCal/>
+      </div>
       <div class="info">생년월일</div>
       <div class="infoValue">{{ formatArrayDateToYYYYMMDD(userInfo.userBirthday) }}</div>
     </div>
     <div class="subItem">
-      <img
-        src="@/assets/logo.svg"
-        alt="임시 이미지" />
+      <div class="subIcon">
+        <IconSignup/>
+      </div>
       <div class="info">가입일</div>
       <div class="infoValue">{{ formatArrayDateTimeToYYYYMMDD(userInfo.userCreatedAt) }}</div>
     </div>
@@ -41,6 +41,9 @@
 import { onMounted, ref } from 'vue';
 import { fetchUserInfoApi } from '@/api/user';
 import IconEdit from '@/components/icons/IconEdit.vue';
+import IconMail from '@/components/icons/IconMail.vue';
+import IconCal from '@/components/icons/IconCal.vue';
+import IconSignup from '@/components/icons/IconSignup.vue';
 
 const userInfo = ref({
   userName: '',
@@ -90,6 +93,7 @@ const goToUserInfoEdit = () => {
   width: 100%;
   padding: 20px;
   background-color: var(--main01);
+  border-top: none;
 }
 
 .subItem {
@@ -118,10 +122,15 @@ const goToUserInfoEdit = () => {
   font-width: var(--font-weight-light);
   color: var(--white);
 }
-img {
+
+.subIcon {
   width: 25px;
+  height: 25px;
   margin: 0 5px;
-  border: 1px solid var(--white);
+  color: var(--sub01);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .infoValue {

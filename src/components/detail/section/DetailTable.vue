@@ -77,7 +77,7 @@ defineProps({
   letter-spacing: 0.5px;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 3;
 }
 
 .detail-table tbody tr:nth-child(even) {

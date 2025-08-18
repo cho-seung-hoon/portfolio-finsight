@@ -128,11 +128,12 @@ const handleRetakeClick = () => {
 
 <style scoped>
 .subBox2 {
-  margin: 30px 0;
+  margin: 25px 0;
   background-color: var(--white);
   border-radius: 8px;
   height: 100px;
   padding: 20px;
+  border:1px solid var(--main04);
 }
 
 .subItem-title {

@@ -101,28 +101,42 @@ defineProps({
   /* conic-gradient로 원뿔형 그라데이션 생성 */
   background: conic-gradient(
     from 90deg,
-    #4d9aff 0%,      /* 시작 색상 (밝은 파랑) */
-    #6B66FF 50%,     /* 중간 색상 (보라) */
-    #4d9aff 100%     /* 다시 시작 색상으로 */
+    #2C3A5C, /* 기본 색상 (더 진하게) */
+    #8A9ACC, /* 하이라이트 (더 선명하게) */
+    #2C3A5C  /* 다시 기본 색상으로 */
   );
   animation: spin 1.2s linear infinite;
 
   /* mask를 이용해 가운데를 뚫어 링 모양 생성 */
   mask-image: radial-gradient(transparent 65%, black 66%);
-  -webkit-mask-image: radial-gradient(transparent 65%, black 66%);
 }
 
 
 .loading-text {
   margin-top: 24px;
-  font-size: 17px;
-  font-weight: 600; /* 그라데이션이 잘 보이도록 살짝 두껍게 */
+  font-size: 15px;
+  font-weight: 600;
   letter-spacing: -0.2px;
-
-  /* 4. 텍스트 그라데이션 효과 */
-  background: linear-gradient(90deg, #383838, #686868);
   color: transparent;
+
+  background: linear-gradient(
+    90deg,
+    #2C3A5C, /* 기본 색상 (더 진하게) */
+    #8A9ACC, /* 하이라이트 (더 선명하게) */
+    #2C3A5C  /* 다시 기본 색상으로 */
+  );
+
+  background-size: 200% auto;
   background-clip: text;
   -webkit-background-clip: text;
+  animation: shimmer 2s linear infinite;
+}
+@keyframes shimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
 }
 </style>

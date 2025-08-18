@@ -16,7 +16,6 @@
           </div>
         </div>
       </div>
-
       <form id="user-edit-form" class="form" @submit.prevent="handleEdit">
         <div class="subItem-title">비밀번호 변경</div>
         <div class="card">
@@ -302,6 +301,7 @@ const resetErrors = () => Object.keys(errors).forEach((key) => (errors[key] = ''
   display: flex;
   flex-direction: column;
   flex: 1;
+  margin-bottom:110px;
 }
 
 .user-info-header {
@@ -385,11 +385,11 @@ const resetErrors = () => Object.keys(errors).forEach((key) => (errors[key] = ''
   bottom: 0;
   left: 0;
   right: 0;
-
+  height: 90px;
   background-color: var(--off-white);
   padding: 16px 20px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-  z-index: 100;
+  z-index: 5;
 }
 
 .button-container::before {

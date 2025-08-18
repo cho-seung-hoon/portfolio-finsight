@@ -61,14 +61,18 @@ const closeModal = () => {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center; /* 중앙 정렬 */
-  gap: 16px; /* 요소 간 간격 */
+  justify-content: center;
+  gap: 16px;
 }
 
 .action {
   font-size: var(--font-size-sm);
   color: var(--main02); /* 원하는 색상 */
   cursor: pointer;
+  background-color:var(--main02);
+  color:var(--white);
+  padding: 5px 10px;
+  border-radius:8px;
 }
 /* ✅ 모달 스타일 */
 .modal-overlay {

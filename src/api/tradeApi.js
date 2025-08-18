@@ -168,3 +168,7 @@ export const getMyPortfolioApi = () => {
 export const getDepositHoldingsApi = () => {
   return apiClient.get('/holdings/deposit');
 };
+
+export const getPortfolioApi = () => {
+  return apiClient.get('/holdings/portfolio');
+};

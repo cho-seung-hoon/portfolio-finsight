@@ -113,7 +113,7 @@ const handleClick = () => {
   gap: 4px;
   padding: 8px;
   background-color: var(--white);
-  border-bottom: 1px solid var(--main04);
+  /*border-bottom: 1px solid var(--main04);*/
   cursor: pointer;
 }
 

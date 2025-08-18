@@ -19,7 +19,7 @@ defineEmits(['back']);
 
 <style scoped>
 :root {
-  --white: #ffffff;
+  --white: #f8e3e0;
   --main01: #2c3e50;
   --main04: #ecf0f1;
   --font-size-md: 16px;

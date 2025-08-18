@@ -195,7 +195,6 @@ const chartOptions = computed(() => ({
   },
   tooltip: {
     enabled: true,
-    theme: 'light',
     style: {
       fontSize: '14px'
     },
@@ -358,7 +357,7 @@ const chartOptions = computed(() => ({
   letter-spacing: 0.5px;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 3;
 }
 
 .pie-table tbody tr:nth-child(even) {

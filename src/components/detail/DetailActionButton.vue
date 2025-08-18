@@ -127,7 +127,7 @@ function getAdditionalBuyButtonText() {
 </script>
 
 <style scoped>
-.asset-record-btn-fixed-wrapper {
+/*.asset-record-btn-fixed-wrapper {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
@@ -138,24 +138,28 @@ function getAdditionalBuyButtonText() {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
+}*/
 .asset-record-btn-fixed {
-  width: 100%;
-  border-radius: 20px;
-  padding: 16px 0;
   background: var(--main01);
   color: var(--white);
-  font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-lg);
-  transition: background 0.2s;
+  width: 100%;
+  border: 1px solid var(--main01);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: var(--font-size-md);
+  font-weight: bold;
+  cursor: pointer;
+  flex: 1;
+  min-height: 56px;
+}
+
+.asset-record-btn-fixed-wrapper {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 56px;
-  box-sizing: border-box;
-  border: none;
 }
+
 .holding-buttons {
   display: flex;
   gap: 12px;
@@ -168,21 +172,35 @@ function getAdditionalBuyButtonText() {
 }
 
 .sell-btn {
-  background: var(--sub01);
+  width: 100%;
+  background-color: var(--sub01);
   color: var(--white);
+  border: 1.5px solid var(--sub01);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: var(--font-size-md);
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .buy-btn {
   background: var(--main01);
   color: var(--white);
+  width: 100%;
+  border: 1px solid var(--sub01);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: var(--font-size-md);
+  font-weight: bold;
+  cursor: pointer;
 }
 .asset-record-btn-text {
   text-align: center;
 }
-.asset-record-btn-text.center {
+/*.asset-record-btn-text.center {
   margin-top: 0;
-}
-@media (max-width: 480px) {
+}*/
+/*@media (max-width: 480px) {
   .asset-record-btn-fixed-wrapper {
     width: calc(100% - 32px);
     margin-left: 0;
@@ -191,5 +209,5 @@ function getAdditionalBuyButtonText() {
     transform: translateX(-50%);
     max-width: 100vw;
   }
-}
+}*/
 </style>

@@ -3,7 +3,7 @@
     class="page-container"
     :class="{ 'modal-open': isModalOpen }">
     <div v-if="error">{{ error }}</div>
-    <div v-else-if="productInfo">
+    <div v-else-if="productInfo" class="in-container">
       <DetailMainFund
         :product-info="productInfo"
         :bank="productInfo.productCompanyName"
@@ -22,17 +22,19 @@
         @update:selected-tab="selectTab" />
 
       <DetailSection
+        class="detail-section"
         :tab-data="tabData"
         category="fund"
         :selected-tab="selectedTab" />
-
-      <DetailActionButton
-        :product-info="productInfo"
-        :id="productInfo.productCode"
-        :active="productInfo.isHolding"
-        :category="'fund'"
-        @buy-click="handleBuyClick"
-        @sell-click="handleSellClick" />
+      <div class="button-container">
+        <DetailActionButton
+          :product-info="productInfo"
+          :id="productInfo.productCode"
+          :active="productInfo.isHolding"
+          :category="'fund'"
+          @buy-click="handleBuyClick"
+          @sell-click="handleSellClick" />
+      </div>
     </div>
 
     <!-- 모달 컴포넌트들 -->
@@ -342,21 +344,60 @@ const handleSellSubmit = async formData => {
 
 <style scoped>
 .page-container {
-  position: relative;
-  min-height: 100vh;
-  transition: all 0.3s ease;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
 .page-container.modal-open::before {
   content: '';
   position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
-  z-index: 1999;
+  z-index: 50;
   pointer-events: auto;
+}
+
+.in-container{
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-bottom:110px;
+}
+
+.detail-section{
+  flex: 1;
+}
+
+.button-container {
+  position:absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 90px; /* 기존 CSS와 동일하게 맞춤 */
+  background-color: var(--off-white);
+  padding: 16px 20px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  z-index: 5;
+}
+
+.button-container::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(
+    to bottom,
+    rgb(from var(--off-white) r g b / 0),
+    rgb(from var(--off-white) r g b / 0.85),
+    var(--off-white)
+  );
+  pointer-events: none;
 }
 </style>

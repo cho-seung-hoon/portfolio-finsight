@@ -7,7 +7,7 @@
       class="modal-content"
       @click.stop>
       <div class="modal-header">
-        <h2>예금 해지하기</h2>
+        <div class="modal-header-title">예금 해지하기</div>
         <button
           class="close-btn"
           @click="closeModal">
@@ -178,7 +178,7 @@ const formatDate = dateString => {
 
 const openModal = () => {
   if (modalRef.value) {
-    modalRef.value.showModal();
+    modalRef.value.show();
   }
 };
 
@@ -284,24 +284,26 @@ watch(
   border-radius: 12px;
   padding: 0;
   background: transparent;
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 2000;
-  max-width: 100vw;
-  max-height: 100vh;
+  z-index: 100;
+  max-width: 100%;
+  max-height: 100dvh;
   overflow: hidden;
 }
 
+/*
 .modal::backdrop {
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
 }
+*/
 
 .modal-content {
   background: var(--white);
-  border-radius: 12px;
+  border-radius: 8px;
   width: calc(90vw - 32px);
   max-width: 408px;
   min-width: 288px;
@@ -318,18 +320,18 @@ watch(
   padding: 20px 16px 16px 16px;
   border-bottom: 1px solid var(--main04);
   background: var(--main01);
-  border-radius: 12px 12px 0 0;
+  border-radius: 8px 8px 0 0;
 }
 
-@media (min-width: 768px) {
+/*@media (min-width: 768px) {
   .modal-header {
     padding: 24px 24px 16px 24px;
   }
-}
+}*/
 
-.modal-header h2 {
+.modal-header .modal-header-title {
   margin: 0;
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   color: var(--white);
 }
@@ -360,16 +362,17 @@ watch(
   overscroll-behavior: contain;
 }
 
-@media (min-width: 768px) {
+/*@media (min-width: 768px) {
   .modal-body {
     padding: 24px;
   }
-}
+}*/
 
 .product-info {
   margin-bottom: 24px;
   padding: 16px;
   background: var(--main05);
+  border:1px solid var(--main04);
   border-radius: 8px;
 }
 
@@ -480,14 +483,14 @@ watch(
   gap: 12px;
   padding: 16px;
   border-top: 1px solid var(--main04);
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 8px 8px;
 }
 
-@media (min-width: 768px) {
+/*@media (min-width: 768px) {
   .modal-footer {
     padding: 16px 24px 24px 24px;
   }
-}
+}*/
 
 .btn {
   flex: 1;
