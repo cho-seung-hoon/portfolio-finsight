@@ -19,69 +19,13 @@ export const useFundStore = defineStore('fund', () => {
   const isYieldHistoryLoaded = ref(false);
   const isYieldHistoryLoading = ref(false);
 
-  const mockProductData = {
-    productCode: 'fund-001',
-    productName: '미래에셋자산배분TINA펀드',
-    productCompanyName: '미래에셋',
-    productRiskGrade: 3,
-    fundCountry: 'domestic',
-    fundType: 'mixed',
-    fundDelistingStatus: false,
-    fundFeature: '글로벌 자산에 분산 투자하여 안정적인 수익을 추구합니다.',
-    fundManagementStrategy: '자산배분 전략을 통해 위험을 분산하고 안정적인 수익을 추구합니다.',
-    fundFeeTotalExpenseRatio: '1.2%',
-    fundFeeBackEndLoad: '0%',
-    fundFeeRedemption: '0%',
-    fundFeeFrontEndLoad: '0%',
-    fundReportInvestment: 'https://www.miraeasset.com/report/investment.pdf',
-    fundReportCollectiveInvestmentTermsUrl: 'https://www.miraeasset.com/report/collective.pdf',
-    fundReportInvestmentProspectusUrl: 'https://www.miraeasset.com/report/prospectus.pdf',
-    fundReportSimplidfiedProspectusUrl: 'https://www.miraeasset.com/report/simple.pdf',
-    fundEstablishedDate: '2020-01-01',
-    fundPriceSummaryDto: {
-      currentNav: 1414.27,
-      currentAum: 2.5,
-      changeFromYesterday: 40.55,
-      percentChangeFromYesterday: 2.95,
-      percentChangeFrom3MonthsAgo: 25.97
-    },
-    fassetAllocation: [
-      { fassetAllocationType: '주식', fassetAllocationPer: 60 },
-      { fassetAllocationType: '채권', fassetAllocationPer: 30 },
-      { fassetAllocationType: '대체투자', fassetAllocationPer: 10 }
-    ],
-    fstockHoldings: [
-      { fstockHoldingsName: '삼성전자', fstockHoldingsPer: 5 },
-      { fstockHoldingsName: 'SK하이닉스', fstockHoldingsPer: 3 }
-    ],
-    fundNewsResponse: [
-      {
-        newsId: 'news-001',
-        newsTitle: '미래에셋자산배분TINA펀드, 수익률 상승',
-        newsSummary: '글로벌 자산배분 펀드가 안정적인 성과를 기록하고 있습니다.',
-        newsContentUrl: 'https://example.com/news/001',
-        newsPublishedAt: [2024, 6, 14, 10, 0],
-        newsScore: 0.85,
-        newsSentiment: 'positive',
-        newsPublisher: 'Bloomberg'
-      }
-    ],
-    holdings: null
-  };
-
   const fetchProductDetail = async (productId, category, token) => {
     try {
       const data = await getProductDetail(category, productId);
       return data;
     } catch (error) {
       console.error('Product API Error:', error);
-      console.log('Using mock data due to API failure');
-
-      return {
-        ...mockProductData,
-        productCode: productId,
-        holdings: null
-      };
+      throw error;
     }
   };
 
@@ -266,10 +210,10 @@ export const useFundStore = defineStore('fund', () => {
       userWatches: productDetail.userWatches ?? false,
 
       yield3Months: productDetail.fundPriceSummaryDto?.percentChangeFrom3MonthsAgo || 0,
-      productCompanyName: productDetail.productCompanyName || '한국투자신탁운용',
-      productName: productDetail.productName || '한국투자베트남그로스증권자투자신탁UH(주식)(A)',
+      productCompanyName: productDetail.productCompanyName,
+      productName: productDetail.productName,
       productCode: productDetail.productCode || productId,
-      productRiskGrade: productDetail.productRiskGrade || 2,
+      productRiskGrade: productDetail.productRiskGrade,
       currentPrice: productDetail.fundPriceSummaryDto?.currentNav ?? 0,
       priceChange: productDetail.fundPriceSummaryDto?.changeFromYesterday ?? 0,
       priceChangePercent: productDetail.fundPriceSummaryDto?.percentChangeFromYesterday ?? 0
@@ -360,28 +304,24 @@ export const useFundStore = defineStore('fund', () => {
       {
         type: 'text',
         title: '상품명',
-        desc: productDetail.productName || '한국투자베트남그로스증권자투자신탁UH(주식)(A)'
+        desc: productDetail.productName
       },
       {
         type: 'text',
         title: '운용사',
-        desc: productDetail.productCompanyName || '한국투자신탁운용'
+        desc: productDetail.productCompanyName
       },
       {
         type: 'longtext',
         title: '펀드 특징',
-        desc:
-          productDetail.fundFeature ||
-          '베트남 주식시장에 상장된 주식 등에 주로 투자하여 투자대상자산의 가격상승에 따른 자본이득을 추구하는 것을 목적으로 합니다.'
+        desc: productDetail.fundFeature
       },
       {
         type: 'longtext',
         title: '운용 전략',
-        desc:
-          productDetail.fundManagementStrategy ||
-          '베트남 주식시장에 상장된 주식에 주로 투자하고, 투자신탁재산의 일부는 국내.외 채권 및 어음 등에 투자합니다.'
+        desc: productDetail.fundManagementStrategy
       },
-      { type: 'text', title: '위험 등급', desc: `${productDetail.productRiskGrade || 2}등급` },
+      { type: 'text', title: '위험 등급', desc: `${productDetail.productRiskGrade}등급` },
       {
         type: 'text',
         title: '순자산 총액',
@@ -403,26 +343,26 @@ export const useFundStore = defineStore('fund', () => {
             }
             return result;
           }
-          return '—';
+          return '-';
         })()
       },
       {
         type: 'text',
         title: '총보수',
-        desc: productDetail.fundFeeTotalExpenseRatio || '연 1.8280%'
+        desc: productDetail.fundFeeTotalExpenseRatio
       },
       {
         type: 'text',
         title: '설정수수료',
-        desc: productDetail.fundFeeFrontEndLoad || '납입금액의 1.000%'
+        desc: productDetail.fundFeeFrontEndLoad
       },
-      { type: 'text', title: '환매수수료', desc: productDetail.fundFeeRedemption || '수수료 없음' },
+      { type: 'text', title: '환매수수료', desc: productDetail.fundFeeRedemption },
       {
         type: 'text',
         title: '설정일',
         desc: Array.isArray(productDetail.fundEstablishedDate)
           ? `${productDetail.fundEstablishedDate[0]}-${String(productDetail.fundEstablishedDate[1]).padStart(2, '0')}-${String(productDetail.fundEstablishedDate[2]).padStart(2, '0')}`
-          : productDetail.fundEstablishedDate || '2016.02.17'
+          : productDetail.fundEstablishedDate
       }
     ];
   };
@@ -466,9 +406,7 @@ export const useFundStore = defineStore('fund', () => {
             items: [
               {
                 label: '자산운용보고서(3개월)',
-                url:
-                  productDetail.fundReportInvestment ||
-                  'https://www.funetf.co.kr/upload/FOK/gongsi/R5_K55101B79262_20250516.pdf'
+                url: productDetail.fundReportInvestment
               }
             ]
           },
@@ -477,21 +415,15 @@ export const useFundStore = defineStore('fund', () => {
             items: [
               {
                 label: '집합투자규약',
-                url:
-                  productDetail.fundReportCollectiveInvestmentTermsUrl ||
-                  'https://www.funetf.co.kr/upload/FOK/gongsi/R1_K55101B79262_20250103.pdf'
+                url: productDetail.fundReportCollectiveInvestmentTermsUrl
               },
               {
                 label: '투자설명서',
-                url:
-                  productDetail.fundReportInvestmentProspectusUrl ||
-                  'https://www.funetf.co.kr/upload/FOK/gongsi/R2_K55101B79262_20250424.pdf'
+                url: productDetail.fundReportInvestmentProspectusUrl
               },
               {
                 label: '간이투자설명서',
-                url:
-                  productDetail.fundReportSimplidfiedProspectusUrl ||
-                  'https://www.funetf.co.kr/upload/FOK/gongsi/R3_K55101B79262_20250424.pdf'
+                url: productDetail.fundReportSimplidfiedProspectusUrl
               }
             ]
           }
