@@ -25,6 +25,7 @@
 
     <!-- 로딩 스피너 -->
     <LoadingSpinner
+      class="loading"
       v-if="loadingStore.isLoading"
       :text="loadingStore.loadingText" />
 
@@ -243,7 +244,12 @@ watch(route, () => {
   text-align: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
+.loading{
+  position:absolute;
+  top:0;
+  left:0;
 
+}
 .modal-btn {
   margin-top: 20px;
   display: flex;

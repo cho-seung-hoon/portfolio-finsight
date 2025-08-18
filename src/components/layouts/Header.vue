@@ -9,17 +9,13 @@
       :class="{ 'light-mode': isLightMode }"
       @click="backHandler">
       <svg
-        width="36"
-        height="36"
-        viewBox="0 0 36 36"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg">
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24">
         <path
-          d="M22.5 9L13.5 18L22.5 27"
-          stroke="currentColor"
-          style="stroke-width: 2"
-          stroke-linecap="round"
-          stroke-linejoin="round" />
+          fill="currentColor"
+          d="m3.55 12l7.35 7.35q.375.375.363.875t-.388.875t-.875.375t-.875-.375l-7.7-7.675q-.3-.3-.45-.675T.825 12t.15-.75t.45-.675l7.7-7.7q.375-.375.888-.363t.887.388t.375.875t-.375.875z" />
       </svg>
     </button>
 
@@ -44,7 +40,9 @@
       </div>
 
       <div class="actions_fix">
-        <div class="time" :class="{ 'light-mode': isLightMode }">
+        <div
+          class="time"
+          :class="{ 'light-mode': isLightMode }">
           {{ remainingTime }}
         </div>
         <button
@@ -76,7 +74,7 @@ const { titleParts, showBackButton, actions, showBorder, bColor, backHandler } =
 const isLightMode = computed(() => bColor.value === 'var(--white)');
 
 const iconComponents = {
-  search: IconSearch,
+  search: IconSearch
 };
 
 const handleExtendSession = () => {
@@ -95,7 +93,9 @@ const handleExtendSession = () => {
   padding: 0 16px;
 }
 
-.container.no-border { border-bottom: none; }
+.container.no-border {
+  border-bottom: none;
+}
 
 .backButton {
   all: unset;
@@ -103,6 +103,7 @@ const handleExtendSession = () => {
   align-items: center;
   margin-right: 4px;
   color: var(--white);
+  cursor: pointer;
 }
 
 .time,
@@ -132,9 +133,23 @@ const handleExtendSession = () => {
   z-index: 1;
 }
 
-.actions { display: flex; align-items: center; gap: 10px; }
-.action-button { all: unset; display: flex; align-items: center; }
-.actions_fix { z-index: 1; display: flex; align-items: center; }
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.action-button {
+  all: unset;
+  display: flex;
+  align-items: center;
+}
+
+.actions_fix {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+}
 
 .time,
 .generate-token {
