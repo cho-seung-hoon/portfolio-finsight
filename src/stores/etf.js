@@ -21,86 +21,6 @@ export const useEtfStore = defineStore('etf', () => {
   const isYieldHistoryLoaded = ref(false);
   const isYieldHistoryLoading = ref(false);
 
-  const mockProductData = {
-    productCode: 'etf-001',
-    productName: 'TIGER 미국S&P500',
-    productCompanyName: 'TIGER',
-    productRiskGrade: 4,
-    etfCountry: 'foreign',
-    etfType: 'equity',
-    etfDelistingStatus: false,
-    etfNetAssets: 25.23,
-    etfFundCharacteristics: 'S&P500 지수를 추종하는 대표적인 ETF 상품',
-    etfManagementStrategy:
-      '이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.',
-    etfTotalExpenseRatio: 0.09,
-    etfCollectiveInvestmentAgreementUrl: 'https://www.samsungfund.com/docs/rule.pdf',
-    etfInvestmentProspectusUrl: 'https://www.samsungfund.com/docs/desc.pdf',
-    etfSimplifiedProspectusUrl: 'https://www.samsungfund.com/docs/simple.pdf',
-    etfBenchmarkIndex: 'S&P500',
-    eAssetAllocation: [
-      { eAssetAllocationType: '애플', eAssetAllocationPer: 7.2 },
-      { eAssetAllocationType: '마이크로소프트', eAssetAllocationPer: 6.5 },
-      { eAssetAllocationType: '아마존', eAssetAllocationPer: 3.8 },
-      { eAssetAllocationType: '엔비디아', eAssetAllocationPer: 3.2 },
-      { eAssetAllocationType: '기타', eAssetAllocationPer: 79.3 }
-    ],
-    eEquityRatio: [{ eEquityRatioName: '주식', eEquityRatioPer: 100 }],
-    eConstituentStocks: [
-      { eConstituentStocksName: '애플', eConstituentPer: 7.2 },
-      { eConstituentStocksName: '마이크로소프트', eConstituentPer: 6.5 },
-      { eConstituentStocksName: '아마존', eConstituentPer: 3.8 },
-      { eConstituentStocksName: '엔비디아', eConstituentPer: 3.2 }
-    ],
-    etfListingDate: '2010-10-14',
-    etfMinTradingUnit: 1,
-    etfTaxType: '배당소득세',
-    currentPrice: 15000,
-    previousPrice: 14800,
-    priceChange: 200,
-    priceChangePercent: 1.35,
-    yield: 2.5,
-    priceHistory: [
-      { date: '2024-06-01', price: 12000 },
-      { date: '2024-06-02', price: 12100 },
-      { date: '2024-06-03', price: 12200 },
-      { date: '2024-06-04', price: 12300 },
-      { date: '2024-06-05', price: 12500 },
-      { date: '2024-06-06', price: 12480 },
-      { date: '2024-06-07', price: 12600 },
-      { date: '2024-06-08', price: 12530 },
-      { date: '2024-06-09', price: 12650 },
-      { date: '2024-06-10', price: 12520 },
-      { date: '2024-06-11', price: 12700 },
-      { date: '2024-06-12', price: 12640 },
-      { date: '2024-06-13', price: 12800 },
-      { date: '2024-06-14', price: 12760 }
-    ],
-    etfNewsResponse: [
-      {
-        newsId: 'news-001',
-        newsTitle: 'S&P 500 지수 상승세 지속, 기술주 중심으로 강세',
-        newsSummary: '미국 주식시장이 기술주 중심으로 상승세를 보이고 있습니다.',
-        newsContentUrl: 'https://example.com/news/001',
-        newsPublishedAt: [2024, 6, 14, 10, 0],
-        newsScore: 0.85,
-        newsSentiment: 'positive',
-        newsPublisher: 'Bloomberg'
-      },
-      {
-        newsId: 'news-002',
-        newsTitle: '연준 금리 정책에 대한 시장 기대감 변화',
-        newsSummary: '연방준비제도가 금리 인하 가능성을 시사하며 시장이 반등했습니다.',
-        newsContentUrl: 'https://example.com/news/002',
-        newsPublishedAt: [2024, 6, 13, 15, 30],
-        newsScore: 0.78,
-        newsSentiment: 'positive',
-        newsPublisher: 'Reuters'
-      }
-    ],
-    holdings: null
-  };
-
   const fetchProductDetail = async (productId, category, token) => {
     try {
       console.log(`[ETF API] ${category}/${productId} 호출`);
@@ -110,8 +30,7 @@ export const useEtfStore = defineStore('etf', () => {
       return data;
     } catch (error) {
       console.error('Product API Error:', error);
-      console.log('Using mock data due to API failure');
-      return { ...mockProductData, productCode: productId, holdings: null };
+      throw error;
     }
   };
 
@@ -150,13 +69,13 @@ export const useEtfStore = defineStore('etf', () => {
       userWatches: productDetail.userWatches ?? false,
       yield3Months: productDetail.etfPriceSummaryDto?.percentChangeFrom3MonthsAgo ?? 0,
       currentPrice: productDetail.currentPrice ? productDetail.currentPrice.toLocaleString() : '0',
-      productCompanyName: productDetail.productCompanyName || 'TIGER',
-      productName: productDetail.productName || 'TIGER 미국S&P500선물 ETN',
+      productCompanyName: productDetail.productCompanyName,
+      productName: productDetail.productName,
       productCode: productDetail.productCode || originalProductId,
-      productRiskGrade: productDetail.productRiskGrade || 3,
+      productRiskGrade: productDetail.productRiskGrade,
       etfNetAssets: productDetail.etfNetAssets
         ? `${(productDetail.etfNetAssets / 1e8).toFixed(2)}억원`
-        : '25.23억원'
+        : '-'
     };
     return result;
   };
@@ -235,22 +154,20 @@ export const useEtfStore = defineStore('etf', () => {
       {
         type: 'text',
         title: '상품명',
-        desc: productDetail.productName || 'TIGER 미국S&P500선물 ETN'
+        desc: productDetail.productName
       },
-      { type: 'text', title: '운용사', desc: productDetail.productCompanyName || 'TIGER' },
+      { type: 'text', title: '운용사', desc: productDetail.productCompanyName },
       {
         type: 'longtext',
-        title: '펀드 특징',
-        desc: productDetail.etfFundCharacteristics || 'S&P500 지수를 추종하는 대표적인 ETF 상품'
+        title: 'ETF 특징',
+        desc: productDetail.etfFundCharacteristics
       },
       {
         type: 'longtext',
         title: '운용 전략',
-        desc:
-          productDetail.etfManagementStrategy ||
-          '이 펀드는 S&P500 지수의 수익률을 최대한 근접하게 추종하는 것을 목표로 하며, 분산 투자와 저비용 운용을 통해 안정적인 성과를 추구합니다.'
+        desc: productDetail.etfManagementStrategy
       },
-      { type: 'text', title: '위험 등급', desc: `${productDetail.productRiskGrade || 3}등급` },
+      { type: 'text', title: '위험 등급', desc: `${productDetail.productRiskGrade}등급` },
       {
         type: 'text',
         title: '순자산 총액',
@@ -258,19 +175,19 @@ export const useEtfStore = defineStore('etf', () => {
           ? `${(productDetail.currentAum / 1e8).toFixed(2)}억원`
           : productDetail.etfNetAssets
             ? `${(productDetail.etfNetAssets / 1e8).toFixed(2)}억원`
-            : '25.23억원'
+            : '-'
       },
-      { type: 'text', title: '총보수', desc: `${productDetail.etfTotalExpenseRatio || 0.09}%` },
-      { type: 'text', title: '기초지수', desc: productDetail.etfBenchmarkIndex || 'S&P500' },
+      { type: 'text', title: '총보수', desc: `${productDetail.etfTotalExpenseRatio}%` },
+      { type: 'text', title: '기초지수', desc: productDetail.etfBenchmarkIndex },
       {
         type: 'text',
         title: '상장일',
         desc: Array.isArray(productDetail.etfListingDate)
           ? `${productDetail.etfListingDate[0]}-${String(productDetail.etfListingDate[1]).padStart(2, '0')}-${String(productDetail.etfListingDate[2]).padStart(2, '0')}`
-          : productDetail.etfListingDate || '2010-10-14'
+          : productDetail.etfListingDate
       },
-      { type: 'text', title: '최소 거래 단위', desc: `${productDetail.etfMinTradingUnit || 1}주` },
-      { type: 'text', title: '과세 유형', desc: productDetail.etfTaxType || '배당소득세' }
+      { type: 'text', title: '최소 거래 단위', desc: `${productDetail.etfMinTradingUnit}주` },
+      { type: 'text', title: '과세 유형', desc: productDetail.etfTaxType }
     ];
   };
 
@@ -329,21 +246,15 @@ export const useEtfStore = defineStore('etf', () => {
             items: [
               {
                 label: '집합투자규약',
-                url:
-                  productDetail.etfCollectiveInvestmentAgreementUrl ||
-                  'https://www.samsungfund.com/docs/rule.pdf'
+                url: productDetail.etfCollectiveInvestmentAgreementUrl
               },
               {
                 label: '투자설명서',
-                url:
-                  productDetail.etfInvestmentProspectusUrl ||
-                  'https://www.samsungfund.com/docs/desc.pdf'
+                url: productDetail.etfInvestmentProspectusUrl
               },
               {
                 label: '간이투자설명서',
-                url:
-                  productDetail.etfSimplifiedProspectusUrl ||
-                  'https://www.samsungfund.com/docs/simple.pdf'
+                url: productDetail.etfSimplifiedProspectusUrl
               }
             ]
           }
@@ -355,9 +266,7 @@ export const useEtfStore = defineStore('etf', () => {
   const generateHoldingTab = (holdingData, productDetail) => {
     if (!holdingData) return [];
 
-    const currentPrice = new Decimal(
-      productDetail.currentNav ?? productDetail.currentPrice ?? 12500
-    );
+    const currentPrice = new Decimal(productDetail.currentNav ?? productDetail.currentPrice ?? 0);
     const holdingsTotalQuantity = new Decimal(
       holdingData.holdingsTotalQuantity ?? holdingData.holdings_total_quantity ?? 0
     );

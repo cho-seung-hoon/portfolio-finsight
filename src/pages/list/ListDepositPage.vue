@@ -61,7 +61,7 @@ const currentParams = () => ({
   is_matched: getFinFilters().isMatched
 });
 
-const { list, loading, sentinelEl, reset, observe } = useInfiniteScroll(
+const { list, loading, sentinelEl, reset } = useInfiniteScroll(
   async ({ limit, offset }) => {
     const { sort, is_matched } = currentParams();
     return await getDeposits(sort, is_matched, limit, offset);
@@ -76,11 +76,15 @@ onMounted(async () => {
       ? saved[opt.key]
       : opt.options[0];
   });
+
   await reset();
-  observe();
+
   window.addEventListener('isMatchedChanged', reset);
 });
-onBeforeUnmount(() => window.removeEventListener('isMatchedChanged', reset));
+
+onBeforeUnmount(() => {
+  window.removeEventListener('isMatchedChanged', reset);
+});
 </script>
 
 <style scoped>
@@ -89,7 +93,6 @@ onBeforeUnmount(() => window.removeEventListener('isMatchedChanged', reset));
   flex-direction: column;
   width: 100%;
   gap: 12px;
-  margin-bottom: 60px;
 }
 
 .list-deposit-page-contents {

@@ -15,7 +15,6 @@
         class="loading">
         <img
           :src="LoadingSpinnerSmall"
-          alt="loading"
           width="30"
           height="30" />
       </div>
@@ -60,18 +59,18 @@ const onFilterChange = (key, value) => {
   selected.value[key] = value;
   setFinFilters({
     ...getFinFilters(),
-    etf: { ...selected.value }
+    fund: { ...selected.value }
   });
 };
 
 const currentParams = () => ({
   sort: sortMap[selected.value.sort],
   country: countryMap[selected.value.country],
-  type: typeMap[selected.value.etf_type],
+  type: typeMap[selected.value.fund_type],
   is_matched: getFinFilters().isMatched
 });
 
-const { list, loading, sentinelEl, reset, observe } = useInfiniteScroll(
+const { list, loading, sentinelEl, reset } = useInfiniteScroll(
   async ({ limit, offset }) => {
     const { sort, country, type, is_matched } = currentParams();
     return await getFunds(sort, country, type, is_matched, limit, offset);
@@ -88,7 +87,6 @@ onMounted(async () => {
   });
 
   await reset();
-  observe();
 
   window.addEventListener('isMatchedChanged', reset);
 });
