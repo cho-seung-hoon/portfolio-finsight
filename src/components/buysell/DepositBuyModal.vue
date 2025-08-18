@@ -192,7 +192,7 @@ const resetForm = () => {
 const openModal = () => {
   resetForm(); // 모달 열기 전에 폼 초기화
   if (modalRef.value) {
-    modalRef.value.showModal();
+    modalRef.value.show();
   }
 };
 
@@ -325,27 +325,23 @@ watch(
 <style scoped>
 .modal {
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 0;
   background: transparent;
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 2000;
-  max-width: 100vw;
-  max-height: 100vh;
+  z-index: 100;
+  max-width: 100%;
+  max-height: 100dvh;
   overflow: hidden;
 }
 
-.modal::backdrop {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(2px);
-}
 
 .modal-content {
   background: var(--white);
-  border-radius: 12px;
+  border-radius: 8px;
   width: calc(90vw - 32px);
   max-width: 408px;
   min-width: 288px;
@@ -362,14 +358,14 @@ watch(
   padding: 20px 16px 16px 16px;
   border-bottom: 1px solid var(--main04);
   background: var(--main01);
-  border-radius: 12px 12px 0 0;
+  border-radius: 8px 8px 0 0;
 }
 
-@media (min-width: 768px) {
+/*@media (min-width: 768px) {
   .modal-header {
     padding: 24px 24px 16px 24px;
   }
-}
+}*/
 
 .modal-header h2 {
   margin: 0;
@@ -404,16 +400,17 @@ watch(
   overscroll-behavior: contain;
 }
 
-@media (min-width: 768px) {
+/*@media (min-width: 768px) {
   .modal-body {
     padding: 24px;
   }
-}
+}*/
 
 .product-info {
   margin-bottom: 24px;
   padding: 16px;
   background: var(--main05);
+  border:1px solid var(--main04);
   border-radius: 8px;
 }
 
@@ -425,7 +422,7 @@ watch(
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 .form-group label {
@@ -474,6 +471,7 @@ watch(
 
 .available-amount {
   margin-top: 8px;
+  margin-left:5px;
   font-size: var(--font-size-sm);
   color: var(--main02);
   text-align: right;
@@ -481,6 +479,7 @@ watch(
 
 .korean-number {
   margin-top: 4px;
+  margin-right:5px;
   font-size: var(--font-size-sm);
   color: var(--main02);
   font-style: italic;
@@ -514,14 +513,14 @@ watch(
   gap: 12px;
   padding: 16px;
   border-top: 1px solid var(--main04);
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 8px 8px;
 }
 
-@media (min-width: 768px) {
+/*@media (min-width: 768px) {
   .modal-footer {
     padding: 16px 24px 24px 24px;
   }
-}
+}*/
 
 .btn {
   flex: 1;
