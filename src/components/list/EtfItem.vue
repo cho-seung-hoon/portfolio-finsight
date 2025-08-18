@@ -7,6 +7,23 @@
         {{ countryLabelMap[item.productCountry] ?? item.productCountry }}
         ・
         {{ typeLabelMap[item.productType] ?? item.productType }}
+        <!-- 오른쪽 끝: 추천 툴팁 아이콘 (추천일 때만) -->
+        <div
+          class="etf-item-title-right"
+          v-if="recommended">
+          <div
+            class="icon-wrapper icon-question"
+            @click.stop="showRecoTip = !showRecoTip">
+            <IconQuestion />
+            <Transition name="tooltip">
+              <div
+                v-if="showRecoTip"
+                class="tooltip-content">
+                최근 본 뉴스를 기반으로 추천합니다.
+              </div>
+            </Transition>
+          </div>
+        </div>
       </div>
 
       <header class="etf-item-header">
@@ -89,15 +106,14 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, computed, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import HeartToggle from '../common/HeartToggle.vue';
+import IconQuestion from '@/components/icons/IconQuestion.vue';
 
 const props = defineProps({
-  item: {
-    type: Object,
-    required: true
-  }
+  item: { type: Object, required: true },
+  recommended: { type: Boolean, default: false }
 });
 
 const countryLabelMap = {
@@ -116,6 +132,12 @@ const colorMap = {
 };
 
 const router = useRouter();
+
+const showRecoTip = ref(false);
+// 카드 바깥 클릭 시 툴팁 닫힘
+const onDocClick = () => (showRecoTip.value = false);
+document.addEventListener('click', onDocClick);
+onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
 
 function goToDetail() {
   router.push(`/etf/${props.item.productCode}`);
@@ -240,6 +262,68 @@ function getSegmentStyle(key) {
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
   color: var(--main02);
+  align-items: center;
+  gap: 6px;
+}
+
+/* 오른쪽 끝의 추천 툴팁 영역 */
+.etf-item-title-right {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+/* 아이콘 + 툴팁 (FundItem과 동일 패턴) */
+.icon-wrapper {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-question {
+  color: var(--main02);
+}
+/*  아이콘의 '왼쪽 위' 방향으로 뜨도록 재배치 */
+.tooltip-content {
+  position: absolute;
+  right: calc(100% + 8px); /* 아이콘 위로 */
+  left: auto;
+  top: -15px; /* 기존 값 무효화 */
+  transform: none;
+  width: max-content;
+  max-width: 250px;
+  padding: 10px 15px;
+  white-space: normal;
+  word-break: keep-all;
+  border-radius: 8px;
+  background-color: rgb(from var(--main01) r g b / 0.85);
+  color: var(--white);
+  font-size: var(--font-size-sm);
+  z-index: 10;
+}
+/* ▶ 오른쪽을 향하는 꼬리(툴팁의 오른쪽 중앙) */
+.tooltip-content::after {
+  content: '';
+  position: absolute;
+  top: 65%;
+  right: -11px; /* 툴팁 오른쪽 바깥으로 살짝 */
+  transform: translateY(-50%);
+  border-width: 6px;
+  border-style: solid;
+  /* top | right | bottom | left (왼쪽 보더에 색 → ▶) */
+  border-color: transparent transparent transparent rgb(from var(--main01) r g b / 0.85);
+}
+.tooltip-enter-active,
+.tooltip-leave-active {
+  transition: opacity 0.2s ease-out;
+}
+.tooltip-enter-from,
+.tooltip-leave-to {
+  opacity: 0;
 }
 
 .user-group-popular-badge {
