@@ -1,11 +1,13 @@
 import apiClient from './index.js';
 
-export async function getDeposits(sort, is_matched) {
+export async function getDeposits(sort, is_matched, limit, offset) {
   try {
     const response = await apiClient.get('/products/deposit', {
       params: {
         sort,
-        is_matched
+        is_matched,
+        limit,
+        offset
       }
     });
     return response.data;
@@ -15,14 +17,16 @@ export async function getDeposits(sort, is_matched) {
   }
 }
 
-export async function getFunds(sort, country, type, is_matched) {
+export async function getFunds(sort, country, type, is_matched, limit, offset) {
   try {
     const response = await apiClient.get('/products/fund', {
       params: {
         sort,
         country,
         type,
-        is_matched
+        is_matched,
+        limit,
+        offset
       }
     });
     return response.data;
@@ -32,14 +36,16 @@ export async function getFunds(sort, country, type, is_matched) {
   }
 }
 
-export async function getEtfs(sort, country, type, is_matched) {
+export async function getEtfs(sort, country, type, is_matched, limit, offset) {
   try {
     const response = await apiClient.get('/products/etf', {
       params: {
         sort,
         country,
         type,
-        is_matched
+        is_matched,
+        limit,
+        offset
       }
     });
     return response.data;
