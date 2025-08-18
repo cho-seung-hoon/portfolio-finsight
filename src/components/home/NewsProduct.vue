@@ -202,4 +202,9 @@ onBeforeUnmount(() => {
 .productItem{
   margin:10px 0;
 }
+
+.no-products{
+  font-size:var(--font-size-ms);
+  font-weight:var(--font-weight-light);
+}
 </style>
