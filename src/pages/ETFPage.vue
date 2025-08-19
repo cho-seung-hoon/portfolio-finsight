@@ -94,7 +94,6 @@ onMounted(() => {
   if (productCode) {
     console.log('[ETF DETAIL] 상품 코드:', productCode);
     etfStore.fetchProduct(productCode);
-    etfStore.fetchYieldHistory(productCode);
   }
 });
 
@@ -127,9 +126,17 @@ async function startWebSocketSubscription(productCode) {
 }
 
 const handleWebSocketData = data => {
-  if (data) {
-    realtimeData.value = data;
-    etfStore.updateRealtimeData(data);
+  if (data && data.currentPrice !== undefined && data.currentVolume !== undefined) {
+    // 이전 데이터와 비교하여 실제로 변경된 경우에만 업데이트
+    if (
+      !realtimeData.value ||
+      realtimeData.value.currentPrice !== data.currentPrice ||
+      realtimeData.value.currentVolume !== data.currentVolume
+    ) {
+      realtimeData.value = { ...data };
+      // etfStore의 updateRealtimeData 호출하여 yieldHistory 업데이트
+      etfStore.updateRealtimeData(data);
+    }
   }
 };
 
@@ -181,7 +188,7 @@ const selectTab = async tab => {
 
   selectedTab.value = tab;
 
-  if (tab === 'yield' && !isYieldHistoryLoaded.value && !isYieldHistoryLoading.value) {
+  if (tab === 'yield') {
     const productCode = route.params.productCode;
     console.log('Fetching yield history for productCode:', productCode);
     if (productCode) {
@@ -216,31 +223,44 @@ watch(
 );
 
 const tabData = computed(() => {
-  if (!etfStore.product) return {};
+  if (!etfStore.productInfo) return {};
+
+  let yieldTabData = [];
+  if (etfStore.yieldHistory && etfStore.yieldHistory.length > 0) {
+    const chartDataForChart = etfStore.yieldHistory.map(item => ({
+      time: Math.floor(item.timestamp / 1000),
+      price: Number(item.currentPrice) || 0,
+      volume: Number(item.currentVolume) || 0
+    }));
+
+    yieldTabData = [
+      { type: 'areachart', title: 'ETF 가격/거래량 그래프', desc: chartDataForChart }
+    ];
+  }
 
   const baseTabData = {
-    info: etfStore.product.info,
-    yield: etfStore.product.yield,
-    composition: etfStore.product.composition,
-    news: etfStore.product.news
+    info: etfStore.productInfo.info,
+    yield: yieldTabData,
+    composition: etfStore.productInfo.composition,
+    news: etfStore.productInfo.news
   };
 
   if (
-    etfStore.product.isHolding &&
-    (etfStore.product.holding || etfStore.product.holdings) &&
-    (etfStore.product.holdings?.holdingsTotalQuantity > 0 ||
-      etfStore.product.holding?.holdingsTotalQuantity > 0) &&
-    (etfStore.product.holdings?.holdingsStatus !== 'zero' ||
-      etfStore.product.holding?.holdingsStatus !== 'zero')
+    etfStore.productInfo.isHolding &&
+    (etfStore.productInfo.holding || etfStore.productInfo.holdings) &&
+    (etfStore.productInfo.holdings?.holdingsTotalQuantity > 0 ||
+      etfStore.productInfo.holding?.holdingsTotalQuantity > 0) &&
+    (etfStore.productInfo.holdings?.holdingsStatus !== 'zero' ||
+      etfStore.productInfo.holding?.holdingsStatus !== 'zero')
   ) {
-    const holdingData = etfStore.product.holding || etfStore.product.holdings;
+    const holdingData = etfStore.productInfo.holding || etfStore.productInfo.holdings;
     if (holdingData && holdingData.length > 0) {
       const holdingsSummary = holdingData.find(item => item.type === 'holdingsummary')?.desc || {};
       const currentPrice =
         realtimeData.value?.currentPrice ||
-        etfStore.product.currentNav ||
-        etfStore.product.price?.currentPrice ||
-        etfStore.product.currentPrice ||
+        etfStore.productInfo.currentNav ||
+        etfStore.productInfo.price?.currentPrice ||
+        etfStore.productInfo.currentPrice ||
         0;
       const holdingsQuantity = holdingsSummary.holdingsTotalQuantity || 0;
       const totalValue = holdingsQuantity * currentPrice;

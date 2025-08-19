@@ -75,7 +75,7 @@ const CHART_COLORS = {
 const CHART_CONFIG = {
   HEIGHT: 320,
   MARGINS: {
-    ETF_PRICE: { top: 0.8, bottom: 0.2 },
+    ETF_PRICE: { top: 0.1, bottom: 0.2 },
     ETF_VOLUME: { top: 0.8, bottom: 0 },
     FUND_AUM: { top: 0.3, bottom: 0 },
     FUND_RETURN: { top: 0.1, bottom: 0 }
@@ -117,13 +117,25 @@ const dateRanges = computed(() => {
 
 const processChartData = computed(() => {
   console.log('들어온 원본 데이터:', props.data);
+  console.log('데이터 길이:', props.data?.length);
 
   if (props.category === 'etf') {
+    if (!props.data || props.data.length === 0) {
+      console.log('ETF 데이터가 없음');
+      return [];
+    }
+
     const etfData = props.data
       .sort((a, b) => {
         const timeA = a.timestamp || a.time || 0;
         const timeB = b.timestamp || b.time || 0;
         return timeA - timeB;
+      })
+      .filter((item, index, array) => {
+        if (index === 0) return true;
+        const prevTime = array[index - 1].timestamp || array[index - 1].time || 0;
+        const currentTime = item.timestamp || item.time || 0;
+        return currentTime !== prevTime;
       })
       .slice(-60)
       .map(item => {
@@ -177,7 +189,7 @@ const processChartData = computed(() => {
     } else if (selectedRange.days === 30) {
       returnField = 'monthlyReturn';
       daysToFilter = 30;
-    } else {
+    } else if (selectedRange.days === 90) {
       returnField = 'quarterlyReturn';
       daysToFilter = 90;
     }
@@ -189,7 +201,7 @@ const processChartData = computed(() => {
       filteredData = sortedData.slice(-7);
     } else if (selectedRange.days === 30) {
       filteredData = sortedData.slice(-30);
-    } else {
+    } else if (selectedRange.days === 90) {
       filteredData = sortedData.slice(-90);
     }
 
@@ -223,6 +235,11 @@ const updateChartSeries = () => {
 
     if (props.category === 'etf') {
       if (etfPriceSeries.value) {
+        etfPriceSeries.value.setData([]);
+        if (etfVolumeSeries.value) {
+          etfVolumeSeries.value.setData([]);
+        }
+
         const etfPriceData = etfChartData.value.slice(-60).map(item => ({
           time: item.time,
           value: item.price
@@ -233,44 +250,35 @@ const updateChartSeries = () => {
           value: item.volume
         }));
 
-        etfPriceSeries.value.setData(etfPriceData);
-
-        if (etfVolumeSeries.value) {
-          etfVolumeSeries.value.setData(etfVolumeData);
-        }
-
-        if (etfChartData.value.length > 60) {
-          const recentData = etfChartData.value.slice(-60);
-          chart.value.timeScale().setVisibleRange({
-            from: recentData[0]?.time,
-            to: recentData[recentData.length - 1]?.time
-          });
-        } else {
-          chart.value.timeScale().setVisibleRange({
-            from: etfChartData.value[0]?.time,
-            to: etfChartData.value[etfChartData.value.length - 1]?.time
-          });
-        }
-
         if (etfPriceData.length > 0) {
-          const prices = etfPriceData.map(item => item.value);
-          const minPrice = Math.min(...prices);
-          const maxPrice = Math.max(...prices);
-          const priceRange = maxPrice - minPrice;
+          etfPriceSeries.value.setData(etfPriceData);
 
-          const padding = priceRange * 0.01;
-          const minValue = minPrice - padding;
-          const maxValue = maxPrice + padding;
+          if (etfVolumeSeries.value) {
+            etfVolumeSeries.value.setData(etfVolumeData);
+          }
+
+          const recentData = etfChartData.value.slice(-60);
+          if (recentData.length > 0) {
+            const fromTime = recentData[0]?.time;
+            const toTime = recentData[recentData.length - 1]?.time;
+
+            if (fromTime && toTime) {
+              chart.value.timeScale().setVisibleRange({
+                from: fromTime,
+                to: toTime
+              });
+            }
+          }
 
           chart.value.priceScale('left').applyOptions({
+            autoScale: true,
+            scaleMargins: CHART_CONFIG.MARGINS.ETF_PRICE
+          });
+        } else {
+          chart.value.priceScale('left').applyOptions({
             autoScale: false,
-            minValue: minValue,
-            maxValue: maxValue,
-            entireTextOnly: false,
-            scaleMargins: {
-              top: 0.3,
-              bottom: 0.3
-            }
+            minValue: 0,
+            maxValue: 100
           });
         }
       }
@@ -316,7 +324,7 @@ const createEtfChart = () => {
     visible: true,
     borderColor: CHART_COLORS.ETF.PRICE,
     textColor: CHART_COLORS.ETF.PRICE,
-    autoScale: false,
+    autoScale: true,
     scaleMargins: CHART_CONFIG.MARGINS.ETF_PRICE,
     entireTextOnly: false,
     ticksVisible: true,
@@ -338,29 +346,28 @@ const createEtfChart = () => {
     scaleMargins: CHART_CONFIG.MARGINS.ETF_VOLUME
   });
 
-  const etfPriceData = etfChartData.value.slice(-60).map(item => ({
-    time: item.time,
-    value: item.price
-  }));
+  if (etfChartData.value.length > 0) {
+    const etfPriceData = etfChartData.value.slice(-60).map(item => ({
+      time: item.time,
+      value: item.price
+    }));
 
-  const etfVolumeData = etfChartData.value.slice(-60).map(item => ({
-    time: item.time,
-    value: item.volume
-  }));
+    const etfVolumeData = etfChartData.value.slice(-60).map(item => ({
+      time: item.time,
+      value: item.volume
+    }));
 
-  etfPriceSeries.value.setData(etfPriceData);
-  etfVolumeSeries.value.setData(etfVolumeData);
-
-  if (etfPriceData.length > 0) {
-    const prices = etfPriceData.map(item => item.value);
-    const minPrice = Math.min(...prices);
-    const maxPrice = Math.max(...prices);
-    const priceRange = maxPrice - minPrice;
+    etfPriceSeries.value.setData(etfPriceData);
+    etfVolumeSeries.value.setData(etfVolumeData);
 
     chart.value.priceScale('left').applyOptions({
-      autoScale: false,
-      minValue: minPrice,
-      maxValue: maxPrice
+      autoScale: true,
+      scaleMargins: CHART_CONFIG.MARGINS.ETF_PRICE
+    });
+  } else {
+    chart.value.priceScale('left').applyOptions({
+      autoScale: true,
+      scaleMargins: CHART_CONFIG.MARGINS.ETF_PRICE
     });
   }
 };
@@ -380,7 +387,11 @@ const createChartOptions = () => {
       borderColor: CHART_COLORS.ETF.PRICE,
       textColor: CHART_COLORS.ETF.PRICE,
       autoScale: true,
-      scaleMargins: CHART_CONFIG.MARGINS.ETF_PRICE
+      scaleMargins: CHART_CONFIG.MARGINS.ETF_PRICE,
+      entireTextOnly: false,
+      ticksVisible: true,
+      borderVisible: true,
+      invertScale: false
     },
     timeScale: {
       borderColor: '#D1D5DB',
@@ -390,11 +401,13 @@ const createChartOptions = () => {
       barSpacing: 3,
       fixLeftEdge: true,
       lockVisibleTimeRangeOnResize: true,
-      rightBarStaysOnScroll: false,
+      rightBarStaysOnScroll: true,
       borderVisible: false,
       visible: true,
       scrollBehavior: 'smooth',
-      scrollable: false,
+      scrollable: true,
+      minBarSpacing: 3,
+      maxBarSpacing: 3,
       tickMarkFormatter: time => {
         const date = new Date(time * 1000);
         if (props.category === 'etf') {
@@ -427,7 +440,9 @@ const createChartOptions = () => {
       visible: true,
       borderColor: props.category === 'etf' ? CHART_COLORS.ETF.VOLUME_AXIS : CHART_COLORS.FUND.AUM,
       textColor: props.category === 'etf' ? CHART_COLORS.ETF.VOLUME_AXIS : CHART_COLORS.FUND.AUM,
-      autoScale: true
+      autoScale: true,
+      entireTextOnly: false,
+      invertScale: false
     };
   }
 
@@ -532,11 +547,10 @@ watch(
     if (props.category === 'etf' && newRealtimeData && chart.value) {
       try {
         if (
-          newRealtimeData.timestamp &&
           newRealtimeData.currentPrice !== undefined &&
           newRealtimeData.currentVolume !== undefined
         ) {
-          const newTime = Math.floor(newRealtimeData.timestamp / 1000);
+          const newTime = Math.floor(Date.now() / 1000);
           const newPrice = Number(newRealtimeData.currentPrice) || 0;
           const newVolume = Number(newRealtimeData.currentVolume) || 0;
 
@@ -546,38 +560,7 @@ watch(
             volume: newVolume
           });
 
-          if (etfPriceSeries.value) {
-            etfPriceSeries.value.update({
-              time: newTime,
-              value: newPrice
-            });
-          }
-
-          if (etfVolumeSeries.value) {
-            etfVolumeSeries.value.update({
-              time: newTime,
-              value: newVolume
-            });
-          }
-
-          const currentVisibleRange = chart.value.timeScale().getVisibleRange();
-          if (currentVisibleRange && currentVisibleRange.from && currentVisibleRange.to) {
-            const timeRange = currentVisibleRange.to - currentVisibleRange.from;
-            if (timeRange > 60) {
-              const newFrom = currentVisibleRange.to - 60;
-              chart.value.timeScale().setVisibleRange({
-                from: newFrom,
-                to: currentVisibleRange.to
-              });
-            }
-          } else {
-            const newTo = Math.floor(Date.now() / 1000);
-            const newFrom = newTo - 60;
-            chart.value.timeScale().setVisibleRange({
-              from: newFrom,
-              to: newTo
-            });
-          }
+          updateChartSeries();
         }
       } catch (error) {
         console.error('Error updating realtime data:', error);
