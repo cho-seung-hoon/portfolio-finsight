@@ -85,7 +85,7 @@
               <div
                 v-if="showRecoTip"
                 class="tooltip-content">
-                최근 본 뉴스를 기반으로 추천합니다.
+                최근 본 뉴스를 기반으로 추천합니다
               </div>
             </Transition>
           </div>
@@ -218,11 +218,13 @@ function getSegmentStyle(key) {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semi-bold);
   color: var(--main01);
+  gap: 8px;
 }
+
 .etf-item-title-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -236,12 +238,14 @@ function getSegmentStyle(key) {
 }
 
 .own-tag {
+  flex-shrink: 0;
   background-color: var(--main04);
   color: var(--main02);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   padding: 2px 4px;
   border-radius: 4px;
+  white-space: nowrap;
 }
 
 .etf-item-sub-title {

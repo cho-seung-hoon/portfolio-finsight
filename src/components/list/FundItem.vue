@@ -206,12 +206,13 @@ function fmtNumber(n) {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semi-bold);
   color: var(--main01);
+  gap: 8px;
 }
 
 .fund-item-title-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -222,7 +223,6 @@ function fmtNumber(n) {
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.2;
-  max-width: 100%;
 }
 
 .fund-item-header svg:hover {
@@ -230,12 +230,14 @@ function fmtNumber(n) {
 }
 
 .own-tag {
+  flex-shrink: 0;
   background-color: var(--main04);
   color: var(--main02);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   padding: 2px 4px;
   border-radius: 4px;
+  white-space: nowrap;
 }
 
 .fund-item-sub-title {
