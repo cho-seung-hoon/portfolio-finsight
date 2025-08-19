@@ -1,17 +1,17 @@
 <template>
   <div class="holding-box">
+    <div
+      class="portfolio"
+      @click="goToPortfolio">
+      <div class="portfolio-title">내 성향에 맞는 포트폴리오 보기</div>
+      <div class="portfolio-icon">+</div>
+    </div>
     <div class="minimy">
       <MiniMy
         :total-valuation="miniMyData.currentTotal"
         :message="holdingData.message"
         :change="miniMyData.change"
         :change-percent="miniMyData.changePercent" />
-    </div>
-    <div
-      class="portfolio"
-      @click="goToPortfolio">
-      <div class="portfolio-title">내 성향에 맞는 포트폴리오 보기</div>
-      <div class="portfolio-icon">+</div>
     </div>
   </div>
   <div class="holding-box">
@@ -352,18 +352,18 @@ onUnmounted(() => {
   align-items: center;
   background-color: var(--main01);
   color: var(--white);
-  padding: var(--font-size-md);
-  border-radius: 8px;
+  border-radius: 8px 8px 0 0;
+  padding: 8px 15px;
   cursor: pointer;
 }
 
 .portfolio-title {
   font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-regular);
 }
 
 .portfolio-icon {
   font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-regular);
 }
 </style>

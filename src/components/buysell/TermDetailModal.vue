@@ -62,10 +62,7 @@ const isClosing = ref(false);
 
 const openModal = () => {
   if (modalRef.value) {
-    modalRef.value.showModal();
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
+    modalRef.value.show();
   }
 };
 
@@ -77,9 +74,6 @@ const closeModal = () => {
   if (modalRef.value) {
     modalRef.value.close();
   }
-  document.body.style.overflow = '';
-  document.body.style.position = '';
-  document.body.style.width = '';
   emit('close');
 
   setTimeout(() => {
@@ -101,47 +95,26 @@ defineExpose({
 
 <style scoped>
 .modal {
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   width: 100%;
   height: 100%;
-  z-index: 2000;
-  overflow: hidden;
-  max-width: 100vw;
-  max-height: 100vh;
-  overscroll-behavior: contain;
-}
-
-.modal::backdrop {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(2px);
+  z-index: 200;
+  border-radius:0;
 }
 
 .modal-content {
   background: var(--white);
-  border-radius: 0;
-  width: calc(100% - 32px);
+  width: calc(100%);
   height: 100%;
-  max-width: 408px;
-  box-shadow: none;
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   margin: 0 auto;
   padding: 0;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: calc(100vw - 32px);
 }
 
 .modal-header {
@@ -151,7 +124,6 @@ defineExpose({
   padding: 20px 16px 16px 16px;
   border-bottom: 1px solid var(--main04);
   background: var(--main01);
-  border-radius: 0;
   flex-shrink: 0;
   min-height: 60px;
   margin: 0;
@@ -159,17 +131,14 @@ defineExpose({
   box-sizing: border-box;
   position: relative;
   z-index: 1;
+  border-radius: 0;
 }
 
-@media (min-width: 768px) {
-  .modal-header {
-    padding: 24px 24px 16px 24px;
-  }
-}
+
 
 .modal-header h2 {
   margin: 0;
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   color: var(--white);
 }
@@ -210,15 +179,6 @@ defineExpose({
   -webkit-overflow-scrolling: touch;
 }
 
-@media (min-width: 768px) {
-  .modal-body {
-    padding: 24px;
-  }
-
-  .modal-footer {
-    padding: 24px;
-  }
-}
 
 .term-content {
   font-size: 14px;
@@ -252,12 +212,10 @@ defineExpose({
   gap: 12px;
   padding: 20px;
   border-top: 1px solid var(--main04);
-  border-radius: 0;
   flex-shrink: 0;
   min-height: 60px;
   margin: 0;
-  width: calc(100% - 32px);
-  max-width: 408px;
+  width: calc(100%);
   box-sizing: border-box;
   background: var(--white);
   position: fixed;
@@ -265,6 +223,7 @@ defineExpose({
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
+  border-radius:0;
 }
 
 .btn {

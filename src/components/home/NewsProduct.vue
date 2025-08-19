@@ -26,12 +26,14 @@
       class="product-list">
       <div v-if="selectCategory === 'etf'">
         <EtfItem
+          class="productItem"
           v-for="item in reactiveProducts"
           :key="item.product_code"
           :item="item" />
       </div>
       <div v-else>
         <FundItem
+          class="productItem"
           v-for="fund in reactiveProducts"
           :key="fund.product_code"
           :item="fund" />
@@ -195,5 +197,14 @@ onBeforeUnmount(() => {
   background-color: var(--main01);
   color: var(--white);
   border-color: var(--main01);
+}
+
+.productItem{
+  margin:10px 0;
+}
+
+.no-products{
+  font-size:var(--font-size-ms);
+  font-weight:var(--font-weight-light);
 }
 </style>

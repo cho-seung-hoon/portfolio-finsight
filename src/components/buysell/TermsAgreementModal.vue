@@ -227,7 +227,7 @@ function showTermDetail(term) {
 const openModal = () => {
   resetAgreements();
   if (modalRef.value) {
-    modalRef.value.showModal();
+    modalRef.value.show();
   }
 };
 
@@ -301,21 +301,16 @@ defineExpose({
   border-radius: 12px;
   padding: 0;
   background: transparent;
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 2000;
-  max-width: 100vw;
-  max-height: 100vh;
+  z-index: 100;
+  max-width: 100%;
+  max-height: 100dvh;
   overflow: hidden;
-  overscroll-behavior: contain;
 }
 
-.modal::backdrop {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(2px);
-}
 
 .modal-content {
   background: var(--white);
@@ -336,13 +331,7 @@ defineExpose({
   padding: 20px 16px 16px 16px;
   border-bottom: 1px solid var(--main04);
   background: var(--main01);
-  border-radius: 12px 12px 0 0;
-}
-
-@media (min-width: 768px) {
-  .modal-header {
-    padding: 24px 24px 16px 24px;
-  }
+  border-radius: 8px 8px 0 0;
 }
 
 .modal-header h2 {
@@ -376,19 +365,14 @@ defineExpose({
   overflow-y: auto;
   max-height: 60vh;
   overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
-@media (min-width: 768px) {
-  .modal-body {
-    padding: 24px;
-  }
+  background-color:var(--white);
 }
 
 .product-info {
   margin-bottom: 24px;
   padding: 16px;
   background: var(--main05);
+  border:1px solid var(--main04);
   border-radius: 8px;
   text-align: left;
 }
@@ -524,7 +508,7 @@ defineExpose({
 }
 
 .notice-section {
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 }
 
 .notice-title {
@@ -537,7 +521,7 @@ defineExpose({
 .notice-content {
   background-color: var(--main05);
   border-radius: 8px;
-  padding: 16px;
+  padding: 5px;
 }
 
 .notice-list {
@@ -557,13 +541,7 @@ defineExpose({
   gap: 12px;
   padding: 16px;
   border-top: 1px solid var(--main04);
-  border-radius: 0 0 12px 12px;
-}
-
-@media (min-width: 768px) {
-  .modal-footer {
-    padding: 16px 24px 24px 24px;
-  }
+  border-radius: 0 0 8px 8px;
 }
 
 .btn {
@@ -600,4 +578,7 @@ defineExpose({
 .btn-secondary:hover {
   background: var(--main03);
 }
+
+
+
 </style>

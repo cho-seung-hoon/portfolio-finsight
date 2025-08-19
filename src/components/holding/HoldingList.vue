@@ -30,6 +30,7 @@
       class="product-list">
       <template v-if="selectCategory === '예금'">
         <HoldingListDeposit
+          class="productItem"
           v-for="product in filteredProducts"
           :key="product.id"
           :product="product" />
@@ -37,6 +38,7 @@
 
       <template v-else>
         <HoldingListFundNEtf
+          class="productItem"
           v-for="product in filteredProducts"
           :key="product.id"
           :product="product" />
@@ -90,7 +92,7 @@ const filteredProducts = computed(() => {
 .filter {
   margin: var(--font-size-ms) 0;
   display: flex;
-  gap: var(--font-size-md);
+  gap: 8px;
 }
 
 .filter button {
@@ -108,5 +110,9 @@ const filteredProducts = computed(() => {
   background-color: var(--main01);
   color: var(--white);
   border-color: var(--main01);
+}
+
+.productItem{
+  margin:10px 0;
 }
 </style>

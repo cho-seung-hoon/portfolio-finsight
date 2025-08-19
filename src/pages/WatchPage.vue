@@ -250,8 +250,8 @@ onBeforeUnmount(() => {
 }
 
 .empty-image {
-  width: 120px;
-  height: 120px;
+  width: 60px;
+
   object-fit: contain;
 }
 

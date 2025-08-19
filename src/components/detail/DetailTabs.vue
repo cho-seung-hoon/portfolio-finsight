@@ -40,7 +40,7 @@ const indicatorStyle = computed(() => {
   display: flex;
   align-items: center;
   position: relative;
-  height: 62px;
+  height: 50px;
   width: calc(100% + 40px);
   margin-left: -20px;
   margin-right: -20px;
@@ -48,10 +48,10 @@ const indicatorStyle = computed(() => {
 .tab {
   flex: 1;
   text-align: center;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
   color: var(--main02);
-  padding: 20px 0 16px 0;
+  padding: 12px 0;
   cursor: pointer;
   transition: color 0.2s;
   position: relative;

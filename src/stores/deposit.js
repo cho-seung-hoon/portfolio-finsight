@@ -14,46 +14,13 @@ export const useDepositStore = defineStore('deposit', () => {
   const error = ref(null);
   const loadingStore = useLoadingStore();
 
-  const mockProductData = {
-    productCode: 'deposit-001',
-    productName: 'SH 첫만남우대예금',
-    productCompanyName: 'SH 수협은행',
-    productRiskGrade: 1,
-    depositJoinMember: '실명의 개인(1인 1계좌)',
-    depositSpclCnd: '우대 조건: 신규가입 시 최고 연 0.30%p 추가',
-    depositMtrtInt: '연 3.69%',
-    depositMaxLimit: new Decimal(10000000),
-    depositJoinWay: '인터넷뱅킹, 모바일뱅킹',
-    depositJoinDeny: '서민전용',
-    depositEtcNote: '상품 가입 전 반드시 상품설명서 및 약관을 확인하시기 바랍니다.',
-    depositOption: '자동 만기관리, 분할인출 가능',
-    doptionVO: [
-      {
-        doptionId: 1,
-        doptionSaveTrm: '12',
-        doptionIntrRate: 3.69,
-        doptionFinCoNo: '0010001',
-        doptionDclsMonth: '202501',
-        doptionIntrRateType: 'S',
-        doptionIntrRateTypeNm: '단리',
-        doptionIntrRate2: 3.69
-      }
-    ],
-    holdings: null
-  };
-
   const fetchProductDetail = async (productId, category, token) => {
     try {
       const data = await getProductDetail(category, productId);
       return data;
     } catch (error) {
       console.error('Product API Error:', error);
-
-      return {
-        ...mockProductData,
-        productCode: productId,
-        holdings: null
-      };
+      throw error;
     }
   };
 
@@ -121,11 +88,11 @@ export const useDepositStore = defineStore('deposit', () => {
 
       userWatches: productDetail.userWatches ?? false,
 
-      productCompanyName: productDetail.productCompanyName || 'SH 수협은행',
-      productName: productDetail.productName || 'SH 첫만남우대예금',
+      productCompanyName: productDetail.productCompanyName,
+      productName: productDetail.productName,
       productCode: productDetail.productCode || productId,
-      productRiskGrade: productDetail.productRiskGrade || 1,
-      depositMaxLimit: productDetail.depositMaxLimit ?? new Decimal(10000000),
+      productRiskGrade: productDetail.productRiskGrade,
+      depositMaxLimit: productDetail.depositMaxLimit ?? new Decimal(0),
       baseRate: baseRateStr,
       maxRate: maxRateStr
     };
@@ -138,23 +105,23 @@ export const useDepositStore = defineStore('deposit', () => {
       {
         type: 'text',
         title: '상품명',
-        desc: productDetail.productName || 'SH 첫만남우대예금'
+        desc: productDetail.productName
       },
-      { type: 'text', title: '은행명', desc: productDetail.productCompanyName || 'SH 수협은행' },
+      { type: 'text', title: '은행명', desc: productDetail.productCompanyName },
       {
         type: 'text',
         title: '가입 대상',
-        desc: productDetail.depositJoinMember || '실명의 개인(1인 1계좌)'
+        desc: productDetail.depositJoinMember
       },
       {
         type: 'text',
         title: '특별 조건',
-        desc: productDetail.depositSpclCnd || '우대 조건: 신규가입 시 최고 연 0.30%p 추가'
+        desc: productDetail.depositSpclCnd
       },
       {
         type: 'longtext',
         title: '만기 후 이자율',
-        desc: productDetail.depositMtrtInt || '연 3.69%'
+        desc: productDetail.depositMtrtInt
       },
       {
         type: 'text',
@@ -163,21 +130,19 @@ export const useDepositStore = defineStore('deposit', () => {
           const val = productDetail.depositMaxLimit;
           if (val instanceof Decimal) return `${(val.toNumber() / 1e4).toFixed(0)}만원`;
           if (typeof val === 'number') return `${(val / 1e4).toFixed(0)}만원`;
-          return '1,000만원';
+          return '-';
         })()
       },
       {
         type: 'text',
         title: '가입 방법',
-        desc: productDetail.depositJoinWay || '인터넷뱅킹, 모바일뱅킹'
+        desc: productDetail.depositJoinWay
       },
-      { type: 'text', title: '가입 제한', desc: productDetail.depositJoinDeny || '서민전용' },
+      { type: 'text', title: '가입 제한', desc: productDetail.depositJoinDeny },
       {
         type: 'longtext',
         title: '기타 참고사항',
-        desc:
-          productDetail.depositEtcNote ||
-          '상품 가입 전 반드시 상품설명서 및 약관을 확인하시기 바랍니다.'
+        desc: productDetail.depositEtcNote
       }
     ];
   };
@@ -213,12 +178,12 @@ export const useDepositStore = defineStore('deposit', () => {
       {
         type: 'longtext',
         title: '우대금리 조건',
-        desc: productDetail.depositSpclCnd || '우대 조건: 신규가입 시 최고 연 0.30%p 추가'
+        desc: productDetail.depositSpclCnd
       },
       {
         type: 'text',
         title: '이자 계산 방식',
-        desc: selected.doptionIntrRateTypeNm || '단리'
+        desc: selected.doptionIntrRateTypeNm
       },
       {
         type: 'longtext',
@@ -233,9 +198,7 @@ export const useDepositStore = defineStore('deposit', () => {
       {
         type: 'longtext',
         title: '유의사항',
-        desc:
-          productDetail.depositEtcNote ||
-          '상품 가입 전 반드시 상품설명서 및 약관을 확인하시기 바랍니다.'
+        desc: productDetail.depositEtcNote
       },
       {
         type: 'longtext',

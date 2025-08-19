@@ -132,14 +132,14 @@ onBeforeUnmount(() => {
 
 
 const sentimentColors = {
-  NEGATIVE: ['#f4dcd6', '#FC8675', '#f97662'],
+  NEGATIVE: ['#FADCD5', '#F79B8A', '#f97662'],
   NEUTRAL: ['#e2e4d8', '#e2e4d8', '#e2e4d8'],
-  POSITIVE: ['#ccddf8', '#6B96E0', '#6c8fe8']
+  POSITIVE: ['#DCE8FB', '#8AB1ED', '#6c8fe8']
 };
 const sentimentTextColors = {
-  NEGATIVE: ['#5E2720', '#9c3428', '#FFFFFF'],
-  NEUTRAL: ['#7c7c77', '#7c7c77', '#7c7c77'],
-  POSITIVE: ['#1D2C45', '#1a418e', '#FFFFFF']
+  NEGATIVE: ['#8e3222', '#FFFFFF', '#FFFFFF'],
+  NEUTRAL: ['#616161', '#616161', '#616161'],
+  POSITIVE: ['#1A3A6E', '#FFFFFF', '#FFFFFF']
 };
 
 

@@ -112,20 +112,22 @@ async function toggleHeart() {
   width: 24px;
   height: 24px;
   transition: all 0.2s ease;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .heart-icon.filled {
-  color: var(--text-red);
+/*  background-color: var(--text-red);
+  color:var(--main01);*/
+  color:var(--sub01);
 }
 
 .heart-icon.stroke {
-  color: var(--text-red);
+  color: var(--main01);
 }
 
-.heart-icon.filled:hover {
-  transform: scale(1.1);
-}
-
+.heart-icon.filled:hover,
 .heart-icon.stroke:hover {
   transform: scale(1.1);
 }

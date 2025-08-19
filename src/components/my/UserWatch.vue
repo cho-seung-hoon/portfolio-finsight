@@ -1,6 +1,6 @@
 <template>
   <div class="wishlist-header">
-    <h3 class="wishlist-title">찜한 상품</h3>
+    <div class="wishlist-title">찜한 상품</div>
     <button
       class="more-button"
       @click="goToWatchPage">
@@ -8,75 +8,92 @@
     </button>
   </div>
   <div class="subBox">
+    <template v-if="wishlistData.length > 0">
+      <div
+        v-for="(item, index) in wishlistData"
+        :key="index"
+        class="subItem"
+        @click="goToProductDetail(item)">
+        <div class="subItem-header">
+          <div
+            class="product-type-badge"
+            :class="getProductTypeClass(item.category)">
+            {{ getProductTypeText(item.category) }}
+          </div>
+          <button
+            class="wishlist-btn active"
+            @click.stop="toggleWishlist(item)"></button>
+        </div>
+
+        <div class="subItem-title">{{ truncateProductName(item.productName) }}</div>
+
+        <div class="subItem-content">
+          <!-- 예금 -->
+          <div
+            v-if="item.category === 'deposit'"
+            class="amount-info">
+            <span class="amount-value">(최고금리) 1년</span>
+            <span class="amount-per">{{ item.depositIntrRate2 }}%</span>
+          </div>
+
+          <!-- 펀드 -->
+          <div
+            v-if="item.category === 'fund'"
+            class="return-rate">
+            <div :class="getReturnRateClass(item.percentChangeFromYesterday || 0)">
+              <span class="change-label">(전일대비)</span>
+              {{
+                item.percentChangeFromYesterday
+                  ? (item.percentChangeFromYesterday > 0 ? '+' : '') +
+                    item.percentChangeFromYesterday.toFixed(2) +
+                    '%'
+                  : '수익률 정보 준비중'
+              }}
+            </div>
+            <div class="amount-value-fundNEtf">
+              {{ item.currentNav ? `${item.currentNav.toLocaleString()}원` : '가격 정보 준비중' }}
+            </div>
+          </div>
+
+          <!-- ETF -->
+          <div
+            v-if="item.category === 'etf'"
+            class="return-rate">
+            <div :class="getReturnRateClass(item.changeRateFromPrevDay || 0)">
+              <span class="change-label">(전일대비)</span>
+              {{
+                item.changeRateFromPrevDay
+                  ? (item.changeRateFromPrevDay > 0 ? '+' : '') +
+                    item.changeRateFromPrevDay.toFixed(2) +
+                    '%'
+                  : '수익률 정보 준비중'
+              }}
+            </div>
+            <div class="amount-value-fundNEtf">
+              {{
+                item.currentPrice ? `${item.currentPrice.toLocaleString()}원` : '가격 정보 준비중'
+              }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 더보기 아이템 -->
+      <div
+        class="subItem more-item"
+        @click="goToWatchPage">
+        <div class="more-item-content">
+          <div class="more-icon">+</div>
+          <div class="more-text">더보기</div>
+        </div>
+      </div>
+    </template>
+
     <div
-      v-for="(item, index) in wishlistData"
-      :key="index"
-      class="subItem"
-      @click="goToProductDetail(item)">
-      <div class="subItem-header">
-        <div
-          class="product-type-badge"
-          :class="getProductTypeClass(item.category)">
-          {{ getProductTypeText(item.category) }}
-        </div>
-        <button
-          class="wishlist-btn active"
-          @click.stop="toggleWishlist(item)"></button>
-      </div>
-
-      <div class="subItem-title">{{ truncateProductName(item.productName) }}</div>
-
-      <div class="subItem-content">
-        <!-- 예금 -->
-        <div
-          v-if="item.category === 'deposit'"
-          class="amount-info">
-          <span class="amount-value">(최고금리) 1년</span>
-          <span class="amount-per">{{ item.depositIntrRate2 }}%</span>
-        </div>
-
-        <!-- 펀드 -->
-        <div
-          v-if="item.category === 'fund'"
-          class="return-rate">
-          <div :class="getReturnRateClass(item.percentChangeFromYesterday || 0)">
-            <span class="change-label">(전일대비)</span>
-            {{ item.percentChangeFromYesterday ? 
-              (item.percentChangeFromYesterday > 0 ? '+' : '') + item.percentChangeFromYesterday.toFixed(2) + '%' : 
-              '수익률 정보 준비중' 
-            }}
-          </div>
-          <div class="amount-value-fundNEtf">
-            {{ item.currentNav ? `${item.currentNav.toLocaleString()}원` : '가격 정보 준비중' }}
-          </div>
-        </div>
-
-        <!-- ETF -->
-        <div
-          v-if="item.category === 'etf'"
-          class="return-rate">
-          <div :class="getReturnRateClass(item.changeRateFromPrevDay || 0)">
-            <span class="change-label">(전일대비)</span>
-            {{ item.changeRateFromPrevDay ? 
-              (item.changeRateFromPrevDay > 0 ? '+' : '') + item.changeRateFromPrevDay.toFixed(2) + '%' : 
-              '수익률 정보 준비중' 
-            }}
-          </div>
-          <div class="amount-value-fundNEtf">
-            {{ item.currentPrice ? `${item.currentPrice.toLocaleString()}원` : '가격 정보 준비중' }}
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- 더보기 아이템 -->
-    <div
-      class="subItem more-item"
-      @click="goToWatchPage">
-      <div class="more-item-content">
-        <div class="more-icon">+</div>
-        <div class="more-text">더보기</div>
-      </div>
+      v-else
+      class="empty-state">
+      <div class="empty-text">찜한 상품이 없습니다</div>
+      <div class="empty-subtext">관심 있는 상품을 등록해보세요</div>
     </div>
   </div>
 </template>
@@ -85,10 +102,7 @@
 import router from '@/router';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { getWatchPreview } from '@/api/watchApi';
-import { 
-  subscribeToEtfPrice, 
-  unsubscribeAll 
-} from '@/utils/websocketUtils';
+import { subscribeToEtfPrice, unsubscribeAll } from '@/utils/websocketUtils';
 
 const wishlistData = ref([]);
 
@@ -141,18 +155,18 @@ const goToProductDetail = item => {
 const handleEtfRealtimeData = (data, productCode) => {
   if (etfMap.value.has(productCode)) {
     const etf = etfMap.value.get(productCode);
-    
+
     const updatedEtf = {
       ...etf,
       currentPrice: data.currentPrice,
       changeRateFromPrevDay: data.changeRateFromPrevDay,
       lastUpdate: data.timestamp
     };
-    
+
     etfMap.value.set(productCode, updatedEtf);
-    
-    const etfIndex = wishlistData.value.findIndex(item => 
-      item.category === 'etf' && item.productCode === productCode
+
+    const etfIndex = wishlistData.value.findIndex(
+      item => item.category === 'etf' && item.productCode === productCode
     );
     if (etfIndex !== -1) {
       wishlistData.value[etfIndex] = updatedEtf;
@@ -164,16 +178,15 @@ const handleEtfRealtimeData = (data, productCode) => {
 const startEtfWebSocketSubscriptions = async () => {
   try {
     unsubscribeFromEtfs();
-    
+
     const etfItems = wishlistData.value.filter(item => item.category === 'etf');
-    
+
     for (const etfItem of etfItems) {
       if (etfItem.productCode) {
-        const subscription = await subscribeToEtfPrice(
-          etfItem.productCode, 
-          (data) => handleEtfRealtimeData(data, etfItem.productCode)
+        const subscription = await subscribeToEtfPrice(etfItem.productCode, data =>
+          handleEtfRealtimeData(data, etfItem.productCode)
         );
-        
+
         if (subscription) {
           subscribedCodes.value.add(etfItem.productCode);
         }
@@ -193,9 +206,9 @@ const unsubscribeFromEtfs = () => {
 const fetchWishlistData = async () => {
   try {
     const data = await getWatchPreview();
-    
+
     const transformedData = [];
-    
+
     if (data.watchItems && data.watchItems.length > 0) {
       data.watchItems.forEach(watchItem => {
         const item = {
@@ -206,19 +219,9 @@ const fetchWishlistData = async () => {
         transformedData.push(item);
       });
     }
-    
-    if (transformedData.length === 0) {
-      transformedData.push({
-        productCode: '248270',
-        productName: 'TIGER S&P글로벌헬스케어',
-        category: 'etf',
-        currentPrice: 8785.19,
-        changeRateFromPrevDay: -1.37
-      });
-    }
-    
+
     wishlistData.value = transformedData;
-    
+
     const etfItems = transformedData.filter(item => item.category === 'etf');
     if (etfItems.length > 0) {
       etfMap.value.clear();
@@ -233,16 +236,7 @@ const fetchWishlistData = async () => {
     }
   } catch (error) {
     console.error('찜한 상품 데이터 로딩 실패:', error);
-    wishlistData.value = [{
-      productCode: '248270',
-      productName: 'TIGER S&P글로벌헬스케어',
-      category: 'etf',
-      currentPrice: 8785.19,
-      changeRateFromPrevDay: -1.37
-    }];
-    
-    etfMap.value.set('248270', wishlistData.value[0]);
-    await startEtfWebSocketSubscriptions();
+    wishlistData.value = [];
   }
 };
 
@@ -273,7 +267,7 @@ onBeforeUnmount(() => {
 }
 
 .wishlist-title {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   color: var(--main01);
   margin: 0;
@@ -338,7 +332,7 @@ onBeforeUnmount(() => {
 }
 
 .product-type-badge {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semi-bold);
   padding: 4px 8px;
   border-radius: 12px;
@@ -466,7 +460,7 @@ onBeforeUnmount(() => {
 
 .change-label {
   color: var(--main02);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: var(--font-weight-medium);
   margin-right: 4px;
   opacity: 0.8;
@@ -501,5 +495,27 @@ onBeforeUnmount(() => {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--main02);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semi-bold);
+  color: var(--main02);
+  margin-bottom: 8px;
+}
+
+.empty-subtext {
+  font-size: var(--font-size-sm);
+  color: var(--main02);
+  opacity: 0.7;
 }
 </style>

@@ -117,13 +117,13 @@
         </table>
 
         <!-- Notice Section start -->
-        <small class="notice">
+        <div class="notice">
           * 모범규준을 기초로 모델포트폴리오 내 편입 예정인 개별 금융상품의 위험도를 고려하여,
           편입비중으로 가중평균하여 산출합니다.<br />
           * 반드시 투자자유형에 맞는 모델포트폴리오(MP)를 권유하여야 하며 투자자유형보다 위험등급이
           높은 MP는 가입이 불가합니다.<br />
           ** 위험자산군 = (매우높은위험+높은위험+다소높은위험)
-        </small>
+        </div>
         <!-- Notice Section start -->
       </div>
     </section>
@@ -258,17 +258,19 @@ const selectedRecom = computed(() => {
   gap: 10px;
 }
 .subItem1 {
-  margin: 15px;
+  margin: 15px 0;
   display: flex;
   justify-content: center;
+  font-size:var(--font-size-md);
+  font-weight:var(--font-weight-bold);
 }
 .main-title {
-  padding-top: 15px;
-  padding-bottom: 15px;
-  margin-left: 15px;
-  font-size: 23px;
+  margin:15px 0;
+  padding: 5px 15px 5px 15px;
+  font-size: var(--font-size-lg);
   color: var(--main01);
   font-weight: bold;
+  border-left: 3px solid var(--main01);
 }
 
 .result-section {
@@ -277,14 +279,15 @@ const selectedRecom = computed(() => {
 
 /* Main Section Styles */
 .sub-section {
-  border: 1px solid var(--main03);
-  border-radius: 5px;
+  border: 1px solid var(--main04);
+  border-radius: 8px;
   background-color: var(--white);
   height: auto;
+  margin-bottom:30px;
 }
 .comment-img {
-  width: 200px;
-  height: 110px; /* ← 절대 높이 설정 */
+  width: 120px;
+  height: 70px; /* ← 절대 높이 설정 */
   object-fit: cover;
   object-position: top;
 }
@@ -388,9 +391,10 @@ const selectedRecom = computed(() => {
 
 /* NoticeSection Styles */
 .notice {
-  margin-top: 180px;
+  margin-top: 20px;
+  padding: 0 5px;
   font-size: var(--font-size-sm);
-  color: #8c8c8c;
+  color: var(--main02);
 }
 
 /* Button Styles */
@@ -404,7 +408,7 @@ const selectedRecom = computed(() => {
   cursor: pointer;
   border-radius: 8px;
   margin-top: auto;
-  margin-bottom: 60px;
+  margin-bottom: 30px;
 }
 /* TableSection style */
 .table-main-style {
@@ -418,7 +422,7 @@ const selectedRecom = computed(() => {
   padding-top: 10px;
   padding-bottom: 10px;
   text-align: center;
-  font-size: 15px;
+  font-size: var(--font-size-ms);
   border: none;
   line-height: 1.2;
   word-break: keep-all;
