@@ -7,26 +7,9 @@
         {{ countryLabelMap[item.productCountry] ?? item.productCountry }}
         ・
         {{ typeLabelMap[item.productType] ?? item.productType }}
-        <!-- 오른쪽 끝: 추천 툴팁 아이콘 (추천일 때만) -->
-        <div
-          class="etf-item-title-right"
-          v-if="recommended">
-          <div
-            class="icon-wrapper icon-question"
-            @click.stop="showRecoTip = !showRecoTip">
-            <IconQuestion />
-            <Transition name="tooltip">
-              <div
-                v-if="showRecoTip"
-                class="tooltip-content">
-                최근 본 뉴스를 기반으로 추천합니다.
-              </div>
-            </Transition>
-          </div>
-        </div>
       </div>
 
-      <header class="etf-item-header">
+      <div class="etf-item-title">
         <div class="etf-item-title-left">
           <span class="product-name">{{ item.productName }}</span>
           <span
@@ -40,7 +23,7 @@
           category="etf"
           :user-watches="item.userWatches || false"
           @click.stop />
-      </header>
+      </div>
 
       <div
         v-if="item.isPopularInUserGroup"
@@ -84,21 +67,46 @@
         <span class="label">위험등급</span>
         <span class="value">{{ item.productRiskGrade }}등급</span>
       </div>
+
       <div
-        v-if="item.newsSentiment"
-        class="news-response-box">
-        <span class="news-label">뉴스반응</span>
-        <div class="news-bar-wrapper">
+        v-if="item.newsSentiment || recommended"
+        class="news-row"
+        @click.stop>
+        <!-- 왼쪽: 추천 툴팁 아이콘 -->
+        <div
+          v-if="recommended"
+          class="etf-reco-item">
           <div
-            v-for="(key, index) in ['positive', 'neutral', 'negative']"
-            :key="key"
-            class="news-bar-segment"
-            :class="{
-              left: index === 0,
-              center: index === 1,
-              right: index === 2
-            }"
-            :style="getSegmentStyle(key)"></div>
+            class="icon-wrapper icon-question"
+            @click.stop="showRecoTip = !showRecoTip">
+            <IconQuestion />
+            <Transition name="tooltip">
+              <div
+                v-if="showRecoTip"
+                class="tooltip-content">
+                최근 본 뉴스를 기반으로 추천합니다.
+              </div>
+            </Transition>
+          </div>
+        </div>
+
+        <!-- 오른쪽: 뉴스 반응 박스 -->
+        <div
+          v-if="item.newsSentiment"
+          class="news-response-box">
+          <span class="news-label">뉴스반응</span>
+          <div class="news-bar-wrapper">
+            <div
+              v-for="(key, index) in ['positive', 'neutral', 'negative']"
+              :key="key"
+              class="news-bar-segment"
+              :class="{
+                left: index === 0,
+                center: index === 1,
+                right: index === 2
+              }"
+              :style="getSegmentStyle(key)"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -134,7 +142,6 @@ const colorMap = {
 const router = useRouter();
 
 const showRecoTip = ref(false);
-// 카드 바깥 클릭 시 툴팁 닫힘
 const onDocClick = () => (showRecoTip.value = false);
 document.addEventListener('click', onDocClick);
 onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
@@ -205,7 +212,6 @@ function getSegmentStyle(key) {
   animation: fadeSlideIn 0.6s ease;
   transition: transform 0.2s ease;
 }
-
 .etf-item-container:active {
   transform: scale(0.98);
   background-color: var(--main04);
@@ -216,7 +222,7 @@ function getSegmentStyle(key) {
   flex-direction: column;
 }
 
-.etf-item-header {
+.etf-item-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -242,12 +248,6 @@ function getSegmentStyle(key) {
   max-width: 100%;
 }
 
-.heart-icon {
-  flex: 0 0 24px;
-  width: 24px;
-  height: 24px;
-}
-
 .own-tag {
   background-color: var(--main04);
   color: var(--main02);
@@ -266,15 +266,12 @@ function getSegmentStyle(key) {
   gap: 6px;
 }
 
-/* 오른쪽 끝의 추천 툴팁 영역 */
-.etf-item-title-right {
-  margin-left: auto;
+.etf-reco-item {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   position: relative;
 }
-/* 아이콘 + 툴팁 (FundItem과 동일 패턴) */
 .icon-wrapper {
   cursor: pointer;
   width: 20px;
@@ -287,12 +284,11 @@ function getSegmentStyle(key) {
 .icon-question {
   color: var(--main02);
 }
-/*  아이콘의 '왼쪽 위' 방향으로 뜨도록 재배치 */
+
 .tooltip-content {
   position: absolute;
-  right: calc(100% + 8px); /* 아이콘 위로 */
-  left: auto;
-  top: -15px; /* 기존 값 무효화 */
+  top: calc(100% + 8px);
+  left: 0;
   transform: none;
   width: max-content;
   max-width: 250px;
@@ -305,18 +301,17 @@ function getSegmentStyle(key) {
   font-size: var(--font-size-sm);
   z-index: 10;
 }
-/* ▶ 오른쪽을 향하는 꼬리(툴팁의 오른쪽 중앙) */
+
 .tooltip-content::after {
   content: '';
   position: absolute;
-  top: 65%;
-  right: -11px; /* 툴팁 오른쪽 바깥으로 살짝 */
-  transform: translateY(-50%);
+  top: -12px;
+  left: 12px;
   border-width: 6px;
   border-style: solid;
-  /* top | right | bottom | left (왼쪽 보더에 색 → ▶) */
-  border-color: transparent transparent transparent rgb(from var(--main01) r g b / 0.85);
+  border-color: transparent transparent rgb(from var(--main01) r g b / 0.85) transparent;
 }
+
 .tooltip-enter-active,
 .tooltip-leave-active {
   transition: opacity 0.2s ease-out;
@@ -344,13 +339,19 @@ function getSegmentStyle(key) {
   flex-direction: row;
   align-items: center;
 }
-
 .label {
   width: 120px;
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
   color: var(--main02);
   flex-shrink: 0;
+}
+
+.news-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 12px;
 }
 
 .news-response-box {
@@ -360,7 +361,6 @@ function getSegmentStyle(key) {
   align-items: center;
   background-color: var(--main05);
   padding: 8px;
-  margin-top: 12px;
   border: 1px solid var(--main04);
   border-radius: 12px;
   justify-content: space-between;
@@ -381,21 +381,17 @@ function getSegmentStyle(key) {
   overflow: hidden;
   margin-left: 8px;
 }
-
 .news-bar-segment {
   transition: background-color 0.3s ease-in-out;
 }
-
 .news-bar-segment.left {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
-
 .news-bar-segment.right {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
-
 .news-bar-segment.center {
   border-radius: 0;
 }
@@ -405,7 +401,6 @@ function getSegmentStyle(key) {
   font-weight: var(--font-weight-medium);
   color: var(--main01);
 }
-
 .value.up {
   color: var(--text-red);
   font-weight: var(--font-weight-medium);

@@ -88,16 +88,6 @@ const currentParams = () => ({
 });
 
 // ─────────────────────────────────────
-// 추천 etf / 일반 etf
-// ─────────────────────────────────────
-const recStore = useRecommendationStore();
-const recCodeSet = computed(() => new Set(recStore.topCodesByCategory('etf', 1)));
-const pinnedEtfs = computed(() =>
-  list.value.filter(it => recCodeSet.value.has(it.productCode)).slice(0, 2)
-);
-const restEtfs = computed(() => list.value.filter(it => !recCodeSet.value.has(it.productCode)));
-
-// ─────────────────────────────────────
 // 무한 스크롤
 // ─────────────────────────────────────
 const { list, loading, sentinelEl, reset } = useInfiniteScroll(
@@ -107,6 +97,18 @@ const { list, loading, sentinelEl, reset } = useInfiniteScroll(
   },
   { pageSize: 4, deps: [selected] }
 );
+
+// ─────────────────────────────────────
+// 추천 etf / 일반 etf
+// ─────────────────────────────────────
+const recStore = useRecommendationStore();
+const recCodeSet = computed(() => new Set(recStore.topCodesByCategory('etf', 1)));
+const pinnedEtfs = computed(() =>
+  list.value.filter(it => recCodeSet.value.has(it.productCode)).slice(0, 2)
+);
+const restEtfs = computed(() => list.value.filter(it => !recCodeSet.value.has(it.productCode)));
+
+console.log('pinnedEtf: ', pinnedEtfs.value);
 
 // ─────────────────────────────────────
 // isMatched 변경 시

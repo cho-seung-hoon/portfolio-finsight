@@ -85,16 +85,6 @@ const currentParams = () => ({
   is_matched: getFinFilters().isMatched
 });
 
-// ────────────────────────────────────
-// 추천 펀드 + 일반 펀드
-// ────────────────────────────────────
-const recStore = useRecommendationStore();
-const recCodeSet = computed(() => new Set(recStore.topCodesByCategory('fund', 1)));
-const pinnedFunds = computed(() =>
-  list.value.filter(it => recCodeSet.value.has(it.productCode)).slice(0, 2)
-);
-const restFunds = computed(() => list.value.filter(it => !recCodeSet.value.has(it.productCode)));
-
 // ─────────────────────────────────────
 // 무한 스크롤
 // ─────────────────────────────────────
@@ -105,6 +95,18 @@ const { list, loading, sentinelEl, reset } = useInfiniteScroll(
   },
   { pageSize: 4, deps: [selected] }
 );
+
+// ────────────────────────────────────
+// 추천 펀드 / 일반 펀드
+// ────────────────────────────────────
+const recStore = useRecommendationStore();
+const recCodeSet = computed(() => new Set(recStore.topCodesByCategory('fund', 1)));
+const pinnedFunds = computed(() =>
+  list.value.filter(it => recCodeSet.value.has(it.productCode)).slice(0, 2)
+);
+const restFunds = computed(() => list.value.filter(it => !recCodeSet.value.has(it.productCode)));
+
+console.log('pinnedFunds: ', pinnedFunds);
 
 // ─────────────────────────────────────
 // isMatched 변경 시
