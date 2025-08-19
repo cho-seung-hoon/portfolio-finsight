@@ -381,14 +381,15 @@ export const useEtfStore = defineStore('etf', () => {
   });
 
   const fetchYieldHistory = async (productId, token) => {
-    if (isYieldHistoryLoaded.value) return;
+    isYieldHistoryLoaded.value = false;
     isYieldHistoryLoading.value = true;
+
     try {
       const data = await getEtfHistory(productId);
       yieldHistory.value = data;
+      console.log('[ETF Store] Yield history fetched and updated:', data);
     } catch (error) {
       console.error('Yield History API Error:', error);
-      // 실시간 웹소켓 데이터가 없을 때는 빈 배열로 시작
       yieldHistory.value = [];
     } finally {
       isYieldHistoryLoaded.value = true;
@@ -405,6 +406,34 @@ export const useEtfStore = defineStore('etf', () => {
 
   const updateRealtimeData = realtimeData => {
     if (!product.value || !realtimeData) return;
+
+    if (realtimeData.currentPrice !== undefined && realtimeData.currentVolume !== undefined) {
+      const currentTime = Date.now();
+
+      if (!yieldHistory.value) {
+        yieldHistory.value = [];
+      }
+
+      const lastData = yieldHistory.value[yieldHistory.value.length - 1];
+      if (lastData && lastData.timestamp === currentTime) {
+        lastData.currentPrice = realtimeData.currentPrice;
+        lastData.currentVolume = realtimeData.currentVolume;
+      } else {
+        const newDataPoint = {
+          timestamp: currentTime,
+          currentPrice: realtimeData.currentPrice,
+          currentVolume: realtimeData.currentVolume
+        };
+
+        yieldHistory.value.push(newDataPoint);
+
+        if (yieldHistory.value.length > 60) {
+          yieldHistory.value = yieldHistory.value.slice(-60);
+        }
+
+        yieldHistory.value.sort((a, b) => a.timestamp - b.timestamp);
+      }
+    }
 
     if (realtimeData.currentPrice !== undefined) {
       product.value.currentPrice = realtimeData.currentPrice;
