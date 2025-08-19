@@ -68,11 +68,12 @@
         <span class="value">{{ item.productRiskGrade }}등급</span>
       </div>
 
+      <!-- 아이콘/뉴스 행 -->
       <div
         v-if="item.newsSentiment || recommended"
         class="news-row"
         @click.stop>
-        <!-- 왼쪽: 추천 툴팁 아이콘 -->
+        <!-- 왼쪽: 추천 툴팁 아이콘 (오직 Top일 때만) -->
         <div
           v-if="recommended"
           class="etf-reco-item">
@@ -90,7 +91,7 @@
           </div>
         </div>
 
-        <!-- 오른쪽: 뉴스 반응 박스 -->
+        <!-- 오른쪽: 뉴스 반응 박스 (뉴스가 있을 때만) -->
         <div
           v-if="item.newsSentiment"
           class="news-response-box">
@@ -100,11 +101,7 @@
               v-for="(key, index) in ['positive', 'neutral', 'negative']"
               :key="key"
               class="news-bar-segment"
-              :class="{
-                left: index === 0,
-                center: index === 1,
-                right: index === 2
-              }"
+              :class="{ left: index === 0, center: index === 1, right: index === 2 }"
               :style="getSegmentStyle(key)"></div>
           </div>
         </div>
@@ -124,15 +121,8 @@ const props = defineProps({
   recommended: { type: Boolean, default: false }
 });
 
-const countryLabelMap = {
-  domestic: '국내',
-  foreign: '해외'
-};
-const typeLabelMap = {
-  equity: '주식형',
-  bond: '채권형',
-  mixed: '혼합형'
-};
+const countryLabelMap = { domestic: '국내', foreign: '해외' };
+const typeLabelMap = { equity: '주식형', bond: '채권형', mixed: '혼합형' };
 const colorMap = {
   positive: 'var(--newsPositive)',
   neutral: 'var(--newsNeutral)',
@@ -140,7 +130,6 @@ const colorMap = {
 };
 
 const router = useRouter();
-
 const showRecoTip = ref(false);
 const onDocClick = () => (showRecoTip.value = false);
 document.addEventListener('click', onDocClick);
@@ -230,7 +219,6 @@ function getSegmentStyle(key) {
   font-weight: var(--font-weight-semi-bold);
   color: var(--main01);
 }
-
 .etf-item-title-left {
   display: flex;
   align-items: center;
@@ -240,7 +228,6 @@ function getSegmentStyle(key) {
 }
 
 .product-name {
-  display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -285,47 +272,61 @@ function getSegmentStyle(key) {
   color: var(--main02);
 }
 
+/* 툴팁 */
 .tooltip-content {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
   transform: none;
   width: max-content;
-  max-width: 250px;
-  padding: 10px 15px;
+  max-width: 260px;
+  padding: 10px 12px;
   white-space: normal;
   word-break: keep-all;
-  border-radius: 8px;
-  background-color: rgb(from var(--main01) r g b / 0.85);
+  border-radius: 10px;
+
+  background: rgba(112, 119, 141, 0.538);
+  border: 1px solid rgba(231, 230, 249, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
   color: var(--white);
-  font-size: var(--font-size-sm);
-  z-index: 10;
+  font-size: var(--font-size-ms);
+  font-weight: 500;
+  text-shadow: none;
+
+  box-shadow: 0 2px 6px rgba(226, 229, 244, 0.459);
+  z-index: 20;
 }
 
+/* 꼬리 */
 .tooltip-content::after {
   content: '';
   position: absolute;
-  top: -12px;
-  left: 12px;
-  border-width: 6px;
-  border-style: solid;
-  border-color: transparent transparent rgb(from var(--main01) r g b / 0.85) transparent;
+  top: -6px;
+  left: 16px;
+  width: 0;
+  height: 0;
+
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid rgba(112, 119, 141, 0.538);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
+/* transition */
 .tooltip-enter-active,
 .tooltip-leave-active {
-  transition: opacity 0.2s ease-out;
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
 }
 .tooltip-enter-from,
 .tooltip-leave-to {
   opacity: 0;
-}
-
-.user-group-popular-badge {
-  margin-top: 4px;
-  font-size: var(--font-size-ms);
-  font-weight: var(--font-weight-medium);
-  color: var(--green01);
+  transform: translateY(4px);
 }
 
 .etf-item-content-section {

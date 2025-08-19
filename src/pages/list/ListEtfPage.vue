@@ -5,26 +5,25 @@
       :selected="selected"
       @change="onFilterChange" />
 
-    <!-- 추천 ETF (목록에 존재하는 추천만 최대 2개) -->
+    <!-- 추천 ETF -->
     <section
-      v-if="pinnedEtfs.length"
+      v-if="topEtfs.length"
       class="list-etf-reco">
       <div class="reco-grid">
         <EtfItem
-          v-for="item in pinnedEtfs"
+          v-for="item in topEtfs"
           :key="'rec-' + item.productCode"
           :item="item"
           recommended />
       </div>
     </section>
 
-    <!-- 일반 ETF 목록 (추천 제외, 무한 스크롤 유지) -->
+    <!-- 일반 ETF 목록 -->
     <section class="list-etf-page-contents">
       <EtfItem
         v-for="item in restEtfs"
         :key="item.productCode"
-        :item="item"
-        :recommended="recCodeSet.has(item.productCode)" />
+        :item="item" />
 
       <div
         v-if="loading"
@@ -37,7 +36,7 @@
       </div>
 
       <div
-        v-if="!loading && !list.length"
+        v-if="!loading && !list.length && !topEtfs.length"
         class="no-result">
         <img
           :src="MovingBear"
@@ -60,7 +59,7 @@ import { useWebSocketStore } from '@/stores/websocket';
 import EtfItem from '@/components/list/EtfItem.vue';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
-import { getEtfs } from '@/api/productApi';
+import { getEtfs, getEtfOneByCode } from '@/api/productApi';
 import { useInfiniteScroll } from '@/composables/useInfiniteScroll';
 import LoadingSpinnerSmall from '@/assets/loading-spinner-small.gif';
 import MovingBear from '@/assets/moving_bear.gif';
@@ -88,7 +87,27 @@ const currentParams = () => ({
 });
 
 // ─────────────────────────────────────
-// 무한 스크롤
+// 추천 ETF 상단 고정 (0~1개)
+// ─────────────────────────────────────
+const recStore = useRecommendationStore();
+const topEtfs = ref([]);
+
+const loadTopEtfs = async () => {
+  const topCodes = recStore.topCodesByCategory('etf', 1) || [];
+  if (!topCodes.length) {
+    topEtfs.value = [];
+    return;
+  }
+  const results = await Promise.all(topCodes.map(code => getEtfOneByCode(code).catch(() => null)));
+  // null 제거 + productCode 중복 제거
+  const seen = new Set();
+  topEtfs.value = results
+    .filter(Boolean)
+    .filter(it => (seen.has(it.productCode) ? false : (seen.add(it.productCode), true)));
+};
+
+// ─────────────────────────────────────
+// 무한 스크롤 (일반 목록)
 // ─────────────────────────────────────
 const { list, loading, sentinelEl, reset } = useInfiniteScroll(
   async ({ limit, offset }) => {
@@ -98,77 +117,75 @@ const { list, loading, sentinelEl, reset } = useInfiniteScroll(
   { pageSize: 4, deps: [selected] }
 );
 
-// ─────────────────────────────────────
-// 추천 etf / 일반 etf
-// ─────────────────────────────────────
-const recStore = useRecommendationStore();
-const recCodeSet = computed(() => new Set(recStore.topCodesByCategory('etf', 1)));
-const pinnedEtfs = computed(() =>
-  list.value.filter(it => recCodeSet.value.has(it.productCode)).slice(0, 2)
-);
-const restEtfs = computed(() => list.value.filter(it => !recCodeSet.value.has(it.productCode)));
-
-console.log('pinnedEtf: ', pinnedEtfs.value);
-
-// ─────────────────────────────────────
-// isMatched 변경 시
-// ─────────────────────────────────────
-const handleMatchedChange = () => {
-  for (const code of Array.from(subscribedCodes.value)) {
-    ws.unsubscribe(`/topic/etf/${code}`);
-  }
-  subscribedCodes.value.clear();
-  reset();
-};
-
-// ─────────────────────────────────────
-// 필터 변경
-// ─────────────────────────────────────
-const onFilterChange = (key, value) => {
-  selected.value[key] = value;
-  setFinFilters({ ...getFinFilters(), etf: { ...selected.value } });
-  handleMatchedChange();
-};
+// 상단 고정 제외한 나머지 목록
+const restEtfs = computed(() => {
+  const exclude = new Set(topEtfs.value.map(it => it.productCode));
+  return list.value.filter(it => !exclude.has(it.productCode));
+});
 
 // ─────────────────────────────────────
 // 웹소켓
 // ─────────────────────────────────────
 const ws = useWebSocketStore();
 const subscribedCodes = ref(new Set());
+
+// code → { where: 'top'|'list', idx } 매핑
 const indexByCode = ref(new Map());
 
 const rebuildIndexMap = () => {
   const m = new Map();
-  list.value.forEach((it, idx) => {
-    if (it?.productCode) m.set(it.productCode, idx);
+  topEtfs.value.forEach((it, idx) => {
+    if (it?.productCode) m.set(it.productCode, { where: 'top', idx });
+  });
+  restEtfs.value.forEach((it, idx) => {
+    if (it?.productCode) m.set(it.productCode, { where: 'list', idx });
   });
   indexByCode.value = m;
 };
 
 const handleTick = (payload, productCodeFromTopic) => {
   const code = payload?.productCode || productCodeFromTopic;
-  const idx = indexByCode.value.get(code);
-  if (idx === undefined) return;
+  const loc = indexByCode.value.get(code);
+  if (!loc) return;
 
-  const cur = list.value[idx];
-  list.value[idx] = {
-    ...cur,
-    // 서버 필드명과 매핑 확인 필수
-    currentPrice: payload.currentPrice ?? cur.currentPrice,
-    changeRate: payload.changeRate1s ?? payload.changeRate ?? cur.changeRate,
-    currentVolume: payload.currentVolume ?? cur.currentVolume,
-    volume: payload.currentVolume ?? payload.volume ?? cur.volume,
-    return3Months: payload.return3Months ?? cur.return3Months,
-    changeFromPrevDay: payload.changeFromPrevDay ?? cur.changeFromPrevDay,
-    changeRateFromPrevDay: payload.changeRateFromPrevDay ?? cur.changeRateFromPrevDay,
-    lastUpdate: payload.timestamp ?? cur.lastUpdate
-  };
+  if (loc.where === 'top') {
+    const cur = topEtfs.value[loc.idx];
+    if (!cur) return;
+    topEtfs.value[loc.idx] = {
+      ...cur,
+      currentPrice: payload.currentPrice ?? cur.currentPrice,
+      changeRate: payload.changeRate1s ?? payload.changeRate ?? cur.changeRate,
+      currentVolume: payload.currentVolume ?? cur.currentVolume,
+      volume: payload.currentVolume ?? payload.volume ?? cur.volume,
+      return3Months: payload.return3Months ?? cur.return3Months,
+      changeFromPrevDay: payload.changeFromPrevDay ?? cur.changeFromPrevDay,
+      changeRateFromPrevDay: payload.changeRateFromPrevDay ?? cur.changeRateFromPrevDay,
+      lastUpdate: payload.timestamp ?? cur.lastUpdate
+    };
+  } else {
+    const originalIdx = list.value.findIndex(v => v?.productCode === code);
+    if (originalIdx < 0) return;
+    const cur = list.value[originalIdx];
+    list.value[originalIdx] = {
+      ...cur,
+      currentPrice: payload.currentPrice ?? cur.currentPrice,
+      changeRate: payload.changeRate1s ?? payload.changeRate ?? cur.changeRate,
+      currentVolume: payload.currentVolume ?? cur.currentVolume,
+      volume: payload.currentVolume ?? payload.volume ?? cur.volume,
+      return3Months: payload.return3Months ?? cur.return3Months,
+      changeFromPrevDay: payload.changeFromPrevDay ?? cur.changeFromPrevDay,
+      changeRateFromPrevDay: payload.changeRateFromPrevDay ?? cur.changeRateFromPrevDay,
+      lastUpdate: payload.timestamp ?? cur.lastUpdate
+    };
+  }
 };
 
 const resubscribe = async () => {
   await ws.ensureConnection();
-
-  const next = new Set(list.value.map(it => it.productCode).filter(Boolean));
+  const next = new Set([
+    ...topEtfs.value.map(it => it.productCode).filter(Boolean),
+    ...list.value.map(it => it.productCode).filter(Boolean)
+  ]);
 
   // 해제
   for (const code of Array.from(subscribedCodes.value)) {
@@ -177,7 +194,6 @@ const resubscribe = async () => {
       subscribedCodes.value.delete(code);
     }
   }
-
   // 신규
   for (const code of Array.from(next)) {
     if (!subscribedCodes.value.has(code)) {
@@ -187,13 +203,18 @@ const resubscribe = async () => {
   }
 };
 
-// productCode 집합이 바뀔 때만 재구독 (가격 등 필드 변경에는 반응하지 않음)
-const codesKey = computed(() =>
-  list.value
+// 상단/일반의 code 세트가 변하면 인덱스/구독 갱신
+const codesKey = computed(() => {
+  const top = topEtfs.value
     .map(it => it?.productCode)
     .filter(Boolean)
-    .join('|')
-);
+    .join('|');
+  const rest = list.value
+    .map(it => it?.productCode)
+    .filter(Boolean)
+    .join('|');
+  return `${top}||${rest}`;
+});
 watch(codesKey, () => {
   rebuildIndexMap();
   resubscribe();
@@ -211,6 +232,19 @@ watch(
 );
 
 // ─────────────────────────────────────
+// 필터/매칭 변경
+// ─────────────────────────────────────
+const handleMatchedChange = async () => {
+  await reset();
+};
+
+const onFilterChange = async (key, value) => {
+  selected.value[key] = value;
+  setFinFilters({ ...getFinFilters(), etf: { ...selected.value } });
+  await handleMatchedChange();
+};
+
+// ─────────────────────────────────────
 // 마운트 & 언마운트
 // ─────────────────────────────────────
 onMounted(async () => {
@@ -222,8 +256,8 @@ onMounted(async () => {
       : opt.options[0];
   });
 
-  // 추천 먼저 준비 → 목록 로드(무한 스크롤 시작)
   await recStore.ensureLoaded(10);
+  await loadTopEtfs();
   await reset();
 
   window.addEventListener('isMatchedChanged', handleMatchedChange);
@@ -251,11 +285,6 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-.reco-title {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semi-bold);
-  color: var(--main01);
 }
 .reco-grid {
   display: flex;
