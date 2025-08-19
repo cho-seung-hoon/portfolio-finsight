@@ -37,8 +37,8 @@ const props = defineProps({
   },
   type: {
     type: String,
-    default: 'success', // 'success', 'error', 'warning', 'info', 'remove'
-    validator: value => ['success', 'error', 'warning', 'info', 'remove'].includes(value)
+    default: 'success', // 'success', 'error', 'warning', 'info', 'remove', 'cancel'
+    validator: value => ['success', 'error', 'warning', 'info', 'remove', 'cancel'].includes(value)
   },
   timestamp: {
     type: String,
@@ -77,6 +77,12 @@ const props = defineProps({
   background: rgba(255, 59, 48, 0.9);
   color: var(--white);
   border-color: rgba(255, 59, 48, 0.5);
+}
+
+.toast-message.warning {
+  background: rgba(255, 149, 0, 0.9);
+  color: var(--white);
+  border-color: rgba(255, 149, 0, 0.5);
 }
 
 .toast-message.remove {

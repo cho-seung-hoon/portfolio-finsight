@@ -6,7 +6,8 @@
       <HeartToggle
         :product-code="productInfo?.productCode || productCode"
         category="etf"
-        :user-watches="productInfo?.userWatches || false" />
+        :user-watches="productInfo?.userWatches || false"
+        icon-color="white" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">
@@ -48,7 +49,6 @@ const props = defineProps({
 });
 
 const yieldValue = computed(() => {
-  // 전일대비 수익률 우선순위: props > realtimeData > productInfo
   if (props.changeRateFromPrevDay !== undefined && props.changeRateFromPrevDay !== null) {
     const changeRate = Number(props.changeRateFromPrevDay);
     if (!isNaN(changeRate)) return changeRate;
@@ -77,7 +77,6 @@ const yieldChangeColor = computed(() => {
 });
 
 const formattedCurrentPrice = computed(() => {
-  // 실시간 데이터 우선, 없으면 상품 정보에서 가격 가져오기
   const price =
     props.realtimeData?.currentPrice ??
     props.productInfo?.price?.currentPrice ??

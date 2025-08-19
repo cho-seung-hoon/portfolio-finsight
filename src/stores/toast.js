@@ -44,6 +44,10 @@ export const useToastStore = defineStore('toast', {
 
     remove(message, duration) {
       this.showToast(message, 'remove', duration);
+    },
+
+    cancel(message, duration) {
+      this.showToast(message, 'cancel', duration);
     }
   }
 });

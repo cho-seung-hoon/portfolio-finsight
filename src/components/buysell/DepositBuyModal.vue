@@ -110,14 +110,14 @@ const props = defineProps({
   },
   maxAmount: {
     type: Number,
-    default: 10000000
+    default: 100000000
   }
 });
 
 const emit = defineEmits(['close', 'submit']);
 
 const modalRef = ref(null);
-const isClosing = ref(null);
+const isClosing = ref(false);
 
 // 로딩 상태 관리
 const isSubmitting = ref(false);
@@ -134,7 +134,6 @@ const availablePeriods = computed(() => {
       label: `${option.doptionSaveTrm}개월 (${option.doptionIntrRate}%)`
     }));
   }
-  // 기본 기간 옵션
   return [
     { value: '6', label: '6개월' },
     { value: '12', label: '12개월' },
@@ -148,7 +147,7 @@ const minAmount = computed(() => {
 });
 
 const maxAmount = computed(() => {
-  return props.productInfo?.depositMaxLimit || props.maxAmount || 10000000;
+  return 100000000;
 });
 
 const isFormValid = computed(() => {
@@ -162,17 +161,14 @@ const isFormValid = computed(() => {
 });
 
 const formatCurrency = amount => {
-  // 숫자가 아닌 값이나 빈 값 처리
   if (!amount || amount === '') return '0 원';
 
-  // 이미 "원"이 포함된 문자열인 경우 숫자 부분만 추출
   if (typeof amount === 'string' && amount.includes('원')) {
     const numericPart = amount.replace(/[^0-9,]/g, '');
     const cleanNumber = parseNumberFromComma(numericPart);
     return new Intl.NumberFormat('ko-KR').format(cleanNumber.toNumber()) + ' 원';
   }
 
-  // 일반적인 숫자 처리
   try {
     const decimalAmount = new Decimal(amount);
     return new Intl.NumberFormat('ko-KR').format(decimalAmount.toNumber()) + ' 원';
@@ -190,7 +186,7 @@ const resetForm = () => {
 };
 
 const openModal = () => {
-  resetForm(); // 모달 열기 전에 폼 초기화
+  resetForm();
   if (modalRef.value) {
     modalRef.value.show();
   }
@@ -206,7 +202,6 @@ const closeModal = () => {
   }
   emit('close');
 
-  // 100ms 후에 닫기 상태 초기화
   setTimeout(() => {
     isClosing.value = false;
   }, 100);
@@ -221,7 +216,6 @@ const closeModalSilently = () => {
     modalRef.value.close();
   }
 
-  // 100ms 후에 닫기 상태 초기화
   setTimeout(() => {
     isClosing.value = false;
   }, 100);
@@ -238,16 +232,15 @@ const handleSubmit = async () => {
 
   isSubmitting.value = true;
 
-  // 현재 날짜를 동적으로 생성
   const today = new Date();
-  const startDate = today.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+  const startDate = today.toISOString().split('T')[0];
 
   const tradeData = {
     productCode: props.productInfo?.productCode,
     productCategory: 'deposit',
     quantity: 1,
     amount: new Decimal(parseNumberFromComma(formData.value.amount)).toNumber(),
-    contractMonths: parseInt(formData.value.contractMonths), // 선택된 기간을 contractMonths로 전달
+    contractMonths: parseInt(formData.value.contractMonths),
     startDate: startDate
   };
 
@@ -285,12 +278,10 @@ const handleAmountInput = event => {
   if (!event || !event.target) return;
   let value = event.target.value;
 
-  // 숫자와 쉼표만 허용
   value = value.replace(/[^0-9,]/g, '');
 
   let numValue = parseNumberFromComma(value);
 
-  // 최대 금액 제한
   if (new Decimal(numValue).gt(maxAmount.value)) {
     numValue = maxAmount.value;
     value = String(numValue);
@@ -337,7 +328,6 @@ watch(
   max-height: 100dvh;
   overflow: hidden;
 }
-
 
 .modal-content {
   background: var(--white);
@@ -410,7 +400,7 @@ watch(
   margin-bottom: 24px;
   padding: 16px;
   background: var(--main05);
-  border:1px solid var(--main04);
+  border: 1px solid var(--main04);
   border-radius: 8px;
 }
 
@@ -471,7 +461,7 @@ watch(
 
 .available-amount {
   margin-top: 8px;
-  margin-left:5px;
+  margin-left: 5px;
   font-size: var(--font-size-sm);
   color: var(--main02);
   text-align: right;
@@ -479,7 +469,7 @@ watch(
 
 .korean-number {
   margin-top: 4px;
-  margin-right:5px;
+  margin-right: 5px;
   font-size: var(--font-size-sm);
   color: var(--main02);
   font-style: italic;
