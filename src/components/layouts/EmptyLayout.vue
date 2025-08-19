@@ -20,6 +20,7 @@
 
     <!-- 로딩 스피너 -->
     <LoadingSpinner
+      class="loading"
       v-if="loadingStore.isLoading"
       :text="loadingStore.loadingText" />
   </div>
@@ -160,5 +161,11 @@ watch(route, () => {
 
 .custom-scrollbar-thumb:active {
   cursor: grabbing;
+}
+
+.loading {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>

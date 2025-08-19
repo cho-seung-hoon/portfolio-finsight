@@ -6,7 +6,8 @@
       <HeartToggle
         :product-code="productCode || productInfo?.productCode"
         category="deposit"
-        :user-watches="productInfo?.userWatches || false" />
+        :user-watches="productInfo?.userWatches || false"
+        icon-color="white" />
     </div>
     <div class="rate-box">
       <div class="rate-info left">

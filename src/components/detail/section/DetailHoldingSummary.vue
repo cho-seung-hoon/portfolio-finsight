@@ -19,10 +19,12 @@
           >
         </div>
         <div class="info-row">
-          <span class="label">현재 1주당 금액</span>
+          <span class="label">현재 1주당 금액 (기준가)</span>
           <span class="value"
             >{{
-              formatNumberWithComma(new Decimal(data.currentPricePerUnit || 0).toNumber())
+              formatNumberWithComma(
+                new Decimal(data.currentPricePerUnit || data.currentPrice || 0).toNumber()
+              )
             }}원</span
           >
         </div>
@@ -30,7 +32,9 @@
           <span class="label">나의 현재 보유대금 (평가액)</span>
           <span class="value current-value"
             >{{
-              formatNumberWithComma(new Decimal(data.currentTotalValue || 0).toNumber())
+              formatNumberWithComma(
+                new Decimal(data.currentTotalValue || data.totalValue || 0).toNumber()
+              )
             }}원</span
           >
         </div>
@@ -48,12 +52,7 @@ const props = defineProps({
     type: Object,
     required: true,
     validator: value => {
-      return (
-        value.holdingsTotalPrice !== undefined &&
-        value.holdingsTotalQuantity !== undefined &&
-        value.currentPricePerUnit !== undefined &&
-        value.currentTotalValue !== undefined
-      );
+      return value.holdingsTotalPrice !== undefined && value.holdingsTotalQuantity !== undefined;
     }
   }
 });

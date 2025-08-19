@@ -149,6 +149,9 @@ import InputWithIcon from '@/components/signUpPage/InputWithIcon.vue';
 import VerificationCodeInput from '@/components/signUpPage/VerificationCodeInput.vue';
 import ValidationMessage from '@/components/signUpPage/ValidationMessage.vue';
 import BaseModal from '@/components/common/BaseModal.vue';
+import { useLoadingStore } from '@/stores/loading';
+
+const loadingStore = useLoadingStore();
 
 const emailStore = useEmailStore();
 
@@ -407,6 +410,7 @@ const requestCode = async () => {
   if (!validateEmail()) return;
   emailStore.email = form.email;
   try {
+    loadingStore.startLoading('인증코드를 전송 중입니다...');
     const msg = await emailStore.sendCode();
     status.codeRequested = true; // ✅ 전송 성공 후에만 활성화
     errors.code = '';
@@ -414,6 +418,8 @@ const requestCode = async () => {
   } catch {
     status.codeRequested = false;
     openModal(emailStore.error || '인증코드 전송 실패');
+  } finally {
+    loadingStore.stopLoading();
   }
 };
 
@@ -450,10 +456,13 @@ const resendCode = async () => {
   emailStore.email = form.email;
 
   try {
+    loadingStore.startLoading('인증코드를 재전송 중입니다...');
     const msg = await emailStore.sendCode();
     openModal('인증코드가 다시 전송되었습니다.');
   } catch {
     openModal('인증코드 재전송 실패');
+  } finally {
+    loadingStore.stopLoading();
   }
 };
 

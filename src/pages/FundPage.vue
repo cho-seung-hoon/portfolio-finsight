@@ -3,7 +3,9 @@
     class="page-container"
     :class="{ 'modal-open': isModalOpen }">
     <div v-if="error">{{ error }}</div>
-    <div v-else-if="productInfo" class="in-container">
+    <div
+      v-else-if="productInfo"
+      class="in-container">
       <DetailMainFund
         :product-info="productInfo"
         :bank="productInfo.productCompanyName"
@@ -51,25 +53,15 @@
       :product-type="'FUND'"
       @close="handleModalClose"
       @submit="handleSellSubmit" />
-
-    <!-- 토스트 메시지 -->
-    <ToastMessage
-      v-if="toastConfig.show"
-      :key="toastConfig.message + (toastConfig.timestamp || '')"
-      :message="toastConfig.message"
-      :type="toastConfig.type"
-      :timestamp="toastConfig.timestamp"
-      :duration="3000" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick, onUnmounted } from 'vue';
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFundStore } from '@/stores/fund';
-import { purchaseProduct, sellProduct } from '@/api/tradeApi';
-import { useProductSubscription } from '@/composables/useProductSubscription';
 import { storeToRefs } from 'pinia';
+import { useToastStore } from '@/stores/toast';
 
 import DetailMainFund from '@/components/detail/DetailMainFund.vue';
 import DetailTabs from '@/components/detail/DetailTabs.vue';
@@ -77,11 +69,11 @@ import DetailSection from '@/components/detail/DetailSection.vue';
 import DetailActionButton from '@/components/detail/DetailActionButton.vue';
 import FundEtfBuyModal from '@/components/buysell/FundEtfBuyModal.vue';
 import FundEtfSellModal from '@/components/buysell/FundEtfSellModal.vue';
-import ToastMessage from '@/components/common/ToastMessage.vue';
 
 const route = useRoute();
 
 const fundStore = useFundStore();
+const toastStore = useToastStore();
 const { productInfo, error, isYieldHistoryLoaded, isYieldHistoryLoading } = storeToRefs(fundStore);
 
 // 모달 상태 관리
@@ -97,13 +89,6 @@ const isClosing = ref(false);
 // 거래 진행 중 플래그 (중복 거래 방지)
 const isTransactionInProgress = ref(false);
 
-// 토스트 설정
-const toastConfig = ref({
-  show: false,
-  message: '',
-  type: 'success'
-});
-
 onMounted(() => {
   const productCode = route.params.productCode;
   if (productCode) {
@@ -113,30 +98,21 @@ onMounted(() => {
   }
 });
 
-// 토스트 메시지 표시 함수
-const showToast = (message, type = 'success', timestamp = null) => {
-  toastConfig.value.show = false;
-
-  nextTick(() => {
-    toastConfig.value = {
-      show: true,
-      message,
-      type,
-      timestamp
-    };
-  });
-};
-
 const tabs = computed(() => {
-  const hasValidHoldings =
-    productInfo.value?.isHolding &&
-    (productInfo.value?.holdings || productInfo.value?.holding) &&
-    (productInfo.value?.holdings?.holdingsTotalQuantity > 0 ||
-      productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
-    (productInfo.value?.holdings?.holdingsStatus !== 'zero' ||
-      productInfo.value?.holding?.holdingsStatus !== 'zero');
+  if (!productInfo.value) {
+    return [
+      { key: 'info', label: '상품안내' },
+      { key: 'yield', label: '수익률' },
+      { key: 'composition', label: '구성종목' },
+      { key: 'news', label: '뉴스' }
+    ];
+  }
 
-  if (hasValidHoldings) {
+  const hasHoldings =
+    productInfo.value.isHolding &&
+    (productInfo.value.holdings || productInfo.value.holding)?.holdingsTotalQuantity > 0;
+
+  if (hasHoldings) {
     return [
       { key: 'holding', label: '보유기록' },
       { key: 'info', label: '상품안내' },
@@ -175,21 +151,21 @@ const selectTab = async tab => {
   }
 };
 
-// productInfo가 변경될 때 보유기록 탭이 있으면 자동으로 첫 번째 탭 선택
 watch(
   productInfo,
   (newProductInfo, oldProductInfo) => {
-    if (
+    const hasValidHoldings =
       newProductInfo?.isHolding &&
       (newProductInfo?.holdings || newProductInfo?.holding) &&
       (newProductInfo?.holdings?.holdingsTotalQuantity > 0 ||
         newProductInfo?.holding?.holdingsTotalQuantity > 0) &&
       (newProductInfo?.holdings?.holdingsStatus !== 'zero' ||
-        newProductInfo?.holding?.holdingsStatus !== 'zero') &&
-      (!oldProductInfo || !oldProductInfo.isHolding) &&
-      selectedTab.value === 'info'
-    ) {
+        newProductInfo?.holding?.holdingsStatus !== 'zero');
+
+    if (hasValidHoldings) {
       selectedTab.value = 'holding';
+    } else if (!hasValidHoldings && selectedTab.value === 'holding') {
+      selectedTab.value = 'info';
     }
   },
   { immediate: true }
@@ -222,27 +198,24 @@ const tabData = computed(() => {
   return baseTabData;
 });
 
-// 구매 버튼 클릭 처리
 const handleBuyClick = async data => {
   if (isTransactionInProgress.value) {
-    showToast('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.', 'warning');
+    toastStore.warning('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.');
     return;
   }
   isModalOpen.value = true;
   buyModalRef.value?.openModal();
 };
 
-// 판매 버튼 클릭 처리
 const handleSellClick = async data => {
   if (isTransactionInProgress.value) {
-    showToast('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.', 'warning');
+    toastStore.warning('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.');
     return;
   }
   isModalOpen.value = true;
   sellModalRef.value?.openModal();
 };
 
-// 모달 닫기 처리
 const handleModalClose = () => {
   if (isClosing.value) {
     return;
@@ -252,7 +225,7 @@ const handleModalClose = () => {
   isModalOpen.value = false;
   buyModalRef.value?.closeModal();
   sellModalRef.value?.closeModal();
-  showToast('거래가 취소되었습니다.', 'cancel');
+  toastStore.cancel('거래가 취소되었습니다.');
 
   isTransactionInProgress.value = false;
 
@@ -261,7 +234,6 @@ const handleModalClose = () => {
   }, 100);
 };
 
-// 상품 데이터 새로고침 함수
 const refreshProductData = async () => {
   try {
     const productCode = route.params.productCode;
@@ -285,57 +257,40 @@ const refreshProductData = async () => {
   }
 };
 
-// 구매 제출 처리
 const handleBuySubmit = async formData => {
   try {
     isTransactionInProgress.value = true;
 
     if (formData.success) {
       handleModalClose();
-      const timestamp = new Date().toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      showToast('펀드 구매가 완료되었습니다.', 'success', timestamp);
+      toastStore.success('펀드 구매가 완료되었습니다.');
 
       await refreshProductData();
     } else {
-      showToast(`펀드 구매에 실패했습니다: ${formData.error}`, 'error');
+      toastStore.error(`펀드 구매에 실패했습니다: ${formData.error}`);
     }
   } catch (error) {
-    showToast('펀드 구매 처리 중 오류가 발생했습니다.', 'error');
+    toastStore.error('펀드 구매 처리 중 오류가 발생했습니다.');
   } finally {
     isTransactionInProgress.value = false;
   }
 };
 
-// 판매 제출 처리
 const handleSellSubmit = async formData => {
   try {
     isTransactionInProgress.value = true;
 
     if (formData.success) {
       handleModalClose();
-      const timestamp = new Date().toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      showToast('펀드 판매가 완료되었습니다.', 'success', timestamp);
+
+      toastStore.success('펀드 판매가 완료되었습니다.');
 
       await refreshProductData();
     } else {
-      showToast(`펀드 판매에 실패했습니다: ${formData.error}`, 'error');
+      toastStore.error(`펀드 판매에 실패했습니다: ${formData.error}`);
     }
   } catch (error) {
-    showToast('펀드 판매 처리 중 오류가 발생했습니다.', 'error');
+    toastStore.error('펀드 판매 처리 중 오류가 발생했습니다.');
   } finally {
     isTransactionInProgress.value = false;
   }
@@ -362,23 +317,23 @@ const handleSellSubmit = async formData => {
   pointer-events: auto;
 }
 
-.in-container{
+.in-container {
   display: flex;
   flex-direction: column;
   flex: 1;
-  margin-bottom:110px;
+  margin-bottom: 110px;
 }
 
-.detail-section{
+.detail-section {
   flex: 1;
 }
 
 .button-container {
-  position:absolute;
+  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 90px; /* 기존 CSS와 동일하게 맞춤 */
+  height: 90px;
   background-color: var(--off-white);
   padding: 16px 20px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
@@ -386,7 +341,7 @@ const handleSellSubmit = async formData => {
 }
 
 .button-container::before {
-  content: "";
+  content: '';
   position: absolute;
   top: -20px;
   left: 0;

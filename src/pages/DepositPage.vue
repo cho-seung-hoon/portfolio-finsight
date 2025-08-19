@@ -3,7 +3,9 @@
     class="page-container"
     :class="{ 'modal-open': isModalOpen }">
     <div v-if="error">{{ error }}</div>
-    <div v-else-if="productInfo" class="in-container">
+    <div
+      v-else-if="productInfo"
+      class="in-container">
       <DetailMainDeposit
         :product-info="productInfo"
         :bank="productInfo?.productCompanyName"
@@ -33,7 +35,6 @@
           @buy-click="handleBuyClick"
           @sell-click="handleSellClick" />
       </div>
-
     </div>
 
     <!-- 모달 컴포넌트들 -->
@@ -58,24 +59,15 @@
       :product-info="{ ...productInfo, holdingData: sellModalHoldingData }"
       @close="handleModalClose"
       @submit="handleSellSubmit" />
-
-    <!-- 토스트 메시지 -->
-    <ToastMessage
-      v-if="toastConfig.show"
-      :key="toastConfig.message + (toastConfig.timestamp || '')"
-      :message="toastConfig.message"
-      :type="toastConfig.type"
-      :timestamp="toastConfig.timestamp"
-      :duration="3000" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDepositStore } from '@/stores/deposit';
+import { useToastStore } from '@/stores/toast';
 import { storeToRefs } from 'pinia';
-import { purchaseProduct, sellProduct } from '@/api/tradeApi';
 import Decimal from 'decimal.js';
 
 import DetailMainDeposit from '@/components/detail/DetailMainDeposit.vue';
@@ -89,6 +81,7 @@ import ToastMessage from '@/components/common/ToastMessage.vue';
 
 const route = useRoute();
 const depositStore = useDepositStore();
+const toastStore = useToastStore();
 const { productInfo, error, isWatched } = storeToRefs(depositStore);
 
 const isModalOpen = ref(false);
@@ -99,11 +92,6 @@ const sellModalRef = ref(null);
 const currentTransactionType = ref('buy');
 
 const isClosing = ref(false);
-const toastConfig = ref({
-  show: false,
-  message: '',
-  type: 'success'
-});
 
 const maxAmountNumber = computed(() => {
   const val = productInfo.value?.depositMaxLimit;
@@ -126,28 +114,20 @@ onMounted(() => {
   }
 });
 
-const showToast = (message, type = 'success', timestamp = null) => {
-  toastConfig.value.show = false;
-
-  nextTick(() => {
-    toastConfig.value = {
-      show: true,
-      message,
-      type,
-      timestamp
-    };
-  });
-};
-
 const tabs = computed(() => {
-  const hasValidHoldings =
-    productInfo.value?.isHolding &&
-    (productInfo.value?.holdings || productInfo.value?.holding) &&
-    (productInfo.value?.holdings?.holdingsTotalQuantity > 0 ||
-      productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
-    productInfo.value?.holdings?.holdingsStatus !== 'zero';
+  if (!productInfo.value) {
+    return [
+      { key: 'info', label: '상품안내' },
+      { key: 'rate', label: '금리안내' },
+      { key: 'notice', label: '유의사항' }
+    ];
+  }
 
-  if (hasValidHoldings) {
+  const hasHoldings =
+    productInfo.value.isHolding &&
+    (productInfo.value.holdings || productInfo.value.holding)?.holdingsTotalQuantity > 0;
+
+  if (hasHoldings) {
     return [
       { key: 'holding', label: '보유기록' },
       { key: 'info', label: '상품안내' },
@@ -155,6 +135,7 @@ const tabs = computed(() => {
       { key: 'notice', label: '유의사항' }
     ];
   }
+
   return [
     { key: 'info', label: '상품안내' },
     { key: 'rate', label: '금리안내' },
@@ -169,17 +150,18 @@ const selectTab = tab => {
 
 watch(
   productInfo,
-  newProductInfo => {
+  (newProductInfo, oldProductInfo) => {
     const hasValidHoldings =
       newProductInfo?.isHolding &&
       (newProductInfo?.holdings || newProductInfo?.holding) &&
       (newProductInfo?.holdings?.holdingsTotalQuantity > 0 ||
         newProductInfo?.holding?.holdingsTotalQuantity > 0) &&
-      newProductInfo?.holdings?.holdingsStatus !== 'zero';
+      (newProductInfo?.holdings?.holdingsStatus !== 'zero' ||
+        newProductInfo?.holding?.holdingsStatus !== 'zero');
 
     if (hasValidHoldings) {
       selectedTab.value = 'holding';
-    } else if (!newProductInfo?.isHolding) {
+    } else if (!hasValidHoldings && selectedTab.value === 'holding') {
       selectedTab.value = 'info';
     }
   },
@@ -262,25 +244,23 @@ const sellModalHoldingData = computed(() => {
 
 const handleBuyClick = async data => {
   if (isTransactionInProgress.value) {
-    showToast('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.', 'warning');
+    toastStore.warning('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.');
     return;
   }
 
   currentTransactionType.value = 'buy';
   isModalOpen.value = true;
-  await nextTick();
   termsModalRef.value?.openModal();
 };
 
 const handleSellClick = async data => {
   if (isTransactionInProgress.value) {
-    showToast('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.', 'warning');
+    toastStore.warning('이미 진행 중인 거래가 있습니다. 잠시만 기다려주세요.');
     return;
   }
 
   currentTransactionType.value = 'sell';
   isModalOpen.value = true;
-  await nextTick();
   sellModalRef.value?.openModal();
 };
 
@@ -294,7 +274,7 @@ const handleModalClose = () => {
   termsModalRef.value?.closeModalSilently();
   buyModalRef.value?.closeModalSilently();
   sellModalRef.value?.closeModalSilently();
-  showToast('거래가 취소', 'cancel');
+  toastStore.cancel('거래가 취소되었습니다.');
 
   isTransactionInProgress.value = false;
 
@@ -308,12 +288,14 @@ const handleTermsConfirm = async agreementData => {
 
   if (currentTransactionType.value === 'buy') {
     termsModalRef.value?.closeModalSilently();
-    await nextTick();
-    buyModalRef.value?.openModal();
+    setTimeout(() => {
+      buyModalRef.value?.openModal();
+    }, 100);
   } else {
     termsModalRef.value?.closeModalSilently();
-    await nextTick();
-    sellModalRef.value?.openModal();
+    setTimeout(() => {
+      sellModalRef.value?.openModal();
+    }, 100);
   }
 };
 
@@ -327,7 +309,8 @@ const refreshProductData = async () => {
         (productInfo.value?.holdings || productInfo.value?.holding) &&
         (productInfo.value?.holdings?.holdingsTotalQuantity > 0 ||
           productInfo.value?.holding?.holdingsTotalQuantity > 0) &&
-        productInfo.value?.holdings?.holdingsStatus !== 'zero'
+        (productInfo.value?.holdings?.holdingsStatus !== 'zero' ||
+          productInfo.value?.holding?.holdingsStatus !== 'zero')
       ) {
         selectedTab.value = 'holding';
       } else {
@@ -343,22 +326,14 @@ const handleBuySubmit = async formData => {
   try {
     if (formData.success) {
       handleModalClose();
-      const timestamp = new Date().toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      showToast('예금 가입이 완료되었습니다.', 'success', timestamp);
+      toastStore.success('예금 가입이 완료되었습니다.');
 
       await refreshProductData();
     } else {
-      showToast(`예금 가입에 실패했습니다: ${formData.error}`, 'error');
+      toastStore.error(`예금 가입에 실패했습니다: ${formData.error}`);
     }
   } catch (error) {
-    showToast('예금 가입 처리 중 오류가 발생했습니다.', 'error');
+    toastStore.error('예금 가입 처리 중 오류가 발생했습니다.');
   } finally {
     isTransactionInProgress.value = false;
   }
@@ -368,22 +343,14 @@ const handleSellSubmit = async formData => {
   try {
     if (formData.success) {
       handleModalClose();
-      const timestamp = new Date().toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      showToast('예금 해지가 완료되었습니다.', 'success', timestamp);
+      toastStore.success('예금 해지가 완료되었습니다.');
 
       await refreshProductData();
     } else {
-      showToast(`예금 해지에 실패했습니다: ${formData.error}`, 'error');
+      toastStore.error(`예금 해지에 실패했습니다: ${formData.error}`);
     }
   } catch (error) {
-    showToast('예금 해지에 실패했습니다. 다시 시도해주세요.', 'error');
+    toastStore.error('예금 해지에 실패했습니다. 다시 시도해주세요.');
   } finally {
     isTransactionInProgress.value = false;
   }
@@ -410,23 +377,23 @@ const handleSellSubmit = async formData => {
   pointer-events: auto;
 }
 
-.in-container{
+.in-container {
   display: flex;
   flex-direction: column;
   flex: 1;
-  margin-bottom:110px;
+  margin-bottom: 110px;
 }
 
-.detail-section{
+.detail-section {
   flex: 1;
 }
 
 .button-container {
-  position:absolute;
+  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 90px; /* 기존 CSS와 동일하게 맞춤 */
+  height: 90px;
   background-color: var(--off-white);
   padding: 16px 20px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
@@ -434,7 +401,7 @@ const handleSellSubmit = async formData => {
 }
 
 .button-container::before {
-  content: "";
+  content: '';
   position: absolute;
   top: -20px;
   left: 0;
