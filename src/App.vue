@@ -17,8 +17,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, onMounted, onUnmounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import DefaultLayout from './components/layouts/DefaultLayout.vue';
 import EmptyLayout from './components/layouts/EmptyLayout.vue';
 import HeaderLayout from './components/layouts/HeaderLayout.vue';
@@ -32,10 +32,23 @@ const layouts = {
 };
 
 const route = useRoute();
+const router = useRouter();
 
 const layoutComponent = computed(() => layouts[route.meta.layout || 'DefaultLayout']);
 
 const sessionStore = useSessionStore();
+
+watch(
+  () => sessionStore.isAuthenticated,
+  (isAuth, wasAuth) => {
+    const publicPaths = ['/start', '/login', '/signup'];
+    const isPublic = publicPaths.includes(route.path);
+
+    if (wasAuth && !isAuth && !isPublic) {
+      router.push('/start');
+    }
+  }
+);
 
 onMounted(async () => {
   // ✅ Pinia 스토어를 상태의 기준으로 삼습니다.
