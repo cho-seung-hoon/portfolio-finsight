@@ -68,7 +68,7 @@ export const useSessionStore = defineStore(
       const totalSeconds = timeObj.minutes * 60 + timeObj.seconds;
       remainingTime.value = `${String(timeObj.minutes).padStart(2, '0')}:${String(timeObj.seconds).padStart(2, '0')}`;
 
-      if (totalSeconds <= 10 && !isExpireModalVisible.value) {
+      if (totalSeconds <= 180 && !isExpireModalVisible.value) {
         modalMode.value = 'countdown';
         isExpireModalVisible.value = true;
       }
