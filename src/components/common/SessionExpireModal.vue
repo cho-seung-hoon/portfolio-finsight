@@ -56,16 +56,34 @@
 </template>
 
 <script setup>
+import { useSessionStore } from '@/stores/session';
+import { useRouter } from 'vue-router';
+
 const props = defineProps({
   visible: { type: Boolean, default: false },
   remainingTime: { type: String, default: '00:00' },
-  mode: { type: String, default: 'countdown' } // 🔹 'countdown' | 'expired'
+  mode: { type: String, default: 'countdown' }
 });
+
+const sessionStore = useSessionStore();
+const router = useRouter();
+
 const emit = defineEmits(['extend', 'logout', 'close']);
 
 const emitExtend = () => emit('extend');
-const emitLogout = () => emit('logout');
-const emitClose = () => emit('close');
+const emitLogout = () => {
+  sessionStore.logout();
+  router.push('/start');
+  emit('logout');
+};
+
+const emitClose = () => {
+  if (props.mode === 'expired') {
+    sessionStore.logout();
+    router.push('/start');
+  }
+  emit('close');
+};
 </script>
 
 <style scoped>
