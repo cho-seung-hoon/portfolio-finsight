@@ -9,7 +9,7 @@
         {{ typeLabelMap[item.productType] ?? item.productType }}
       </div>
 
-      <header class="fund-item-header">
+      <div class="fund-item-title">
         <div class="fund-item-title-left">
           <span class="product-name">{{ item.productName }}</span>
           <span
@@ -23,7 +23,7 @@
           category="fund"
           :user-watches="item.userWatches || false"
           @click.stop />
-      </header>
+      </div>
 
       <div
         v-if="item.isPopularInUserGroup"
@@ -53,21 +53,46 @@
         <span class="label">위험등급</span>
         <span class="value">{{ item.productRiskGrade }}등급</span>
       </div>
+
       <div
-        v-if="item.newsSentiment"
-        class="news-response-box">
-        <span class="news-label">뉴스반응</span>
-        <div class="news-bar-wrapper">
+        v-if="item.newsSentiment || recommended"
+        class="news-row"
+        @click.stop>
+        <!-- 왼쪽: 추천 툴팁 아이콘 -->
+        <div
+          v-if="item.newsSentiment || recommended"
+          class="etf-reco-item">
           <div
-            v-for="(key, index) in ['positive', 'neutral', 'negative']"
-            :key="key"
-            class="news-bar-segment"
-            :class="{
-              left: index === 0,
-              center: index === 1,
-              right: index === 2
-            }"
-            :style="getSegmentStyle(key)" />
+            class="icon-wrapper icon-question"
+            @click.stop="showRecoTip = !showRecoTip">
+            <IconQuestion />
+            <Transition name="tooltip">
+              <div
+                v-if="showRecoTip"
+                class="tooltip-content">
+                최근 본 뉴스를 기반으로 추천합니다.
+              </div>
+            </Transition>
+          </div>
+        </div>
+
+        <!-- 오른쪽: 뉴스 반응 박스 -->
+        <div
+          v-if="item.newsSentiment"
+          class="news-response-box">
+          <span class="news-label">뉴스반응</span>
+          <div class="news-bar-wrapper">
+            <div
+              v-for="(key, index) in ['positive', 'neutral', 'negative']"
+              :key="key"
+              class="news-bar-segment"
+              :class="{
+                left: index === 0,
+                center: index === 1,
+                right: index === 2
+              }"
+              :style="getSegmentStyle(key)"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -75,15 +100,14 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, computed, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import HeartToggle from '../common/HeartToggle.vue';
+import IconQuestion from '@/components/icons/IconQuestion.vue';
 
 const props = defineProps({
-  item: {
-    type: Object,
-    required: true
-  }
+  item: { type: Object, required: true },
+  recommended: { type: Boolean, default: false }
 });
 
 const countryLabelMap = {
@@ -102,6 +126,12 @@ const colorMap = {
 };
 
 const router = useRouter();
+const showRecoTip = ref(false);
+
+// 카드 바깥 클릭 시 닫힘
+const onDocClick = () => (showRecoTip.value = false);
+document.addEventListener('click', onDocClick);
+onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
 
 function goToDetail() {
   router.push(`/fund/${props.item.productCode}`);
@@ -163,7 +193,6 @@ function fmtNumber(n) {
   animation: fadeSlideIn 0.6s ease;
   transition: transform 0.2s ease;
 }
-
 .fund-item-container:active {
   transform: scale(0.98);
   background-color: var(--main04);
@@ -174,7 +203,7 @@ function fmtNumber(n) {
   flex-direction: column;
 }
 
-.fund-item-header {
+.fund-item-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -200,12 +229,6 @@ function fmtNumber(n) {
   max-width: 100%;
 }
 
-.heart-icon {
-  flex: 0 0 24px;
-  width: 24px;
-  height: 24px;
-}
-
 .fund-item-header svg:hover {
   transform: none;
 }
@@ -224,6 +247,8 @@ function fmtNumber(n) {
   font-size: var(--font-size-ms);
   font-weight: var(--font-weight-regular);
   color: var(--main02);
+  align-items: center;
+  gap: 6px;
 }
 
 .user-group-popular-badge {
@@ -233,6 +258,64 @@ function fmtNumber(n) {
   color: var(--green01);
 }
 
+/* --- 아이콘 & 툴팁 --- */
+.etf-reco-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative; /* 툴팁의 기준점 */
+}
+.icon-wrapper {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  position: relative; /* (필요시) 아이콘 자체 기준도 가능 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-question {
+  color: var(--main02);
+}
+
+/* ▼ ETF와 동일: 아이콘 '아래', 아이콘 시작점(left:0) 기준 */
+.tooltip-content {
+  position: absolute;
+  top: calc(100% + 8px); /* 아이콘 바로 아래 */
+  left: 0; /* 아이콘 시작점과 정렬 */
+  transform: none;
+  width: max-content;
+  max-width: 250px;
+  padding: 10px 15px;
+  white-space: normal;
+  word-break: keep-all;
+  border-radius: 8px;
+  background-color: rgb(from var(--main01) r g b / 0.85);
+  color: var(--white);
+  font-size: var(--font-size-sm);
+  z-index: 10;
+}
+.tooltip-content::after {
+  content: '';
+  position: absolute;
+  top: -12px; /* 위쪽에 꼬리 */
+  left: 12px; /* 시작점 근처에 꼬리 */
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent rgb(from var(--main01) r g b / 0.85) transparent;
+}
+
+/* 트랜지션 */
+.tooltip-enter-active,
+.tooltip-leave-active {
+  transition: opacity 0.2s ease-out;
+}
+.tooltip-enter-from,
+.tooltip-leave-to {
+  opacity: 0;
+}
+
+/* --- 본문 --- */
 .fund-item-content-section {
   display: flex;
   flex-direction: column;
@@ -258,7 +341,6 @@ function fmtNumber(n) {
   font-weight: var(--font-weight-medium);
   color: var(--main01);
 }
-
 .value.up {
   color: var(--text-red);
   font-weight: var(--font-weight-medium);
@@ -271,6 +353,13 @@ function fmtNumber(n) {
   color: var(--main01);
 }
 
+.news-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 12px;
+}
+
 .news-response-box {
   display: flex;
   flex-direction: row;
@@ -278,7 +367,6 @@ function fmtNumber(n) {
   align-items: center;
   background-color: var(--main05);
   padding: 8px;
-  margin-top: 12px;
   border: 1px solid var(--main04);
   border-radius: 12px;
   justify-content: space-between;
@@ -299,21 +387,17 @@ function fmtNumber(n) {
   overflow: hidden;
   margin-left: 8px;
 }
-
 .news-bar-segment {
   transition: background-color 0.3s ease-in-out;
 }
-
 .news-bar-segment.left {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
-
 .news-bar-segment.right {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
-
 .news-bar-segment.center {
   border-radius: 0;
 }
