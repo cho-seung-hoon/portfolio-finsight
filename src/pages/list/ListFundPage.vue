@@ -5,27 +5,25 @@
       :selected="selected"
       @change="onFilterChange" />
 
-    <!-- 추천 펀드 (목록에 존재하는 추천만 최대 2개) -->
+    <!-- 추천 펀드 -->
     <section
-      v-if="pinnedFunds.length"
+      v-if="topFunds.length"
       class="list-fund-reco">
       <div class="reco-grid">
         <FundItem
-          v-for="fund in pinnedFunds"
+          v-for="fund in topFunds"
           :key="'rec-' + fund.productCode"
           :item="fund"
-          recommended />
+          recommended="true" />
       </div>
     </section>
 
-    <!-- 일반 펀드 목록 (추천 제외, 무한 스크롤 유지) -->
+    <!-- 일반 펀드 목록 -->
     <section class="list-fund-page-contents">
       <FundItem
         v-for="fund in restFunds"
         :key="fund.productCode"
-        :item="fund"
-        :recommended="recCodeSet.has(fund.productCode)" />
-
+        :item="fund" />
       <div
         v-if="loading"
         class="loading">
@@ -36,7 +34,7 @@
       </div>
 
       <div
-        v-if="!loading && !list.length"
+        v-if="!loading && !list.length && !topFunds.length"
         class="no-result">
         <img
           :src="MovingBear"
@@ -58,7 +56,7 @@ import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { getFinFilters, setFinFilters } from '@/utils/filterStorage';
 import FilterSortBar from '@/components/list/FilterSortBar.vue';
 import FundItem from '@/components/list/FundItem.vue';
-import { getFunds } from '@/api/productApi';
+import { getFunds, getFundOneByCode } from '@/api/productApi';
 import { useInfiniteScroll } from '@/composables/useInfiniteScroll';
 import LoadingSpinnerSmall from '@/assets/loading-spinner-small.gif';
 import MovingBear from '@/assets/moving_bear.gif';
@@ -85,9 +83,32 @@ const currentParams = () => ({
   is_matched: getFinFilters().isMatched
 });
 
-// ─────────────────────────────────────
+// ────────────────────────────────────
+// 추천 코드 & 상단 고정
+// ────────────────────────────────────
+const recStore = useRecommendationStore();
+const topFunds = ref([]);
+
+const loadTopFunds = async () => {
+  const topCodes = recStore.topCodesByCategory('fund', 1) || [];
+  if (!topCodes.length) {
+    topFunds.value = [];
+    return;
+  }
+  console.log('topCodes: ', topCodes);
+
+  const results = await Promise.all(topCodes.map(code => getFundOneByCode(code).catch(() => null)));
+
+  // null 제거 + 중복 제거
+  const seen = new Set();
+  topFunds.value = results
+    .filter(Boolean)
+    .filter(f => (seen.has(f.productCode) ? false : (seen.add(f.productCode), true)));
+};
+
+// ────────────────────────────────────
 // 무한 스크롤
-// ─────────────────────────────────────
+// ────────────────────────────────────
 const { list, loading, sentinelEl, reset } = useInfiniteScroll(
   async ({ limit, offset }) => {
     const { sort, country, type, is_matched } = currentParams();
@@ -96,38 +117,28 @@ const { list, loading, sentinelEl, reset } = useInfiniteScroll(
   { pageSize: 4, deps: [selected] }
 );
 
+// 상단 고정 제외한 나머지 목록
+const restFunds = computed(() => {
+  const excludeSet = new Set(topFunds.value.map(f => f.productCode));
+  return list.value.filter(it => !excludeSet.has(it.productCode));
+});
+
 // ────────────────────────────────────
-// 추천 펀드 / 일반 펀드
-// ────────────────────────────────────
-const recStore = useRecommendationStore();
-const recCodeSet = computed(() => new Set(recStore.topCodesByCategory('fund', 1)));
-const pinnedFunds = computed(() =>
-  list.value.filter(it => recCodeSet.value.has(it.productCode)).slice(0, 2)
-);
-const restFunds = computed(() => list.value.filter(it => !recCodeSet.value.has(it.productCode)));
-
-console.log('pinnedFunds: ', pinnedFunds);
-
-// ─────────────────────────────────────
-// isMatched 변경 시
-// ─────────────────────────────────────
-const handleMatchedChange = () => {
-  reset();
-};
-
-// ─────────────────────────────────────
 // 필터 변경
-// ─────────────────────────────────────
-const onFilterChange = (key, value) => {
+// ────────────────────────────────────
+const onFilterChange = async (key, value) => {
   selected.value[key] = value;
   setFinFilters({ ...getFinFilters(), fund: { ...selected.value } });
-  reset();
-  handleMatchedChange();
+  await reset();
 };
 
-// ─────────────────────────────────────
+// ────────────────────────────────────
 // 마운트 & 언마운트
-// ─────────────────────────────────────
+// ────────────────────────────────────
+const handleMatchedChange = async () => {
+  await reset();
+};
+
 onMounted(async () => {
   // 저장된 필터 복원
   const saved = getFinFilters().fund || {};
@@ -137,8 +148,8 @@ onMounted(async () => {
       : opt.options[0];
   });
 
-  // 추천 먼저 준비 → 목록 로드(무한 스크롤 시작)
   await recStore.ensureLoaded(10);
+  await loadTopFunds();
   await reset();
 
   window.addEventListener('isMatchedChanged', handleMatchedChange);
