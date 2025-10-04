@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finsight.backend.repository.mapper.SearchMapper">
+    <select id="findDepositNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.search.SearchSuggestionResponseDTO">
+        SELECT product_code AS productCode,
+               product_name AS productName,
+               'deposit' AS type
+        FROM deposit
+        WHERE product_name LIKE CONCAT('%', #{word}, '%')
+    </select>
+
+    <select id="findFundNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.search.SearchSuggestionResponseDTO">
+        SELECT product_code AS productCode,
+               product_name AS productName,
+               'fund' AS type
+        FROM fund
+        WHERE product_name LIKE CONCAT('%', #{word}, '%')
+    </select>
+
+    <select id="findEtfNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.search.SearchSuggestionResponseDTO">
+        SELECT product_code AS productCode,
+               product_name AS productName,
+               'etf' AS type
+        FROM etf
+        WHERE product_name LIKE CONCAT('%', #{word}, '%')
+    </select>
+
+    <select id="findDepositsByWordPaged" parameterType="map" resultType="com.finsight.backend.dto.response.search.SearchDepositResponseDTO">
+        SELECT
+            d.product_code         AS productCode,
+            d.product_name         AS productName,
+            d.product_company_name AS productCompanyName,
+            d.product_risk_grade   AS productRiskGrade,
+            FALSE                  AS userOwns,     -- TODO
+            FALSE                  AS userWatches,  -- TODO
+            FALSE                  AS isPopularInUserGroup -- TODO
+        FROM deposit d
+        WHERE d.product_name LIKE CONCAT('%', #{word}, '%')
+            OR d.product_code LIKE CONCAT('%', #{word}, '%')
+        ORDER BY d.product_name ASC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+
+    <select id="findFundsByWordPaged" parameterType="map" resultType="com.finsight.backend.dto.response.search.SearchFundResponseDTO">
+        SELECT
+            f.product_code       AS productCode,
+            f.fund_country       AS productCountry,
+            f.fund_type          AS productType,
+            f.product_name       AS productName,
+            f.product_risk_grade AS productRiskGrade,
+            FALSE                AS userOwns,            -- TODO
+            FALSE                AS userWatches,         -- TODO
+            FALSE                AS isPopularInUserGroup -- TODO
+        FROM fund f
+        WHERE f.product_name LIKE CONCAT('%', #{word}, '%')
+           OR f.product_code LIKE CONCAT('%', #{word}, '%')
+        ORDER BY f.product_name ASC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="findEtfsByWordPaged" parameterType="map" resultType="com.finsight.backend.dto.response.search.SearchEtfResponseDTO">
+        SELECT
+            e.product_code       AS productCode,
+            e.etf_country        AS productCountry,
+            e.etf_type           AS productType,
+            e.product_name       AS productName,
+            e.product_risk_grade AS productRiskGrade,
+            FALSE                AS userOwns,               -- TODO
+            FALSE                AS userWatches,            -- TODO
+            FALSE                AS isPopularInUserGroup    -- TODO
+        FROM etf e
+        WHERE e.product_name LIKE CONCAT('%', #{word}, '%')
+           OR e.product_code LIKE CONCAT('%', #{word}, '%')
+        ORDER BY e.product_name ASC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+</mapper>

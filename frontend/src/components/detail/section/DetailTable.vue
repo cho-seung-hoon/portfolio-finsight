@@ -1,0 +1,191 @@
+<template>
+  <div
+    v-if="Array.isArray(desc) && desc.length"
+    class="table-container">
+    <table class="detail-table">
+      <thead>
+        <tr>
+          <th
+            v-for="(value, key) in desc[0]"
+            :key="key">
+            {{ key }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(row, idx) in desc"
+          :key="idx">
+          <td
+            v-for="(value, key) in row"
+            :key="key">
+            {{ value }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div
+    v-else
+    class="no-data">
+    데이터가 없습니다.
+  </div>
+</template>
+
+<script setup>
+defineProps({
+  desc: {
+    type: Array,
+    required: true
+  }
+});
+</script>
+
+<style scoped>
+.table-container {
+  margin: 16px 0 0 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  padding: 1px;
+  background: var(--white);
+}
+
+.detail-table {
+  border-collapse: collapse;
+  font-size: var(--font-size-ms);
+  width: 100%;
+  min-width: 280px;
+  background: var(--white);
+}
+
+.detail-table th,
+.detail-table td {
+  border: 1px solid var(--main03);
+  padding: 12px 16px;
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.detail-table th {
+  background-color: var(--main01);
+  color: var(--white);
+  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-ms);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.detail-table tbody tr:nth-child(even) {
+  background-color: var(--main05);
+}
+
+.detail-table tbody tr:hover {
+  background-color: var(--main01);
+  color: var(--white);
+  transition: background-color 0.2s ease;
+}
+
+.detail-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.no-data {
+  text-align: center;
+  padding: 24px;
+  color: var(--main02);
+  font-size: var(--font-size-ms);
+  background: var(--main05);
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+@media (max-width: 768px) {
+  .table-container {
+    margin: 12px 0 0 0;
+    border-radius: 8px;
+  }
+
+  .detail-table {
+    font-size: var(--font-size-ms);
+    min-width: 260px;
+  }
+
+  .detail-table th,
+  .detail-table td {
+    padding: 10px 12px;
+  }
+
+  .detail-table th {
+    font-size: var(--font-size-sm);
+    padding: 8px 12px;
+  }
+
+  .no-data {
+    padding: 20px;
+    font-size: var(--font-size-ms);
+    margin: 12px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .table-container {
+    margin: 8px 0 0 0;
+    border-radius: 6px;
+  }
+
+  .detail-table {
+    font-size: var(--font-size-sm);
+    min-width: 240px;
+  }
+
+  .detail-table th,
+  .detail-table td {
+    padding: 8px 10px;
+  }
+
+  .detail-table th {
+    font-size: var(--font-size-sm);
+    padding: 6px 10px;
+  }
+
+  .no-data {
+    padding: 16px;
+    font-size: var(--font-size-sm);
+    margin: 8px 0;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .detail-table tbody tr {
+    min-height: 44px;
+  }
+
+  .detail-table th,
+  .detail-table td {
+    touch-action: manipulation;
+  }
+}
+
+.detail-table td {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .detail-table td {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .detail-table td {
+    max-width: 120px;
+  }
+}
+</style>

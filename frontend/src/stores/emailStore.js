@@ -1,0 +1,60 @@
+// src/stores/emailStore.js
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import { sendEmailCode, verifyEmailCode } from '@/api/email'; // ✅ 추가
+
+export const useEmailStore = defineStore('email', () => {
+  const email = ref('');
+  const code = ref('');
+  const verified = ref(false);
+  const error = ref('');
+  const status = ref(''); // "success" | "error" | "conflict" | "unauthorized"
+
+  // 인증코드 전송
+  const sendCode = async () => {
+    try {
+      const res = await sendEmailCode(email.value); // ✅ 변경
+      error.value = '';
+      status.value = 'success';
+      return res.data.message || '인증 코드가 전송되었습니다.';
+    } catch (e) {
+      if (e.response?.status === 409) {
+        error.value = '이미 가입된 이메일입니다.';
+        status.value = 'conflict';
+      } else {
+        error.value = '인증코드 전송 실패';
+        status.value = 'error';
+      }
+      throw new Error(error.value);
+    }
+  };
+
+  // 인증코드 확인
+  const verifyCode = async () => {
+    try {
+      const res = await verifyEmailCode(email.value, code.value); // ✅ 변경
+      verified.value = res.data.verified === true;
+      if (verified.value) {
+        error.value = '';
+        status.value = 'success';
+      } else {
+        error.value = '인증 코드가 일치하지 않습니다.';
+        status.value = 'unauthorized';
+      }
+    } catch (e) {
+      error.value = '인증 확인 실패';
+      status.value = 'error';
+      verified.value = false;
+    }
+  };
+
+  return {
+    email,
+    code,
+    verified,
+    error,
+    status,
+    sendCode,
+    verifyCode
+  };
+});

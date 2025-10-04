@@ -1,0 +1,19 @@
+<template>
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M3.3335 7.5L10.0002 14.1667L16.6668 7.5"
+      stroke="white"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round" />
+  </svg>
+</template>
+
+<script setup></script>
+
+<style scoped></style>
