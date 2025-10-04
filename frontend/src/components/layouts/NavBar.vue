@@ -1,0 +1,60 @@
+<template>
+  <div class="container">
+    <router-link
+      v-for="item in config.menus"
+      :key="item.name"
+      class="nav-item"
+      :to="item.path"
+      :class="{ active: isActive(item.path) }">
+      <component
+        :is="item.icon"
+        class="icon" />
+      <span class="label">{{ item.name }}</span>
+    </router-link>
+  </div>
+</template>
+
+<script setup>
+import config from '@/config';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+
+function isActive(path) {
+  return route.path === path || route.path.startsWith(path + '/');
+}
+</script>
+
+<style scoped>
+.container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  height: 60px;
+  background-color: var(--main05);
+  border-top: 1px solid var(--main03);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  text-decoration: none;
+  color: var(--main03);
+  font-size: var(--font-size-sm);
+}
+
+.icon {
+  width: var(--font-size-xxl);
+  height: var(--font-size-xxl);
+  margin-bottom: 2px;
+}
+
+.active {
+  color: var(--main01);
+  font-weight: var(--font-weight-medium);
+}
+</style>
