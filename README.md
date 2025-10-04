@@ -1,13 +1,16 @@
 # FINSIGHT
 > **뉴스로 알아보는 금융 상품 추천 서비스**
 
+본 레포지토리는 팀 프로젝트였지만, **개인 포트폴리오용**으로 재구성한 자료입니다.  
+제가 담당한 기능과 구현한 모듈 중심으로 설명합니다.
+
 [![Vue.js](https://img.shields.io/badge/Vue.js-3.5.13-4FC08D?style=flat&logo=vue.js&logoColor=white)](https://vuejs.org/)
 [![Spring](https://img.shields.io/badge/Spring-5.3.37-6DB33F?style=flat&logo=spring&logoColor=white)](https://spring.io/)
 [![Node.js](https://img.shields.io/badge/Node.js-1.0.0-339933?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![WebSocket](https://img.shields.io/badge/WebSocket-STOMP-FF6B6B?style=flat&logo=websocket&logoColor=white)](https://stomp.github.io/)
 [![InfluxDB](https://img.shields.io/badge/InfluxDB-2.0-22ADF6?style=flat&logo=influxdb&logoColor=white)](https://www.influxdata.com/)
 
-
+## 프로젝트 구현 화면
 <div style="display: flex; justify-content: center; gap: 10px;">
   <img src="image/readme_img_1.png" width="20%">
   <img src="image/readme_img_2.png" width="20%">
