@@ -1,0 +1,82 @@
+package com.finsight.backend.service.product.handler;
+
+import com.finsight.backend.domain.enumerate.ProductCountry;
+import com.finsight.backend.domain.enumerate.ProductType;
+import com.finsight.backend.repository.mapper.FundMapper;
+import com.finsight.backend.repository.mapper.InvTestMapper;
+import com.finsight.backend.common.util.InvUtil;
+import com.finsight.backend.domain.vo.product.FundVO;
+import com.finsight.backend.tmptradeserverwebsocket.service.EtfPriceService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+public class FundVoHandler implements ProductVoHandler<FundVO> {
+    private final FundMapper fundMapper;
+    private final InvTestMapper invTestMapper;
+    private final InvUtil invUtil;
+    private final EtfPriceService etfPriceService;
+
+    @Override
+    public FundVO findProduct(String productCode) {
+        return fundMapper.findFundByCode(productCode);
+    }
+
+    @Override
+    public Class<FundVO> getProductType() {
+        return FundVO.class;
+    }
+
+    @Override
+    public List<FundVO> findProductListByFilter(String sort,
+                                                String country,
+                                                String type,
+                                                Boolean isMatched,
+                                                String userId,
+                                                Integer limit,
+                                                Integer offset) {
+        ProductCountry productCountry = (country == null || country.isBlank())
+                ? null
+                : ProductCountry.fromDbValue(country);
+
+        ProductType productType = (type == null || type.isBlank())
+                ? null
+                : ProductType.fromDbValue(type);
+        String invType = invTestMapper.selectInvestmentProfileTypeByUserId(userId);
+        Integer[] riskGradeRange = invUtil.riskGradeRange(invType);
+        Integer[] all = new Integer[]{1, 2, 3, 4, 5, 6};
+
+        if(sort.equals("fund_scale")){
+            // 펀드 규모 정렬해서 리턴
+            List<String> allSortedProductCodes = etfPriceService.getAllSortedProductCodes("fund_aum", "desc");
+            
+            if (allSortedProductCodes.isEmpty()) {
+                return List.of();
+            }
+            return isMatched ?
+                    fundMapper.findFundListByInfluxFilter(allSortedProductCodes, productCountry, productType, riskGradeRange, limit, offset) :
+                    fundMapper.findFundListByInfluxFilter(allSortedProductCodes, productCountry, productType, all, limit, offset);
+        }
+        if(sort.equals("rate_of_return")){
+            // 수익률 정렬해서 리턴
+            List<String> allSortedProductCodes = etfPriceService.getAllSortedProductCodes("fund_nav", "desc");
+            
+            if (allSortedProductCodes.isEmpty()) {
+                return List.of();
+            }
+            return isMatched ?
+                    fundMapper.findFundListByInfluxFilter(allSortedProductCodes, productCountry, productType, riskGradeRange, limit, offset) :
+                    fundMapper.findFundListByInfluxFilter(allSortedProductCodes, productCountry, productType, all, limit, offset);
+        }
+        if(sort.equals("view_count")){
+            // 조회수 정렬해서 리턴
+            return isMatched ?
+                    fundMapper.findFundListByFilter(productCountry, productType, riskGradeRange, limit, offset) :
+                    fundMapper.findFundListByFilter(productCountry, productType, all, limit, offset);
+        }
+        throw new RuntimeException("Invalid sort parameter: " + sort);
+    }
+}

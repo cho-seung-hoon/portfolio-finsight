@@ -1,0 +1,34 @@
+package com.finsight.backend.dto.response;
+
+import com.finsight.backend.domain.vo.product.DepositVO;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+public class DepositByFilterDto extends ProductByFilterDto{
+    private Double depositIntrRate;
+    private Double depositIntrRate2;
+
+    public static DepositByFilterDto depositVoToDepositByFilterDto(DepositVO deposit,
+                                                                   Double depositIntrRate,
+                                                                   Double depositIntrRate2,
+                                                                   Boolean userOwn,
+                                                                   Boolean userWatch){
+        return DepositByFilterDto.builder()
+                .productCode(deposit.getProductCode())
+                .productName(deposit.getProductName())
+                .productCompanyName(deposit.getProductCompanyName())
+                .productRiskGrade(deposit.getProductRiskGrade())
+                .depositIntrRate(depositIntrRate)
+                .depositIntrRate2(depositIntrRate2)
+                .userOwns(userOwn)
+                .isPopularInUserGroup(Boolean.FALSE)
+                .userWatches(userWatch)
+                .build();
+    }
+}

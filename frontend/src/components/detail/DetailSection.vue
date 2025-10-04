@@ -1,0 +1,146 @@
+<template>
+  <div class="section">
+    <div
+      v-for="(item, index) in Array.isArray(tabData?.[selectedTab]) ? tabData[selectedTab] : []"
+      :key="index"
+      class="section-row">
+      <div class="section-title">{{ item.title }}</div>
+      <div class="section-desc">
+        <template v-if="item.type === 'holdingsummary' && typeof item.desc === 'object'">
+          <DetailHoldingSummary :data="item.desc" />
+        </template>
+        <template
+          v-else-if="item.type === 'holdingsummarydeposit' && typeof item.desc === 'object'">
+          <DetailHoldingSummaryDeposit :data="item.desc" />
+        </template>
+        <template v-else-if="item.type === 'holdinghistory' && Array.isArray(item.desc)">
+          <DetailHoldingHistory :data="item.desc" />
+        </template>
+        <template v-else-if="item.type === 'holdinghistorydeposit' && Array.isArray(item.desc)">
+          <DetailHoldingHistoryDeposit :data="item.desc" />
+        </template>
+        <template v-else-if="item.type === 'longtext' && typeof item.desc === 'string'">
+          <DetailLongText>
+            <span v-html="item.desc.replace(/\n/g, '<br>')"></span>
+          </DetailLongText>
+        </template>
+        <template v-else-if="item.type === 'piechart' && Array.isArray(item.desc)">
+          <div style="margin-bottom: 32px">
+            <DetailPieChart
+              :data="item.desc"
+              :label-key="'종목명'"
+              :value-key="'비중'" />
+          </div>
+        </template>
+        <template v-else-if="item.type === 'areachart' && Array.isArray(item.desc)">
+          <div style="margin-bottom: 32px">
+            <DetailAreaChart 
+              :data="item.desc" 
+              :category="category" 
+              :realtime-data="realtimeData" />
+          </div>
+        </template>
+        <template v-else-if="item.type === 'pdf' && Array.isArray(item.desc)">
+          <DetailPdfUrl :pdf-list="item.desc" />
+        </template>
+        <template v-else-if="item.type === 'table' && Array.isArray(item.desc)">
+          <DetailTable :desc="item.desc" />
+        </template>
+        <template v-else-if="item.type === 'news' && Array.isArray(item.desc)">
+          <DetailNewsList
+            class="news-list-in-detail"
+            :news-list="item.desc"
+            :keyword="item.keyword || ''"
+            :color="item.color || 'var(--text-blue)'" />
+        </template>
+        <template v-else-if="Array.isArray(item.desc)">
+          <DetailTable :desc="item.desc" />
+        </template>
+        <template v-else>
+          <span
+            v-html="
+              item.desc && typeof item.desc === 'string' ? item.desc.replace(/\n/g, '<br>') : ''
+            "></span>
+        </template>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import DetailLongText from './section/DetailLongText.vue';
+import DetailPieChart from './section/Detail.PieChart.vue';
+import DetailPdfUrl from './section/DetailPdfUrl.vue';
+import DetailTable from './section/DetailTable.vue';
+import DetailAreaChart from './DetailAreaChart.vue';
+import DetailHoldingSummary from './section/DetailHoldingSummary.vue';
+import DetailHoldingSummaryDeposit from './section/DetailHoldingSummaryDeposit.vue';
+import DetailHoldingHistory from './section/DetailHoldingHistory.vue';
+import DetailHoldingHistoryDeposit from './section/DetailHoldingHistoryDeposit.vue';
+import DetailNewsList from './section/DetailNewsList.vue';
+
+const props = defineProps({
+  tabData: Object,
+  selectedTab: String,
+  category: String,
+  realtimeData: Object
+});
+</script>
+
+<style scoped>
+.section {
+  padding: 28px;
+  background: var(--off-white);
+  width: calc(100% + 40px);
+  margin-left: -20px;
+  margin-right: -20px;
+}
+
+.section-row {
+  margin-bottom: 24px;
+}
+.section-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--black);
+  margin-bottom: 8px;
+  text-align: left;
+}
+.section-desc {
+  font-size: var(--font-size-md);
+  color: var(--main02);
+  text-align: left;
+}
+.section-desc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: var(--font-size-ms);
+}
+.section-desc th,
+.section-desc td {
+  border: 1px solid var(--main03);
+  padding: 6px 10px;
+  text-align: left;
+}
+.section-desc th {
+  background: var(--main01);
+  font-weight: 600;
+  color: var(--white);
+}
+.section-desc td {
+  background: var(--main02);
+  color: var(--white);
+}
+.pdf-url-box {
+  background: var(--sub02);
+  padding: 8px 10px;
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.news-list-in-detail :deep(.subItem-title) {
+  display: none;
+}
+</style>
